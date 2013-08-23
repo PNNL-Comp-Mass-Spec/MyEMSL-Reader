@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -7,7 +8,7 @@ namespace MyEMSLReader
 {
 	public class ArchivedFileInfo
 	{
-
+		
 		#region "Auto Properties"
 		public string Dataset
 		{
@@ -15,12 +16,17 @@ namespace MyEMSLReader
 			private set;
 		}
 
-		public string Filename
+		public int DatasetID
 		{
 			get;
-			private set;
+			set;
 		}
-		public string SubDirPath
+		public string DatasetYearQuarter
+		{
+			get;
+			set;
+		}
+		public string Filename
 		{
 			get;
 			private set;
@@ -44,6 +50,113 @@ namespace MyEMSLReader
 			set;
 		}
 
+
+		public bool IsPublicFile 
+		{
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Dictionary object with the detailed information reported by MyEMSL for this file
+		/// Keys are strings while values could be a string, generic list, or even another dictionary (with string keys and object values)
+		/// </summary>
+		public Dictionary<string, object> Metadata
+		{
+			get;
+			private set;
+		}
+
+		/// <summary>
+		/// Relative path to the file, including the instrument, year_quarter, and dataset
+		/// </summary>
+		/// <remarks>Uses unix-style slashes</remarks>
+		public string PathWithInstrumentAndDatasetUnix
+		{
+			get
+			{
+				return PathWithInstrumentAndDatasetWindows.Replace(@"\", "/");
+			}
+		}
+
+		/// <summary>
+		/// Relative path to the file, including the instrument, year_quarter, and dataset
+		/// </summary>
+		/// <remarks>Uses Windows-style slashes</remarks>
+		public string PathWithInstrumentAndDatasetWindows
+		{
+			get
+			{
+				string fullPath = string.Empty;
+				if (!string.IsNullOrWhiteSpace(this.Instrument))
+					fullPath = Path.Combine(fullPath, this.Instrument);
+
+				if (!string.IsNullOrWhiteSpace(this.DatasetYearQuarter))
+					fullPath = Path.Combine(fullPath, this.DatasetYearQuarter);
+
+				if (!string.IsNullOrWhiteSpace(this.Dataset))
+					fullPath = Path.Combine(fullPath, this.Dataset);
+
+				return Path.Combine(fullPath, this.RelativePathWindows);
+			}
+		}
+
+		/// <summary>
+		/// Path to the file, relative to the dataset folder
+		/// </summary>
+		/// <remarks>Uses Unix-style slashes</remarks>
+		public string RelativePathUnix
+		{
+			get
+			{
+				return this.RelativePathWindows.Replace(@"\", "/");
+				
+			}
+		}
+
+		/// <summary>
+		/// Path to the file, relative to the dataset folder
+		/// </summary>
+		/// <remarks>Uses Windows-style slashes</remarks>
+		public string RelativePathWindows
+		{
+			get
+			{
+				if (string.IsNullOrWhiteSpace(this.SubDirPath))
+					return this.Filename;
+				else
+					return Path.Combine(this.SubDirPath, this.Filename);
+			}
+		}
+
+		public string Sha1Hash
+		{
+			get;
+			set;
+		}
+
+		public string SubDirPath
+		{
+			get;
+			private set;
+		}
+
+		public string SubmissionTime
+		{
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// MyEMSL transaction ID for this specific file
+		/// </summary>
+		/// <remarks>Incremented for every newly uploaded bundle (.tar file), and thus a good substitute for dates when comparing two files to see which is newer</remarks>
+		public long TransactionID
+		{
+			get;
+			set;
+		}
+
 		#endregion
 
 		/// <summary>
@@ -53,7 +166,7 @@ namespace MyEMSLReader
 		/// <param name="filename">Filename</param>
 		/// <param name="subDirPath">Subdirectory below dataset (empty if at the dataset level)</param>
 		public ArchivedFileInfo(string dataset, string filename, string subDirPath) :
-			this(dataset, filename, subDirPath, 0, 0) 
+			this(dataset, filename, subDirPath, 0) 
 		{ }
 		
 		/// <summary>
@@ -64,8 +177,8 @@ namespace MyEMSLReader
 		/// <param name="subDirPath">Subdirectory below dataset (empty if at the dataset level)</param>
 		/// <param name="fileSizeBytes">File size, in bytes</param>
 		/// <param name="fileID">MyEMSL File ID</param>
-		public ArchivedFileInfo(string dataset, string filename, string subDirPath, long fileSizeBytes, long fileID) :
-			this(dataset, filename, subDirPath, fileSizeBytes, fileID, "") 
+		public ArchivedFileInfo(string dataset, string filename, string subDirPath, long fileID) :
+			this(dataset, filename, subDirPath, fileID, "", "", new Dictionary<string, object>()) 
 		{ }
 
 		/// <summary>
@@ -77,14 +190,15 @@ namespace MyEMSLReader
 		/// <param name="fileSizeBytes">File size, in bytes</param>
 		/// <param name="fileID">MyEMSL File ID</param>
 		/// <param name="instrument">Instrument name</param>
-		public ArchivedFileInfo(string dataset, string filename, string subDirPath, long fileSizeBytes, long fileID, string instrument)
+		public ArchivedFileInfo(string dataset, string filename, string subDirPath, long fileID, string instrument, string datasetYearQuarter, Dictionary<string, object> dctMetadata)
 		{
 			this.Dataset = dataset;
 			this.Filename = filename;
 			this.SubDirPath = subDirPath;
-			this.FileSizeBytes = fileSizeBytes;
 			this.FileID = fileID;
 			this.Instrument = instrument;
+			this.DatasetYearQuarter = datasetYearQuarter;
+			this.Metadata = dctMetadata;
 		}
 
 	}

@@ -1,15 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Linq;
 using System.Text;
+using System.Web;
 using Pacifica.Core;
 
 namespace MyEMSLReader
 {
+	/// <summary>
+	/// This class contacts MyEMSL to find all of the files associated with the given dataset (by name or ID)
+	/// Optionally filter on Instrument name to guarantee you are finding the desired files
+	/// Optionally filter on Subdirectory name below th dataset folder to limit the search space
+	/// </summary>
+	/// <remarks>Written by Matthew Monroe for PNNL in August 2013</remarks>
 	public class Reader
 	{
 		#region "Constants"
+
+		internal const string MYEMSL_URI_BASE = "https://my.emsl.pnl.gov/myemsl/";
+		internal const string MYEMSL_INGEST_BASE = "https://ingest.my.emsl.pnl.gov/myemsl/";
 
 		protected const string QUERY_SPEC_INSTRUMENT = "groups.omics.dms.instrument";
 		protected const string QUERY_SPEC_DATASET_ID = "groups.omics.dms.dataset_id";
@@ -22,8 +33,40 @@ namespace MyEMSLReader
 
 		#endregion
 
+		#region "Enums"
+		internal enum SearchOperator
+		{
+			And = 0,
+			Or = 1
+		}
+
+		internal protected enum ScanMode
+		{
+			SimpleSearch = 0,
+			ObtainAuthToken = 1,		// Perform a scan, but also obtain an authorization token
+			CreateScrollID = 2			// Create a scroll ID
+		}
+
+		#endregion
+
 		#region "Properties"
 
+		public string ErrorMessage
+		{
+			get;
+			private set;
+		}
+
+		/// <summary>
+		/// When True, then will include all revisions of files that were imported to MyEMSL multiple times
+		/// When False, then only reports the newest version of a file
+		/// </summary>
+		/// <remarks>Default is False</remarks>
+		public bool IncludeAllRevisions
+		{
+			get;
+			set;
+		}
 		public long LastSearchFileCountMatched
 		{
 			get;
@@ -39,7 +82,14 @@ namespace MyEMSLReader
 		/// <summary>
 		/// Maximum number of files to return
 		/// </summary>
+		/// <remarks>Default is 5000</remarks>
 		public int MaxFileCount
+		{
+			get;
+			set;
+		}
+
+		public bool ThrowErrors
 		{
 			get;
 			set;
@@ -47,31 +97,43 @@ namespace MyEMSLReader
 
 		#endregion
 
+		#region "Public methods"
+
 		// Constructor
 		public Reader()
+		{			
+			this.MaxFileCount = 5000;
+			this.IncludeAllRevisions = false;
+			this.ThrowErrors = true;
+			ResetStatus();
+		}
+
+		public List<ArchivedFileInfo> FindFilesByDatasetID(int datasetID)
 		{
-			this.MaxFileCount = 1000;
+			string subDir = "";
+			string instrumentName = "";
+			return FindFilesByDatasetID(datasetID, subDir, instrumentName);
 		}
 
 		public List<ArchivedFileInfo> FindFilesByDatasetID(int datasetID, string subDir)
 		{
-			// Find all files in MyEMSL for this dataset (by dataset ID)
+			string instrumentName = "";
+			return FindFilesByDatasetID(datasetID, subDir, instrumentName);
+		}
 
-			var dctSearchTerms = new Dictionary<string, string>();
-			dctSearchTerms.Add(QUERY_SPEC_DATASET_ID, datasetID.ToString());
+		/// <summary>
+		/// Find all files in MyEMSL for this dataset (by dataset ID)
+		/// </summary>
+		/// <param name="datasetID"></param>
+		/// <param name="subDir"></param>
+		/// <param name="instrumentName"></param>
+		/// <returns></returns>
+		public List<ArchivedFileInfo> FindFilesByDatasetID(int datasetID, string subDir, string instrumentName)
+		{
+			var dctSearchTerms = new List<KeyValuePair<string, string>>();
+			dctSearchTerms.Add(new KeyValuePair<string, string>(QUERY_SPEC_DATASET_ID, datasetID.ToString()));
 
-			List<ArchivedFileInfo> lstFiles = QueryElasticSearch(dctSearchTerms);
-
-			if (string.IsNullOrWhiteSpace(subDir))
-			{
-				return lstFiles;
-			}
-			else
-			{
-				// Filter on subDir
-				return FilterFilesBySubDir(lstFiles, subDir);
-			}
-
+			return FindFilesByDataset(subDir, instrumentName, dctSearchTerms);
 		}
 
 		public List<ArchivedFileInfo> FindFilesByDatasetName(string datasetName)
@@ -87,32 +149,57 @@ namespace MyEMSLReader
 			return FindFilesByDatasetName(datasetName, subDir, instrumentName);
 		}
 
+		/// <summary>
+		/// Find all files in MyEMSL for this dataset (by dataset name)
+		/// </summary>
+		/// <param name="datasetName"></param>
+		/// <param name="subDir"></param>
+		/// <param name="instrumentName"></param>
+		/// <returns></returns>
 		public List<ArchivedFileInfo> FindFilesByDatasetName(string datasetName, string subDir, string instrumentName)
 		{
-			// Find all files in MyEMSL for this dataset (by dataset ID)
 
-			var dctSearchTerms = new Dictionary<string, string>();
-			dctSearchTerms.Add(QUERY_SPEC_DATASET_NAME, datasetName);
+			var dctSearchTerms = new List<KeyValuePair<string, string>>();
+			dctSearchTerms.Add(new KeyValuePair<string, string>(QUERY_SPEC_DATASET_NAME, datasetName));
 
-			if (!string.IsNullOrWhiteSpace(instrumentName))
-			{
-				dctSearchTerms.Add(QUERY_SPEC_INSTRUMENT, instrumentName);
-			}
-
-			List<ArchivedFileInfo> lstFiles = QueryElasticSearch(dctSearchTerms);
-
-			if (string.IsNullOrWhiteSpace(subDir))
-			{
-				return lstFiles;
-			}
-			else
-			{
-				// Filter on subDir
-				return FilterFilesBySubDir(lstFiles, subDir);
-			}
-
+			return FindFilesByDataset(subDir, instrumentName, dctSearchTerms);
 		}
-		private static List<ArchivedFileInfo> FilterFilesBySubDir(List<ArchivedFileInfo> lstFiles, string subDir)
+
+		#endregion
+
+		#region "Protected Methods"
+
+		internal bool ValidSearchResults(Dictionary<string, object> dctResults, out string errorMessage)
+		{
+			// Check for an error
+			errorMessage = ReadDictionaryValue(dctResults, "error", "");
+			if (!string.IsNullOrEmpty(errorMessage))
+			{
+				int charIndex = errorMessage.IndexOf("{");
+
+				// Truncate the message after the first curly bracket
+				if (charIndex > 0)
+					errorMessage = errorMessage.Substring(0, charIndex);
+
+				charIndex = errorMessage.IndexOf("; shardFailures");
+				if (charIndex > 0)
+					errorMessage = errorMessage.Substring(0, charIndex);
+
+				return false;
+			}
+
+			bool timedOut = ReadDictionaryValue(dctResults, "timed_out", false);
+
+			if (timedOut)
+			{
+				errorMessage = "Elastic search reports a timeout error";
+				return false;
+			}
+
+			return true;
+		}
+
+		protected List<ArchivedFileInfo> FilterFilesBySubDir(List<ArchivedFileInfo> lstFiles, string subDir)
 		{
 			var lstFilesFiltered = new List<ArchivedFileInfo>();
 
@@ -120,7 +207,8 @@ namespace MyEMSLReader
 			{
 				if (!string.IsNullOrWhiteSpace(file.SubDirPath))
 				{
-					var diSubDir = new DirectoryInfo(file.SubDirPath);
+					// Switch from Unix to Windows path
+					var diSubDir = new DirectoryInfo(file.SubDirPath.Replace('/', Path.DirectorySeparatorChar));
 
 					if (diSubDir.Name.ToLower() == subDir.ToLower())
 					{
@@ -129,12 +217,74 @@ namespace MyEMSLReader
 				}
 			}
 
-			return lstFilesFiltered;
+			// Sort by path
+			return (from item in lstFilesFiltered orderby item.PathWithInstrumentAndDatasetWindows select item).ToList();
 		}
 
-
-		private List<ArchivedFileInfo> ParseResults(string xmlString)
+		protected List<ArchivedFileInfo> FindFilesByDataset(string subDir, string instrumentName, List<KeyValuePair<string, string>> dctSearchTerms)
 		{
+
+			try
+			{
+				ResetStatus();
+
+				if (!string.IsNullOrWhiteSpace(instrumentName))
+				{
+					dctSearchTerms.Add(new KeyValuePair<string, string>(QUERY_SPEC_INSTRUMENT, instrumentName));
+				}
+
+				List<ArchivedFileInfo> lstFiles = QueryElasticSearch(dctSearchTerms);
+
+				if (string.IsNullOrWhiteSpace(subDir))
+				{
+					// Sort by path
+					return (from item in lstFiles orderby item.PathWithInstrumentAndDatasetWindows select item).ToList();
+				}
+				else
+				{
+					// Filter on subDir
+					return FilterFilesBySubDir(lstFiles, subDir);
+				}
+
+			}
+			catch (Exception ex)
+			{
+				if (string.IsNullOrWhiteSpace(this.ErrorMessage))
+					ReportError("Error in FindFilesByDataset: " + ex.Message);
+				else if (this.ThrowErrors)
+					throw ex;
+
+				return new List<ArchivedFileInfo>();
+			}
+		}
+
+		internal void Logout(CookieContainer cookieJar)
+		{
+			// Logout
+			try
+			{
+				int timeoutSeconds = 3;
+				HttpStatusCode responseStatusCode;
+
+				EasyHttp.Send(MYEMSL_URI_BASE + "logout", cookieJar, out responseStatusCode, timeoutSeconds);
+			}
+			catch (Exception ex)
+			{
+				// Report errors to the console, but do not throw an exception
+				Console.WriteLine("Error calling the logout service: " + ex.Message);
+			}
+		}
+
+		/// <summary>
+		/// Parse the search results from Elastic Search to generate a list of files
+		/// </summary>
+		/// <param name="xmlString"></param>
+		/// <param name="authToken">Output parameter: Authorization token (if available)</param>
+		/// <returns></returns>
+		internal List<ArchivedFileInfo> ParseResults(string xmlString, out string authToken)
+		{
+
+			authToken = string.Empty;
 
 			try
 			{
@@ -142,22 +292,15 @@ namespace MyEMSLReader
 				Dictionary<string, object> dctResults = Utilities.JsonToObject(xmlString);
 
 				// Check for an error
-				string errorMessage = ReadDictionaryValue(dctResults, "error", "");
-				if (!string.IsNullOrEmpty(errorMessage))
+				string errorMessage;
+				if (!ValidSearchResults(dctResults, out errorMessage))
 				{
-					int charIndex = errorMessage.IndexOf("{");
-
-					// Truncate the message after the first curly bracket
-					if (charIndex > 0)
-						errorMessage = errorMessage.Substring(0, charIndex);
-
-					throw new Exception("MyEMSL elastic search reported an error: " + errorMessage);
+					ReportError("Error parsing search results: " + errorMessage);
+					return new List<ArchivedFileInfo>();
 				}
 
-				bool timedOut = ReadDictionaryValue(dctResults, "timed_out", false);
-
-				if (timedOut)
-					throw new TimeoutException("Elastic search reports a timeout error");
+				// Read the EMSL Authorization Token (will be present if we used ScanMode.ObtainAuthToken
+				authToken = ReadDictionaryValue(dctResults, "myemsl_auth_token", string.Empty);
 
 				// Extract out the hits section
 				// An exception will be thrown if the section is missing
@@ -166,7 +309,8 @@ namespace MyEMSLReader
 				this.LastSearchFileCountMatched = ReadDictionaryValue(dctHits, "total", -1);
 				if (this.LastSearchFileCountMatched < 0)
 				{
-					throw new Exception("Hits section did not have the 'total' entry");
+					ReportError("Hits section did not have the 'total' entry");
+					return new List<ArchivedFileInfo>();
 				}
 
 				if (this.LastSearchFileCountMatched == 0)
@@ -178,41 +322,101 @@ namespace MyEMSLReader
 				// Enumerate the files in dctFiles
 				var lstFiles = new List<ArchivedFileInfo>();
 
-				foreach (var item in dctFiles)
+				// This dictionary keeps track of the newest version of each unique file
+				// Keys in this dictionary are relative file paths while indices are the item index in lstFiles
+				var dctMostRecentVersionPointers = new Dictionary<string, int>(StringComparer.CurrentCultureIgnoreCase);
+
+				int itemIndex = 0;
+				foreach (var dctFile in dctFiles)
 				{
-					long fileID = ReadDictionaryValue(item, "_id", 0);
+					try
+					{
+
+						long fileID = ReadDictionaryValue(dctFile, "_id", 0);
+
+						var dctFileInfo = RetrieveDictionaryObjectByKey(dctFile, "_source");
+
+						string instrumentName = ReadDictionaryValue(dctFileInfo, "groups.omics.dms.instrument", string.Empty);
+
+						// The transaction ID is incremented every time a group of files is submitted (aka one bundle)
+						// All files submitted in the same .tar file will have the same transaction ID
+						// If two files have the exact same name and path, the newer one will have a larger transaction ID
+						long transID = ReadDictionaryValue(dctFileInfo, "trans", 0);
+
+						string submissionTime = ReadDictionaryValue(dctFileInfo, "stime", string.Empty);
+						bool publicFile = ReadDictionaryValue(dctFileInfo, "aged", false);
+
+						string fileName = ReadDictionaryValue(dctFileInfo, "filename", string.Empty);
+						long fileSizeBytes = ReadDictionaryValue(dctFileInfo, "size", 0);
+						string datasetName = ReadDictionaryValue(dctFileInfo, "groups.omics.dms.dataset", string.Empty);
+						int datasetID = (int)ReadDictionaryValue(dctFileInfo, "groups.omics.dms.dataset_id", 0);
+						string datasetYearQuarter = ReadDictionaryValue(dctFileInfo, "groups.omics.dms.date_code", string.Empty);
+						string subDir = ReadDictionaryValue(dctFileInfo, "subdir", string.Empty);
+
+						var dctHashInfo = RetrieveDictionaryObjectByKey(dctFileInfo, "hash");
+
+						string fileSha1Hash = ReadDictionaryValue(dctHashInfo, "sha1", string.Empty);
+
+						var archiveFile = new ArchivedFileInfo(datasetName, fileName, subDir, fileID, instrumentName, datasetYearQuarter, dctFile);
+						archiveFile.Sha1Hash = fileSha1Hash;
+						archiveFile.FileSizeBytes = fileSizeBytes;
+
+						archiveFile.TransactionID = transID;
+						archiveFile.SubmissionTime = submissionTime;
+						archiveFile.IsPublicFile = publicFile;
+						archiveFile.DatasetID = datasetID;
+
+						int existingIndex;
+
+						if (dctMostRecentVersionPointers.TryGetValue(archiveFile.PathWithInstrumentAndDatasetWindows, out existingIndex))
+						{
+							// Found a duplicate file
+							if (this.IncludeAllRevisions)
+							{
+								// Including all revisions of a file
+								lstFiles.Add(archiveFile);
+
+								if (lstFiles[existingIndex].TransactionID < archiveFile.TransactionID)
+								{
+									// This file is newer; update dctUniqueFiles
+									dctMostRecentVersionPointers[archiveFile.PathWithInstrumentAndDatasetWindows] = lstFiles.Count - 1;
+								}
+
+							}
+							else
+							{
+								if (lstFiles[existingIndex].TransactionID < archiveFile.TransactionID)
+								{
+									// This file is newer; replace the old file
+									lstFiles[existingIndex] = archiveFile;
+								}
+							}
+
+						}
+						else
+						{
+							// This is a new file; add it to lstFiles and update dctUniqueFiles
+							lstFiles.Add(archiveFile);
+							dctMostRecentVersionPointers.Add(archiveFile.PathWithInstrumentAndDatasetWindows, lstFiles.Count - 1);
+						}
 
 
-					var dctFileInfo = RetrieveDictionaryObjectByKey(item, "_source");
+					}
+					catch (Exception ex)
+					{
+						Console.WriteLine("Error parsing item " + itemIndex + "; will be skipped: " + ex.Message);
+					}
 
-					string instrumentName = ReadDictionaryValue(dctFileInfo, "groups.omics.dms.instrument", string.Empty);
-
-					// The transaction ID is incremented for every new file
-					// If two files have the exact same name and path, the newer one will have a larger transaction ID
-					long transID = ReadDictionaryValue(dctFileInfo, "trans", 0);
-
-					string submissionTime = ReadDictionaryValue(dctFileInfo, "stime", string.Empty);
-					bool publicFile = ReadDictionaryValue(dctFileInfo, "aged", false);
-
-					string fileName = ReadDictionaryValue(dctFileInfo, "filename", string.Empty);
-					long fileSizeBytes = ReadDictionaryValue(dctFileInfo, "size", 0);
-					string datasetName = ReadDictionaryValue(dctFileInfo, "groups.omics.dms.dataset", string.Empty);
-					string datasetID = ReadDictionaryValue(dctFileInfo, "groups.omics.dms.dataset_id", string.Empty);
-					string datasetYearQuarter = ReadDictionaryValue(dctFileInfo, "groups.omics.dms.date_code", string.Empty);
-					string subDir = ReadDictionaryValue(dctFileInfo, "subdir", string.Empty);
-
-					var dctHashInfo = RetrieveDictionaryObjectByKey(item, "hash");
-
-					string fileSha1Hash = ReadDictionaryValue(dctFileInfo, "sha1", string.Empty);
-
+					itemIndex++;
 				}
+
 				return lstFiles;
 
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine("Error in MyEMSLReader.Reader.ParseResults: " + ex.Message);
-				throw ex;
+				ReportError("Error in MyEMSLReader.Reader.ParseResults: " + ex.Message, ex);
+				return new List<ArchivedFileInfo>();
 			}
 
 		}
@@ -230,38 +434,60 @@ namespace MyEMSLReader
 		/// </summary>
 		/// <param name="dctSearchTerms">Query search terms</param>
 		/// <returns></returns>
-		protected List<ArchivedFileInfo> QueryElasticSearch(Dictionary<string, string> dctSearchTerms)
+		protected List<ArchivedFileInfo> QueryElasticSearch(List<KeyValuePair<string, string>> dctSearchTerms)
 		{
 
-			if (this.MaxFileCount < 1)
-				this.MaxFileCount = 1;
+			try
+			{
 
-			this.LastSearchFileCountMatched = 0;
-			this.LastSearchFileCountReturned = 0;
+				if (this.MaxFileCount < 1)
+					this.MaxFileCount = 1;
 
-			string xmlString = RunQuery(dctSearchTerms, this.MaxFileCount);
+				this.LastSearchFileCountMatched = 0;
+				this.LastSearchFileCountReturned = 0;
 
-			// Parse the results
-			List<ArchivedFileInfo> lstFiles = ParseResults(xmlString);
+				string xmlString = RunQuery(dctSearchTerms, this.MaxFileCount);
+				if (string.IsNullOrWhiteSpace(xmlString))
+				{
+					if (string.IsNullOrWhiteSpace(this.ErrorMessage))
+						ReportError("RunQuery returned an empty xml result");
+					this.LastSearchFileCountReturned = 0;
+					return new List<ArchivedFileInfo>();
+				}
 
-			this.LastSearchFileCountReturned = lstFiles.Count;
+				// Parse the results (note that authToken will always be empty because we used ScanMode.SimpleSearch)
+				string authToken = string.Empty;
+				List<ArchivedFileInfo> lstFiles = ParseResults(xmlString, out authToken);
 
-			return lstFiles;
+				this.LastSearchFileCountReturned = lstFiles.Count;
+
+				return lstFiles;
+			}
+			catch (Exception ex)
+			{
+				if (string.IsNullOrWhiteSpace(this.ErrorMessage))
+					ReportError("Error in QueryElasticSearch: " + ex.Message);
+				else if (this.ThrowErrors)
+					throw ex;
+
+				return new List<ArchivedFileInfo>();
+			}
+
 		}
 
-		protected string ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, string valueIfMissing)
+		internal string ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, string valueIfMissing)
 		{
 			object value;
 			if (dctData.TryGetValue(keyName, out value))
 			{
-				return (string)value;
+				return value.ToString();
 			}
 
 			return valueIfMissing;
 
 		}
 
-		protected bool ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, bool valueIfMissing)
+		internal bool ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, bool valueIfMissing)
 		{
 			string valueText = ReadDictionaryValue(dctData, keyName, valueIfMissing.ToString());
 			bool value;
@@ -272,7 +498,7 @@ namespace MyEMSLReader
 			return valueIfMissing;
 		}
 
-		protected long ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, long valueIfMissing)
+		internal long ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, long valueIfMissing)
 		{
 			string valueText = ReadDictionaryValue(dctData, keyName, valueIfMissing.ToString());
 			long value;
@@ -283,12 +509,44 @@ namespace MyEMSLReader
 			return valueIfMissing;
 		}
 
+		protected void ReportError(string errorMessage)
+		{
+			ReportError(errorMessage, null);
+		}
+
+		/// <summary>
+		/// Report an error.  Will throw an exception if this.ThrowErrors is true
+		/// </summary>
+		/// <param name="errorMessage"></param>
+		/// <param name="ex"></param>
+		protected void ReportError(string errorMessage, Exception ex)
+		{
+			this.ErrorMessage = errorMessage;
+
+			Console.WriteLine(errorMessage);
+
+			if (this.ThrowErrors)
+			{
+				if (ex == null)
+					throw new Exception(errorMessage);
+				else
+					throw new Exception(errorMessage, ex);
+			}
+		}
+		
+		protected void ResetStatus()
+		{
+
+			this.ErrorMessage = string.Empty;			
+		}
+
 		protected List<Dictionary<string, object>> RetrieveDictionaryListByKey(Dictionary<string, object> dctResults, string keyName)
 		{
 			object value;
 			if (!dctResults.TryGetValue(keyName, out value))
 			{
-				throw new Exception("MyEMSL elastic search did not have a '" + keyName + "' dictionary list");
+				ReportError("MyEMSL elastic search did not have a '" + keyName + "' dictionary list");
+				return new List<Dictionary<string, object>>();
 			}
 
 			List<Dictionary<string, object>> dctList;
@@ -299,19 +557,21 @@ namespace MyEMSLReader
 			}
 			catch (Exception ex)
 			{
-				throw new Exception("Error converting the '" + keyName + "' array to a list object: " + ex.Message, ex);
+				ReportError("Error converting the '" + keyName + "' array to a list object: " + ex.Message, ex);
+				return new List<Dictionary<string, object>>();
 			}
 
 			return dctList;
 		}
 
-		protected Dictionary<string, object> RetrieveDictionaryObjectByKey(Dictionary<string, object> dctResults, string keyName)
+		internal Dictionary<string, object> RetrieveDictionaryObjectByKey(Dictionary<string, object> dctResults, string keyName)
 		{
 			object value;
 
 			if (!dctResults.TryGetValue(keyName, out value))
 			{
-				throw new Exception("MyEMSL elastic search did not have a '" + keyName + "' section");
+				ReportError("MyEMSL elastic search did not have a '" + keyName + "' section");
+				return new Dictionary<string, object>();
 			}
 
 			Dictionary<string, object> dctValue;
@@ -321,16 +581,32 @@ namespace MyEMSLReader
 			}
 			catch (Exception ex)
 			{
-				throw new Exception("Error converting the '" + keyName + "' section to a dictionary object: " + ex.Message, ex);
+				ReportError("Error converting the '" + keyName + "' section to a dictionary object: " + ex.Message, ex);
+				return new Dictionary<string, object>();
 			}
 
 			return dctValue;
 		}
 
-		private string RunQuery(Dictionary<string, string> dctSearchTerms, int maxFileCount)
+		internal string RunQuery(List<KeyValuePair<string, string>> dctSearchTerms, int maxFileCount)
+		{
+			CookieContainer cookieJar = null;
+			return RunQuery(dctSearchTerms, maxFileCount, SearchOperator.And, ScanMode.SimpleSearch, ref cookieJar);
+		}
+
+		/// <summary>
+		/// Run an elastic search query against MyEMSL
+		/// </summary>
+		/// <param name="dctSearchTerms">Dictionary of terms to search for</param>
+		/// <param name="maxFileCount">Maximum number of hits to return</param>
+		/// <param name="logicalOperator">Whether to AND or OR the search terms together</param>
+		/// <param name="scanMode">Scan mode (0=Simple Search, 1=Search, but obtain a myemsl_auth_token, 2 = Create a ScrollID)</param>
+		/// <returns></returns>
+		/// <remarks>Be sure to call Logout() when scanMode is not 0 </remarks>
+		internal string RunQuery(List<KeyValuePair<string, string>> dctSearchTerms, int maxFileCount, SearchOperator logicalOperator, ScanMode scanMode, ref CookieContainer cookieJar)
 		{
 
-			/* Construct a JSON query of the form:
+			/* Construct a JSON query, for example:
 				{
 					"query": {
 						"bool": {
@@ -354,16 +630,27 @@ namespace MyEMSLReader
 			{
 				var searchSpec = new Dictionary<string, string>();
 
-				searchSpec.Add("default_operator", "AND");
+				switch (logicalOperator)
+				{
+					case SearchOperator.And:
+						searchSpec.Add("default_operator", "AND");
+						break;
+					case SearchOperator.Or:
+						searchSpec.Add("default_operator", "OR");
+						break;
+					default:
+						throw new ArgumentOutOfRangeException("Unrecognized value for logicalOperator: " + logicalOperator.ToString());
+				}
+
 				searchSpec.Add("default_field", "_all");
 
 				StringBuilder queryTerms = new StringBuilder();
-				foreach (var item in dctSearchTerms)
+				foreach (var searchTerm in dctSearchTerms)
 				{
 					if (queryTerms.Length > 0)
 						queryTerms.Append(" ");
 
-					queryTerms.Append(item.Key + ":" + PossiblyQuoteString(item.Value));
+					queryTerms.Append(searchTerm.Key + ":" + PossiblyQuoteString(searchTerm.Value));
 				}
 				searchSpec.Add("query", queryTerms.ToString());
 
@@ -382,57 +669,113 @@ namespace MyEMSLReader
 				querySpec.Add("from", 0);
 				querySpec.Add("size", maxFileCount);
 
+				// Call the testauth service to obtain a cookie for this session
+				string authURL = MYEMSL_URI_BASE + "testauth";
+				Auth auth = new Auth(new Uri(authURL));
 
-				string postData = Pacifica.Core.Utilities.ObjectToJson(querySpec);
-				string URL = "http://my.emsl.pnl.gov/myemsl/elasticsearch/simple_items";
-
-				string xmlString = string.Empty;
-				bool retrievalSuccess = false;
-				int retrievalAttempts = 0;
-				int maxAttempts = 3;
-
-				Exception mostRecentException = null;
-
-				while (!retrievalSuccess && retrievalAttempts < maxAttempts)
+				if (cookieJar == null)
 				{
-					try
+					if (!auth.GetAuthCookies(out cookieJar))
 					{
-						retrievalAttempts++;
-						xmlString = EasyHttp.Send(URL, postData, EasyHttp.HttpMethod.Post);
-						if (!string.IsNullOrEmpty(xmlString))
-						{
-							retrievalSuccess = true;
-						}
-					}
-					catch (Exception ex)
-					{
-						mostRecentException = ex;
-						if (retrievalAttempts >= maxAttempts)
-						{
-							xmlString = string.Empty;
-						}
-						else
-						{
-							//wait 5 seconds, then retry
-							System.Threading.Thread.Sleep(5000);
-							continue;
-						}
+						ReportError("Auto-login to ingest.my.emsl.pnl.gov failed authentication");
+						return string.Empty;
 					}
 				}
 
+				string postData = Pacifica.Core.Utilities.ObjectToJson(querySpec);
+				string URL = MYEMSL_URI_BASE + "elasticsearch/simple_items";
+
+				if (scanMode == ScanMode.ObtainAuthToken)
+				{
+					URL += "?auth";
+				}
+				else if (scanMode == ScanMode.CreateScrollID)
+				{
+					URL += "?search_type=scan";
+				}
+
+				int maxAttempts = 4;
+				string xmlString = string.Empty;
+				Exception mostRecentException;
+				bool allowEmptyResponseData = false;
+
+				bool retrievalSuccess = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Post, maxAttempts, allowEmptyResponseData, ref xmlString, out mostRecentException);
+
 				if (string.IsNullOrEmpty(xmlString))
-					throw new System.Net.WebException("No results returned from MyEMSL after " + maxAttempts + " attempts", mostRecentException);
+				{
+					ReportError("No results returned from MyEMSL after " + maxAttempts + " attempts", mostRecentException);
+				}
+
+				if (scanMode == ScanMode.SimpleSearch)
+				{
+					Logout(cookieJar);
+				}
 
 				return xmlString;
 
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine("Error in MyEMSLReader.Reader.RunQuery: " + ex.Message);
-				throw ex;
+				ReportError("Error in MyEMSLReader.Reader.RunQuery: " + ex.Message, ex);
+				return string.Empty;
 			}
+
+
 		}
 
+		internal bool SendHTTPRequestWithRetry(
+			string URL, CookieContainer cookieJar,
+			string postData, EasyHttp.HttpMethod postMethod,
+			int maxAttempts,
+			bool allowEmptyResponseData,
+			ref string responseData,
+			out Exception mostRecentException
+			)
+		{
+
+			mostRecentException = null;
+			responseData = string.Empty;
+
+			int timeoutSeconds = 2;
+			int retrievalAttempts = 0;
+			bool retrievalSuccess = false;
+			HttpStatusCode responseStatusCode;
+
+			while (!retrievalSuccess && retrievalAttempts <= maxAttempts)
+			{
+				try
+				{
+					retrievalAttempts++;
+					responseData = EasyHttp.Send(URL, cookieJar, out responseStatusCode, postData, postMethod, timeoutSeconds);
+
+					if (allowEmptyResponseData && responseStatusCode == HttpStatusCode.OK)
+						retrievalSuccess = true;
+					else
+					{
+						if (string.IsNullOrEmpty(responseData))
+							timeoutSeconds *= 2;
+						else
+							retrievalSuccess = true;
+					}
+
+				}
+				catch (Exception ex)
+				{
+					mostRecentException = ex;
+					if (retrievalAttempts <= maxAttempts)
+					{
+						//wait 5 seconds, then retry
+						System.Threading.Thread.Sleep(5000);
+						timeoutSeconds *= 2;
+						continue;
+					}
+				}
+			}
+
+			return retrievalSuccess;
+		}
+
+		#endregion
 	}
 
 }
