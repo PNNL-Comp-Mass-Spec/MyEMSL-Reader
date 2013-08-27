@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
 using System.Linq;
+using System.Net;
 using System.Text;
-using System.Web;
+//using System.Web;
 using Pacifica.Core;
 
 namespace MyEMSLReader
@@ -15,12 +15,9 @@ namespace MyEMSLReader
 	/// Optionally filter on Subdirectory name below th dataset folder to limit the search space
 	/// </summary>
 	/// <remarks>Written by Matthew Monroe for PNNL in August 2013</remarks>
-	public class Reader
+	public class Reader : MyEMSLBase
 	{
 		#region "Constants"
-
-		internal const string MYEMSL_URI_BASE = "https://my.emsl.pnl.gov/myemsl/";
-		internal const string MYEMSL_INGEST_BASE = "https://ingest.my.emsl.pnl.gov/myemsl/";
 
 		protected const string QUERY_SPEC_INSTRUMENT = "groups.omics.dms.instrument";
 		protected const string QUERY_SPEC_DATASET_ID = "groups.omics.dms.dataset_id";
@@ -34,13 +31,8 @@ namespace MyEMSLReader
 		#endregion
 
 		#region "Enums"
-		internal enum SearchOperator
-		{
-			And = 0,
-			Or = 1
-		}
 
-		internal protected enum ScanMode
+		internal enum ScanMode
 		{
 			SimpleSearch = 0,
 			ObtainAuthToken = 1,		// Perform a scan, but also obtain an authorization token
@@ -50,12 +42,6 @@ namespace MyEMSLReader
 		#endregion
 
 		#region "Properties"
-
-		public string ErrorMessage
-		{
-			get;
-			private set;
-		}
 
 		/// <summary>
 		/// When True, then will include all revisions of files that were imported to MyEMSL multiple times
@@ -84,12 +70,6 @@ namespace MyEMSLReader
 		/// </summary>
 		/// <remarks>Default is 5000</remarks>
 		public int MaxFileCount
-		{
-			get;
-			set;
-		}
-
-		public bool ThrowErrors
 		{
 			get;
 			set;
@@ -169,36 +149,7 @@ namespace MyEMSLReader
 
 		#region "Protected Methods"
 
-		internal bool ValidSearchResults(Dictionary<string, object> dctResults, out string errorMessage)
-		{
-			// Check for an error
-			errorMessage = ReadDictionaryValue(dctResults, "error", "");
-			if (!string.IsNullOrEmpty(errorMessage))
-			{
-				int charIndex = errorMessage.IndexOf("{");
-
-				// Truncate the message after the first curly bracket
-				if (charIndex > 0)
-					errorMessage = errorMessage.Substring(0, charIndex);
-
-				charIndex = errorMessage.IndexOf("; shardFailures");
-				if (charIndex > 0)
-					errorMessage = errorMessage.Substring(0, charIndex);
-
-				return false;
-			}
-
-			bool timedOut = ReadDictionaryValue(dctResults, "timed_out", false);
-
-			if (timedOut)
-			{
-				errorMessage = "Elastic search reports a timeout error";
-				return false;
-			}
-
-			return true;
-		}
-
+		
 		protected List<ArchivedFileInfo> FilterFilesBySubDir(List<ArchivedFileInfo> lstFiles, string subDir)
 		{
 			var lstFilesFiltered = new List<ArchivedFileInfo>();
@@ -255,23 +206,6 @@ namespace MyEMSLReader
 					throw ex;
 
 				return new List<ArchivedFileInfo>();
-			}
-		}
-
-		internal void Logout(CookieContainer cookieJar)
-		{
-			// Logout
-			try
-			{
-				int timeoutSeconds = 3;
-				HttpStatusCode responseStatusCode;
-
-				EasyHttp.Send(MYEMSL_URI_BASE + "logout", cookieJar, out responseStatusCode, timeoutSeconds);
-			}
-			catch (Exception ex)
-			{
-				// Report errors to the console, but do not throw an exception
-				Console.WriteLine("Error calling the logout service: " + ex.Message);
 			}
 		}
 
@@ -475,117 +409,9 @@ namespace MyEMSLReader
 
 		}
 
-		internal string ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, string valueIfMissing)
+		protected new void ResetStatus()
 		{
-			object value;
-			if (dctData.TryGetValue(keyName, out value))
-			{
-				return value.ToString();
-			}
-
-			return valueIfMissing;
-
-		}
-
-		internal bool ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, bool valueIfMissing)
-		{
-			string valueText = ReadDictionaryValue(dctData, keyName, valueIfMissing.ToString());
-			bool value;
-
-			if (bool.TryParse(valueText, out value))
-				return value;
-
-			return valueIfMissing;
-		}
-
-		internal long ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, long valueIfMissing)
-		{
-			string valueText = ReadDictionaryValue(dctData, keyName, valueIfMissing.ToString());
-			long value;
-
-			if (long.TryParse(valueText, out value))
-				return value;
-
-			return valueIfMissing;
-		}
-
-		protected void ReportError(string errorMessage)
-		{
-			ReportError(errorMessage, null);
-		}
-
-		/// <summary>
-		/// Report an error.  Will throw an exception if this.ThrowErrors is true
-		/// </summary>
-		/// <param name="errorMessage"></param>
-		/// <param name="ex"></param>
-		protected void ReportError(string errorMessage, Exception ex)
-		{
-			this.ErrorMessage = errorMessage;
-
-			Console.WriteLine(errorMessage);
-
-			if (this.ThrowErrors)
-			{
-				if (ex == null)
-					throw new Exception(errorMessage);
-				else
-					throw new Exception(errorMessage, ex);
-			}
-		}
-		
-		protected void ResetStatus()
-		{
-
-			this.ErrorMessage = string.Empty;			
-		}
-
-		protected List<Dictionary<string, object>> RetrieveDictionaryListByKey(Dictionary<string, object> dctResults, string keyName)
-		{
-			object value;
-			if (!dctResults.TryGetValue(keyName, out value))
-			{
-				ReportError("MyEMSL elastic search did not have a '" + keyName + "' dictionary list");
-				return new List<Dictionary<string, object>>();
-			}
-
-			List<Dictionary<string, object>> dctList;
-
-			try
-			{
-				dctList = (List<Dictionary<string, object>>)value;
-			}
-			catch (Exception ex)
-			{
-				ReportError("Error converting the '" + keyName + "' array to a list object: " + ex.Message, ex);
-				return new List<Dictionary<string, object>>();
-			}
-
-			return dctList;
-		}
-
-		internal Dictionary<string, object> RetrieveDictionaryObjectByKey(Dictionary<string, object> dctResults, string keyName)
-		{
-			object value;
-
-			if (!dctResults.TryGetValue(keyName, out value))
-			{
-				ReportError("MyEMSL elastic search did not have a '" + keyName + "' section");
-				return new Dictionary<string, object>();
-			}
-
-			Dictionary<string, object> dctValue;
-			try
-			{
-				dctValue = (Dictionary<string, object>)value;
-			}
-			catch (Exception ex)
-			{
-				ReportError("Error converting the '" + keyName + "' section to a dictionary object: " + ex.Message, ex);
-				return new Dictionary<string, object>();
-			}
-
-			return dctValue;
+			base.ResetStatus();
 		}
 
 		internal string RunQuery(List<KeyValuePair<string, string>> dctSearchTerms, int maxFileCount)
@@ -721,58 +547,6 @@ namespace MyEMSLReader
 			}
 
 
-		}
-
-		internal bool SendHTTPRequestWithRetry(
-			string URL, CookieContainer cookieJar,
-			string postData, EasyHttp.HttpMethod postMethod,
-			int maxAttempts,
-			bool allowEmptyResponseData,
-			ref string responseData,
-			out Exception mostRecentException
-			)
-		{
-
-			mostRecentException = null;
-			responseData = string.Empty;
-
-			int timeoutSeconds = 2;
-			int retrievalAttempts = 0;
-			bool retrievalSuccess = false;
-			HttpStatusCode responseStatusCode;
-
-			while (!retrievalSuccess && retrievalAttempts <= maxAttempts)
-			{
-				try
-				{
-					retrievalAttempts++;
-					responseData = EasyHttp.Send(URL, cookieJar, out responseStatusCode, postData, postMethod, timeoutSeconds);
-
-					if (allowEmptyResponseData && responseStatusCode == HttpStatusCode.OK)
-						retrievalSuccess = true;
-					else
-					{
-						if (string.IsNullOrEmpty(responseData))
-							timeoutSeconds *= 2;
-						else
-							retrievalSuccess = true;
-					}
-
-				}
-				catch (Exception ex)
-				{
-					mostRecentException = ex;
-					if (retrievalAttempts <= maxAttempts)
-					{
-						//wait 5 seconds, then retry
-						System.Threading.Thread.Sleep(5000);
-						timeoutSeconds *= 2;
-						continue;
-					}
-				}
-			}
-
-			return retrievalSuccess;
 		}
 
 		#endregion
