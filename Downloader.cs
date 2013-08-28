@@ -164,10 +164,20 @@ namespace MyEMSLReader
 					// All of the files have been downloaded
 					return true;
 				}
+				
+				Logout(cookieJar);
+				cookieJar = null;
 
-				// ToDo: May need to re-call the auth service
-				// It would appear that I cannot re-use the authToken
-				//throw new NotImplementedException("Likely need to obtain a scroll ID and obtain a new authToken; my existing one isn't working");
+				// Scan for the remaining files, thereby creating a ScrollID
+				// We will also obtain a new authorization token, which will be associated with the ScrollID
+				success = CreateScrollID(lstFilesRemaining, ref cookieJar, out authToken);
+				if (!success)
+				{
+					if (string.IsNullOrWhiteSpace(this.ErrorMessage))
+						ReportError("Scroll ID is empty; cannot download files");
+					return false;
+				}
+
 
 				// Create a cart
 				long cartID = CreateCart(lstFilesRemaining, cookieJar, authToken);
@@ -228,6 +238,7 @@ namespace MyEMSLReader
 		protected Dictionary<ArchivedFileInfo, bool> CheckLockedStatus(string xmlString, CookieContainer cookieJar, out string authToken)
 		{
 			var dctFiles = new Dictionary<ArchivedFileInfo, bool>();
+			var dtLastStatusTime = DateTime.UtcNow;
 			authToken = string.Empty;
 
 			try
@@ -241,16 +252,24 @@ namespace MyEMSLReader
 				}
 
 				// Check the "locked" status of each file
+				int fileNumber = 0;
 				foreach (var archivedFile in lstFiles)
 				{
-					bool fileLocked = false;
 
+					fileNumber++;
+					if (DateTime.UtcNow.Subtract(dtLastStatusTime).TotalSeconds > 2)
+					{
+						Console.WriteLine("Checking locked status for files: " + fileNumber + " / " + lstFiles.Count);
+						dtLastStatusTime = DateTime.UtcNow;
+					}
+
+					bool fileLocked = false;
 
 					// Note that "2.txt" in this URL is just a dummy filename
 					// Since we're performing a Head request, it doesn't matter what filename we use
 					string URL = MYEMSL_URI_BASE + "item/foo/bar/" + archivedFile.FileID + "/2.txt/?token=" + authToken + "&locked";
 
-					int maxAttempts = 4;
+					int maxAttempts = 5;
 					Exception mostRecentException;
 					HttpStatusCode responseStatusCode;
 
@@ -294,6 +313,17 @@ namespace MyEMSLReader
 			return dctFiles;
 		}
 
+		protected long ComputeTotalBytes(Dictionary<ArchivedFileInfo, bool> dctFiles)
+		{
+			long bytesToDownload = 0;
+			foreach (var archivedFile in dctFiles)
+			{
+				bytesToDownload += archivedFile.Key.FileSizeBytes;
+			}
+
+			return bytesToDownload;
+		}
+
 		protected string ConstructDownloadfilePath(DownloadFolderLayout folderLayout, ArchivedFileInfo archivedFile)
 		{
 			string downloadFilePath;
@@ -330,8 +360,8 @@ namespace MyEMSLReader
 
 				querySpec.Add("auth_token", authToken);
 
-				string postData = Pacifica.Core.Utilities.ObjectToJson(querySpec);
 				string URL = MYEMSL_URI_BASE + "api/2/cart";
+				string postData = Pacifica.Core.Utilities.ObjectToJson(querySpec);
 
 				int maxAttempts = 4;
 				string xmlString = string.Empty;
@@ -374,15 +404,89 @@ namespace MyEMSLReader
 			return cartID;
 		}
 
-		protected long ComputeTotalBytes(Dictionary<ArchivedFileInfo, bool> dctFiles)
+
+		protected bool CreateScrollID(List<long> lstFileIDs, ref CookieContainer cookieJar, out string authToken)
 		{
-			long bytesToDownload = 0;
-			foreach (var archivedFile in dctFiles)
+			authToken = string.Empty;
+
+			try
 			{
-				bytesToDownload += archivedFile.Key.FileSizeBytes;
+
+				// Scan for Files
+				var scanMode = Reader.ScanMode.CreateScrollID;
+
+				string xmlString = ScanForFiles(lstFileIDs, scanMode, ref cookieJar);
+				if (string.IsNullOrWhiteSpace(xmlString))
+				{
+					if (string.IsNullOrWhiteSpace(this.ErrorMessage))
+						ReportError("ScanForFiles returned an empty xml result when obtaiing a scroll ID");
+					return false;
+				}
+
+				// Extract the ScrollID from the response
+				Dictionary<string, object> dctResults = Utilities.JsonToObject(xmlString);
+
+				string errorMessage;
+				if (!ValidSearchResults(dctResults, out errorMessage))
+				{
+					ReportError("Error obtaining scroll ID: " + errorMessage);
+					return false;
+				}
+
+				string scrollID = ReadDictionaryValue(dctResults, "_scroll_id", string.Empty);
+				if (string.IsNullOrEmpty(scrollID))
+				{
+					ReportError("Scroll ID was not created: " + xmlString);
+					return false;
+				}
+
+				// Obtain a new authorization token
+				string URL = MYEMSL_URI_BASE + "elasticsearch/simple_items?search_type=scan&scan&auth";
+				string postData = scrollID;
+
+				int maxAttempts = 4;
+				xmlString = string.Empty;
+				Exception mostRecentException;
+				bool allowEmptyResponseData = false;
+
+				bool success = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Post, maxAttempts, allowEmptyResponseData, ref xmlString, out mostRecentException);
+				if (!success)
+				{
+					string msg = "Error obtaining an AuthToken for the scroll ID";
+					if (mostRecentException != null)
+						msg += ": " + mostRecentException.Message;
+
+					ReportError(msg);
+					return false;
+				}
+
+				List<ArchivedFileInfo> lstFiles = mReader.ParseResults(xmlString, out authToken);
+				if (string.IsNullOrWhiteSpace(authToken))
+				{
+					ReportError("myemsl_auth_token is empty; cannot download data using scroll ID");
+					return false;
+				}
+
+				// Verify that the files in lstFiles match those in lstFileIDs
+				var lstReturnedIDs = new SortedSet<long>(from item in lstFiles select item.FileID);
+				
+				foreach(var lstFileID in lstFileIDs)
+				{
+					if (!lstReturnedIDs.Contains(lstFileID))
+					{
+						ReportError("FileID " + lstFileID + " was not included in the results returned for the scroll ID; downloaded files will be incomplete and the download will thus be aborted");
+						return false;
+					}
+				}
+
+				return true;
+			}
+			catch (Exception ex)
+			{
+				ReportError("Exception in CreateCart: " + ex.Message, ex);
+				return false;
 			}
 
-			return bytesToDownload;
 		}
 
 		protected bool DownloadFile(string URL, CookieContainer cookieJar, int maxAttempts, string downloadFilePath, out Exception mostRecentException)
@@ -415,9 +519,10 @@ namespace MyEMSLReader
 					}
 					else
 					{
-						//wait 5 seconds, then retry
-						System.Threading.Thread.Sleep(5000);
-						timeoutSeconds *= 2;
+						// Wait 2 seconds, then retry
+						Console.WriteLine("Exception in DownloadFile on attempt " + attempts + ": " + ex.Message);
+						System.Threading.Thread.Sleep(2000);
+						timeoutSeconds = (int)(Math.Ceiling(timeoutSeconds * 1.5));
 						continue;
 					}
 				}
@@ -458,7 +563,7 @@ namespace MyEMSLReader
 						fiTargetFile.Directory.Create();
 					}
 
-					int maxAttempts = 4;
+					int maxAttempts = 5;
 					Exception mostRecentException;
 
 					ReportMessage("Downloading " + downloadFilePath);
@@ -507,7 +612,7 @@ namespace MyEMSLReader
 
 			try
 			{
-				int maxAttempts = 4;
+				int maxAttempts = 5;
 				Exception mostRecentException = null;
 
 				int timeoutSeconds = 100;
@@ -532,9 +637,10 @@ namespace MyEMSLReader
 						}
 						else
 						{
-							//wait 5 seconds, then retry
-							System.Threading.Thread.Sleep(5000);
-							timeoutSeconds *= 2;
+							// Wait 2 seconds, then retry
+							Console.WriteLine("Exception in DownloadTarFileWithRetry on attempt " + attempts + ": " + ex.Message);
+							System.Threading.Thread.Sleep(2000);
+							timeoutSeconds = (int)(Math.Ceiling(timeoutSeconds * 1.5));
 							continue;
 						}
 					}
@@ -719,8 +825,8 @@ namespace MyEMSLReader
 			try
 			{
 				// Note that even though postData is empty we need to "Post" to this URL
-				string postData = string.Empty;
 				string URL = MYEMSL_URI_BASE + "api/2/cart/" + cartID + "?submit";
+				string postData = string.Empty;
 
 				int maxAttempts = 4;
 				string xmlString = string.Empty;
@@ -797,7 +903,10 @@ namespace MyEMSLReader
 					responseHeaders = EasyHttp.GetHeaders(URL, cookieJar, out responseStatusCode, timeoutSeconds);
 
 					if (responseHeaders == null || responseHeaders.Count == 0)
-						timeoutSeconds *= 2;
+					{
+						Console.WriteLine("Empty headers in SendHeadRequestWithRetry on attempt " + attempts);
+						timeoutSeconds = (int)(Math.Ceiling(timeoutSeconds * 1.5));
+					}
 					else
 						success = true;
 				}
@@ -811,9 +920,10 @@ namespace MyEMSLReader
 
 					if (attempts <= maxAttempts)
 					{
-						//wait 5 seconds, then retry
-						System.Threading.Thread.Sleep(5000);
-						timeoutSeconds *= 2;
+						// Wait 2 seconds, then retry
+						Console.WriteLine("Exception in SendHeadRequestWithRetry on attempt " + attempts + ": " + ex.Message);
+						System.Threading.Thread.Sleep(2000);
+						timeoutSeconds = (int)(Math.Ceiling(timeoutSeconds * 1.5));
 						continue;
 					}
 				}
@@ -854,8 +964,8 @@ namespace MyEMSLReader
 			try
 			{
 
-				string postData = string.Empty;
 				string URL = MYEMSL_URI_BASE + "api/2/cart/" + cartID;
+				string postData = string.Empty;
 
 				int maxAttempts = 3;
 				string xmlString = string.Empty;

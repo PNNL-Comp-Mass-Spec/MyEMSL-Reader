@@ -227,15 +227,15 @@ namespace MyEMSLReader
 			responseData = string.Empty;
 
 			int timeoutSeconds = 2;
-			int retrievalAttempts = 0;
+			int attempts = 0;
 			bool retrievalSuccess = false;
 			HttpStatusCode responseStatusCode = HttpStatusCode.NotFound;
 
-			while (!retrievalSuccess && retrievalAttempts <= maxAttempts)
+			while (!retrievalSuccess && attempts <= maxAttempts)
 			{
 				try
 				{
-					retrievalAttempts++;
+					attempts++;
 					responseData = EasyHttp.Send(URL, cookieJar, out responseStatusCode, postData, postMethod, timeoutSeconds);
 
 					if (allowEmptyResponseData && responseStatusCode == HttpStatusCode.OK)
@@ -243,7 +243,10 @@ namespace MyEMSLReader
 					else
 					{
 						if (string.IsNullOrEmpty(responseData))
-							timeoutSeconds *= 2;
+						{
+							Console.WriteLine("Empty responseDate in SendHTTPRequestWithRetry on attempt " + attempts);
+							timeoutSeconds = (int)(Math.Ceiling(timeoutSeconds * 1.5));
+						}
 						else
 							retrievalSuccess = true;
 					}
@@ -259,11 +262,12 @@ namespace MyEMSLReader
 						break;
 					}
 					
-					if (retrievalAttempts <= maxAttempts)
+					if (attempts <= maxAttempts)
 					{
-						//wait 5 seconds, then retry
-						System.Threading.Thread.Sleep(5000);
-						timeoutSeconds *= 2;
+						// Wait 2 seconds, then retry
+						Console.WriteLine("Exception in SendHTTPRequestWithRetry on attempt " + attempts + ": " + ex.Message);
+						System.Threading.Thread.Sleep(2000);
+						timeoutSeconds = (int)(Math.Ceiling(timeoutSeconds * 1.5));
 						continue;
 					}
 				}

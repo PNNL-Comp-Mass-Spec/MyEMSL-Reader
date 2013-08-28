@@ -427,7 +427,7 @@ namespace MyEMSLReader
 		/// <param name="maxFileCount">Maximum number of hits to return</param>
 		/// <param name="logicalOperator">Whether to AND or OR the search terms together</param>
 		/// <param name="scanMode">Scan mode (0=Simple Search, 1=Search, but obtain a myemsl_auth_token, 2 = Create a ScrollID)</param>
-		/// <returns></returns>
+		/// <returns>XML response string</returns>
 		/// <remarks>Be sure to call Logout() when scanMode is not 0 </remarks>
 		internal string RunQuery(List<KeyValuePair<string, string>> dctSearchTerms, int maxFileCount, SearchOperator logicalOperator, ScanMode scanMode, ref CookieContainer cookieJar)
 		{
