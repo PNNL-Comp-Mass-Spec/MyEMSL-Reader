@@ -5,8 +5,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyEMSLReader", "MyEMSLReade
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tester", "Tester\Tester.csproj", "{68135044-3952-4FB5-97DC-8E77621C7113}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pacifica.Core", "..\Capture_Task_Manager\DatasetArchivePlugin\pacifica\Pacifica.Core\Pacifica.Core.csproj", "{46D080DA-392C-4F7C-B2F7-683695B1C029}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,20 +41,6 @@ Global
 		{68135044-3952-4FB5-97DC-8E77621C7113}.Release|x64.ActiveCfg = Release|x86
 		{68135044-3952-4FB5-97DC-8E77621C7113}.Release|x86.ActiveCfg = Release|x86
 		{68135044-3952-4FB5-97DC-8E77621C7113}.Release|x86.Build.0 = Release|x86
-		{46D080DA-392C-4F7C-B2F7-683695B1C029}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{46D080DA-392C-4F7C-B2F7-683695B1C029}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{46D080DA-392C-4F7C-B2F7-683695B1C029}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{46D080DA-392C-4F7C-B2F7-683695B1C029}.Debug|x64.ActiveCfg = Debug|x64
-		{46D080DA-392C-4F7C-B2F7-683695B1C029}.Debug|x64.Build.0 = Debug|x64
-		{46D080DA-392C-4F7C-B2F7-683695B1C029}.Debug|x86.ActiveCfg = Debug|x86
-		{46D080DA-392C-4F7C-B2F7-683695B1C029}.Debug|x86.Build.0 = Debug|x86
-		{46D080DA-392C-4F7C-B2F7-683695B1C029}.Release|Any CPU.ActiveCfg = Release|x64
-		{46D080DA-392C-4F7C-B2F7-683695B1C029}.Release|Mixed Platforms.ActiveCfg = Release|x64
-		{46D080DA-392C-4F7C-B2F7-683695B1C029}.Release|Mixed Platforms.Build.0 = Release|x64
-		{46D080DA-392C-4F7C-B2F7-683695B1C029}.Release|x64.ActiveCfg = Release|x64
-		{46D080DA-392C-4F7C-B2F7-683695B1C029}.Release|x64.Build.0 = Release|x64
-		{46D080DA-392C-4F7C-B2F7-683695B1C029}.Release|x86.ActiveCfg = Release|x86
-		{46D080DA-392C-4F7C-B2F7-683695B1C029}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
