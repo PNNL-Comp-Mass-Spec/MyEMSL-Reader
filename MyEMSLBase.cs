@@ -11,12 +11,6 @@ namespace MyEMSLReader
 {
 	public class MyEMSLBase
 	{
-		#region "Constants"
-		public const string MYEMSL_URI_BASE = "https://my.emsl.pnl.gov/myemsl/";
-		public const string MYEMSL_INGEST_BASE = "https://ingest.my.emsl.pnl.gov/myemsl/";
-
-		#endregion
-
 
 		#region "Enums"
 		internal enum SearchOperator
@@ -72,24 +66,6 @@ namespace MyEMSLReader
 
 			return true;
 		}
-
-		protected void Logout(CookieContainer cookieJar)
-		{
-			// Logout
-			try
-			{
-				int timeoutSeconds = 3;
-				HttpStatusCode responseStatusCode;
-
-				EasyHttp.Send(MYEMSL_URI_BASE + "logout", cookieJar, out responseStatusCode, timeoutSeconds);
-			}
-			catch (Exception ex)
-			{
-				// Report errors to the console, but do not throw an exception
-				Console.WriteLine("Error calling the logout service: " + ex.Message);
-			}
-		}
-
 		
 		protected string ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, string valueIfMissing)
 		{

@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-//using System.Web;
 using Pacifica.Core;
 
 namespace MyEMSLReader
@@ -561,7 +560,7 @@ namespace MyEMSLReader
 				querySpec.Add("size", maxFileCount);
 
 				// Call the testauth service to obtain a cookie for this session
-				string authURL = MYEMSL_URI_BASE + "testauth";
+				string authURL = Configuration.TestAuthUri;
 				Auth auth = new Auth(new Uri(authURL));
 
 				if (cookieJar == null)
@@ -574,7 +573,7 @@ namespace MyEMSLReader
 				}
 
 				string postData = Pacifica.Core.Utilities.ObjectToJson(querySpec);
-				string URL = MYEMSL_URI_BASE + "elasticsearch/simple_items";
+				string URL = Configuration.ElasticSearchUri + "simple_items";
 
 				if (scanMode == ScanMode.ObtainAuthToken)
 				{
@@ -599,7 +598,7 @@ namespace MyEMSLReader
 
 				if (scanMode == ScanMode.SimpleSearch)
 				{
-					Logout(cookieJar);
+					Utilities.Logout(cookieJar);
 				}
 
 				return xmlString;

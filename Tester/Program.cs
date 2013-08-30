@@ -15,7 +15,10 @@ namespace Tester
 		{
 			var lstFileIDs = TestReader();
 
-			TestDownloader(lstFileIDs);
+			if (lstFileIDs.Count == 0)
+				Console.WriteLine("Reader did not find any files");
+			else
+				TestDownloader(lstFileIDs);
 		}
 
 		static List<long> TestReader()
@@ -37,9 +40,11 @@ namespace Tester
 			// datasetName = "QC_Shew_11_06_pt5_d2_11Jun12_Draco_12-04-14";
 
 			// Dataset where all of the files were purged from spinning disk (but have now been unpurged)
-			datasetName = "2013_05_28_U01-B_Wilkins_neg_4M_0p1acc_8x_144_000001";
-			subDir = "";
+			//datasetName = "2013_05_28_U01-B_Wilkins_neg_4M_0p1acc_8x_144_000001";
+			//subDir = "";
 
+			datasetName = "SWT_LCQData_300";
+			subDir = "QC2";
 
 			var lstFileIDs = new List<long>();
 
@@ -99,7 +104,7 @@ namespace Tester
 			{
 				if (DateTime.UtcNow.Subtract(mLastProgressUpdateTime).TotalSeconds >= 1)
 				{
-					Console.WriteLine("Percent complete: " + e.PercentComplete.ToString("0.0"));
+					Console.WriteLine("Percent complete: " + e.PercentComplete.ToString("0.0") + "%");
 					mPercentComplete = e.PercentComplete;
 					mLastProgressUpdateTime = DateTime.UtcNow;
 				}
