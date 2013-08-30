@@ -93,6 +93,11 @@ namespace MyEMSLReader
 
 			try
 			{
+				if (lstFileIDs == null || lstFileIDs.Count == 0)
+				{
+					ReportError("FileID List is empty; nothing to download");
+					return false;
+				}
 
 				// Scan for Files
 				var scanMode = Reader.ScanMode.ObtainAuthToken;
@@ -164,10 +169,7 @@ namespace MyEMSLReader
 					// All of the files have been downloaded
 					return true;
 				}
-				
-				Logout(cookieJar);
-				cookieJar = null;
-
+			
 				// Scan for the remaining files, thereby creating a ScrollID
 				// We will also obtain a new authorization token, which will be associated with the ScrollID
 				success = CreateScrollID(lstFilesRemaining, ref cookieJar, out authToken);
@@ -551,6 +553,7 @@ namespace MyEMSLReader
 
 				foreach (var archivedFile in qLockedFiles)
 				{
+
 					string URL = MYEMSL_URI_BASE + "item/foo/bar/" + archivedFile.FileID + "/" + archivedFile.Filename + "?token=" + authToken + "&locked";
 
 					string downloadFilePath = ConstructDownloadfilePath(folderLayout, archivedFile);
@@ -648,7 +651,7 @@ namespace MyEMSLReader
 
 				if (success)
 				{
-					ReportMessage("Successfully extract files from .tar file at " + tarFileURL);
+					ReportMessage("Successfully extracted files from .tar file at " + tarFileURL);
 					UpdateProgress(1, 1);
 				}
 				if (!success)
@@ -957,6 +960,7 @@ namespace MyEMSLReader
 		protected bool WaitForCartSuccess(long cartID, CookieContainer cookieJar, int maxMinutesToWait, out string tarFileURL)
 		{
 			DateTime dtStartTime = DateTime.UtcNow;
+			DateTime dtLastUpdateTime = DateTime.UtcNow;
 			int sleepTimeSeconds = 5;
 
 			tarFileURL = string.Empty;
@@ -989,21 +993,28 @@ namespace MyEMSLReader
 						}
 						else
 						{
-							var dctCartInfo = RetrieveDictionaryObjectByKey(dctResults, "carts");
+							var dctCartInfo = RetrieveDictionaryListByKey(dctResults, "carts");
 
-							// Extract the cart state
-							string cartState = ReadDictionaryValue(dctCartInfo, "state", string.Empty);
-
-							tarFileURL = UpdateCartState(dctCartInfo, cartState);
-
-							if (this.DownloadCartState == CartState.Available)
+							if (dctCartInfo.Count == 0)
 							{
-								break;
+								Console.WriteLine("Warning: Carts listing is empty");
 							}
-							else if (this.DownloadCartState == CartState.Expired)
+							else
 							{
-								ReportError("Cart " + cartID + " is expired and cannot be downloaded; aborting");
-								break;
+								// Extract the cart state
+								string cartState = ReadDictionaryValue(dctCartInfo[0], "state", string.Empty);
+
+								tarFileURL = UpdateCartState(dctCartInfo[0], cartState);
+
+								if (this.DownloadCartState == CartState.Available)
+								{
+									break;
+								}
+								else if (this.DownloadCartState == CartState.Expired)
+								{
+									ReportError("Cart " + cartID + " is expired and cannot be downloaded; aborting");
+									break;
+								}
 							}
 						}
 					}
@@ -1021,6 +1032,12 @@ namespace MyEMSLReader
 
 					if (minutesElapsed > 15 && sleepTimeSeconds < 30)
 						sleepTimeSeconds = 30;
+
+					if (DateTime.UtcNow.Subtract(dtLastUpdateTime).TotalMinutes >= 1)
+					{
+						ReportMessage("Waiting for cart to become available: " + minutesElapsed.ToString("0.0") + " minutes elapsed");
+						dtLastUpdateTime = DateTime.UtcNow;
+					}
 
 					// Sleep for 5 to 30 seconds (depending on how long we've been waiting)
 					System.Threading.Thread.Sleep(sleepTimeSeconds * 1000);

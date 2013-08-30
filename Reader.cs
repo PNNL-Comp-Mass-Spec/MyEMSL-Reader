@@ -92,13 +92,21 @@ namespace MyEMSLReader
 		{
 			string subDir = "";
 			string instrumentName = "";
-			return FindFilesByDatasetID(datasetID, subDir, instrumentName);
+			bool recurse = true;
+			return FindFilesByDatasetID(datasetID, subDir, recurse, instrumentName);
 		}
 
 		public List<ArchivedFileInfo> FindFilesByDatasetID(int datasetID, string subDir)
 		{
 			string instrumentName = "";
-			return FindFilesByDatasetID(datasetID, subDir, instrumentName);
+			bool recurse = true;
+			return FindFilesByDatasetID(datasetID, subDir, recurse, instrumentName);
+		}
+
+		public List<ArchivedFileInfo> FindFilesByDatasetID(int datasetID, string subDir, bool recurse)
+		{
+			string instrumentName = "";
+			return FindFilesByDatasetID(datasetID, subDir, recurse, instrumentName);
 		}
 
 		/// <summary>
@@ -108,25 +116,33 @@ namespace MyEMSLReader
 		/// <param name="subDir"></param>
 		/// <param name="instrumentName"></param>
 		/// <returns></returns>
-		public List<ArchivedFileInfo> FindFilesByDatasetID(int datasetID, string subDir, string instrumentName)
+		public List<ArchivedFileInfo> FindFilesByDatasetID(int datasetID, string subDir, bool recurse, string instrumentName)
 		{
 			var dctSearchTerms = new List<KeyValuePair<string, string>>();
 			dctSearchTerms.Add(new KeyValuePair<string, string>(QUERY_SPEC_DATASET_ID, datasetID.ToString()));
 
-			return FindFilesByDataset(subDir, instrumentName, dctSearchTerms);
+			return FindFilesByDataset(subDir, recurse, instrumentName, dctSearchTerms);
 		}
 
 		public List<ArchivedFileInfo> FindFilesByDatasetName(string datasetName)
 		{
 			string subDir = "";
 			string instrumentName = "";
-			return FindFilesByDatasetName(datasetName, subDir, instrumentName);
+			bool recurse = true;
+			return FindFilesByDatasetName(datasetName, subDir, recurse, instrumentName);
 		}
 
 		public List<ArchivedFileInfo> FindFilesByDatasetName(string datasetName, string subDir)
 		{
 			string instrumentName = "";
-			return FindFilesByDatasetName(datasetName, subDir, instrumentName);
+			bool recurse = true;
+			return FindFilesByDatasetName(datasetName, subDir, recurse, instrumentName);
+		}
+
+		public List<ArchivedFileInfo> FindFilesByDatasetName(string datasetName, string subDir, bool recurse)
+		{
+			string instrumentName = "";
+			return FindFilesByDatasetName(datasetName, subDir, recurse, instrumentName);
 		}
 
 		/// <summary>
@@ -136,48 +152,94 @@ namespace MyEMSLReader
 		/// <param name="subDir"></param>
 		/// <param name="instrumentName"></param>
 		/// <returns></returns>
-		public List<ArchivedFileInfo> FindFilesByDatasetName(string datasetName, string subDir, string instrumentName)
+		public List<ArchivedFileInfo> FindFilesByDatasetName(string datasetName, string subDir, bool recurse, string instrumentName)
 		{
 
 			var dctSearchTerms = new List<KeyValuePair<string, string>>();
 			dctSearchTerms.Add(new KeyValuePair<string, string>(QUERY_SPEC_DATASET_NAME, datasetName));
 
-			return FindFilesByDataset(subDir, instrumentName, dctSearchTerms);
+			return FindFilesByDataset(subDir, recurse, instrumentName, dctSearchTerms);
 		}
 
 		#endregion
 
 		#region "Protected Methods"
 
-		
-		protected List<ArchivedFileInfo> FilterFilesBySubDir(List<ArchivedFileInfo> lstFiles, string subDir)
+
+		protected List<ArchivedFileInfo> FilterFilesNoRecursion(List<ArchivedFileInfo> lstFiles, string subDir)
 		{
 			var lstFilesFiltered = new List<ArchivedFileInfo>();
 
 			foreach (var file in lstFiles)
 			{
-				if (!string.IsNullOrWhiteSpace(file.SubDirPath))
+				if (string.IsNullOrEmpty(subDir))
 				{
-					// Switch from Unix to Windows path
-					var diSubDir = new DirectoryInfo(file.SubDirPath.Replace('/', Path.DirectorySeparatorChar));
+					// Did not filter by sub directory
+					// Only keep this file if file.SubDirPath is empty
+					if (string.IsNullOrEmpty(file.SubDirPath))
+						lstFilesFiltered.Add(file);
+				}
+				else
+				{
+					// Filtered by sub directory subDir
+					// Confirm that this file resides in that sub directory (and not in a sub directory of subDir)
 
-					if (diSubDir.Name.ToLower() == subDir.ToLower())
+					if (file.SubDirPath.ToLower() == subDir.ToLower())
 					{
 						lstFilesFiltered.Add(file);
 					}
+
 				}
 			}
 
-			// Sort by path
-			return (from item in lstFilesFiltered orderby item.PathWithInstrumentAndDatasetWindows select item).ToList();
+			return lstFilesFiltered;
 		}
 
-		protected List<ArchivedFileInfo> FindFilesByDataset(string subDir, string instrumentName, List<KeyValuePair<string, string>> dctSearchTerms)
+		protected List<ArchivedFileInfo> FilterFilesBySubDir(List<ArchivedFileInfo> lstFiles, string subDir)
+		{
+			var lstFilesFiltered = new List<ArchivedFileInfo>();
+
+			List<string> lstRequiredSubDirTree = subDir.Split(new char[] {'/', '\\'}).ToList<string>();
+
+			foreach (var file in lstFiles)
+			{
+				if (!string.IsNullOrWhiteSpace(file.SubDirPath))
+				{
+					List<string> lstFileSubDirTree = file.SubDirPath.Split(new char[] { '/', '\\' }).ToList<string>();
+
+					if (lstFileSubDirTree.Count >= lstRequiredSubDirTree.Count)
+					{
+						int matchCount = 0;
+						for (int i = 0; i < lstRequiredSubDirTree.Count; i++)
+						{
+							if (lstFileSubDirTree[i].ToLower() == lstRequiredSubDirTree[i].ToLower())
+								matchCount++;
+						}
+
+						if (matchCount == lstRequiredSubDirTree.Count)
+						{
+							lstFilesFiltered.Add(file);
+						}
+					}
+					
+				}
+			}
+
+			return lstFilesFiltered;
+		}
+
+		protected List<ArchivedFileInfo> FindFilesByDataset(string subDir, bool recurse, string instrumentName, List<KeyValuePair<string, string>> dctSearchTerms)
 		{
 
 			try
 			{
 				ResetStatus();
+
+				// Make sure subDir has unix-style slashes
+				if (string.IsNullOrEmpty(subDir))
+					subDir = string.Empty;
+				else
+					subDir = subDir.Replace(@"\", "/");
 
 				if (!string.IsNullOrWhiteSpace(instrumentName))
 				{
@@ -186,16 +248,19 @@ namespace MyEMSLReader
 
 				List<ArchivedFileInfo> lstFiles = QueryElasticSearch(dctSearchTerms);
 
-				if (string.IsNullOrWhiteSpace(subDir))
+				if (!recurse)
 				{
-					// Sort by path
-					return (from item in lstFiles orderby item.PathWithInstrumentAndDatasetWindows select item).ToList();
+					// Filter the files to remove any not in the "root" folder
+					lstFiles = FilterFilesNoRecursion(lstFiles, subDir);
 				}
-				else
+
+				if (!string.IsNullOrWhiteSpace(subDir))
 				{
 					// Filter on subDir
-					return FilterFilesBySubDir(lstFiles, subDir);
+					lstFiles = FilterFilesBySubDir(lstFiles, subDir);					
 				}
+
+				return (from item in lstFiles orderby item.PathWithInstrumentAndDatasetWindows select item).ToList();
 
 			}
 			catch (Exception ex)

@@ -12,8 +12,8 @@ namespace MyEMSLReader
 	public class MyEMSLBase
 	{
 		#region "Constants"
-		protected const string MYEMSL_URI_BASE = "https://my.emsl.pnl.gov/myemsl/";
-		protected const string MYEMSL_INGEST_BASE = "https://ingest.my.emsl.pnl.gov/myemsl/";
+		public const string MYEMSL_URI_BASE = "https://my.emsl.pnl.gov/myemsl/";
+		public const string MYEMSL_INGEST_BASE = "https://ingest.my.emsl.pnl.gov/myemsl/";
 
 		#endregion
 

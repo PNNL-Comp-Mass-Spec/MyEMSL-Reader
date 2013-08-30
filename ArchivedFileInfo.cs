@@ -135,6 +135,10 @@ namespace MyEMSLReader
 			set;
 		}
 
+		/// <summary>
+		/// SubDirectory path of the file, as reported by MyEMSL
+		/// This path will have unix-style slashes ('/') if their sub-folders below this sub directory
+		/// </summary>
 		public string SubDirPath
 		{
 			get;

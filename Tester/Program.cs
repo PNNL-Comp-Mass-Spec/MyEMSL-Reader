@@ -34,43 +34,30 @@ namespace Tester
 
 			//datasetName = "Blank_B-2_20Apr12_Draco_12-02-37";
 
-			datasetName = "QC_Shew_11_06_pt5_d2_11Jun12_Draco_12-04-14";
+			// datasetName = "QC_Shew_11_06_pt5_d2_11Jun12_Draco_12-04-14";
 
-			// Dataset where all of the files are purged from spinning disk
-			//datasetName = "DRAD224_17_28Apr05_Doc_0105-07";
-			//subDir = "MSG201203122150_Auto805773";
+			// Dataset where all of the files were purged from spinning disk (but have now been unpurged)
+			datasetName = "2013_05_28_U01-B_Wilkins_neg_4M_0p1acc_8x_144_000001";
+			subDir = "";
+
 
 			var lstFileIDs = new List<long>();
 
-			bool testExistingCart = false;
-			if (testExistingCart)
+			try
 			{
-				lstFileIDs.Add(662508);
-				lstFileIDs.Add(662509);
-				lstFileIDs.Add(662510);
-				lstFileIDs.Add(662511);
-				lstFileIDs.Add(662512);
-				lstFileIDs.Add(662513);
-				lstFileIDs.Add(662514);
-				lstFileIDs.Add(662515);
-				lstFileIDs.Add(662516);
+				var results = reader.FindFilesByDatasetName(datasetName, subDir);
 
+				foreach (var archivedFile in results)
+				{
+					Console.WriteLine(archivedFile.RelativePathUnix);
+					lstFileIDs.Add(archivedFile.FileID);
+				}
 			}
-			else
+			catch (Exception ex)
 			{
-				try
-				{
-					var results = reader.FindFilesByDatasetName(datasetName, subDir);
-
-					foreach (var archivedFile in results)
-						lstFileIDs.Add(archivedFile.FileID);
-				}
-				catch (Exception ex)
-				{
-					Console.WriteLine("Exception from reader: " + ex.Message);
-				}
-
+				Console.WriteLine("Exception from reader: " + ex.Message);
 			}
+
 
 			return lstFileIDs;
 
@@ -84,12 +71,9 @@ namespace Tester
 			downloader.MessageEvent += new MyEMSLReader.MyEMSLBase.MessageEventHandler(reader_MessageEvent);
 			downloader.ProgressEvent += new MyEMSLReader.MyEMSLBase.ProgressEventHandler(reader_ProgressEvent);
 
-			// Temporary override for debugging purposes
-			lstFileIDs.RemoveRange(10, lstFileIDs.Count - 10);
-
 			try
 			{
-				downloader.DownloadFiles(lstFileIDs, @"F:\Temp\MyEMSL", MyEMSLReader.Downloader.DownloadFolderLayout.SingleDataset);
+				downloader.DownloadFiles(lstFileIDs, @"F:\Temp\MyEMSL", MyEMSLReader.Downloader.DownloadFolderLayout.DatasetNameAndSubFolders);
 			}
 			catch (Exception ex)
 			{
@@ -115,7 +99,7 @@ namespace Tester
 			{
 				if (DateTime.UtcNow.Subtract(mLastProgressUpdateTime).TotalSeconds >= 1)
 				{
-					Console.WriteLine("Percent complete: " + e.PercentComplete);
+					Console.WriteLine("Percent complete: " + e.PercentComplete.ToString("0.0"));
 					mPercentComplete = e.PercentComplete;
 					mLastProgressUpdateTime = DateTime.UtcNow;
 				}
