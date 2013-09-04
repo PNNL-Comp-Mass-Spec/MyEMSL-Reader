@@ -35,9 +35,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Lib\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
-    <Reference Include="Jayrock">
-      <HintPath>Lib\Jayrock.dll</HintPath>
-    </Reference>
     <Reference Include="Jayrock.Json">
       <HintPath>Lib\Jayrock.Json.dll</HintPath>
     </Reference>

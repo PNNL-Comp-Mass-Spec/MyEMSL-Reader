@@ -30,6 +30,12 @@ namespace MyEMSLReader
 			InstrumentYearQuarterDataset = 3
 		}
 
+		public enum Overwrite
+		{
+			IfChanged = 0,			// This mode will compute an MD5 hash of the target file and only overwrite the target if the hash values differ
+			Always = 1,
+			Never = 2
+		}
 		public enum CartState
 		{
 			NoCart,
@@ -60,6 +66,12 @@ namespace MyEMSLReader
 			set;
 		}
 
+		public Overwrite OverwriteMode
+		{
+			get;
+			set;
+		}
+
 		/// <summary>
 		/// Percent complete (value between 0 and 100)
 		/// </summary>
@@ -83,6 +95,8 @@ namespace MyEMSLReader
 		public Downloader()
 		{
 			this.ThrowErrors = true;
+			this.OverwriteMode = Overwrite.IfChanged;
+
 			mReader = new Reader();
 			ResetStatus();
 		}
@@ -167,13 +181,19 @@ namespace MyEMSLReader
 				foreach (var fileID in lstFileIDs)
 				{
 					if (!dctFilesDownloaded.ContainsKey(fileID))
-						lstFilesRemaining.Add(fileID);
+					{
+						bool reportMessage = false;
+						bool downloadFile = IsDownloadRequired(dctFiles, fileID, downloadFolderPath, folderLayout, reportMessage);
+						
+						if (downloadFile)
+							lstFilesRemaining.Add(fileID);
+					}
 
 				}
 
 				if (lstFilesRemaining.Count == 0)
 				{
-					// All of the files have been downloaded
+					// All of the files have been downloaded (or already exist and having matching a matching Sha1 hash)
 					return true;
 				}
 
@@ -373,6 +393,10 @@ namespace MyEMSLReader
 					downloadFilePath = Path.Combine(archivedFile.Dataset, archivedFile.RelativePathWindows);
 					break;
 			}
+
+			if (downloadFilePath.IndexOf("/") > 0)
+				downloadFilePath = downloadFilePath.Replace('/', Path.DirectorySeparatorChar);
+
 			return downloadFilePath;
 		}
 
@@ -593,25 +617,35 @@ namespace MyEMSLReader
 					}
 
 					int maxAttempts = 5;
-					Exception mostRecentException;
+					Exception mostRecentException;					
+					bool reportMessage = true;
 
-					ReportMessage("Downloading " + downloadFilePath);
-					bool retrievalSuccess = DownloadFile(URL, cookieJar, maxAttempts, downloadFilePath, out mostRecentException);
+					bool downloadFile = IsDownloadRequired(archivedFile, downloadFilePath, reportMessage);
 
-					if (retrievalSuccess)
+					if (downloadFile)
 					{
-						dctFilesDownloaded.Add(archivedFile.FileID, archivedFile.PathWithInstrumentAndDatasetWindows);
+						bool retrievalSuccess = DownloadFile(URL, cookieJar, maxAttempts, downloadFilePath, out mostRecentException);
 
-						UpdateFileModificationTime(fiTargetFile, archivedFile.SubmissionTime);
-						ReportMessage("Successfully downloaded " + Path.GetFileName(downloadFilePath));
+						if (retrievalSuccess)
+						{
+							dctFilesDownloaded.Add(archivedFile.FileID, archivedFile.PathWithInstrumentAndDatasetWindows);
+
+							UpdateFileModificationTime(fiTargetFile, archivedFile.SubmissionTime);
+						}
+						else
+						{
+							// Show the error at the console but do not throw an exception
+							if (mostRecentException == null)
+								ReportMessage("Failure downloading " + Path.GetFileName(downloadFilePath) + ": unknown reason");
+							else
+								ReportMessage("Failure downloading " + Path.GetFileName(downloadFilePath) + ": " + mostRecentException.Message);
+						}
 					}
 					else
 					{
-						// Show the error at the console but do not throw an exception
-						if (mostRecentException == null)
-							ReportMessage("Failure downloading " + Path.GetFileName(downloadFilePath) + ": unknown reason");
-						else
-							ReportMessage("Failure downloading " + Path.GetFileName(downloadFilePath) + ": " + mostRecentException.Message);
+						// Download skipped
+						// Need to add to the downloaded files dictionary so that the file doesn't get downloaded via the .tar file mechanism
+						dctFilesDownloaded.Add(archivedFile.FileID, archivedFile.PathWithInstrumentAndDatasetWindows);
 					}
 
 					bytesDownloaded += archivedFile.FileSizeBytes;
@@ -626,7 +660,6 @@ namespace MyEMSLReader
 
 			return dctFilesDownloaded;
 		}
-
 
 		protected bool DownloadTarFileWithRetry(
 			CookieContainer cookieJar,
@@ -742,7 +775,7 @@ namespace MyEMSLReader
 					TarInputStream tarIn = new TarInputStream(ReceiveStream);
 					TarEntry tarEntry;
 					while ((tarEntry = tarIn.GetNextEntry()) != null)
-					{						
+					{
 						if (tarEntry.IsDirectory)
 						{
 							continue;
@@ -778,7 +811,7 @@ namespace MyEMSLReader
 						var archivedFileLookup = GetArchivedFileByID(lstFilesInArchive, fileID);
 
 						if (archivedFileLookup.Count == 0)
-						{						
+						{
 							ReportMessage("Warning, skipping .tar file entry since MyEMSL FileID '" + fileID + "' was not recognized: " + sourceFile);
 							continue;
 						}
@@ -849,26 +882,46 @@ namespace MyEMSLReader
 			return true;
 		}
 
+		protected bool FileMatchesHash(string localFilePath, string Sha1HashExpected)
+		{
+			bool fileMatchesHash = false;
+
+			try
+			{
+				string actualSha1Hash = Utilities.GenerateSha1Hash(localFilePath);
+
+				if (actualSha1Hash == Sha1HashExpected)
+					fileMatchesHash = true;
+			}
+			catch (Exception ex)
+			{
+				ReportError("Exception in FileChanged: " + ex.Message, ex);
+				return false;
+			}
+
+			return fileMatchesHash;
+		}
+
 		protected List<ArchivedFileInfo> GetArchivedFileByID(List<ArchivedFileInfo> lstFilesInArchive, long fileID)
 		{
-			var archivedFileLookup = (from item in lstFilesInArchive 
-									  where item.FileID == fileID 
+			var archivedFileLookup = (from item in lstFilesInArchive
+									  where item.FileID == fileID
 									  select item).ToList();
 			return archivedFileLookup;
 		}
 
 		protected List<ArchivedFileInfo> GetLockedFileList(Dictionary<ArchivedFileInfo, bool> dctFiles)
 		{
-			var lstLockedFiles = (from item in dctFiles 
-							   where item.Value == true 
-							   select item.Key).ToList();
+			var lstLockedFiles = (from item in dctFiles
+								  where item.Value == true
+								  select item.Key).ToList();
 			return lstLockedFiles;
 		}
 
 		protected List<string> GetMyEmslLockedField(List<string> headerKeys)
 		{
-			var lstFilteredKeys = (from item in headerKeys 
-								   where item.Contains("MyEMSL-Locked") 
+			var lstFilteredKeys = (from item in headerKeys
+								   where item.Contains("MyEMSL-Locked")
 								   select item).ToList();
 			return lstFilteredKeys;
 		}
@@ -915,6 +968,84 @@ namespace MyEMSLReader
 			}
 
 			return success;
+		}
+
+		/// <summary>
+		/// Determines whether or not a file should be downloaded
+		/// </summary>
+		/// <param name="dctFiles"></param>
+		/// <param name="fileID"></param>
+		/// <param name="folderLayout"></param>
+		/// <param name="reportMessage"></param>
+		/// <returns></returns>
+		protected bool IsDownloadRequired(Dictionary<ArchivedFileInfo, bool> dctFiles, long fileID, string downloadFolderPath, DownloadFolderLayout folderLayout, bool reportMessage)
+		{
+			var lstMatches = (from item in dctFiles where item.Key.FileID == fileID select item.Key).ToList();
+
+			if (lstMatches.Count == 0)
+				return true;
+
+			var archivedFile = lstMatches.First();
+			string downloadFilePath = ConstructDownloadfilePath(folderLayout, archivedFile);
+			downloadFilePath = Path.Combine(downloadFolderPath, downloadFilePath);
+
+			bool downloadFile = IsDownloadRequired(archivedFile, downloadFilePath, reportMessage);
+
+			return downloadFile;
+		}
+
+		/// <summary>
+		/// Determines whether or not a file should be downloaded
+		/// </summary>
+		/// <param name="archivedFile"></param>
+		/// <param name="downloadFilePath"></param>
+		/// <returns></returns>
+		protected bool IsDownloadRequired(ArchivedFileInfo archivedFile, string downloadFilePath, bool reportMessage)
+		{
+			bool downloadFile;
+
+			if (!File.Exists(downloadFilePath))
+			{
+				if (reportMessage) ReportMessage("Downloading " + downloadFilePath);
+				downloadFile = true;
+			}
+			else
+			{
+				switch (this.OverwriteMode)
+				{
+					case Overwrite.Always:
+						if (reportMessage) ReportMessage("Overwriting " + downloadFilePath);
+						downloadFile = true;
+						break;
+					case Overwrite.IfChanged:
+						if (string.IsNullOrEmpty(archivedFile.Sha1Hash))
+						{
+							if (reportMessage) ReportMessage("Overwriting (Sha1 hash missing) " + downloadFilePath);
+							downloadFile = true;
+							break;
+						}
+
+						if (FileMatchesHash(downloadFilePath, archivedFile.Sha1Hash))
+						{
+							if (reportMessage) ReportMessage("Skipping (file unchanged) " + downloadFilePath);
+							downloadFile = false;
+						}
+						else
+						{
+							if (reportMessage) ReportMessage("Overwriting changed file " + downloadFilePath);
+							downloadFile = true;
+						}
+						break;
+					case Overwrite.Never:
+						if (reportMessage) ReportMessage("Skipping (Overwrite disabled) " + downloadFilePath);
+						downloadFile = false;
+						break;
+					default:
+						throw new ArgumentOutOfRangeException("Unrecognized OverwriteMode: " + this.OverwriteMode.ToString());
+				}
+			}
+
+			return downloadFile;
 		}
 
 		protected new void ResetStatus()
@@ -995,7 +1126,51 @@ namespace MyEMSLReader
 			return responseHeaders;
 		}
 
-		private static void UpdateFileModificationTime(FileInfo fiTargetFile, string modificationTime)
+
+		protected string UpdateCartState(Dictionary<string, object> dctCartInfo, string cartState)
+		{
+			string tarFileURL = string.Empty;
+
+			if (string.IsNullOrWhiteSpace(cartState))
+				return string.Empty;
+
+			switch (cartState)
+			{
+				case "unsubmitted":
+					this.DownloadCartState = CartState.Unsubmitted;
+					break;
+				case "building":
+					this.DownloadCartState = CartState.Building;
+					break;
+				case "available":
+					tarFileURL = ReadDictionaryValue(dctCartInfo, "url", string.Empty);
+					if (string.IsNullOrWhiteSpace(tarFileURL))
+					{
+						ReportMessage("Warning, cart status is " + cartState + " but the download URL was not returned by MyEMSL");
+					}
+					else
+					{
+						this.DownloadCartState = CartState.Available;
+					}
+					break;
+				case "expired":
+					this.DownloadCartState = CartState.Expired;
+					break;
+				case "admin":
+					this.DownloadCartState = CartState.Admin;
+					break;
+				case "unknown":
+					this.DownloadCartState = CartState.Unknown;
+					break;
+				default:
+					// Some other unknown state; ignore it
+					break;
+			}
+
+			return tarFileURL;
+		}
+
+		protected void UpdateFileModificationTime(FileInfo fiTargetFile, string modificationTime)
 		{
 			// Update the file modification time
 			fiTargetFile.Refresh();
@@ -1124,51 +1299,6 @@ namespace MyEMSLReader
 				return false;
 		}
 
-		protected string UpdateCartState(Dictionary<string, object> dctCartInfo, string cartState)
-		{
-			string tarFileURL = string.Empty;
-
-			if (string.IsNullOrWhiteSpace(cartState))
-				return string.Empty;
-
-			switch (cartState)
-			{
-				case "unsubmitted":
-					this.DownloadCartState = CartState.Unsubmitted;
-					break;
-				case "building":
-					this.DownloadCartState = CartState.Building;
-					break;
-				case "available":
-					tarFileURL = ReadDictionaryValue(dctCartInfo, "url", string.Empty);
-					if (string.IsNullOrWhiteSpace(tarFileURL))
-					{
-						ReportMessage("Warning, cart status is " + cartState + " but the download URL was not returned by MyEMSL");
-					}
-					else
-					{
-						this.DownloadCartState = CartState.Available;
-					}
-					break;
-				case "expired":
-					this.DownloadCartState = CartState.Expired;
-					break;
-				case "admin":
-					this.DownloadCartState = CartState.Admin;
-					break;
-				case "unknown":
-					this.DownloadCartState = CartState.Unknown;
-					break;
-				default:
-					// Some other unknown state; ignore it
-					break;
-			}
-
-			return tarFileURL;
-		}
-
 		#endregion
-
 	}
-
 }

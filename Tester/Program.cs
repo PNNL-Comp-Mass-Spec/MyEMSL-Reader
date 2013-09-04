@@ -17,7 +17,7 @@ namespace Tester
 
 			if (lstFileIDs.Count == 0)
 				Console.WriteLine("Reader did not find any files");
-			else
+			else if (true)
 				TestDownloader(lstFileIDs);
 		}
 
@@ -44,7 +44,7 @@ namespace Tester
 			//subDir = "";
 
 			datasetName = "SWT_LCQData_300";
-			subDir = "QC2";
+			subDir = "";
 
 			var lstFileIDs = new List<long>();
 
@@ -75,6 +75,8 @@ namespace Tester
 			downloader.ErrorEvent += new MyEMSLReader.MyEMSLBase.MessageEventHandler(reader_ErrorEvent);
 			downloader.MessageEvent += new MyEMSLReader.MyEMSLBase.MessageEventHandler(reader_MessageEvent);
 			downloader.ProgressEvent += new MyEMSLReader.MyEMSLBase.ProgressEventHandler(reader_ProgressEvent);
+
+			downloader.OverwriteMode = MyEMSLReader.Downloader.Overwrite.IfChanged;
 
 			try
 			{
