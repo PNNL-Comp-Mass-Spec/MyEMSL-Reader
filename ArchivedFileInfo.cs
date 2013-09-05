@@ -97,7 +97,7 @@ namespace MyEMSLReader
 				if (!string.IsNullOrWhiteSpace(this.Dataset))
 					fullPath = Path.Combine(fullPath, this.Dataset);
 
-				return Path.Combine(fullPath, this.RelativePathWindows);
+				return Path.Combine(fullPath, this.RelativePathWindows).Replace("/", @"\");
 			}
 		}
 
@@ -125,7 +125,7 @@ namespace MyEMSLReader
 				if (string.IsNullOrWhiteSpace(this.SubDirPath))
 					return this.Filename;
 				else
-					return Path.Combine(this.SubDirPath, this.Filename);
+					return Path.Combine(this.SubDirPath, this.Filename).Replace("/", @"\");
 			}
 		}
 
@@ -137,7 +137,7 @@ namespace MyEMSLReader
 
 		/// <summary>
 		/// SubDirectory path of the file, as reported by MyEMSL
-		/// This path will have unix-style slashes ('/') if their sub-folders below this sub directory
+		/// This path will have unix-style slashes ('/') if there are sub-folders
 		/// </summary>
 		public string SubDirPath
 		{
