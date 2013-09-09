@@ -58,6 +58,15 @@ namespace MyEMSLReader
 		}
 
 		/// <summary>
+		/// The most recently downloaded files.  Keys are the full path to the downloaded file; values are extended file info
+		/// </summary>
+		public Dictionary<string, ArchivedFileInfo> DownloadedFiles
+		{
+			get;
+			private set;
+		}
+
+		/// <summary>
 		/// When true, then will always download files using the cart mechanism, which is likely slower if the file is not purged to tape
 		/// </summary>
 		public bool ForceDownloadViaCart
@@ -96,6 +105,7 @@ namespace MyEMSLReader
 		{
 			this.ThrowErrors = true;
 			this.OverwriteMode = Overwrite.IfChanged;
+			this.DownloadedFiles = new Dictionary<string, ArchivedFileInfo>(StringComparer.CurrentCultureIgnoreCase);
 
 			mReader = new Reader();
 			ResetStatus();
@@ -206,7 +216,6 @@ namespace MyEMSLReader
 						ReportError("Scroll ID is empty; cannot download files");
 					return false;
 				}
-
 
 				// Create a cart
 				long cartID = CreateCart(lstFilesRemaining, cookieJar, authToken);
@@ -648,6 +657,9 @@ namespace MyEMSLReader
 						dctFilesDownloaded.Add(archivedFile.FileID, archivedFile.PathWithInstrumentAndDatasetWindows);
 					}
 
+					if (!this.DownloadedFiles.ContainsKey(downloadFilePath))
+						this.DownloadedFiles.Add(downloadFilePath, archivedFile);
+
 					bytesDownloaded += archivedFile.FileSizeBytes;
 					UpdateProgress(bytesDownloaded, bytesToDownload);
 				}
@@ -842,6 +854,9 @@ namespace MyEMSLReader
 						}
 
 						UpdateFileModificationTime(targetFile, archivedFile.SubmissionTime);
+
+						if (!this.DownloadedFiles.ContainsKey(downloadFilePath))
+							this.DownloadedFiles.Add(downloadFilePath, archivedFile);
 
 						bytesDownloaded += archivedFile.FileSizeBytes;
 						UpdateProgress(bytesDownloaded, bytesToDownload);
@@ -1053,6 +1068,7 @@ namespace MyEMSLReader
 			base.ResetStatus();
 			this.DownloadCartState = CartState.NoCart;
 			this.PercentComplete = 0;
+			this.DownloadedFiles.Clear();
 		}
 
 		private string ScanForFiles(List<long> lstFileIDs, Reader.ScanMode scanMode, ref CookieContainer cookieJar)
