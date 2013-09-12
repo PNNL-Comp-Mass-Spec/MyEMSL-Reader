@@ -205,5 +205,9 @@ namespace MyEMSLReader
 			this.Metadata = dctMetadata;
 		}
 
+		public override string ToString()
+		{
+			return this.RelativePathWindows;
+		}
 	}
 }
