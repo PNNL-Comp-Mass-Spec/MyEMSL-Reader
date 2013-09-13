@@ -100,13 +100,9 @@ namespace MyEMSLReader
 			{
 				mErrorMessages.Clear();
 
-				var dctDatasetIDsAndSubDirs = new Dictionary<int, string>();
-				foreach (var entry in mDatasetsAndSubDirs)
-					dctDatasetIDsAndSubDirs.Add(entry.Key, entry.Value);
-
 				bool recurse = true;
 
-				mArchivedFiles = mReader.FindFilesByDatasetID(dctDatasetIDsAndSubDirs, recurse);
+				mArchivedFiles = mReader.FindFilesByDatasetID(mDatasetsAndSubDirs, recurse);
 				mCacheDate = DateTime.UtcNow;
 				mCacheIsStale = false;
 
