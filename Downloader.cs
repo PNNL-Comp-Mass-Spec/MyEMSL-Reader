@@ -112,7 +112,7 @@ namespace MyEMSLReader
 		}
 
 		public bool DownloadFiles(
-			List<long> lstFileIDs,
+			List<Int64> lstFileIDs,
 			string downloadFolderPath,
 			DownloadFolderLayout folderLayout = DownloadFolderLayout.SingleDataset,
 			int maxMinutesToWait = 1440)
@@ -178,8 +178,8 @@ namespace MyEMSLReader
 					}
 				}
 
-				long bytesDownloaded;
-				Dictionary<long, string> dctFilesDownloaded;
+				Int64 bytesDownloaded;
+				Dictionary<Int64, string> dctFilesDownloaded;
 
 				// Download "Locked" files (those not purged to tape)
 				// Keys in this dictionary are FileIDs, values are relative file paths
@@ -187,7 +187,7 @@ namespace MyEMSLReader
 
 				// Create a list of the files that remain (files that could not be downloaded directly)
 				// These files will be downloaded via the cart mechanism
-				var lstFilesRemaining = new List<long>();
+				var lstFilesRemaining = new List<Int64>();
 				foreach (var fileID in lstFileIDs)
 				{
 					if (!dctFilesDownloaded.ContainsKey(fileID))
@@ -218,7 +218,7 @@ namespace MyEMSLReader
 				}
 
 				// Create a cart
-				long cartID = CreateCart(lstFilesRemaining, cookieJar, authToken);
+				Int64 cartID = CreateCart(lstFilesRemaining, cookieJar, authToken);
 				if (cartID <= 0)
 				{
 					if (string.IsNullOrWhiteSpace(this.ErrorMessage))
@@ -256,7 +256,7 @@ namespace MyEMSLReader
 			catch (Exception ex)
 			{
 				if (string.IsNullOrWhiteSpace(this.ErrorMessage))
-					ReportError("Error in Downloadfiles: " + ex.Message);
+					ReportError("Error in MyEMSLReader.Downloader.Downloadfiles: " + ex.Message);
 				else if (this.ThrowErrors)
 					throw ex;
 			}
@@ -364,14 +364,14 @@ namespace MyEMSLReader
 		}
 
 
-		protected long ComputeTotalBytes(Dictionary<ArchivedFileInfo, bool> dctFiles)
+		protected Int64 ComputeTotalBytes(Dictionary<ArchivedFileInfo, bool> dctFiles)
 		{
 			return ComputeTotalBytes(dctFiles.Keys.ToList<ArchivedFileInfo>());
 		}
 
-		protected long ComputeTotalBytes(List<ArchivedFileInfo> dctFiles)
+		protected Int64 ComputeTotalBytes(List<ArchivedFileInfo> dctFiles)
 		{
-			long bytesToDownload = 0;
+			Int64 bytesToDownload = 0;
 			foreach (var archivedFile in dctFiles)
 			{
 				bytesToDownload += archivedFile.FileSizeBytes;
@@ -409,9 +409,9 @@ namespace MyEMSLReader
 			return downloadFilePath;
 		}
 
-		protected long CreateCart(List<long> lstFiles, CookieContainer cookieJar, string authToken)
+		protected Int64 CreateCart(List<Int64> lstFiles, CookieContainer cookieJar, string authToken)
 		{
-			long cartID = 0;
+			Int64 cartID = 0;
 
 			try
 			{
@@ -466,7 +466,7 @@ namespace MyEMSLReader
 		}
 
 
-		protected bool CreateScrollID(List<long> lstFileIDs, ref CookieContainer cookieJar, out string authToken)
+		protected bool CreateScrollID(List<Int64> lstFileIDs, ref CookieContainer cookieJar, out string authToken)
 		{
 			authToken = string.Empty;
 
@@ -529,7 +529,7 @@ namespace MyEMSLReader
 				}
 
 				// Verify that the files in lstFiles match those in lstFileIDs
-				var lstReturnedIDs = new SortedSet<long>(from item in lstFiles select item.FileID);
+				var lstReturnedIDs = new SortedSet<Int64>(from item in lstFiles select item.FileID);
 
 				foreach (var lstFileID in lstFileIDs)
 				{
@@ -592,21 +592,21 @@ namespace MyEMSLReader
 			return success;
 		}
 
-		protected Dictionary<long, string> DownloadLockedFiles(
+		protected Dictionary<Int64, string> DownloadLockedFiles(
 			Dictionary<ArchivedFileInfo, bool> dctFiles,
 			CookieContainer cookieJar,
 			string authToken,
 			string downloadFolderPath,
 			DownloadFolderLayout folderLayout,
-			out long bytesDownloaded)
+			out Int64 bytesDownloaded)
 		{
-			var dctFilesDownloaded = new Dictionary<long, string>();
+			var dctFilesDownloaded = new Dictionary<Int64, string>();
 			bytesDownloaded = 0;
 
 			try
 			{
 				// Determine total amount of data to be downloaded
-				long bytesToDownload = ComputeTotalBytes(dctFiles);
+				Int64 bytesToDownload = ComputeTotalBytes(dctFiles);
 
 				var lstLockedFiles = GetLockedFileList(dctFiles);
 
@@ -667,7 +667,7 @@ namespace MyEMSLReader
 			catch (Exception ex)
 			{
 				ReportError("Exception in DownloadLockedFiles: " + ex.Message, ex);
-				return new Dictionary<long, string>();
+				return new Dictionary<Int64, string>();
 			}
 
 			return dctFilesDownloaded;
@@ -676,12 +676,12 @@ namespace MyEMSLReader
 		protected bool DownloadTarFileWithRetry(
 			CookieContainer cookieJar,
 			List<ArchivedFileInfo> lstFilesInArchive,
-			List<long> lstFilesRemaining,
-			long bytesDownloaded,
+			List<Int64> lstFilesRemaining,
+			Int64 bytesDownloaded,
 			string downloadFolderPath,
 			DownloadFolderLayout folderLayout,
 			string tarFileURL,
-			ref Dictionary<long, string> dctFilesDownloaded)
+			ref Dictionary<Int64, string> dctFilesDownloaded)
 		{
 			bool success = false;
 
@@ -751,19 +751,19 @@ namespace MyEMSLReader
 		protected bool DownloadAndExtractTarFile(
 			CookieContainer cookieJar,
 			List<ArchivedFileInfo> lstFilesInArchive,
-			List<long> lstFilesRemaining,
-			long bytesDownloaded,
+			List<Int64> lstFilesRemaining,
+			Int64 bytesDownloaded,
 			string downloadFolderPath,
 			DownloadFolderLayout folderLayout,
 			string tarFileURL,
-			ref Dictionary<long, string> dctFilesDownloaded,
+			ref Dictionary<Int64, string> dctFilesDownloaded,
 			int timeoutSeconds = 100)
 		{
 			double maxTimeoutHours = 24;
 			NetworkCredential loginCredentials = null;
 			HttpWebRequest request = EasyHttp.InitializeRequest(tarFileURL, ref cookieJar, ref timeoutSeconds, loginCredentials, maxTimeoutHours);
 
-			long bytesToDownload = ComputeTotalBytes(lstFilesInArchive);
+			Int64 bytesToDownload = ComputeTotalBytes(lstFilesInArchive);
 
 			// Prepare the request object
 			request.Method = "GET";
@@ -795,7 +795,7 @@ namespace MyEMSLReader
 
 						string sourceFile = tarEntry.Name;
 
-						// Long files (over 100 characters) will have part of their name in tarEntry.Name and part of it in tarEntry.Prefix
+						// Int64 files (over 100 characters) will have part of their name in tarEntry.Name and part of it in tarEntry.Prefix
 						// Check for this
 						if (!string.IsNullOrEmpty(tarEntry.Prefix))
 							sourceFile = tarEntry.Prefix + '/' + sourceFile;
@@ -812,8 +812,8 @@ namespace MyEMSLReader
 						}
 
 						string fileIDText = sourceFile.Substring(0, charIndex);
-						long fileID;
-						if (!long.TryParse(fileIDText, out fileID))
+						Int64 fileID;
+						if (!Int64.TryParse(fileIDText, out fileID))
 						{
 							ReportMessage("Warning, skipping invalid entry in .tar file; does not start with a MyEMSL FileID value: " + sourceFile);
 							continue;
@@ -917,7 +917,7 @@ namespace MyEMSLReader
 			return fileMatchesHash;
 		}
 
-		protected List<ArchivedFileInfo> GetArchivedFileByID(List<ArchivedFileInfo> lstFilesInArchive, long fileID)
+		protected List<ArchivedFileInfo> GetArchivedFileByID(List<ArchivedFileInfo> lstFilesInArchive, Int64 fileID)
 		{
 			var archivedFileLookup = (from item in lstFilesInArchive
 									  where item.FileID == fileID
@@ -949,7 +949,7 @@ namespace MyEMSLReader
 			return lstDatasetIDs;
 		}
 
-		protected bool InitializeCartCreation(long cartID, CookieContainer cookieJar)
+		protected bool InitializeCartCreation(Int64 cartID, CookieContainer cookieJar)
 		{
 			bool success = false;
 
@@ -993,7 +993,7 @@ namespace MyEMSLReader
 		/// <param name="folderLayout"></param>
 		/// <param name="reportMessage"></param>
 		/// <returns></returns>
-		protected bool IsDownloadRequired(Dictionary<ArchivedFileInfo, bool> dctFiles, long fileID, string downloadFolderPath, DownloadFolderLayout folderLayout, bool reportMessage)
+		protected bool IsDownloadRequired(Dictionary<ArchivedFileInfo, bool> dctFiles, Int64 fileID, string downloadFolderPath, DownloadFolderLayout folderLayout, bool reportMessage)
 		{
 			var lstMatches = (from item in dctFiles where item.Key.FileID == fileID select item.Key).ToList();
 
@@ -1071,7 +1071,7 @@ namespace MyEMSLReader
 			this.DownloadedFiles.Clear();
 		}
 
-		private string ScanForFiles(List<long> lstFileIDs, Reader.ScanMode scanMode, ref CookieContainer cookieJar)
+		private string ScanForFiles(List<Int64> lstFileIDs, Reader.ScanMode scanMode, ref CookieContainer cookieJar)
 		{
 			var dctSearchTerms = new List<KeyValuePair<string, string>>();
 
@@ -1197,7 +1197,7 @@ namespace MyEMSLReader
 			}
 		}
 
-		protected void UpdateProgress(long bytesDownloaded, long bytesToDownload)
+		protected void UpdateProgress(Int64 bytesDownloaded, Int64 bytesToDownload)
 		{
 			if (bytesToDownload > 0)
 			{
@@ -1208,7 +1208,7 @@ namespace MyEMSLReader
 			}
 		}
 
-		protected bool WaitForCartSuccess(long cartID, CookieContainer cookieJar, int maxMinutesToWait, out string tarFileURL)
+		protected bool WaitForCartSuccess(Int64 cartID, CookieContainer cookieJar, int maxMinutesToWait, out string tarFileURL)
 		{
 			DateTime dtStartTime = DateTime.UtcNow;
 			DateTime dtLastUpdateTime = DateTime.UtcNow.Subtract(new TimeSpan(0, 0, 50));
@@ -1293,7 +1293,7 @@ namespace MyEMSLReader
 						notifyWhenCartAvailable = true;
 					}
 
-					// Sleep for 5 to 30 seconds (depending on how long we've been waiting)
+					// Sleep for 5 to 30 seconds (depending on how Int64 we've been waiting)
 					System.Threading.Thread.Sleep(sleepTimeSeconds * 1000);
 				}
 

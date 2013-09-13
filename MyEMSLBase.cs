@@ -13,7 +13,7 @@ namespace MyEMSLReader
 	{
 
 		#region "Enums"
-		internal enum SearchOperator
+		public enum SearchOperator
 		{
 			And = 0,
 			Or = 1
@@ -90,12 +90,12 @@ namespace MyEMSLReader
 			return valueIfMissing;
 		}
 
-		protected long ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, long valueIfMissing)
+		protected Int64 ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, Int64 valueIfMissing)
 		{
 			string valueText = ReadDictionaryValue(dctData, keyName, valueIfMissing.ToString());
-			long value;
+			Int64 value;
 
-			if (long.TryParse(valueText, out value))
+			if (Int64.TryParse(valueText, out value))
 				return value;
 
 			return valueIfMissing;
@@ -253,18 +253,15 @@ namespace MyEMSLReader
 		}
 
 
-		#region "Event Delegates and Classes"
+		#region "Events"
 
 		public event MessageEventHandler ErrorEvent;
 		public event MessageEventHandler MessageEvent;
 		public event ProgressEventHandler ProgressEvent;
-
-		public delegate void MessageEventHandler(object sender, MessageEventArgs e);
-		public delegate void ProgressEventHandler(object sender, ProgressEventArgs e);
-
+	
 		#endregion
 
-		#region "Event Functions"
+		#region "Event Handlers"
 
 		public void OnErrorMessage(MessageEventArgs e)
 		{

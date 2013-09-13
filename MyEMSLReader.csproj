@@ -49,9 +49,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArchivedFileInfo.cs" />
+    <Compile Include="DatasetFolderOrFileInfo.cs" />
+    <Compile Include="DatasetListInfoByID.cs" />
+    <Compile Include="DatasetInfoBase.cs" />
+    <Compile Include="DatasetListInfo.cs" />
     <Compile Include="Downloader.cs" />
+    <Compile Include="DownloadQueue.cs" />
     <Compile Include="EventArgs.cs" />
     <Compile Include="MyEMSLBase.cs" />
+    <Compile Include="DatasetInfo.cs" />
     <Compile Include="Reader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -32,13 +32,13 @@ namespace MyEMSLReader
 			private set;
 		}
 
-		public long FileID
+		public Int64 FileID
 		{
 			get;
 			set;
 		}
 
-		public long FileSizeBytes
+		public Int64 FileSizeBytes
 		{
 			get;
 			set;
@@ -155,7 +155,7 @@ namespace MyEMSLReader
 		/// MyEMSL transaction ID for this specific file
 		/// </summary>
 		/// <remarks>Incremented for every newly uploaded bundle (.tar file), and thus a good substitute for dates when comparing two files to see which is newer</remarks>
-		public long TransactionID
+		public Int64 TransactionID
 		{
 			get;
 			set;
@@ -181,7 +181,7 @@ namespace MyEMSLReader
 		/// <param name="subDirPath">Subdirectory below dataset (empty if at the dataset level)</param>
 		/// <param name="fileSizeBytes">File size, in bytes</param>
 		/// <param name="fileID">MyEMSL File ID</param>
-		public ArchivedFileInfo(string dataset, string filename, string subDirPath, long fileID) :
+		public ArchivedFileInfo(string dataset, string filename, string subDirPath, Int64 fileID) :
 			this(dataset, filename, subDirPath, fileID, "", "", new Dictionary<string, object>()) 
 		{ }
 
@@ -194,7 +194,7 @@ namespace MyEMSLReader
 		/// <param name="fileSizeBytes">File size, in bytes</param>
 		/// <param name="fileID">MyEMSL File ID</param>
 		/// <param name="instrument">Instrument name</param>
-		public ArchivedFileInfo(string dataset, string filename, string subDirPath, long fileID, string instrument, string datasetYearQuarter, Dictionary<string, object> dctMetadata)
+		public ArchivedFileInfo(string dataset, string filename, string subDirPath, Int64 fileID, string instrument, string datasetYearQuarter, Dictionary<string, object> dctMetadata)
 		{
 			this.Dataset = dataset;
 			this.Filename = filename;
