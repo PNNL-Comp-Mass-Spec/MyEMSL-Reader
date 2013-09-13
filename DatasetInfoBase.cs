@@ -109,16 +109,20 @@ namespace MyEMSLReader
 			mLastProgressWriteTime = DateTime.UtcNow;
 		}
 
-		public void AddFileToDownloadQueue(Int64 myEMSLFileID, ArchivedFileInfo fileInfo)
+		public void AddFileToDownloadQueue(ArchivedFileInfo fileInfo)
 		{
-			AddFileToDownloadQueue(myEMSLFileID, fileInfo, unzipRequired: false);
+			mDownloadQueue.AddFileToDownloadQueue(fileInfo, unzipRequired: false);
+		}
+
+		public void AddFileToDownloadQueue(ArchivedFileInfo fileInfo, bool unzipRequired)
+		{
+			mDownloadQueue.AddFileToDownloadQueue(fileInfo, unzipRequired);
 		}
 
 		public void AddFileToDownloadQueue(Int64 myEMSLFileID, ArchivedFileInfo fileInfo, bool unzipRequired)
 		{
 			mDownloadQueue.AddFileToDownloadQueue(myEMSLFileID, fileInfo, unzipRequired);
 		}
-
 
 		/// <summary>
 		/// Appends the MyEMSL File ID tag to a given file path
@@ -485,7 +489,10 @@ namespace MyEMSLReader
 			mErrorMessages.Add(e.Message);
 			if (ErrorEvent != null)
 			{
-				ErrorEvent(this, new MessageEventArgs("MyEMSL reader error in MyEMSLReader.DatasetInfoBase: " + e.Message));
+				if (sender.GetType().ToString().EndsWith("DownloadQueue"))
+					ErrorEvent(sender, e);
+				else
+					ErrorEvent(this, new MessageEventArgs("MyEMSL reader error in MyEMSLReader.DatasetInfoBase: " + e.Message));
 			}
 		}
 
@@ -493,7 +500,10 @@ namespace MyEMSLReader
 		{
 			if (MessageEvent != null)
 			{
-				MessageEvent(this, new MessageEventArgs("MyEMSL reader: " + e.Message));
+				if (sender.GetType().ToString().EndsWith("DownloadQueue"))
+					MessageEvent(sender, e);
+				else
+					MessageEvent(this, new MessageEventArgs("MyEMSL reader: " + e.Message));
 			}
 		}
 

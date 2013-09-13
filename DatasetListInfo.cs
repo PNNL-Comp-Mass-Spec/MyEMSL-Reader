@@ -100,9 +100,7 @@ namespace MyEMSLReader
 			{
 				mErrorMessages.Clear();
 
-				bool recurse = true;
-
-				mArchivedFiles = mReader.FindFilesByDatasetName(mDatasetsAndSubDirs, recurse);
+				mArchivedFiles = mReader.FindFilesByDatasetName(mDatasetsAndSubDirs);
 				mCacheDate = DateTime.UtcNow;
 				mCacheIsStale = false;
 

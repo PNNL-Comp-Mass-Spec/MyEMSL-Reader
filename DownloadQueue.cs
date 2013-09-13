@@ -61,11 +61,23 @@ namespace MyEMSLReader
 			this.DownloadedFiles = new Dictionary<string, ArchivedFileInfo>();
 		}
 
-		public void AddFileToDownloadQueue(Int64 myEMSLFileID, ArchivedFileInfo fileInfo)
+		public void AddFileToDownloadQueue(ArchivedFileInfo fileInfo)
 		{
-			AddFileToDownloadQueue(myEMSLFileID, fileInfo, unzipRequired: false);
+			AddFileToDownloadQueue(fileInfo.FileID, fileInfo, unzipRequired: false);
 		}
 
+		public void AddFileToDownloadQueue(ArchivedFileInfo fileInfo, bool unzipRequired)
+		{
+			AddFileToDownloadQueue(fileInfo.FileID, fileInfo, unzipRequired);
+		}
+
+		/// <summary>
+		/// Queue a file to be downloaded
+		/// </summary>
+		/// <param name="myEMSLFileID"></param>
+		/// <param name="fileInfo">Archive File Info</param>
+		/// <param name="unzipRequired"></param>
+		/// <remarks>fileInfo can be null if unzipRequired is false</remarks>
 		public void AddFileToDownloadQueue(Int64 myEMSLFileID, ArchivedFileInfo fileInfo, bool unzipRequired)
 		{
 

@@ -80,11 +80,11 @@ namespace MyEMSLReader
 
 				OnErrorEvent(this, new MessageEventArgs(message));
 
-				AddFileToDownloadQueue(myEMSLFileID, null, unzipRequired);
+				AddFileToDownloadQueue(myEMSLFileID, null, unzipRequired: false);
 			}
 			else
 			{
-				AddFileToDownloadQueue(myEMSLFileID, qArchivedFile.First(), unzipRequired);
+				AddFileToDownloadQueue(qArchivedFile.First(), unzipRequired);
 			}
 
 		}

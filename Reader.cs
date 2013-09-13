@@ -307,7 +307,7 @@ namespace MyEMSLReader
 					// Filtered by sub directory subDir
 					// Confirm that this file resides in that sub directory (and not in a sub directory of subDir)
 
-					if (file.SubDirPath.ToLower() == currentSubDir.ToLower())
+					if (string.Equals(file.SubDirPath, currentSubDir, StringComparison.CurrentCultureIgnoreCase))
 					{
 						lstFilesFiltered.Add(file);
 					}
@@ -357,7 +357,7 @@ namespace MyEMSLReader
 						int matchCount = 0;
 						for (int i = 0; i < lstRequiredSubDirTree.Count; i++)
 						{
-							if (lstFileSubDirTree[i].ToLower() == lstRequiredSubDirTree[i].ToLower())
+							if (string.Equals(lstFileSubDirTree[i], lstRequiredSubDirTree[i], StringComparison.CurrentCultureIgnoreCase))
 								matchCount++;
 						}
 
