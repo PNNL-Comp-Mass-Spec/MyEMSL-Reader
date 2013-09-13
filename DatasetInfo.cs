@@ -118,7 +118,8 @@ namespace MyEMSLReader
 				}
 
 				mArchivedFiles = mReader.FindFilesByDatasetName(mDatasetName);
-				mCacheDate = System.DateTime.UtcNow;
+				mCacheDate = DateTime.UtcNow;
+				mCacheIsStale = false;
 
 				if (mArchivedFiles.Count == 0)
 				{
@@ -149,9 +150,7 @@ namespace MyEMSLReader
 				mDatasetID = 0;
 				mArchivedFiles.Clear();
 
-				var oneDay = new TimeSpan(1, 0, 0, 0);
-				mCacheDate = System.DateTime.UtcNow.Subtract(oneDay);
-
+				mCacheIsStale = true;
 			}
 		}
 

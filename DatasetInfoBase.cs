@@ -13,6 +13,7 @@ namespace MyEMSLReader
 		#region "Constants"
 
 		protected const string MYEMSL_FILEID_TAG = "@MyEMSLID_";
+		protected const int CACHE_REFRESH_THRESHOLD_MINUTES = 5;
 
 		#endregion
 
@@ -21,9 +22,10 @@ namespace MyEMSLReader
 		protected List<string> mErrorMessages;
 		protected List<ArchivedFileInfo> mArchivedFiles;
 
-		protected System.DateTime mCacheDate;
+		protected DateTime mCacheDate;
+		protected bool mCacheIsStale;
 
-		protected System.DateTime mLastProgressWriteTime;
+		protected DateTime mLastProgressWriteTime;
 
 		protected Reader mReader;
 
@@ -104,7 +106,7 @@ namespace MyEMSLReader
 			mDownloadQueue.ProgressEvent += new ProgressEventHandler(OnProgressEvent);
 			mDownloadQueue.FileDownloadedEvent += new FileDownloadedEventHandler(OnFileDownloadedEvent);
 
-			mLastProgressWriteTime = System.DateTime.UtcNow;
+			mLastProgressWriteTime = DateTime.UtcNow;
 		}
 
 		public void AddFileToDownloadQueue(Int64 myEMSLFileID, ArchivedFileInfo fileInfo)
@@ -460,7 +462,7 @@ namespace MyEMSLReader
 		/// <remarks></remarks>
 		protected bool RefreshInfoIfStale()
 		{
-			if (System.DateTime.UtcNow.Subtract(mCacheDate).TotalMinutes >= 5)
+			if (mCacheIsStale || DateTime.UtcNow.Subtract(mCacheDate).TotalMinutes >= CACHE_REFRESH_THRESHOLD_MINUTES)
 				return RefreshInfo();
 			else
 				return true;

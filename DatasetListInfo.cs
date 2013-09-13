@@ -22,9 +22,20 @@ namespace MyEMSLReader
 		#region "Properties"
 
 		/// <summary>
+		/// Dataset names
+		/// </summary>
+		public List<string> Datasets
+		{
+			get
+			{
+				return mDatasetsAndSubDirs.Keys.ToList();
+			}
+		}
+
+		/// <summary>
 		/// Keys are dataset names, values are the optional Subdirectory name to filter on for the given dataset
 		/// </summary>
-		public Dictionary<string, string> Datasets
+		public Dictionary<string, string> DatasetsAndSubDirs
 		{
 			get
 			{
@@ -65,12 +76,21 @@ namespace MyEMSLReader
 			if (mDatasetsAndSubDirs.Keys.Contains(datasetName))
 				mDatasetsAndSubDirs[datasetName] = subDir;
 			else
+			{
 				mDatasetsAndSubDirs.Add(datasetName, subDir);
+				mCacheIsStale = true;
+			}
 		}
 
 		public void Clear()
 		{
 			mDatasetsAndSubDirs.Clear();
+			mCacheIsStale = true;
+		}
+
+		public bool ContainsDataset(string datasetName)
+		{
+			return mDatasetsAndSubDirs.ContainsKey(datasetName);
 		}
 
 		public override bool RefreshInfo()
@@ -87,7 +107,8 @@ namespace MyEMSLReader
 				bool recurse = true;
 
 				mArchivedFiles = mReader.FindFilesByDatasetName(dctDatasetsAndSubDirs, recurse);
-				mCacheDate = System.DateTime.UtcNow;
+				mCacheDate = DateTime.UtcNow;
+				mCacheIsStale = false;
 
 				if (mArchivedFiles.Count == 0)
 				{
