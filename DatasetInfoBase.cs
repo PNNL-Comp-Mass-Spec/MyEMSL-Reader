@@ -188,8 +188,22 @@ namespace MyEMSLReader
 		public List<DatasetFolderOrFileInfo> FindFiles(string fileName)
 		{
 			string subFolderName = string.Empty;
+			string datasetName = string.Empty;
 			bool recurse = true;
-			return FindFiles(fileName, subFolderName, recurse);
+			return FindFiles(fileName, subFolderName, datasetName, recurse);
+		}
+
+		/// <summary>
+		/// Looks for the given file, returning any matches as a list
+		/// </summary>
+		/// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
+		/// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
+		/// <returns>List of matching files</returns>
+		public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName)
+		{
+			string datasetName = string.Empty;
+			bool recurse = true;
+			return FindFiles(fileName, subFolderName, datasetName, recurse);
 		}
 
 		/// <summary>
@@ -199,8 +213,35 @@ namespace MyEMSLReader
 		/// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
 		/// <param name="recurse">True to search all subfolders; false to only search the root folder (or only subFolderName)</param>
 		/// <returns>List of matching files</returns>
-		/// <remarks></remarks>
 		public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, bool recurse)
+		{
+			string datasetName = string.Empty;
+			return FindFiles(fileName, subFolderName, datasetName, recurse);
+		}
+
+		/// <summary>
+		/// Looks for the given file, returning any matches as a list
+		/// </summary>
+		/// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
+		/// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
+		/// <param name="datasetName">Dataset name filter</param>
+		/// <returns>List of matching files</returns>
+		public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, string datasetName)
+		{
+			bool recurse = true;
+			return FindFiles(fileName, subFolderName, datasetName, recurse);
+		}
+
+		/// <summary>
+		/// Looks for the given file, returning any matches as a list
+		/// </summary>
+		/// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
+		/// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
+		/// <param name="datasetName">Dataset name filter</param>
+		/// <param name="recurse">True to search all subfolders; false to only search the root folder (or only subFolderName)</param>
+		/// <returns>List of matching files</returns>
+		/// <remarks></remarks>
+		public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, string datasetName, bool recurse)
 		{
 
 			// Re-query the web service if the information is out-of-date
@@ -232,6 +273,12 @@ namespace MyEMSLReader
 
 			foreach (var archivedFile in mArchivedFiles)
 			{
+				if (!string.IsNullOrWhiteSpace(datasetName))
+				{
+					if (!string.Equals(datasetName, archivedFile.Dataset, StringComparison.CurrentCultureIgnoreCase))
+						continue;
+				}
+
 				if (reFile.IsMatch(archivedFile.Filename))
 				{
 					bool isMatch = true;
@@ -286,6 +333,20 @@ namespace MyEMSLReader
 		/// <remarks></remarks>
 		public List<DatasetFolderOrFileInfo> FindFolders(string folderName)
 		{
+			string datasetName = string.Empty;
+
+			return FindFolders(folderName, datasetName);
+		}
+
+		/// <summary>
+		/// Looks for the given folder, returning any matches as a list
+		/// </summary>
+		/// <param name="folderName">Folder name to find; can contain a wildcard, e.g. SIC*</param>
+		/// <param name="datasetName">Dataset name filter</param>
+		/// <returns>List of matching folders</returns>
+		/// <remarks></remarks>
+		public List<DatasetFolderOrFileInfo> FindFolders(string folderName, string datasetName)
+		{
 
 			// Re-query the web service if the information is out-of-date
 			RefreshInfoIfStale();
@@ -302,6 +363,12 @@ namespace MyEMSLReader
 
 			foreach (var archivedFile in mArchivedFiles)
 			{
+				if (!string.IsNullOrWhiteSpace(datasetName))
+				{
+					if (!string.Equals(datasetName, archivedFile.Dataset, StringComparison.CurrentCultureIgnoreCase))
+						continue;
+				}
+
 				if (archivedFile.RelativePathWindows.IndexOf("\\") <= 0)
 				{
 					continue;
