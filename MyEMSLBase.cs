@@ -37,36 +37,60 @@ namespace MyEMSLReader
 
 		#endregion
 
-		protected bool ValidSearchResults(Dictionary<string, object> dctResults, out string errorMessage)
+
+		public static void GarbageCollectNow()
 		{
-			// Check for an error
-			errorMessage = ReadDictionaryValue(dctResults, "error", "");
-			if (!string.IsNullOrEmpty(errorMessage))
-			{
-				int charIndex = errorMessage.IndexOf("{");
-
-				// Truncate the message after the first curly bracket
-				if (charIndex > 0)
-					errorMessage = errorMessage.Substring(0, charIndex);
-
-				charIndex = errorMessage.IndexOf("; shardFailures");
-				if (charIndex > 0)
-					errorMessage = errorMessage.Substring(0, charIndex);
-
-				return false;
-			}
-
-			bool timedOut = ReadDictionaryValue(dctResults, "timed_out", false);
-
-			if (timedOut)
-			{
-				errorMessage = "Elastic search reports a timeout error";
-				return false;
-			}
-
-			return true;
+			int intMaxWaitTimeMSec = 1000;
+			GarbageCollectNow(intMaxWaitTimeMSec);
 		}
-		
+
+		public static void GarbageCollectNow(int intMaxWaitTimeMSec)
+		{
+			const int THREAD_SLEEP_TIME_MSEC = 100;
+
+			int intTotalThreadWaitTimeMsec = 0;
+			if (intMaxWaitTimeMSec < 100)
+				intMaxWaitTimeMSec = 100;
+			if (intMaxWaitTimeMSec > 5000)
+				intMaxWaitTimeMSec = 5000;
+
+			System.Threading.Thread.Sleep(100);
+
+			try
+			{
+				var gcThread = new System.Threading.Thread(GarbageCollectWaitForGC);
+				gcThread.Start();
+
+				intTotalThreadWaitTimeMsec = 0;
+				while (gcThread.IsAlive && intTotalThreadWaitTimeMsec < intMaxWaitTimeMSec)
+				{
+					System.Threading.Thread.Sleep(THREAD_SLEEP_TIME_MSEC);
+					intTotalThreadWaitTimeMsec += THREAD_SLEEP_TIME_MSEC;
+				}
+				if (gcThread.IsAlive)
+					gcThread.Abort();
+
+			}
+			catch
+			{
+				// Ignore errors here
+			}
+
+		}
+
+		protected static void GarbageCollectWaitForGC()
+		{
+			try
+			{
+				GC.Collect();
+				GC.WaitForPendingFinalizers();
+			}
+			catch
+			{
+				// Ignore errors here
+			}
+		}
+
 		protected string ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, string valueIfMissing)
 		{
 			object value;
@@ -252,7 +276,36 @@ namespace MyEMSLReader
 			return retrievalSuccess;
 		}
 
+		protected bool ValidSearchResults(Dictionary<string, object> dctResults, out string errorMessage)
+		{
+			// Check for an error
+			errorMessage = ReadDictionaryValue(dctResults, "error", "");
+			if (!string.IsNullOrEmpty(errorMessage))
+			{
+				int charIndex = errorMessage.IndexOf("{");
 
+				// Truncate the message after the first curly bracket
+				if (charIndex > 0)
+					errorMessage = errorMessage.Substring(0, charIndex);
+
+				charIndex = errorMessage.IndexOf("; shardFailures");
+				if (charIndex > 0)
+					errorMessage = errorMessage.Substring(0, charIndex);
+
+				return false;
+			}
+
+			bool timedOut = ReadDictionaryValue(dctResults, "timed_out", false);
+
+			if (timedOut)
+			{
+				errorMessage = "Elastic search reports a timeout error";
+				return false;
+			}
+
+			return true;
+		}
+		
 		#region "Events"
 
 		public event MessageEventHandler ErrorEvent;

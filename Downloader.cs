@@ -579,14 +579,16 @@ namespace MyEMSLReader
 
 		}
 
-		protected bool DownloadFile(string URL, CookieContainer cookieJar, int maxAttempts, string downloadFilePath, out Exception mostRecentException)
+		protected bool DownloadFile(string URL, CookieContainer cookieJar, int maxAttempts, string downloadFilePath, out Exception mostRecentException, out bool fileInUseByOtherProcess)
 		{
 
 			mostRecentException = null;
+			fileInUseByOtherProcess = false;
 
 			int timeoutSeconds = 100;
 			int attempts = 0;
 			bool success = false;
+			bool triedGC = false;
 
 			HttpStatusCode responseStatusCode;
 
@@ -600,9 +602,26 @@ namespace MyEMSLReader
 					if (!success)
 						break;
 				}
+				catch (IOException ex)
+				{
+					// This exception occurs for errors "cannot access the file '...' because it is being used by another process."
+					if (!triedGC)
+					{
+						MyEMSLBase.GarbageCollectNow();
+						triedGC = true;
+						continue;
+					}
+					else
+					{
+						mostRecentException = ex;
+						fileInUseByOtherProcess = true;
+						success = false;
+						break;
+					}
+				}
 				catch (Exception ex)
 				{
-					mostRecentException = ex;
+					
 					if (attempts >= maxAttempts)
 					{
 						success = false;
@@ -663,14 +682,15 @@ namespace MyEMSLReader
 					}
 
 					int maxAttempts = 5;
-					Exception mostRecentException;					
+					Exception mostRecentException;
+					bool fileInUseByOtherProcess = false;
 					bool reportMessage = true;
 
 					bool downloadFile = IsDownloadRequired(archivedFile, downloadFilePath, reportMessage);
 
 					if (downloadFile)
-					{
-						bool retrievalSuccess = DownloadFile(URL, cookieJar, maxAttempts, downloadFilePath, out mostRecentException);
+					{						
+						bool retrievalSuccess = DownloadFile(URL, cookieJar, maxAttempts, downloadFilePath, out mostRecentException, out fileInUseByOtherProcess);
 
 						if (retrievalSuccess)
 						{
@@ -687,7 +707,8 @@ namespace MyEMSLReader
 								ReportMessage("Failure downloading " + Path.GetFileName(downloadFilePath) + ": " + mostRecentException.Message);
 						}
 					}
-					else
+
+					if (fileInUseByOtherProcess || !downloadFile)
 					{
 						// Download skipped
 						// Need to add to the downloaded files dictionary so that the file doesn't get downloaded via the .tar file mechanism
