@@ -111,8 +111,37 @@ namespace MyEMSLReader
 			ResetStatus();
 		}
 
+		/// <summary>
+		/// Download queued files
+		/// </summary>
+		/// <param name="lstFileIDs"></param>
+		/// <param name="downloadFolderPath"></param>
+		/// <param name="folderLayout"></param>
+		/// <param name="maxMinutesToWait"></param>
+		/// <returns>True if success, false if an error</returns>
 		public bool DownloadFiles(
 			List<Int64> lstFileIDs,
+			string downloadFolderPath,
+			DownloadFolderLayout folderLayout = DownloadFolderLayout.SingleDataset,
+			int maxMinutesToWait = 1440)
+		{
+			var dctDestFilePathOverride = new Dictionary<Int64, string>();
+			return DownloadFiles(lstFileIDs, dctDestFilePathOverride, downloadFolderPath, folderLayout, maxMinutesToWait);
+		}
+
+		/// <summary>
+		/// Download files in lstFileIDs
+		/// </summary>
+		/// <param name="lstFileIDs">List of MyEMSL File IDs to download</param>
+		/// <param name="dctDestFilePathOverride">Dictionary where keys are FileIDs and values are the explicit destination path to use</param>
+		/// <param name="downloadFolderPath">Target folder path (ignored for files defined in dctDestFilePathOverride)</param>
+		/// <param name="folderLayout">Folder Layout (ignored for files defined in dctDestFilePathOverride)</param>
+		/// <param name="maxMinutesToWait">Maximum timeout (minutes)</param>
+		/// <remarks>dctDestFilePathOverride is not required and can be empty; it can also have values for just some of the files in lstFileIDs</remarks>
+		/// <returns>True if success, false if an error</returns>
+		public bool DownloadFiles(
+			List<Int64> lstFileIDs,
+			Dictionary<Int64, string> dctDestFilePathOverride,
 			string downloadFolderPath,
 			DownloadFolderLayout folderLayout = DownloadFolderLayout.SingleDataset,
 			int maxMinutesToWait = 1440)
@@ -183,7 +212,7 @@ namespace MyEMSLReader
 
 				// Download "Locked" files (those not purged to tape)
 				// Keys in this dictionary are FileIDs, values are relative file paths
-				dctFilesDownloaded = DownloadLockedFiles(dctFiles, cookieJar, authToken, downloadFolderPath, folderLayout, out bytesDownloaded);
+				dctFilesDownloaded = DownloadLockedFiles(dctFiles, cookieJar, authToken, dctDestFilePathOverride, downloadFolderPath, folderLayout, out bytesDownloaded);
 
 				// Create a list of the files that remain (files that could not be downloaded directly)
 				// These files will be downloaded via the cart mechanism
@@ -250,7 +279,7 @@ namespace MyEMSLReader
 				}
 
 				// Extract the files from the .tar file
-				success = DownloadTarFileWithRetry(cookieJar, dctFiles.Keys.ToList<ArchivedFileInfo>(), lstFilesRemaining, bytesDownloaded, downloadFolderPath, folderLayout, tarFileURL, ref dctFilesDownloaded);
+				success = DownloadTarFileWithRetry(cookieJar, dctFiles.Keys.ToList<ArchivedFileInfo>(), lstFilesRemaining, bytesDownloaded, dctDestFilePathOverride, downloadFolderPath, folderLayout, tarFileURL, ref dctFilesDownloaded);
 
 			}
 			catch (Exception ex)
@@ -596,6 +625,7 @@ namespace MyEMSLReader
 			Dictionary<ArchivedFileInfo, bool> dctFiles,
 			CookieContainer cookieJar,
 			string authToken,
+			Dictionary<Int64, string> dctDestFilePathOverride,
 			string downloadFolderPath,
 			DownloadFolderLayout folderLayout,
 			out Int64 bytesDownloaded)
@@ -616,8 +646,15 @@ namespace MyEMSLReader
 					string URL = Configuration.SearchServerUri + "/myemsl/item/foo/bar/" + archivedFile.FileID + "/" + archivedFile.Filename + "?token=" + authToken + "&locked";
 
 					string downloadFilePath = ConstructDownloadfilePath(folderLayout, archivedFile);
-
 					downloadFilePath = Path.Combine(downloadFolderPath, downloadFilePath);
+
+					string filePathOverride;
+					if (dctDestFilePathOverride.TryGetValue(archivedFile.FileID, out filePathOverride))
+					{
+						if (!string.IsNullOrEmpty(filePathOverride))
+							downloadFilePath = filePathOverride;
+					}
+					
 					var fiTargetFile = new FileInfo(downloadFilePath);
 					if (!fiTargetFile.Directory.Exists)
 					{
@@ -678,6 +715,7 @@ namespace MyEMSLReader
 			List<ArchivedFileInfo> lstFilesInArchive,
 			List<Int64> lstFilesRemaining,
 			Int64 bytesDownloaded,
+			Dictionary<Int64, string> dctDestFilePathOverride,
 			string downloadFolderPath,
 			DownloadFolderLayout folderLayout,
 			string tarFileURL,
@@ -698,7 +736,7 @@ namespace MyEMSLReader
 					try
 					{
 						attempts++;
-						success = DownloadAndExtractTarFile(cookieJar, lstFilesInArchive, lstFilesRemaining, bytesDownloaded, downloadFolderPath, folderLayout, tarFileURL, ref dctFilesDownloaded, timeoutSeconds);
+						success = DownloadAndExtractTarFile(cookieJar, lstFilesInArchive, lstFilesRemaining, bytesDownloaded, dctDestFilePathOverride, downloadFolderPath, folderLayout, tarFileURL, ref dctFilesDownloaded, timeoutSeconds);
 
 						if (!success)
 							break;
@@ -753,6 +791,7 @@ namespace MyEMSLReader
 			List<ArchivedFileInfo> lstFilesInArchive,
 			List<Int64> lstFilesRemaining,
 			Int64 bytesDownloaded,
+			Dictionary<Int64, string> dctDestFilePathOverride,
 			string downloadFolderPath,
 			DownloadFolderLayout folderLayout,
 			string tarFileURL,
@@ -841,6 +880,13 @@ namespace MyEMSLReader
 						// Define the local file path
 						string downloadFilePath = ConstructDownloadfilePath(folderLayout, archivedFile);
 						downloadFilePath = Path.Combine(downloadFolderPath, downloadFilePath);
+
+						string filePathOverride;
+						if (dctDestFilePathOverride.TryGetValue(archivedFile.FileID, out filePathOverride))
+						{
+							if (!string.IsNullOrEmpty(filePathOverride))
+								downloadFilePath = filePathOverride;
+						}
 
 						// Create the target folder if necessary
 						var targetFile = new FileInfo(downloadFilePath);

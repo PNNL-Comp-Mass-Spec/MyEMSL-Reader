@@ -109,19 +109,48 @@ namespace MyEMSLReader
 			mLastProgressWriteTime = DateTime.UtcNow;
 		}
 
+		/// <summary>
+		/// Queue a file to be downloaded
+		/// </summary>
+		/// <param name="fileInfo">Archive File Info</param>
 		public void AddFileToDownloadQueue(ArchivedFileInfo fileInfo)
 		{
 			mDownloadQueue.AddFileToDownloadQueue(fileInfo, unzipRequired: false);
 		}
 
+		/// <summary>
+		/// Queue a file to be downloaded
+		/// </summary>
+		/// <param name="fileInfo">Archive File Info</param>
+		/// <param name="unzipRequired">True if the file will need to be unzipped after the download (this DLL will not unzip the file; it will simply include this in event FileDownloadedEventArgs)</param>
 		public void AddFileToDownloadQueue(ArchivedFileInfo fileInfo, bool unzipRequired)
 		{
 			mDownloadQueue.AddFileToDownloadQueue(fileInfo, unzipRequired);
 		}
 
+		/// <summary>
+		/// Queue a file to be downloaded
+		/// </summary>
+		/// <param name="myEMSLFileID">MyEMSL File ID</param>
+		/// <param name="fileInfo">Archive File Info</param>
+		/// <param name="unzipRequired">True if the file will need to be unzipped after the download (this DLL will not unzip the file; it will simply include this in event FileDownloadedEventArgs)</param>
+		/// <remarks>fileInfo can be null if unzipRequired is false</remarks>
 		public void AddFileToDownloadQueue(Int64 myEMSLFileID, ArchivedFileInfo fileInfo, bool unzipRequired)
 		{
 			mDownloadQueue.AddFileToDownloadQueue(myEMSLFileID, fileInfo, unzipRequired);
+		}
+
+		/// <summary>
+		/// Queue a file to be downloaded
+		/// </summary>
+		/// <param name="myEMSLFileID">MyEMSL File ID</param>
+		/// <param name="fileInfo">Archive File Info</param>
+		/// <param name="unzipRequired">True if the file will need to be unzipped after the download (this DLL will not unzip the file; it will simply include this in event FileDownloadedEventArgs)</param>
+		/// <param name="destFilePath">Explicit destination file path</param>
+		/// <remarks>fileInfo can be null if unzipRequired is false</remarks>
+		public void AddFileToDownloadQueue(Int64 myEMSLFileID, ArchivedFileInfo fileInfo, bool unzipRequired, string destFilePath)
+		{
+			mDownloadQueue.AddFileToDownloadQueue(myEMSLFileID, fileInfo, unzipRequired, destFilePath);
 		}
 
 		/// <summary>
@@ -151,7 +180,7 @@ namespace MyEMSLReader
 		public static Int64 ExtractMyEMSLFileID(string filePath)
 		{
 			string newFilePath = string.Empty;
-			return ExtractMyEMSLFileID(filePath, ref newFilePath);
+			return ExtractMyEMSLFileID(filePath, out newFilePath);
 		}
 
 		/// <summary>
@@ -161,11 +190,11 @@ namespace MyEMSLReader
 		/// <param name="newFilePath">Path with the MyEMSL FileID tag removed, for example QC_Shew_13-04_pt1_1_1_31Jul13_Cheetah_13-07-01.raw</param>
 		/// <returns>MyEMSL File ID if successfully parsed, 0 if not present or a problem</returns>
 		/// <remarks></remarks>
-		public static Int64 ExtractMyEMSLFileID(string filePath, ref string newFilePath)
+		public static Int64 ExtractMyEMSLFileID(string filePath, out string newFilePath)
 		{
 
 			int charIndex = filePath.LastIndexOf(MYEMSL_FILEID_TAG);
-			newFilePath = string.Empty;
+			newFilePath = string.Copy(filePath);
 
 			if (charIndex > 0)
 			{

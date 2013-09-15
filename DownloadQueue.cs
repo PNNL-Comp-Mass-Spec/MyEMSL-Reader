@@ -13,6 +13,7 @@ namespace MyEMSLReader
 		{
 			public ArchivedFileInfo FileInfo;
 			public bool UnzipRequired;
+			public string DestFilePath;
 		}
 		#endregion
 
@@ -61,32 +62,62 @@ namespace MyEMSLReader
 			this.DownloadedFiles = new Dictionary<string, ArchivedFileInfo>();
 		}
 
+		/// <summary>
+		/// Queue a file to be downloaded
+		/// </summary>
+		/// <param name="fileInfo">Archive File Info</param>
 		public void AddFileToDownloadQueue(ArchivedFileInfo fileInfo)
 		{
-			AddFileToDownloadQueue(fileInfo.FileID, fileInfo, unzipRequired: false);
-		}
-
-		public void AddFileToDownloadQueue(ArchivedFileInfo fileInfo, bool unzipRequired)
-		{
-			AddFileToDownloadQueue(fileInfo.FileID, fileInfo, unzipRequired);
+			bool unzipRequired = false;
+			string destFilePath = string.Empty;
+			AddFileToDownloadQueue(fileInfo.FileID, fileInfo, unzipRequired, destFilePath);
 		}
 
 		/// <summary>
 		/// Queue a file to be downloaded
 		/// </summary>
-		/// <param name="myEMSLFileID"></param>
 		/// <param name="fileInfo">Archive File Info</param>
-		/// <param name="unzipRequired"></param>
+		/// <param name="unzipRequired">True if the file will need to be unzipped after the download (this DLL will not unzip the file; it will simply include this in event FileDownloadedEventArgs)</param>
+		public void AddFileToDownloadQueue(ArchivedFileInfo fileInfo, bool unzipRequired)
+		{
+			string destFilePath = string.Empty;
+			AddFileToDownloadQueue(fileInfo.FileID, fileInfo, unzipRequired, destFilePath);
+		}
+
+		/// <summary>
+		/// Queue a file to be downloaded
+		/// </summary>
+		/// <param name="myEMSLFileID">MyEMSL File ID</param>
+		/// <param name="fileInfo">Archive File Info</param>
+		/// <param name="unzipRequired">True if the file will need to be unzipped after the download (this DLL will not unzip the file; it will simply include this in event FileDownloadedEventArgs)</param>
 		/// <remarks>fileInfo can be null if unzipRequired is false</remarks>
 		public void AddFileToDownloadQueue(Int64 myEMSLFileID, ArchivedFileInfo fileInfo, bool unzipRequired)
+		{
+			string destFilePath = string.Empty;
+			AddFileToDownloadQueue(myEMSLFileID, fileInfo, unzipRequired, destFilePath);
+		}
+
+		/// <summary>
+		/// Queue a file to be downloaded
+		/// </summary>
+		/// <param name="myEMSLFileID">MyEMSL File ID</param>
+		/// <param name="fileInfo">Archive File Info</param>
+		/// <param name="unzipRequired">True if the file will need to be unzipped after the download (this DLL will not unzip the file; it will simply include this in event FileDownloadedEventArgs)</param>
+		/// <param name="destFilePath">Explicit destination file path</param>
+		/// <remarks>fileInfo can be null if unzipRequired is false</remarks>
+		public void AddFileToDownloadQueue(Int64 myEMSLFileID, ArchivedFileInfo fileInfo, bool unzipRequired, string destFilePath)
 		{
 
 			if (this.FilesToDownload.ContainsKey(myEMSLFileID))
 				return;
 
+			if (string.IsNullOrWhiteSpace(destFilePath))
+				destFilePath = string.Empty;
+
 			var newFile = new udtFileToDownload();
 			newFile.UnzipRequired = unzipRequired;
 			newFile.FileInfo = fileInfo;
+			newFile.DestFilePath = destFilePath;
 
 			if (newFile.UnzipRequired && fileInfo == null)
 			{
@@ -103,7 +134,7 @@ namespace MyEMSLReader
 			this.FilesToDownload.Clear();
 		}
 
-	
+
 		public bool ProcessDownloadQueue(string downloadFolderPath, Downloader.DownloadFolderLayout folderLayout)
 		{
 
@@ -122,7 +153,17 @@ namespace MyEMSLReader
 				downloader.MessageEvent += new MessageEventHandler(OnMessageEvent);
 				downloader.ProgressEvent += new ProgressEventHandler(OnProgressEvent);
 
-				bool success = downloader.DownloadFiles(this.FilesToDownload.Keys.ToList(), downloadFolderPath, folderLayout);
+				var dctDestFilePathOverride = new Dictionary<Int64, string>();
+				
+				foreach (var fileToDownload in this.FilesToDownload)
+				{
+					if (!string.IsNullOrEmpty(fileToDownload.Value.DestFilePath))
+					{
+						dctDestFilePathOverride.Add(fileToDownload.Key, fileToDownload.Value.DestFilePath);
+					}					
+				}
+
+				bool success = downloader.DownloadFiles(this.FilesToDownload.Keys.ToList(), dctDestFilePathOverride, downloadFolderPath, folderLayout);
 
 				if (success)
 				{

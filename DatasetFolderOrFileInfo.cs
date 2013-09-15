@@ -7,19 +7,37 @@ namespace MyEMSLReader
 {
 	public class DatasetFolderOrFileInfo
 	{
-		// Will be 0 if this is a folder
+		/// <summary>
+		/// The UCT datetime that the info was cached in memory
+		/// </summary>
+		public DateTime CacheDateUTC
+		{
+			get;
+			private set;
+		}
+
+		/// <summary>
+		/// MyEMSL File ID
+		/// </summary>
+		/// <remarks>Will be 0 if this is a folder</remarks>
 		public Int64 FileID
 		{
 			get;
 			private set;
 		}
 
+		/// <summary>
+		/// True if this entity is a folder in MyEMSL
+		/// </summary>
 		public bool IsFolder
 		{
 			get;
 			private set;
 		}
 
+		/// <summary>
+		/// File information
+		/// </summary>
 		public ArchivedFileInfo FileInfo
 		{
 			get;
@@ -34,9 +52,10 @@ namespace MyEMSLReader
 		/// <param name="fileInfo"></param>
 		public DatasetFolderOrFileInfo(Int64 fileID, bool isFolder, ArchivedFileInfo fileInfo)
 		{
+			CacheDateUTC = DateTime.UtcNow; 
 			FileID = fileID;
 			IsFolder = isFolder;
-			FileInfo = fileInfo;
+			FileInfo = fileInfo;			
 		}
 
 		public override string ToString()
