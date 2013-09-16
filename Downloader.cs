@@ -210,7 +210,7 @@ namespace MyEMSLReader
 				Int64 bytesDownloaded;
 				Dictionary<Int64, string> dctFilesDownloaded;
 
-				// Download "Locked" files (those not purged to tape)
+				// Download "Locked" files (those that are still on spinning disks and have not yet been purged)
 				// Keys in this dictionary are FileIDs, values are relative file paths
 				dctFilesDownloaded = DownloadLockedFiles(dctFiles, cookieJar, authToken, dctDestFilePathOverride, downloadFolderPath, folderLayout, out bytesDownloaded);
 
