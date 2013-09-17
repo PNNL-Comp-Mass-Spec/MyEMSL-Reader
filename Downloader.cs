@@ -696,7 +696,7 @@ namespace MyEMSLReader
 						{
 							dctFilesDownloaded.Add(archivedFile.FileID, archivedFile.PathWithInstrumentAndDatasetWindows);
 
-							UpdateFileModificationTime(fiTargetFile, archivedFile.SubmissionTime);
+							UpdateFileModificationTime(fiTargetFile, archivedFile.SubmissionTimeValue);
 						}
 						else
 						{
@@ -920,7 +920,7 @@ namespace MyEMSLReader
 							tarIn.CopyEntryContents(outStr);
 						}
 
-						UpdateFileModificationTime(targetFile, archivedFile.SubmissionTime);
+						UpdateFileModificationTime(targetFile, archivedFile.SubmissionTimeValue);
 
 						if (!this.DownloadedFiles.ContainsKey(downloadFilePath))
 							this.DownloadedFiles.Add(downloadFilePath, archivedFile);
@@ -1253,14 +1253,13 @@ namespace MyEMSLReader
 			return tarFileURL;
 		}
 
-		protected void UpdateFileModificationTime(FileInfo fiTargetFile, string modificationTime)
+		protected void UpdateFileModificationTime(FileInfo fiTargetFile, DateTime dtSubmissionTime)
 		{
 			// Update the file modification time
 			fiTargetFile.Refresh();
 			if (fiTargetFile.Exists)
 			{
-				DateTime dtWriteTime = DateTime.Parse(modificationTime);
-				fiTargetFile.LastWriteTime = dtWriteTime;
+				fiTargetFile.LastWriteTime = dtSubmissionTime;
 			}
 		}
 
