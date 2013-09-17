@@ -151,6 +151,36 @@ namespace MyEMSLReader
 			set;
 		}
 
+		public string SubmissionTimeODBC
+		{
+			get 
+			{
+				if (string.IsNullOrWhiteSpace(SubmissionTime))
+					return string.Empty;
+
+				DateTime dtWriteTime;
+				if (DateTime.TryParse(this.SubmissionTime, out dtWriteTime))
+					return dtWriteTime.ToString("yyyy-MM-dd HH:mm:ss");
+				else
+					return string.Empty;
+			}
+		}
+
+		public string SubmissionTimeODBC12hr
+		{
+			get
+			{
+				if (string.IsNullOrWhiteSpace(SubmissionTime))
+					return string.Empty;
+
+				DateTime dtWriteTime;
+				if (DateTime.TryParse(this.SubmissionTime, out dtWriteTime))
+					return dtWriteTime.ToString("yyyy-MM-dd hh:mm:ss tt");
+				else
+					return string.Empty;
+			}
+		}
+		
 		/// <summary>
 		/// MyEMSL transaction ID for this specific file
 		/// </summary>
