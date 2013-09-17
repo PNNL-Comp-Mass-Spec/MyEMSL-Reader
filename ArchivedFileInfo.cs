@@ -151,18 +151,26 @@ namespace MyEMSLReader
 			set;
 		}
 
+		public DateTime SubmissionTimeValue
+		{
+			get
+			{
+				if (string.IsNullOrWhiteSpace(SubmissionTime))
+					return DateTime.Now;
+
+				DateTime dtSubmissionTime;
+				if (DateTime.TryParse(this.SubmissionTime, out dtSubmissionTime))
+					return dtSubmissionTime;
+				else
+					return DateTime.Now;
+			}			
+		}
+
 		public string SubmissionTimeODBC
 		{
 			get 
 			{
-				if (string.IsNullOrWhiteSpace(SubmissionTime))
-					return string.Empty;
-
-				DateTime dtWriteTime;
-				if (DateTime.TryParse(this.SubmissionTime, out dtWriteTime))
-					return dtWriteTime.ToString("yyyy-MM-dd HH:mm:ss");
-				else
-					return string.Empty;
+				return this.SubmissionTimeValue.ToString("yyyy-MM-dd HH:mm:ss");
 			}
 		}
 
@@ -170,14 +178,7 @@ namespace MyEMSLReader
 		{
 			get
 			{
-				if (string.IsNullOrWhiteSpace(SubmissionTime))
-					return string.Empty;
-
-				DateTime dtWriteTime;
-				if (DateTime.TryParse(this.SubmissionTime, out dtWriteTime))
-					return dtWriteTime.ToString("yyyy-MM-dd hh:mm:ss tt");
-				else
-					return string.Empty;
+				return this.SubmissionTimeValue.ToString("yyyy-MM-dd hh:mm:ss tt");
 			}
 		}
 		
