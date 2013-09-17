@@ -359,7 +359,10 @@ namespace MyEMSLReader
 						}
 						else if (responseHeaders == null || responseHeaders.Count == 0)
 						{
-							ReportMessage("Error determining if file is available on spinning disk; will assume False");
+							if (mostRecentException == null)
+								ReportMessage("Error determining if file is available on spinning disk; will assume False");
+							else
+								ReportMessage("Error determining if file is available on spinning disk; will assume False. Exception: " + mostRecentException.Message);
 						}
 						else
 						{
