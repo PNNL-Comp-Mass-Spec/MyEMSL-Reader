@@ -12,7 +12,7 @@ namespace MyEMSLReader
 
 		#region "Constants"
 
-		protected const string MYEMSL_FILEID_TAG = "@MyEMSLID_";
+		public const string MYEMSL_FILEID_TAG = "@MyEMSLID_";
 		protected const int CACHE_REFRESH_THRESHOLD_MINUTES = 5;
 
 		#endregion
