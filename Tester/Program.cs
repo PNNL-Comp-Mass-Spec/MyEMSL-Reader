@@ -32,7 +32,7 @@ namespace Tester
 			reader.ProgressEvent += new MyEMSLReader.ProgressEventHandler(reader_ProgressEvent);
 
 			var lstFileIDs = new List<long>();
-
+			
 			lstFileIDs = TestMultiDataset(reader);
 			Console.WriteLine();
 			Console.WriteLine();
@@ -40,13 +40,42 @@ namespace Tester
 			lstFileIDs = TestMultiDatasetID(reader);
 			Console.WriteLine();
 			Console.WriteLine();
-
+			
 			lstFileIDs = TestOneDataset(reader);
+			Console.WriteLine();
+			Console.WriteLine();
+			
+
+			lstFileIDs = TestOneDataPackage(reader);
 			Console.WriteLine();
 			Console.WriteLine();
 
 			return lstFileIDs;
 
+		}
+
+		static List<long> TestOneDataPackage(MyEMSLReader.Reader reader)
+		{
+			var lstFileIDs = new List<long>();
+			int dataPkgID = 871;
+			string subDir = "";
+
+			try
+			{
+				var results = reader.FindFilesByDataPackageID(dataPkgID, subDir);
+
+				foreach (var archivedFile in results)
+				{
+					Console.WriteLine(archivedFile.RelativePathUnix);
+					lstFileIDs.Add(archivedFile.FileID);
+				}
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine("Exception from reader: " + ex.Message);
+			}
+
+			return lstFileIDs;
 		}
 
 		static List<long> TestOneDataset(MyEMSLReader.Reader reader)

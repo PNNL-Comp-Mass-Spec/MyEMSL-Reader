@@ -10,17 +10,41 @@ namespace MyEMSLReader
 	{
 		
 		#region "Auto Properties"
+
+		/// <summary>
+		/// Dataset name for this file
+		/// </summary>
+		/// <remarks>Will be blank for data package files</remarks>
 		public string Dataset
 		{
 			get;
 			private set;
 		}
 
+		/// <summary>
+		/// Data Package ID for this file
+		/// </summary>
+		/// <remarks>A file should only have a non-zero DatasetID or a non-zero DataPackageID, not both</remarks>
+		public int DataPackageID
+		{
+			get;
+			set;
+		}
+
+		/// <summary>
+		/// Dataset ID for this file
+		/// </summary>
+		/// <remarks>A file should only have a non-zero DatasetID or a non-zero DataPackageID, not both</remarks>
 		public int DatasetID
 		{
 			get;
 			set;
 		}
+
+		/// <summary>
+		/// Dataset year-quarter string, for example 2013_3
+		/// </summary>
+		/// <remarks>Will be blank for data package files</remarks>
 		public string DatasetYearQuarter
 		{
 			get;
@@ -44,6 +68,10 @@ namespace MyEMSLReader
 			set;
 		}
 
+		/// <summary>
+		/// Instrument name for this file
+		/// </summary>
+		/// <remarks>Will be blank for data package files</remarks>
 		public string Instrument
 		{
 			get;
@@ -139,6 +167,7 @@ namespace MyEMSLReader
 		/// SubDirectory path of the file, as reported by MyEMSL
 		/// This path will have unix-style slashes ('/') if there are sub-folders
 		/// </summary>
+		/// <remarks>The SubDirPath for Data package files will always start with the data package folder name</remarks>
 		public string SubDirPath
 		{
 			get;

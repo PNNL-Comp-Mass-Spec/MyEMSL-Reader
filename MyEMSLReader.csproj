@@ -53,6 +53,7 @@
     <Compile Include="DatasetListInfoByID.cs" />
     <Compile Include="DatasetInfoBase.cs" />
     <Compile Include="DatasetListInfo.cs" />
+    <Compile Include="DatasetPackageListInfo.cs" />
     <Compile Include="Downloader.cs" />
     <Compile Include="DownloadQueue.cs" />
     <Compile Include="EventArgs.cs" />

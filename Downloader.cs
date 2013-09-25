@@ -162,8 +162,9 @@ namespace MyEMSLReader
 				// Scan for Files
 				var scanMode = Reader.ScanMode.ObtainAuthToken;
 
-				string xmlString = ScanForFiles(lstFileIDs, scanMode, ref cookieJar);
-				if (string.IsNullOrWhiteSpace(xmlString))
+				Dictionary<string, object> dctResults = ScanForFiles(lstFileIDs, scanMode, ref cookieJar);
+
+				if (dctResults == null || dctResults.Count == 0)
 				{
 					if (string.IsNullOrWhiteSpace(this.ErrorMessage))
 						ReportError("ScanForFiles returned an empty xml result when downloading files");
@@ -173,7 +174,7 @@ namespace MyEMSLReader
 				// Parse the results and determine the Locked status for each file
 				// Keys in this dictionary are ArchivedFileInfo objects, values are True if the file is "locked" (i.e. available for immediate download)
 				string authToken;
-				Dictionary<ArchivedFileInfo, bool> dctFiles = CheckLockedStatus(xmlString, cookieJar, out authToken);
+				Dictionary<ArchivedFileInfo, bool> dctFiles = CheckLockedStatus(dctResults, cookieJar, out authToken);
 				if (dctFiles.Count == 0)
 				{
 					if (string.IsNullOrWhiteSpace(this.ErrorMessage))
@@ -311,7 +312,7 @@ namespace MyEMSLReader
 		/// <param name="cookieJar"></param>
 		/// <param name="authToken"></param>
 		/// <returns></returns>
-		protected Dictionary<ArchivedFileInfo, bool> CheckLockedStatus(string xmlString, CookieContainer cookieJar, out string authToken)
+		protected Dictionary<ArchivedFileInfo, bool> CheckLockedStatus(Dictionary<string, object> dctResults, CookieContainer cookieJar, out string authToken)
 		{
 			var dctFiles = new Dictionary<ArchivedFileInfo, bool>();
 			var dtLastStatusTime = DateTime.UtcNow;
@@ -320,7 +321,8 @@ namespace MyEMSLReader
 			try
 			{
 
-				List<ArchivedFileInfo> lstFiles = mReader.ParseResults(xmlString, out authToken);
+				List<ArchivedFileInfo> lstFiles = mReader.ParseResults(dctResults, out authToken);
+
 				if (string.IsNullOrWhiteSpace(authToken))
 				{
 					ReportError("myemsl_auth_token is empty; cannot download data");
@@ -508,8 +510,8 @@ namespace MyEMSLReader
 				// Scan for Files
 				var scanMode = Reader.ScanMode.CreateScrollID;
 
-				string xmlString = ScanForFiles(lstFileIDs, scanMode, ref cookieJar);
-				if (string.IsNullOrWhiteSpace(xmlString))
+				Dictionary<string, object> dctResults = ScanForFiles(lstFileIDs, scanMode, ref cookieJar);
+				if (dctResults == null || dctResults.Count == 0)
 				{
 					if (string.IsNullOrWhiteSpace(this.ErrorMessage))
 						ReportError("ScanForFiles returned an empty xml result when obtaiing a scroll ID");
@@ -517,8 +519,6 @@ namespace MyEMSLReader
 				}
 
 				// Extract the ScrollID from the response
-				Dictionary<string, object> dctResults = Utilities.JsonToObject(xmlString);
-
 				string errorMessage;
 				if (!ValidSearchResults(dctResults, out errorMessage))
 				{
@@ -529,7 +529,7 @@ namespace MyEMSLReader
 				string scrollID = ReadDictionaryValue(dctResults, "_scroll_id", string.Empty);
 				if (string.IsNullOrEmpty(scrollID))
 				{
-					ReportError("Scroll ID was not created: " + xmlString);
+					ReportError("Scroll ID was not created; dctResults does not contain '_scroll_id'");
 					return false;
 				}
 
@@ -538,11 +538,11 @@ namespace MyEMSLReader
 				string postData = scrollID;
 
 				int maxAttempts = 4;
-				xmlString = string.Empty;
+				string responseData = string.Empty;
 				Exception mostRecentException;
 				bool allowEmptyResponseData = false;
 
-				bool success = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Post, maxAttempts, allowEmptyResponseData, ref xmlString, out mostRecentException);
+				bool success = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Post, maxAttempts, allowEmptyResponseData, ref responseData, out mostRecentException);
 				if (!success)
 				{
 					string msg = "Error obtaining an AuthToken for the scroll ID";
@@ -553,7 +553,7 @@ namespace MyEMSLReader
 					return false;
 				}
 
-				List<ArchivedFileInfo> lstFiles = mReader.ParseResults(xmlString, out authToken);
+				List<ArchivedFileInfo> lstFiles = mReader.ParseResults(responseData, out authToken);
 				if (string.IsNullOrWhiteSpace(authToken))
 				{
 					ReportError("myemsl_auth_token is empty; cannot download data using scroll ID");
@@ -1141,7 +1141,7 @@ namespace MyEMSLReader
 			this.DownloadedFiles.Clear();
 		}
 
-		private string ScanForFiles(List<Int64> lstFileIDs, Reader.ScanMode scanMode, ref CookieContainer cookieJar)
+		private Dictionary<string, object> ScanForFiles(List<Int64> lstFileIDs, Reader.ScanMode scanMode, ref CookieContainer cookieJar)
 		{
 			var dctSearchTerms = new List<KeyValuePair<string, string>>();
 
@@ -1152,9 +1152,9 @@ namespace MyEMSLReader
 
 			var logicalOperator = SearchOperator.Or;
 
-			string xmlString = mReader.RunQuery(dctSearchTerms, dctSearchTerms.Count + 1, logicalOperator, scanMode, ref cookieJar);
+			Dictionary<string, object> dctResults = mReader.RunQuery(dctSearchTerms, dctSearchTerms.Count + 1, logicalOperator, scanMode, ref cookieJar);
 
-			return xmlString;
+			return dctResults;
 
 		}
 

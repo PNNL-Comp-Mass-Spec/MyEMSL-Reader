@@ -265,8 +265,8 @@ namespace MyEMSLReader
 		{
 			bool recurse = true;
 			return FindFiles(fileName, subFolderName, datasetName, recurse);
-		}
-
+		}	
+		
 		/// <summary>
 		/// Looks for the given file, returning any matches as a list
 		/// </summary>
@@ -277,6 +277,22 @@ namespace MyEMSLReader
 		/// <returns>List of matching files</returns>
 		/// <remarks></remarks>
 		public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, string datasetName, bool recurse)
+		{
+			int dataPackageID = 0;
+			return FindFiles(fileName, subFolderName, datasetName, dataPackageID, recurse);
+		}
+
+		/// <summary>
+		/// Looks for the given file, returning any matches as a list
+		/// </summary>
+		/// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
+		/// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
+		/// <param name="datasetName">Dataset name filter (blank to ignore)</param>
+		/// <param name="dataPackageID">Data package ID filter (0 to ignore)</param>
+		/// <param name="recurse">True to search all subfolders; false to only search the root folder (or only subFolderName)</param>
+		/// <returns>List of matching files</returns>
+		/// <remarks></remarks>
+		public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, string datasetName, int dataPackageID, bool recurse)
 		{
 
 			// Re-query the web service if the information is out-of-date
@@ -311,6 +327,12 @@ namespace MyEMSLReader
 				if (!string.IsNullOrWhiteSpace(datasetName))
 				{
 					if (!string.Equals(datasetName, archivedFile.Dataset, StringComparison.CurrentCultureIgnoreCase))
+						continue;
+				}
+
+				if (dataPackageID > 0)
+				{
+					if (archivedFile.DataPackageID != dataPackageID)
 						continue;
 				}
 
