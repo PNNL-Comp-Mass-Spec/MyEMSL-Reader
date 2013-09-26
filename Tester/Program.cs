@@ -33,17 +33,17 @@ namespace Tester
 
 			var lstFileIDs = new List<long>();
 			
-			lstFileIDs = TestMultiDataset(reader);
-			Console.WriteLine();
-			Console.WriteLine();
+			//lstFileIDs = TestMultiDataset(reader);
+			//Console.WriteLine();
+			//Console.WriteLine();
 
-			lstFileIDs = TestMultiDatasetID(reader);
-			Console.WriteLine();
-			Console.WriteLine();
+			//lstFileIDs = TestMultiDatasetID(reader);
+			//Console.WriteLine();
+			//Console.WriteLine();
 			
-			lstFileIDs = TestOneDataset(reader);
-			Console.WriteLine();
-			Console.WriteLine();
+			//lstFileIDs = TestOneDataset(reader);
+			//Console.WriteLine();
+			//Console.WriteLine();
 			
 
 			lstFileIDs = TestOneDataPackage(reader);
@@ -57,7 +57,7 @@ namespace Tester
 		static List<long> TestOneDataPackage(MyEMSLReader.Reader reader)
 		{
 			var lstFileIDs = new List<long>();
-			int dataPkgID = 871;
+			int dataPkgID = 810;
 			string subDir = "";
 
 			try
@@ -69,6 +69,13 @@ namespace Tester
 					Console.WriteLine(archivedFile.RelativePathUnix);
 					lstFileIDs.Add(archivedFile.FileID);
 				}
+
+				var dataPackageInfoCache = new MyEMSLReader.DatasetPackageListInfo();
+				dataPackageInfoCache.AddDataPackage(810);
+
+				var archiveFiles = dataPackageInfoCache.FindFiles("files.txt", @"PPX201306061649_Auto952181");
+				var archiveFiles2 = dataPackageInfoCache.FindFiles("files.txt", @"810_DatasetQC_Pride_Submission__VOrbitrap_part_2\PPX201306061649_Auto952181");
+
 			}
 			catch (Exception ex)
 			{

@@ -234,6 +234,7 @@ namespace MyEMSLReader
 		/// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
 		/// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
 		/// <returns>List of matching files</returns>
+		/// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
 		public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName)
 		{
 			string datasetName = string.Empty;
@@ -248,6 +249,7 @@ namespace MyEMSLReader
 		/// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
 		/// <param name="recurse">True to search all subfolders; false to only search the root folder (or only subFolderName)</param>
 		/// <returns>List of matching files</returns>
+		/// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
 		public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, bool recurse)
 		{
 			string datasetName = string.Empty;
@@ -261,6 +263,7 @@ namespace MyEMSLReader
 		/// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
 		/// <param name="datasetName">Dataset name filter</param>
 		/// <returns>List of matching files</returns>
+		/// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
 		public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, string datasetName)
 		{
 			bool recurse = true;
@@ -275,7 +278,7 @@ namespace MyEMSLReader
 		/// <param name="datasetName">Dataset name filter</param>
 		/// <param name="recurse">True to search all subfolders; false to only search the root folder (or only subFolderName)</param>
 		/// <returns>List of matching files</returns>
-		/// <remarks></remarks>
+		/// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
 		public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, string datasetName, bool recurse)
 		{
 			int dataPackageID = 0;
@@ -291,7 +294,7 @@ namespace MyEMSLReader
 		/// <param name="dataPackageID">Data package ID filter (0 to ignore)</param>
 		/// <param name="recurse">True to search all subfolders; false to only search the root folder (or only subFolderName)</param>
 		/// <returns>List of matching files</returns>
-		/// <remarks></remarks>
+		/// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
 		public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, string datasetName, int dataPackageID, bool recurse)
 		{
 
@@ -312,14 +315,27 @@ namespace MyEMSLReader
 
 			Regex reFile = GetFileSearchRegEx(fileName);
 			Regex reFolder;
+			List<string> subFolderPathParts;
 
 			if (!string.IsNullOrEmpty(subFolderName))
 			{
-				reFolder = GetFileSearchRegEx(subFolderName);
+				// Assure that subFolderName has windows-style slashes (if it even has slashes)
+				subFolderName = subFolderName.Replace("/", @"\");
+
+				// If subFolderName does have multiple foldernames, then only the final folder can have wildcards
+				subFolderPathParts = subFolderName.Split('\\').ToList();
+
+				reFolder = GetFileSearchRegEx(subFolderPathParts.Last());
+
+				if (subFolderPathParts.Count > 0)
+				{
+					subFolderPathParts.RemoveAt(subFolderPathParts.Count - 1);
+				}
 			}
 			else
 			{
 				reFolder = GetFileSearchRegEx("*");
+				subFolderPathParts = new List<string>();
 			}
 
 			foreach (var archivedFile in mArchivedFiles)
@@ -356,13 +372,32 @@ namespace MyEMSLReader
 						if (archivedFile.RelativePathWindows.Contains("\\"))
 						{
 							List<string> pathParts = archivedFile.RelativePathWindows.Split('\\').ToList();
-							for (int pathIndex = pathParts.Count - 2; pathIndex >= 0; pathIndex += -1)
+							for (int pathIndex = pathParts.Count - 2; pathIndex >= 0; pathIndex--)
 							{
 								if (reFolder.IsMatch(pathParts[pathIndex]))
 								{
 									isMatch = true;
-									break;
+									if (subFolderPathParts.Count > 0)
+									{
+										// Also require a match to the parent folders
+										int comparisonIndex = subFolderPathParts.Count;
+
+										for (int parentPathIndex = pathIndex - 1; parentPathIndex >= 0; parentPathIndex--)
+										{
+											comparisonIndex--;
+											if (comparisonIndex < 0)
+												break;
+
+											if (subFolderPathParts[comparisonIndex].ToLower() != pathParts[parentPathIndex].ToLower())
+												isMatch = false;
+										}
+										
+									}
+
+									if (isMatch)
+										break;
 								}
+
 								if (!recurse)
 									break;
 							}
