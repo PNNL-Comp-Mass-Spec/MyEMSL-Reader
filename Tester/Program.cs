@@ -57,7 +57,7 @@ namespace Tester
 		static List<long> TestOneDataPackage(MyEMSLReader.Reader reader)
 		{
 			var lstFileIDs = new List<long>();
-			int dataPkgID = 810;
+			int dataPkgID = 814;
 			string subDir = "";
 
 			try
@@ -71,10 +71,9 @@ namespace Tester
 				}
 
 				var dataPackageInfoCache = new MyEMSLReader.DatasetPackageListInfo();
-				dataPackageInfoCache.AddDataPackage(810);
+				dataPackageInfoCache.AddDataPackage(814);
 
-				var archiveFiles = dataPackageInfoCache.FindFiles("files.txt", @"PPX201306061649_Auto952181");
-				var archiveFiles2 = dataPackageInfoCache.FindFiles("files.txt", @"810_DatasetQC_Pride_Submission__VOrbitrap_part_2\PPX201306061649_Auto952181");
+				var archiveFiles = dataPackageInfoCache.FindFiles("SamplePrepTest_Plasma*", @"misc\final melissa tables");
 
 			}
 			catch (Exception ex)
