@@ -906,7 +906,7 @@ namespace MyEMSLReader
 				{
 					if (!auth.GetAuthCookies(out cookieJar))
 					{
-						ReportError("Auto-login to ingest.my.emsl.pnl.gov failed authentication");
+						ReportError("Auto-login to ingest.my.emsl.pnl.gov failed authentication for user " + Environment.UserDomainName + @"\" + Environment.UserName);
 						return dctResults;
 					}
 				}
