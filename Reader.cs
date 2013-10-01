@@ -369,7 +369,7 @@ namespace MyEMSLReader
 		{
 			var lstFilesFiltered = new List<ArchivedFileInfo>();
 			var entityType = GetEntityType(dctDatasetsAndSubDirs);
-			
+
 			string currentDataset = string.Empty;
 			string currentSubDir = dctDatasetsAndSubDirs.First().Value;
 
@@ -634,7 +634,7 @@ namespace MyEMSLReader
 						string fileName = ReadDictionaryValue(dctFileInfo, "filename", string.Empty);
 						Int64 fileSizeBytes = ReadDictionaryValue(dctFileInfo, "size", 0);
 						string datasetName = ReadDictionaryValue(dctFileInfo, "groups.omics.dms.dataset", string.Empty);
-						
+
 						int datasetID = (int)ReadDictionaryValue(dctFileInfo, "groups.omics.dms.dataset_id", 0);
 						int dataPackageID = (int)ReadDictionaryValue(dctFileInfo, "groups.omics.dms.datapackage_id", 0);
 
@@ -734,7 +734,7 @@ namespace MyEMSLReader
 					success = false;
 				}
 			}
-			else 
+			else
 			{
 				if (!dctDatasetsAndSubDirs.TryGetValue(file.Dataset, out subDir))
 				{
@@ -910,7 +910,7 @@ namespace MyEMSLReader
 						return dctResults;
 					}
 				}
-				
+
 				string URL = Configuration.ElasticSearchUri + "simple_items";
 
 				if (scanMode == ScanMode.ObtainAuthToken)
@@ -935,10 +935,11 @@ namespace MyEMSLReader
 
 					bool retrievalSuccess = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Post, maxAttempts, allowEmptyResponseData, ref responseData, out mostRecentException);
 
-					if (string.IsNullOrWhiteSpace(responseData))
+					if (!retrievalSuccess || string.IsNullOrWhiteSpace(responseData))
 					{
 						queryEnabled = false;
 					}
+					else
 					{
 						// Convert the results to a Json dictionary object
 						dctResults = Utilities.JsonToObject(responseData);
@@ -975,7 +976,11 @@ namespace MyEMSLReader
 
 				if (string.IsNullOrEmpty(responseData))
 				{
-					ReportError("No results returned from MyEMSL after " + maxAttempts + " attempts", mostRecentException);
+					string msg = "No results returned from MyEMSL after " + maxAttempts + " attempts";
+					if (mostRecentException != null)
+						msg += ": " + mostRecentException.Message;
+
+					ReportError(msg, mostRecentException);
 				}
 
 				if (scanMode == ScanMode.SimpleSearch)

@@ -41,14 +41,14 @@ namespace Tester
 			//Console.WriteLine();
 			//Console.WriteLine();
 			
-			//lstFileIDs = TestOneDataset(reader);
-			//Console.WriteLine();
-			//Console.WriteLine();
+			lstFileIDs = TestOneDataset(reader);
+			Console.WriteLine();
+			Console.WriteLine();
 			
 
-			lstFileIDs = TestOneDataPackage(reader);
-			Console.WriteLine();
-			Console.WriteLine();
+			//lstFileIDs = TestOneDataPackage(reader);
+			//Console.WriteLine();
+			//Console.WriteLine();
 
 			return lstFileIDs;
 
@@ -96,8 +96,10 @@ namespace Tester
 			//datasetName = "2013_05_28_U01-B_Wilkins_neg_4M_0p1acc_8x_144_000001";
 			//subDir = "";
 
-			datasetName = "SWT_LCQData_300";
-			subDir = "SIC201309041722_Auto976603";
+			//datasetName = "SWT_LCQData_300";
+			//subDir = "SIC201309041722_Auto976603";
+			
+			datasetName = "SysVirol_SM001_MA15_10-4pfu_7d_5_A_11May10_Phoenix_10-03-34";
 
 			try
 			{
