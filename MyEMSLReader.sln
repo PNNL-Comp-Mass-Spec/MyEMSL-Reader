@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyEMSLReader", "MyEMSLReader.csproj", "{3672E426-FFB5-43C0-A78B-D29E66E0076D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tester", "Tester\Tester.csproj", "{68135044-3952-4FB5-97DC-8E77621C7113}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyEMSLDownloader", "MyEMSLDownloader\MyEMSLDownloader.csproj", "{68135044-3952-4FB5-97DC-8E77621C7113}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
