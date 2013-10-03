@@ -1,44 +1,313 @@
 ﻿using System;
 using System.Collections.Generic;
+using FileProcessor;
+using MyEMSLReader;
 
-namespace Tester
+namespace MyEMSLDownloader
 {
 	class Program
 	{
+		private const string PROGRAM_DATE = "October 3, 2013";
+
 		static double mPercentComplete;
 		static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
 
-		static void Main(string[] args)
+		private static bool mAutoTestMode;
+		private static string mDatasetName;
+		private static string mSubfolder;
+		private static string mFileMask;
+		private static string mOutputFolderPath;
+
+		private static MyEMSLReader.DatasetListInfo mDatasetListInfo;
+
+		static int Main(string[] args)
 		{
-			var lstFileIDs = TestReader();
+			var objParseCommandLine = new FileProcessor.clsParseCommandLine();
 
-			TestDatasetListInfo();
+			mAutoTestMode = false;
+			mDatasetName = string.Empty;
+			mSubfolder = string.Empty;
+			mFileMask = string.Empty;
+			mOutputFolderPath = string.Empty;
 
-			if (lstFileIDs.Count == 0)
-				Console.WriteLine("Reader did not find any files");
-			else if (true)
-				TestDownloader(lstFileIDs);			
-		}
-
-		static List<long> TestDatasetListInfo()
-		{
-			var listInfo = new MyEMSLReader.DatasetListInfo();
-
-			listInfo.AddDataset("SysVirol_SM001_MA15_10-4pfu_7d_5_A_11May10_Phoenix_10-03-34");
-
-			var archiveFiles = listInfo.FindFiles("*");
-
-			var lstFileIDs = new List<long>();
-			foreach (var archiveFile in archiveFiles)
+			try
 			{
-				lstFileIDs.Add(archiveFile.FileID);
+				bool success = false;
+
+				if (objParseCommandLine.ParseCommandLine())
+				{
+					if (SetOptionsUsingCommandLineParameters(objParseCommandLine))
+						success = true;
+				}
+
+				if (!success ||
+					objParseCommandLine.NeedToShowHelp ||
+					objParseCommandLine.ParameterCount + objParseCommandLine.NonSwitchParameterCount == 0)
+				{
+					ShowProgramHelp();
+					return -1;
+
+				}
+
+				mDatasetListInfo = new DatasetListInfo();
+				mDatasetListInfo.ErrorEvent += mDatasetListInfo_ErrorEvent;
+				mDatasetListInfo.MessageEvent += mDatasetListInfo_MessageEvent;
+
+				if (mAutoTestMode)
+				{
+					var lstFileIDs = TestReader();
+
+					if (lstFileIDs.Count == 0)
+					{
+						Console.WriteLine("Reader did not find any files");
+					}
+					else if (true)
+					{
+						TestDownloader(lstFileIDs);
+					}
+					Console.WriteLine();
+
+					var archiveFiles = TestDatasetListInfo();
+
+					if (archiveFiles.Count == 0)
+						Console.WriteLine("DatasetListInfo did not find any files");
+					else if (true)
+					{
+						ShowFiles(archiveFiles);
+						TestDownloader(archiveFiles);
+					}
+
+				}
+				else
+				{
+					var archiveFiles = FindFiles(mDatasetName, mSubfolder, mFileMask);
+
+					ShowFiles(archiveFiles);
+
+					Console.WriteLine();
+					DownloadFiles(archiveFiles, mOutputFolderPath);
+
+				}
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine("Error occurred in Program->Main: " + Environment.NewLine + ex.Message);
+				Console.WriteLine(ex.StackTrace);
+				return -1;
 			}
 
-			return lstFileIDs;
+			return 0;
+		}
+
+		private static void DownloadFiles(IEnumerable<DatasetFolderOrFileInfo> archiveFiles, string outputFolderPath)
+		{
+			mDatasetListInfo.ClearDownloadQueue();
+			foreach (var archiveFile in archiveFiles)
+			{
+				mDatasetListInfo.AddFileToDownloadQueue(archiveFile.FileInfo);
+			}
+
+			Downloader.DownloadFolderLayout folderLayout;
+			if (string.IsNullOrEmpty(outputFolderPath))
+				folderLayout = Downloader.DownloadFolderLayout.DatasetNameAndSubFolders;
+			else
+				folderLayout = Downloader.DownloadFolderLayout.SingleDataset;
+
+			bool success = mDatasetListInfo.ProcessDownloadQueue(outputFolderPath, folderLayout);
+
+			if (success)
+			{
+				Console.WriteLine("Download complete");
+			}
+			else
+			{
+				ShowErrorMessage("Download failed");
+			}
+
+		}
+
+		private static List<DatasetFolderOrFileInfo> FindFiles(string datasetName, string subfolder, string fileMask)
+		{
+
+			mDatasetListInfo.AddDataset(datasetName);
+
+			if (string.IsNullOrEmpty(fileMask))
+				fileMask = "*";
+
+			var archiveFiles = mDatasetListInfo.FindFiles(fileMask, subfolder);
+
+			return archiveFiles;
+		}
+
+		private static void ShowFiles(IEnumerable<DatasetFolderOrFileInfo> archiveFiles)
+		{
+			foreach (var archiveFile in archiveFiles)
+			{
+				Console.WriteLine(archiveFile.FileInfo.RelativePathWindows);
+			}
+		}
+
+		private static string GetAppVersion()
+		{
+			return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + " (" + PROGRAM_DATE + ")";
+		}
+
+		private static bool SetOptionsUsingCommandLineParameters(FileProcessor.clsParseCommandLine objParseCommandLine)
+		{
+			// Returns True if no problems; otherwise, returns false
+			var lstValidParameters = new List<string> { "Dataset", "SubDir", "Files", "O", "Test" };
+
+			try
+			{
+				// Make sure no invalid parameters are present
+				if (objParseCommandLine.InvalidParametersPresent(lstValidParameters))
+				{
+					var badArguments = new List<string>();
+					foreach (string item in objParseCommandLine.InvalidParameters(lstValidParameters))
+					{
+						badArguments.Add("/" + item);
+					}
+
+					ShowErrorMessage("Invalid commmand line parameters", badArguments);
+
+					return false;
+				}
+
+				// Query objParseCommandLine to see if various parameters are present						
+
+				if (objParseCommandLine.NonSwitchParameterCount > 0)
+					mDatasetName = objParseCommandLine.RetrieveNonSwitchParameter(0);
+
+				if (!ParseParameter(objParseCommandLine, "Dataset", "a dataset name", ref mDatasetName)) return false;
+				if (!ParseParameter(objParseCommandLine, "SubDir", "a subfolder name", ref mSubfolder)) return false;
+				if (!ParseParameter(objParseCommandLine, "Files", "a file mas", ref mFileMask)) return false;
+				if (!ParseParameter(objParseCommandLine, "O", "an output folder path", ref mOutputFolderPath)) return false;
+
+				if (objParseCommandLine.IsParameterPresent("Test"))
+				{
+					mAutoTestMode = true;
+				}
+
+				return true;
+			}
+			catch (Exception ex)
+			{
+				ShowErrorMessage("Error parsing the command line parameters: " + Environment.NewLine + ex.Message);
+			}
+
+			return false;
+		}
+
+		private static bool ParseParameter(clsParseCommandLine objParseCommandLine, string parameterName, string description, ref string targetVariable)
+		{
+			string value;
+			if (objParseCommandLine.RetrieveValueForParameter(parameterName, out value))
+			{
+				if (string.IsNullOrWhiteSpace(value))
+				{
+					ShowErrorMessage("/" + parameterName + " does not have " + description);
+					return false;
+				}
+				targetVariable = string.Copy(value);
+			}
+			return true;
+		}
+
+		private static void ShowErrorMessage(string strMessage)
+		{
+			const string strSeparator = "------------------------------------------------------------------------------";
+
+			Console.WriteLine();
+			Console.WriteLine(strSeparator);
+			Console.WriteLine(strMessage);
+			Console.WriteLine(strSeparator);
+			Console.WriteLine();
+
+			WriteToErrorStream(strMessage);
+		}
+
+		private static void ShowErrorMessage(string strTitle, IEnumerable<string> items)
+		{
+			const string strSeparator = "------------------------------------------------------------------------------";
+
+			Console.WriteLine();
+			Console.WriteLine(strSeparator);
+			Console.WriteLine(strTitle);
+			string strMessage = strTitle + ":";
+
+			foreach (string item in items)
+			{
+				Console.WriteLine("   " + item);
+				strMessage += " " + item;
+			}
+			Console.WriteLine(strSeparator);
+			Console.WriteLine();
+
+			WriteToErrorStream(strMessage);
+		}
+
+
+		private static void ShowProgramHelp()
+		{
+			string exeName = System.IO.Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+
+			try
+			{
+				Console.WriteLine();
+				Console.WriteLine("This program downloads files from MyEMSL");
+				Console.WriteLine();
+
+				Console.Write("Program syntax #1:" + Environment.NewLine + exeName);
+				Console.WriteLine(" /Dataset:DatasetName [/SubDir:SubFolderName] [/Files:FileMask] [/O:OutputFolder]");
+
+				Console.WriteLine();
+				Console.Write("Program syntax #2:" + Environment.NewLine + exeName);
+				Console.WriteLine(" /Test");
+
+				Console.WriteLine();
+				Console.WriteLine("To download files for a given dataset, use /Dataset plus optionally /SubDir and/or /Files");
+				Console.WriteLine("Files will be downloaded to the folder with the .exe; override using /O");
+				Console.WriteLine();
+				Console.WriteLine("Alternatively, use /Test to perform automatic tests using predefined dataset names");
+				Console.WriteLine();
+				Console.WriteLine("Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2013");
+				Console.WriteLine("Version: " + GetAppVersion());
+				Console.WriteLine();
+
+				Console.WriteLine("E-mail: matthew.monroe@pnnl.gov or matt@alchemistmatt.com");
+				Console.WriteLine("Website: http://panomics.pnnl.gov/ or http://omics.pnl.gov or http://www.sysbio.org/resources/staff/");
+				Console.WriteLine();
+
+				// Delay for 750 msec in case the user double clicked this file from within Windows Explorer (or started the program via a shortcut)
+				System.Threading.Thread.Sleep(750);
+
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine("Error displaying the program syntax: " + ex.Message);
+			}
+
+		}
+
+
+		static List<DatasetFolderOrFileInfo> TestDatasetListInfo()
+		{
+			Console.WriteLine("Looking for files for test datasets using the DatasetListInfo class");
+			Console.WriteLine();
+
+			mDatasetListInfo.AddDataset("2013_10_01_CMPD04_000005");
+
+			var archiveFiles = mDatasetListInfo.FindFiles("*");
+
+			return archiveFiles;
 
 		}
 		static List<long> TestReader()
 		{
+
+			Console.WriteLine("Looking for files for test datasets using the Rader class");
+			Console.WriteLine();
+
 			var reader = new MyEMSLReader.Reader
 			{
 				IncludeAllRevisions = false
@@ -49,26 +318,23 @@ namespace Tester
 			reader.MessageEvent += reader_MessageEvent;
 			reader.ProgressEvent += reader_ProgressEvent;
 
-			var lstFileIDs = new List<long>();
-			
-			//lstFileIDs = TestMultiDataset(reader);
-			//Console.WriteLine();
-			//Console.WriteLine();
-
-			//lstFileIDs = TestMultiDatasetID(reader);
-			//Console.WriteLine();
-			//Console.WriteLine();
-			
-			lstFileIDs = TestOneDataset(reader);
+			var lstFileIDs1 = TestMultiDataset(reader);
 			Console.WriteLine();
 			Console.WriteLine();
-			
 
-			//lstFileIDs = TestOneDataPackage(reader);
-			//Console.WriteLine();
-			//Console.WriteLine();
+			var lstFileIDs2 = TestMultiDatasetID(reader);
+			Console.WriteLine();
+			Console.WriteLine();
 
-			return lstFileIDs;
+			var lstFileIDs3 = TestOneDataset(reader);
+			Console.WriteLine();
+			Console.WriteLine();
+
+			var lstFileIDs4 = TestOneDataPackage(reader);
+			Console.WriteLine();
+			Console.WriteLine();
+
+			return lstFileIDs1;
 
 		}
 
@@ -116,7 +382,7 @@ namespace Tester
 
 			//datasetName = "SWT_LCQData_300";
 			//subDir = "SIC201309041722_Auto976603";
-			
+
 			datasetName = "SysVirol_SM001_MA15_10-4pfu_7d_5_A_11May10_Phoenix_10-03-34";
 
 			try
@@ -143,7 +409,7 @@ namespace Tester
 
 			var dctDatasetsAndSubDirs = new Dictionary<string, string>
 			{
-				{"SWT_LCQData_300", "SIC201309041722_Auto976603"},
+				// {"SWT_LCQData_300", "SIC201309041722_Auto976603"},
 				{"SysVirol_IFL001_10xA_07_11Sep13_Tiger_13-07-36", "SIC201309112159_Auto977994"},
 				{"SysVirol_IFL001_10xA_08_11Sep13_Tiger_13-07-34", ""}
 			};
@@ -196,6 +462,9 @@ namespace Tester
 		}
 		static void TestDownloader(List<long> lstFileIDs)
 		{
+			Console.WriteLine("Downloading " + lstFileIDs.Count + " files");
+			Console.WriteLine();
+
 			var downloader = new MyEMSLReader.Downloader();
 
 			downloader.ErrorEvent += reader_ErrorEvent;
@@ -206,7 +475,13 @@ namespace Tester
 
 			try
 			{
-				downloader.DownloadFiles(lstFileIDs, @"F:\Temp\MyEMSL", MyEMSLReader.Downloader.DownloadFolderLayout.DatasetNameAndSubFolders);
+				string outputFolder;
+				if (string.IsNullOrEmpty(mOutputFolderPath))
+					outputFolder = @"F:\Temp\MyEMSL";
+				else
+					outputFolder = mOutputFolderPath;
+
+				downloader.DownloadFiles(lstFileIDs, outputFolder, MyEMSLReader.Downloader.DownloadFolderLayout.DatasetNameAndSubFolders);
 			}
 			catch (Exception ex)
 			{
@@ -215,7 +490,42 @@ namespace Tester
 
 		}
 
+		static void TestDownloader(List<DatasetFolderOrFileInfo> archiveFiles)
+		{
+			Console.WriteLine("Downloading " + archiveFiles.Count + " files");
+			Console.WriteLine();
+
+			DownloadFiles(archiveFiles, mOutputFolderPath);
+		}
+
+		private static void WriteToErrorStream(string strErrorMessage)
+		{
+			try
+			{
+				using (var swErrorStream = new System.IO.StreamWriter(Console.OpenStandardError()))
+				{
+					swErrorStream.WriteLine(strErrorMessage);
+				}
+			}
+			// ReSharper disable once EmptyGeneralCatchClause
+			catch
+			{
+				// Ignore errors here
+			}
+		}
+
 		#region "Event Handlers"
+
+		static void mDatasetListInfo_ErrorEvent(object sender, MessageEventArgs e)
+		{
+			ShowErrorMessage(e.Message);
+		}
+
+		static void mDatasetListInfo_MessageEvent(object sender, MessageEventArgs e)
+		{
+			Console.WriteLine(e.Message);
+		}
+
 		static void reader_ErrorEvent(object sender, MyEMSLReader.MessageEventArgs e)
 		{
 			Console.WriteLine("Error: " + e.Message);
