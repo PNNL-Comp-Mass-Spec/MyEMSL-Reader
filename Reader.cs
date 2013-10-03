@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -94,9 +94,9 @@ namespace MyEMSLReader
 		// Constructor
 		public Reader()
 		{
-			this.MaxFileCount = 5000;
-			this.IncludeAllRevisions = false;
-			this.ThrowErrors = true;
+			MaxFileCount = 5000;
+			IncludeAllRevisions = false;
+			ThrowErrors = true;
 			ResetStatus();
 		}
 
@@ -108,8 +108,7 @@ namespace MyEMSLReader
 		public List<ArchivedFileInfo> FindFilesByDataPackageID(int dataPkgID)
 		{
 			string subDir = string.Empty;
-			bool recurse = true;
-			return FindFilesByDataPackageID(dataPkgID, subDir, recurse);
+			return FindFilesByDataPackageID(dataPkgID, subDir, recurse: true);
 		}
 
 
@@ -121,8 +120,7 @@ namespace MyEMSLReader
 		/// <returns>List of matched files</returns>
 		public List<ArchivedFileInfo> FindFilesByDataPackageID(int dataPkgID, string subDir)
 		{
-			bool recurse = true;
-			return FindFilesByDataPackageID(dataPkgID, subDir, recurse);
+			return FindFilesByDataPackageID(dataPkgID, subDir, recurse: true);
 		}
 
 		/// <summary>
@@ -134,11 +132,15 @@ namespace MyEMSLReader
 		/// <returns>List of matched files</returns>
 		public List<ArchivedFileInfo> FindFilesByDataPackageID(int dataPkgID, string subDir, bool recurse)
 		{
-			var dctSearchTerms = new List<KeyValuePair<string, string>>();
-			dctSearchTerms.Add(new KeyValuePair<string, string>(QUERY_SPEC_DATA_PACKAGE_ID, dataPkgID.ToString()));
+			var dctSearchTerms = new List<KeyValuePair<string, string>>
+			{
+				new KeyValuePair<string, string>(QUERY_SPEC_DATA_PACKAGE_ID, dataPkgID.ToString(CultureInfo.InvariantCulture))
+			};
 
-			var dctDataPkgIDsAndSubDirs = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
-			dctDataPkgIDsAndSubDirs.Add(DATA_PKG_ID_TAG + dataPkgID, subDir);
+			var dctDataPkgIDsAndSubDirs = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase)
+			{
+				{DATA_PKG_ID_TAG + dataPkgID, subDir}
+			};
 
 			// Do not filter by instrument name when searching for data packages
 			string instrumentName = string.Empty;
@@ -152,8 +154,7 @@ namespace MyEMSLReader
 		/// <returns>List of matched files</returns>
 		public List<ArchivedFileInfo> FindFilesByDataPackageID(Dictionary<int, string> dctDataPkgIDsAndSubDirs)
 		{
-			bool recurse = true;
-			return FindFilesByDataPackageID(dctDataPkgIDsAndSubDirs, recurse);
+			return FindFilesByDataPackageID(dctDataPkgIDsAndSubDirs, recurse: true);
 		}
 
 		/// <summary>
@@ -170,7 +171,7 @@ namespace MyEMSLReader
 
 			foreach (var datasetEntry in dctDataPkgIDsAndSubDirs)
 			{
-				dctSearchTerms.Add(new KeyValuePair<string, string>(QUERY_SPEC_DATA_PACKAGE_ID, datasetEntry.Key.ToString()));
+				dctSearchTerms.Add(new KeyValuePair<string, string>(QUERY_SPEC_DATA_PACKAGE_ID, datasetEntry.Key.ToString(CultureInfo.InvariantCulture)));
 				dctDatasetsAndSubDirs.Add(DATA_PKG_ID_TAG + datasetEntry.Key, datasetEntry.Value);
 			}
 
@@ -186,10 +187,7 @@ namespace MyEMSLReader
 		/// <returns>List of matched files</returns>
 		public List<ArchivedFileInfo> FindFilesByDatasetID(int datasetID)
 		{
-			string subDir = "";
-			string instrumentName = "";
-			bool recurse = true;
-			return FindFilesByDatasetID(datasetID, subDir, recurse, instrumentName);
+			return FindFilesByDatasetID(datasetID, subDir: "", recurse: true, instrumentName: "");
 		}
 
 		/// <summary>
@@ -200,9 +198,7 @@ namespace MyEMSLReader
 		/// <returns>List of matched files</returns>
 		public List<ArchivedFileInfo> FindFilesByDatasetID(int datasetID, string subDir)
 		{
-			string instrumentName = string.Empty;
-			bool recurse = true;
-			return FindFilesByDatasetID(datasetID, subDir, recurse, instrumentName);
+			return FindFilesByDatasetID(datasetID, subDir, recurse: true, instrumentName: "");
 		}
 
 		/// <summary>
@@ -228,11 +224,15 @@ namespace MyEMSLReader
 		/// <returns>List of matched files</returns>
 		public List<ArchivedFileInfo> FindFilesByDatasetID(int datasetID, string subDir, bool recurse, string instrumentName)
 		{
-			var dctSearchTerms = new List<KeyValuePair<string, string>>();
-			dctSearchTerms.Add(new KeyValuePair<string, string>(QUERY_SPEC_DATASET_ID, datasetID.ToString()));
+			var dctSearchTerms = new List<KeyValuePair<string, string>>
+			{
+				new KeyValuePair<string, string>(QUERY_SPEC_DATASET_ID, datasetID.ToString(CultureInfo.InvariantCulture))
+			};
 
-			var dctDatasetsAndSubDirs = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
-			dctDatasetsAndSubDirs.Add(DATASET_ID_TAG + datasetID, subDir);
+			var dctDatasetsAndSubDirs = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase)
+			{
+				{DATASET_ID_TAG + datasetID, subDir}
+			};
 
 			return FindFilesByDataset(dctDatasetsAndSubDirs, recurse, instrumentName, dctSearchTerms);
 		}
@@ -240,18 +240,17 @@ namespace MyEMSLReader
 		/// <summary>
 		/// Find all files in MyEMSL for a list of datasets (by dataset ID)
 		/// </summary>
-		/// <param name="dctDatasetsAndSubDirs">Keys are dataset ID, values are the optional Subdirectory name to filter on for the given dataset</param>
+		/// <param name="dctDatasetIDsAndSubDirs">Keys are dataset ID, values are the optional Subdirectory name to filter on for the given dataset</param>
 		/// <returns>List of matched files</returns>
 		public List<ArchivedFileInfo> FindFilesByDatasetID(Dictionary<int, string> dctDatasetIDsAndSubDirs)
 		{
-			bool recurse = true;
-			return FindFilesByDatasetID(dctDatasetIDsAndSubDirs, recurse);
+			return FindFilesByDatasetID(dctDatasetIDsAndSubDirs, recurse: true);
 		}
 
 		/// <summary>
 		/// Find all files in MyEMSL for a list of datasets (by dataset ID)
 		/// </summary>
-		/// <param name="dctDatasetsAndSubDirs">Keys are dataset names, values are the optional Subdirectory name to filter on for the given dataset</param>
+		/// <param name="dctDatasetIDsAndSubDirs">Keys are dataset names, values are the optional Subdirectory name to filter on for the given dataset</param>
 		/// <param name="recurse">True to recursively search for files</param>
 		/// <returns>List of matched files</returns>
 		public List<ArchivedFileInfo> FindFilesByDatasetID(Dictionary<int, string> dctDatasetIDsAndSubDirs, bool recurse)
@@ -262,7 +261,7 @@ namespace MyEMSLReader
 
 			foreach (var datasetEntry in dctDatasetIDsAndSubDirs)
 			{
-				dctSearchTerms.Add(new KeyValuePair<string, string>(QUERY_SPEC_DATASET_ID, datasetEntry.Key.ToString()));
+				dctSearchTerms.Add(new KeyValuePair<string, string>(QUERY_SPEC_DATASET_ID, datasetEntry.Key.ToString(CultureInfo.InvariantCulture)));
 				dctDatasetsAndSubDirs.Add(DATASET_ID_TAG + datasetEntry.Key, datasetEntry.Value);
 			}
 
@@ -277,10 +276,7 @@ namespace MyEMSLReader
 		/// <returns>List of matched files</returns>
 		public List<ArchivedFileInfo> FindFilesByDatasetName(string datasetName)
 		{
-			string subDir = string.Empty;
-			string instrumentName = string.Empty;
-			bool recurse = true;
-			return FindFilesByDatasetName(datasetName, subDir, recurse, instrumentName);
+			return FindFilesByDatasetName(datasetName, subDir: "", recurse: true, instrumentName: "");
 		}
 
 		/// <summary>
@@ -291,9 +287,7 @@ namespace MyEMSLReader
 		/// <returns>List of matched files</returns>
 		public List<ArchivedFileInfo> FindFilesByDatasetName(string datasetName, string subDir)
 		{
-			string instrumentName = string.Empty;
-			bool recurse = true;
-			return FindFilesByDatasetName(datasetName, subDir, recurse, instrumentName);
+			return FindFilesByDatasetName(datasetName, subDir, recurse: true, instrumentName: "");
 		}
 
 		/// <summary>
@@ -320,11 +314,15 @@ namespace MyEMSLReader
 		public List<ArchivedFileInfo> FindFilesByDatasetName(string datasetName, string subDir, bool recurse, string instrumentName)
 		{
 
-			var dctSearchTerms = new List<KeyValuePair<string, string>>();
-			dctSearchTerms.Add(new KeyValuePair<string, string>(QUERY_SPEC_DATASET_NAME, datasetName));
+			var dctSearchTerms = new List<KeyValuePair<string, string>>
+			{
+				new KeyValuePair<string, string>(QUERY_SPEC_DATASET_NAME, datasetName)
+			};
 
-			var dctDatasetsAndSubDirs = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
-			dctDatasetsAndSubDirs.Add(datasetName, subDir);
+			var dctDatasetsAndSubDirs = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase)
+			{
+				{datasetName, subDir}
+			};
 
 			return FindFilesByDataset(dctDatasetsAndSubDirs, recurse, instrumentName, dctSearchTerms);
 		}
@@ -337,8 +335,7 @@ namespace MyEMSLReader
 		/// <returns>List of matched files</returns>
 		public List<ArchivedFileInfo> FindFilesByDatasetName(Dictionary<string, string> dctDatasetsAndSubDirs)
 		{
-			bool recurse = true;
-			return FindFilesByDatasetName(dctDatasetsAndSubDirs, recurse);
+			return FindFilesByDatasetName(dctDatasetsAndSubDirs, recurse: true);
 		}
 
 		/// <summary>
@@ -432,9 +429,9 @@ namespace MyEMSLReader
 				if (!string.IsNullOrWhiteSpace(file.SubDirPath))
 				{
 
-					List<string> lstRequiredSubDirTree = currentSubDir.Split(new char[] { '/', '\\' }).ToList<string>();
+					List<string> lstRequiredSubDirTree = currentSubDir.Split(new char[] { '/', '\\' }).ToList();
 
-					List<string> lstFileSubDirTree = file.SubDirPath.Split(new char[] { '/', '\\' }).ToList<string>();
+					List<string> lstFileSubDirTree = file.SubDirPath.Split(new char[] { '/', '\\' }).ToList();
 
 					if (lstFileSubDirTree.Count >= lstRequiredSubDirTree.Count)
 					{
@@ -527,10 +524,10 @@ namespace MyEMSLReader
 			}
 			catch (Exception ex)
 			{
-				if (string.IsNullOrWhiteSpace(this.ErrorMessage))
+				if (string.IsNullOrWhiteSpace(ErrorMessage))
 					ReportError("Error in MyEMSLReader.Reader.FindFilesByDataset: " + ex.Message);
-				else if (this.ThrowErrors)
-					throw ex;
+				else if (ThrowErrors)
+					throw;
 
 				return new List<ArchivedFileInfo>();
 			}
@@ -538,7 +535,7 @@ namespace MyEMSLReader
 
 		protected SearchEntity GetEntityType(Dictionary<string, string> dctDatasetsAndSubDirs)
 		{
-			SearchEntity entityType = SearchEntity.DatasetName;
+			var entityType = SearchEntity.DatasetName;
 
 			if (dctDatasetsAndSubDirs.First().Key.StartsWith(DATASET_ID_TAG))
 				entityType = SearchEntity.DatasetID;
@@ -555,18 +552,16 @@ namespace MyEMSLReader
 				authToken = string.Empty;
 				return new List<ArchivedFileInfo>();
 			}
-			else
-			{
-				// Convert the results to a Json dictionary object
-				Dictionary<string, object> dctResults = Utilities.JsonToObject(responseData);
-				return ParseResults(dctResults, out authToken);
-			}
+			
+			// Convert the results to a Json dictionary object
+			Dictionary<string, object> dctResults = Utilities.JsonToObject(responseData);
+			return ParseResults(dctResults, out authToken);
 		}
 
 		/// <summary>
 		/// Parse the search results from Elastic Search to generate a list of files
 		/// </summary>
-		/// <param name="xmlString"></param>
+		/// <param name="dctResults"></param>
 		/// <param name="authToken">Output parameter: Authorization token (if available)</param>
 		/// <returns></returns>
 		internal List<ArchivedFileInfo> ParseResults(Dictionary<string, object> dctResults, out string authToken)
@@ -591,14 +586,14 @@ namespace MyEMSLReader
 				// Extract out the hits section
 				var dctHits = RetrieveDictionaryObjectByKey(dctResults, "hits");
 
-				this.LastSearchFileCountMatched = ReadDictionaryValue(dctHits, "total", -1);
-				if (this.LastSearchFileCountMatched < 0)
+				LastSearchFileCountMatched = ReadDictionaryValue(dctHits, "total", -1);
+				if (LastSearchFileCountMatched < 0)
 				{
 					ReportError("Hits section did not have the 'total' entry");
 					return new List<ArchivedFileInfo>();
 				}
 
-				if (this.LastSearchFileCountMatched == 0)
+				if (LastSearchFileCountMatched == 0)
 					return new List<ArchivedFileInfo>();
 
 				// Extract out the list of hits
@@ -635,8 +630,8 @@ namespace MyEMSLReader
 						Int64 fileSizeBytes = ReadDictionaryValue(dctFileInfo, "size", 0);
 						string datasetName = ReadDictionaryValue(dctFileInfo, "groups.omics.dms.dataset", string.Empty);
 
-						int datasetID = (int)ReadDictionaryValue(dctFileInfo, "groups.omics.dms.dataset_id", 0);
-						int dataPackageID = (int)ReadDictionaryValue(dctFileInfo, "groups.omics.dms.datapackage_id", 0);
+						var datasetID = (int)ReadDictionaryValue(dctFileInfo, "groups.omics.dms.dataset_id", 0);
+						var dataPackageID = (int)ReadDictionaryValue(dctFileInfo, "groups.omics.dms.datapackage_id", 0);
 
 						string datasetYearQuarter = ReadDictionaryValue(dctFileInfo, "groups.omics.dms.date_code", string.Empty);
 						string subDir = ReadDictionaryValue(dctFileInfo, "subdir", string.Empty);
@@ -645,22 +640,23 @@ namespace MyEMSLReader
 
 						string fileSha1Hash = ReadDictionaryValue(dctHashInfo, "sha1", string.Empty);
 
-						var archiveFile = new ArchivedFileInfo(datasetName, fileName, subDir, fileID, instrumentName, datasetYearQuarter, dctFile);
-						archiveFile.Sha1Hash = fileSha1Hash;
-						archiveFile.FileSizeBytes = fileSizeBytes;
-
-						archiveFile.TransactionID = transID;
-						archiveFile.SubmissionTime = submissionTime;
-						archiveFile.IsPublicFile = publicFile;
-						archiveFile.DatasetID = datasetID;
-						archiveFile.DataPackageID = dataPackageID;
+						var archiveFile = new ArchivedFileInfo(datasetName, fileName, subDir, fileID, instrumentName, datasetYearQuarter, dctFile)
+						{
+							Sha1Hash = fileSha1Hash,
+							FileSizeBytes = fileSizeBytes,
+							TransactionID = transID,
+							SubmissionTime = submissionTime,
+							IsPublicFile = publicFile,
+							DatasetID = datasetID,
+							DataPackageID = dataPackageID
+						};
 
 						int existingIndex;
 
 						if (dctMostRecentVersionPointers.TryGetValue(archiveFile.PathWithInstrumentAndDatasetWindows, out existingIndex))
 						{
 							// Found a duplicate file
-							if (this.IncludeAllRevisions)
+							if (IncludeAllRevisions)
 							{
 								// Including all revisions of a file
 								lstFiles.Add(archiveFile);
@@ -766,36 +762,36 @@ namespace MyEMSLReader
 			try
 			{
 
-				if (this.MaxFileCount < 1)
-					this.MaxFileCount = 1;
+				if (MaxFileCount < 1)
+					MaxFileCount = 1;
 
-				this.LastSearchFileCountMatched = 0;
-				this.LastSearchFileCountReturned = 0;
+				LastSearchFileCountMatched = 0;
+				LastSearchFileCountReturned = 0;
 
-				Dictionary<string, object> dctResults = RunQuery(dctSearchTerms, this.MaxFileCount, logicalOperator);
+				Dictionary<string, object> dctResults = RunQuery(dctSearchTerms, MaxFileCount, logicalOperator);
 
 				if (dctResults == null || dctResults.Count == 0)
 				{
-					if (string.IsNullOrWhiteSpace(this.ErrorMessage))
+					if (string.IsNullOrWhiteSpace(ErrorMessage))
 						ReportError("RunQuery returned an empty xml result");
-					this.LastSearchFileCountReturned = 0;
+					LastSearchFileCountReturned = 0;
 					return new List<ArchivedFileInfo>();
 				}
 
 				// Parse the results (note that authToken will always be empty because we used ScanMode.SimpleSearch)
-				string authToken = string.Empty;
+				string authToken;
 				List<ArchivedFileInfo> lstFiles = ParseResults(dctResults, out authToken);
 
-				this.LastSearchFileCountReturned = lstFiles.Count;
+				LastSearchFileCountReturned = lstFiles.Count;
 
 				return lstFiles;
 			}
 			catch (Exception ex)
 			{
-				if (string.IsNullOrWhiteSpace(this.ErrorMessage))
+				if (string.IsNullOrWhiteSpace(ErrorMessage))
 					ReportError("Error in MyEMSLReader.Reader.QueryElasticSearch: " + ex.Message);
-				else if (this.ThrowErrors)
-					throw ex;
+				else if (ThrowErrors)
+					throw;
 
 				return new List<ArchivedFileInfo>();
 			}
@@ -826,9 +822,15 @@ namespace MyEMSLReader
 		/// <param name="maxFileCount">Maximum number of hits to return</param>
 		/// <param name="logicalOperator">Whether to AND or OR the search terms together</param>
 		/// <param name="scanMode">Scan mode (0=Simple Search, 1=Search, but obtain a myemsl_auth_token, 2 = Create a ScrollID)</param>
+		/// <param name="cookieJar"></param>
 		/// <returns>Json results dictionary</returns>
 		/// <remarks>Be sure to call Logout() when scanMode is not 0 </remarks>
-		internal Dictionary<string, object> RunQuery(List<KeyValuePair<string, string>> dctSearchTerms, int maxFileCount, SearchOperator logicalOperator, ScanMode scanMode, ref CookieContainer cookieJar)
+		internal Dictionary<string, object> RunQuery(
+			List<KeyValuePair<string, string>> dctSearchTerms, 
+			int maxFileCount, 
+			SearchOperator logicalOperator, 
+			ScanMode scanMode, 
+			ref CookieContainer cookieJar)
 		{
 
 			/* Construct a JSON query, for example:
@@ -855,10 +857,11 @@ namespace MyEMSLReader
 
 			try
 			{
-				var searchSpec = new Dictionary<string, string>();
-
-				searchSpec.Add("default_operator", "AND");
-				searchSpec.Add("default_field", "_all");
+				var searchSpec = new Dictionary<string, string>
+				{
+					{"default_operator", "AND"}, 
+					{"default_field", "_all"}
+				};
 
 				string operatorString;
 				switch (logicalOperator)
@@ -873,7 +876,7 @@ namespace MyEMSLReader
 						throw new ArgumentOutOfRangeException("Unrecognized value for logicalOperator: " + logicalOperator.ToString());
 				}
 
-				StringBuilder queryTerms = new StringBuilder();
+				var queryTerms = new StringBuilder();
 				foreach (var searchTerm in dctSearchTerms)
 				{
 					if (queryTerms.Length > 0)
@@ -883,24 +886,31 @@ namespace MyEMSLReader
 				}
 				searchSpec.Add("query", queryTerms.ToString());
 
-				var queryStringSpec = new Dictionary<string, object>();
-				queryStringSpec.Add("query_string", searchSpec);
+				var queryStringSpec = new Dictionary<string, object>
+				{
+					{"query_string", searchSpec}
+				};
 
-				var mustSpec = new Dictionary<string, object>();
-				mustSpec.Add("must", queryStringSpec);
+				var mustSpec = new Dictionary<string, object>
+				{
+					{"must", queryStringSpec}
+				};
 
-				var boolSpec = new Dictionary<string, object>();
-				boolSpec.Add("bool", mustSpec);
+				var boolSpec = new Dictionary<string, object>
+				{
+					{"bool", mustSpec}
+				};
 
-				var querySpec = new Dictionary<string, object>();
-				querySpec.Add("query", boolSpec);
-
-				querySpec.Add("from", 0);
-				querySpec.Add("size", maxFileCount);
+				var querySpec = new Dictionary<string, object>
+				{
+					{"query", boolSpec},
+					{"from", 0},
+					{"size", maxFileCount}
+				};
 
 				// Call the testauth service to obtain a cookie for this session
 				string authURL = Configuration.TestAuthUri;
-				Auth auth = new Auth(new Uri(authURL));
+				var auth = new Auth(new Uri(authURL));
 
 				if (cookieJar == null)
 				{
@@ -924,16 +934,16 @@ namespace MyEMSLReader
 
 				bool queryEnabled = true;
 				string responseData = string.Empty;
-				int maxAttempts = 4;
-				Exception mostRecentException = new Exception("Uninitialized exception");
+				const int maxAttempts = 4;
+				var mostRecentException = new Exception("Uninitialized exception");
 
 				while (queryEnabled)
 				{
 					querySpec["size"] = maxFileCount;
-					string postData = Pacifica.Core.Utilities.ObjectToJson(querySpec);
-					bool allowEmptyResponseData = false;
+					string postData = Utilities.ObjectToJson(querySpec);
+					const bool allowEmptyResponseData = false;
 
-					bool retrievalSuccess = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Post, maxAttempts, allowEmptyResponseData, ref responseData, out mostRecentException);
+					bool retrievalSuccess = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Post, maxAttempts, allowEmptyResponseData, out responseData, out mostRecentException);
 
 					if (!retrievalSuccess || string.IsNullOrWhiteSpace(responseData))
 					{

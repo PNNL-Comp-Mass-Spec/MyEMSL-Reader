@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace MyEMSLReader
 {
@@ -60,7 +57,7 @@ namespace MyEMSLReader
 
 		public override string ToString()
 		{
-			return "FileID " + FileID + "; " + FileInfo.ToString();
+			return "FileID " + FileID + "; " + FileInfo;
 		}
 	}
 }

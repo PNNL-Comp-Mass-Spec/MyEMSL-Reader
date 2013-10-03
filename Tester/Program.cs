@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace Tester
 {
@@ -15,21 +12,42 @@ namespace Tester
 		{
 			var lstFileIDs = TestReader();
 
+			TestDatasetListInfo();
+
 			if (lstFileIDs.Count == 0)
 				Console.WriteLine("Reader did not find any files");
 			else if (true)
-				TestDownloader(lstFileIDs);
+				TestDownloader(lstFileIDs);			
 		}
 
+		static List<long> TestDatasetListInfo()
+		{
+			var listInfo = new MyEMSLReader.DatasetListInfo();
+
+			listInfo.AddDataset("SysVirol_SM001_MA15_10-4pfu_7d_5_A_11May10_Phoenix_10-03-34");
+
+			var archiveFiles = listInfo.FindFiles("*");
+
+			var lstFileIDs = new List<long>();
+			foreach (var archiveFile in archiveFiles)
+			{
+				lstFileIDs.Add(archiveFile.FileID);
+			}
+
+			return lstFileIDs;
+
+		}
 		static List<long> TestReader()
 		{
-			var reader = new MyEMSLReader.Reader();
-			reader.IncludeAllRevisions = false;
+			var reader = new MyEMSLReader.Reader
+			{
+				IncludeAllRevisions = false
+			};
 
 			// Attach events			
-			reader.ErrorEvent += new MyEMSLReader.MessageEventHandler(reader_ErrorEvent);
-			reader.MessageEvent += new MyEMSLReader.MessageEventHandler(reader_MessageEvent);
-			reader.ProgressEvent += new MyEMSLReader.ProgressEventHandler(reader_ProgressEvent);
+			reader.ErrorEvent += reader_ErrorEvent;
+			reader.MessageEvent += reader_MessageEvent;
+			reader.ProgressEvent += reader_ProgressEvent;
 
 			var lstFileIDs = new List<long>();
 			
@@ -123,10 +141,12 @@ namespace Tester
 		{
 			var lstFileIDs = new List<long>();
 
-			var dctDatasetsAndSubDirs = new Dictionary<string, string>();
-			dctDatasetsAndSubDirs.Add("SWT_LCQData_300", "SIC201309041722_Auto976603");
-			dctDatasetsAndSubDirs.Add("SysVirol_IFL001_10xA_07_11Sep13_Tiger_13-07-36", "SIC201309112159_Auto977994");
-			dctDatasetsAndSubDirs.Add("SysVirol_IFL001_10xA_08_11Sep13_Tiger_13-07-34", "");
+			var dctDatasetsAndSubDirs = new Dictionary<string, string>
+			{
+				{"SWT_LCQData_300", "SIC201309041722_Auto976603"},
+				{"SysVirol_IFL001_10xA_07_11Sep13_Tiger_13-07-36", "SIC201309112159_Auto977994"},
+				{"SysVirol_IFL001_10xA_08_11Sep13_Tiger_13-07-34", ""}
+			};
 
 			try
 			{
@@ -150,10 +170,12 @@ namespace Tester
 		{
 			var lstFileIDs = new List<long>();
 
-			var dctDatasetsAndSubDirs = new Dictionary<int, string>();
-			dctDatasetsAndSubDirs.Add(54007, "SIC201309041722_Auto976603");
-			dctDatasetsAndSubDirs.Add(334448, "SIC201309112159_Auto977994");
-			dctDatasetsAndSubDirs.Add(334455, "");
+			var dctDatasetsAndSubDirs = new Dictionary<int, string>
+			{
+				{54007, "SIC201309041722_Auto976603"},
+				{334448, "SIC201309112159_Auto977994"},
+				{334455, ""}
+			};
 
 			try
 			{
@@ -176,9 +198,9 @@ namespace Tester
 		{
 			var downloader = new MyEMSLReader.Downloader();
 
-			downloader.ErrorEvent += new MyEMSLReader.MessageEventHandler(reader_ErrorEvent);
-			downloader.MessageEvent += new MyEMSLReader.MessageEventHandler(reader_MessageEvent);
-			downloader.ProgressEvent += new MyEMSLReader.ProgressEventHandler(reader_ProgressEvent);
+			downloader.ErrorEvent += reader_ErrorEvent;
+			downloader.MessageEvent += reader_MessageEvent;
+			downloader.ProgressEvent += reader_ProgressEvent;
 
 			downloader.OverwriteMode = MyEMSLReader.Downloader.Overwrite.IfChanged;
 

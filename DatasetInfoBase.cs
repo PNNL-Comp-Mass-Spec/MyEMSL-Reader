@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace MyEMSLReader
@@ -83,16 +84,16 @@ namespace MyEMSLReader
 		}
 		#endregion
 
-		public DatasetInfoBase()
+		protected DatasetInfoBase()
 		{
 			mErrorMessages = new List<string>();
 
 			mReader = new Reader();
 
 			// Attach events
-			mReader.ErrorEvent += new MessageEventHandler(OnErrorEvent);
-			mReader.MessageEvent += new MessageEventHandler(OnMessageEvent);
-			mReader.ProgressEvent += new ProgressEventHandler(OnProgressEvent);
+			mReader.ErrorEvent += OnErrorEvent;
+			mReader.MessageEvent += OnMessageEvent;
+			mReader.ProgressEvent += OnProgressEvent;
 
 			mArchivedFiles = new List<ArchivedFileInfo>();
 
@@ -101,10 +102,10 @@ namespace MyEMSLReader
 			mDownloadQueue = new DownloadQueue();
 
 			// Attach events
-			mDownloadQueue.ErrorEvent += new MessageEventHandler(OnErrorEvent);
-			mDownloadQueue.MessageEvent += new MessageEventHandler(OnMessageEvent);
-			mDownloadQueue.ProgressEvent += new ProgressEventHandler(OnProgressEvent);
-			mDownloadQueue.FileDownloadedEvent += new FileDownloadedEventHandler(OnFileDownloadedEvent);
+			mDownloadQueue.ErrorEvent += OnErrorEvent;
+			mDownloadQueue.MessageEvent += OnMessageEvent;
+			mDownloadQueue.ProgressEvent += OnProgressEvent;
+			mDownloadQueue.FileDownloadedEvent += OnFileDownloadedEvent;
 
 			mLastProgressWriteTime = DateTime.UtcNow;
 		}
@@ -162,7 +163,7 @@ namespace MyEMSLReader
 		/// <remarks></remarks>
 		public static string AppendMyEMSLFileID(string filePath, Int64 myEmslFileID)
 		{
-			return filePath + MYEMSL_FILEID_TAG + myEmslFileID.ToString();
+			return filePath + MYEMSL_FILEID_TAG + myEmslFileID.ToString(CultureInfo.InvariantCulture);
 		}
 
 		public void ClearDownloadQueue()
@@ -179,7 +180,7 @@ namespace MyEMSLReader
 		/// <remarks></remarks>
 		public static Int64 ExtractMyEMSLFileID(string filePath)
 		{
-			string newFilePath = string.Empty;
+			string newFilePath;
 			return ExtractMyEMSLFileID(filePath, out newFilePath);
 		}
 
@@ -224,8 +225,7 @@ namespace MyEMSLReader
 		{
 			string subFolderName = string.Empty;
 			string datasetName = string.Empty;
-			bool recurse = true;
-			return FindFiles(fileName, subFolderName, datasetName, recurse);
+			return FindFiles(fileName, subFolderName, datasetName, recurse: true);
 		}
 
 		/// <summary>
@@ -238,8 +238,7 @@ namespace MyEMSLReader
 		public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName)
 		{
 			string datasetName = string.Empty;
-			bool recurse = true;
-			return FindFiles(fileName, subFolderName, datasetName, recurse);
+			return FindFiles(fileName, subFolderName, datasetName, recurse: true);
 		}
 
 		/// <summary>
@@ -266,8 +265,7 @@ namespace MyEMSLReader
 		/// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
 		public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, string datasetName)
 		{
-			bool recurse = true;
-			return FindFiles(fileName, subFolderName, datasetName, recurse);
+			return FindFiles(fileName, subFolderName, datasetName, recurse: true);
 		}	
 		
 		/// <summary>
@@ -281,7 +279,7 @@ namespace MyEMSLReader
 		/// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
 		public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, string datasetName, bool recurse)
 		{
-			int dataPackageID = 0;
+			const int dataPackageID = 0;
 			return FindFiles(fileName, subFolderName, datasetName, dataPackageID, recurse);
 		}
 
@@ -467,6 +465,7 @@ namespace MyEMSLReader
 				}
 
 				var fiFile = new FileInfo(archivedFile.RelativePathWindows);
+				Debug.Assert(fiFile.Directory != null, "fiFile.Directory != null");
 				if (!reFolder.IsMatch(fiFile.Directory.Name))
 				{
 					continue;
@@ -506,8 +505,8 @@ namespace MyEMSLReader
 					subDirPath = subDirPath.TrimEnd('\\');
 				}
 
-				Int64 fileID = 0;
-				bool isFolder = true;
+				const long fileID = 0;
+				const bool isFolder = true;
 				var newMatch = new DatasetFolderOrFileInfo(fileID, isFolder, new ArchivedFileInfo(archivedFile.Dataset, relativeFolderPath, subDirPath));
 
 				lstMatches.Add(newMatch);

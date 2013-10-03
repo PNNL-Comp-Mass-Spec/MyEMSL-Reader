@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace MyEMSLReader
 {
@@ -116,16 +114,16 @@ namespace MyEMSLReader
 			get
 			{
 				string fullPath = string.Empty;
-				if (!string.IsNullOrWhiteSpace(this.Instrument))
-					fullPath = Path.Combine(fullPath, this.Instrument);
+				if (!string.IsNullOrWhiteSpace(Instrument))
+					fullPath = Path.Combine(fullPath, Instrument);
 
-				if (!string.IsNullOrWhiteSpace(this.DatasetYearQuarter))
-					fullPath = Path.Combine(fullPath, this.DatasetYearQuarter);
+				if (!string.IsNullOrWhiteSpace(DatasetYearQuarter))
+					fullPath = Path.Combine(fullPath, DatasetYearQuarter);
 
-				if (!string.IsNullOrWhiteSpace(this.Dataset))
-					fullPath = Path.Combine(fullPath, this.Dataset);
+				if (!string.IsNullOrWhiteSpace(Dataset))
+					fullPath = Path.Combine(fullPath, Dataset);
 
-				return Path.Combine(fullPath, this.RelativePathWindows).Replace("/", @"\");
+				return Path.Combine(fullPath, RelativePathWindows).Replace("/", @"\");
 			}
 		}
 
@@ -137,7 +135,7 @@ namespace MyEMSLReader
 		{
 			get
 			{
-				return this.RelativePathWindows.Replace(@"\", "/");
+				return RelativePathWindows.Replace(@"\", "/");
 				
 			}
 		}
@@ -150,10 +148,10 @@ namespace MyEMSLReader
 		{
 			get
 			{
-				if (string.IsNullOrWhiteSpace(this.SubDirPath))
-					return this.Filename;
+				if (string.IsNullOrWhiteSpace(SubDirPath))
+					return Filename;
 				else
-					return Path.Combine(this.SubDirPath, this.Filename).Replace("/", @"\");
+					return Path.Combine(SubDirPath, Filename).Replace("/", @"\");
 			}
 		}
 
@@ -188,7 +186,7 @@ namespace MyEMSLReader
 					return DateTime.Now;
 
 				DateTime dtSubmissionTime;
-				if (DateTime.TryParse(this.SubmissionTime, out dtSubmissionTime))
+				if (DateTime.TryParse(SubmissionTime, out dtSubmissionTime))
 					return dtSubmissionTime;
 				else
 					return DateTime.Now;
@@ -199,7 +197,7 @@ namespace MyEMSLReader
 		{
 			get 
 			{
-				return this.SubmissionTimeValue.ToString("yyyy-MM-dd HH:mm:ss");
+				return SubmissionTimeValue.ToString("yyyy-MM-dd HH:mm:ss");
 			}
 		}
 
@@ -207,7 +205,7 @@ namespace MyEMSLReader
 		{
 			get
 			{
-				return this.SubmissionTimeValue.ToString("yyyy-MM-dd hh:mm:ss tt");
+				return SubmissionTimeValue.ToString("yyyy-MM-dd hh:mm:ss tt");
 			}
 		}
 		
@@ -239,7 +237,6 @@ namespace MyEMSLReader
 		/// <param name="dataset">Dataset name</param>
 		/// <param name="filename">Filename</param>
 		/// <param name="subDirPath">Subdirectory below dataset (empty if at the dataset level)</param>
-		/// <param name="fileSizeBytes">File size, in bytes</param>
 		/// <param name="fileID">MyEMSL File ID</param>
 		public ArchivedFileInfo(string dataset, string filename, string subDirPath, Int64 fileID) :
 			this(dataset, filename, subDirPath, fileID, "", "", new Dictionary<string, object>()) 
@@ -251,23 +248,31 @@ namespace MyEMSLReader
 		/// <param name="dataset">Dataset name</param>
 		/// <param name="filename">Filename</param>
 		/// <param name="subDirPath">Subdirectory below dataset (empty if at the dataset level)</param>
-		/// <param name="fileSizeBytes">File size, in bytes</param>
 		/// <param name="fileID">MyEMSL File ID</param>
 		/// <param name="instrument">Instrument name</param>
-		public ArchivedFileInfo(string dataset, string filename, string subDirPath, Int64 fileID, string instrument, string datasetYearQuarter, Dictionary<string, object> dctMetadata)
+		/// <param name="datasetYearQuarter">Dataset year quarter, e.g. 2013_3</param>
+		/// <param name="dctMetadata">Metadata dictionary</param>
+		public ArchivedFileInfo(
+			string dataset, 
+			string filename, 
+			string subDirPath, 
+			Int64 fileID, 
+			string instrument, 
+			string datasetYearQuarter, 
+			Dictionary<string, object> dctMetadata)
 		{
-			this.Dataset = dataset;
-			this.Filename = filename;
-			this.SubDirPath = subDirPath;
-			this.FileID = fileID;
-			this.Instrument = instrument;
-			this.DatasetYearQuarter = datasetYearQuarter;
-			this.Metadata = dctMetadata;
+			Dataset = dataset;
+			Filename = filename;
+			SubDirPath = subDirPath;
+			FileID = fileID;
+			Instrument = instrument;
+			DatasetYearQuarter = datasetYearQuarter;
+			Metadata = dctMetadata;
 		}
 
 		public override string ToString()
 		{
-			return this.RelativePathWindows;
+			return RelativePathWindows;
 		}
 	}
 }

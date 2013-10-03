@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
+using System.Threading;
 using Pacifica.Core;
 using ICSharpCode.SharpZipLib.Tar;
 
@@ -94,7 +96,7 @@ namespace MyEMSLReader
 
 		#region "Member Variables"
 
-		Reader mReader;
+		readonly Reader mReader;
 
 		#endregion
 
@@ -103,9 +105,9 @@ namespace MyEMSLReader
 		// Constructor
 		public Downloader()
 		{
-			this.ThrowErrors = true;
-			this.OverwriteMode = Overwrite.IfChanged;
-			this.DownloadedFiles = new Dictionary<string, ArchivedFileInfo>(StringComparer.CurrentCultureIgnoreCase);
+			ThrowErrors = true;
+			OverwriteMode = Overwrite.IfChanged;
+			DownloadedFiles = new Dictionary<string, ArchivedFileInfo>(StringComparer.CurrentCultureIgnoreCase);
 
 			mReader = new Reader();
 			ResetStatus();
@@ -160,13 +162,13 @@ namespace MyEMSLReader
 				}
 
 				// Scan for Files
-				var scanMode = Reader.ScanMode.ObtainAuthToken;
+				const Reader.ScanMode scanMode = Reader.ScanMode.ObtainAuthToken;
 
 				Dictionary<string, object> dctResults = ScanForFiles(lstFileIDs, scanMode, ref cookieJar);
 
 				if (dctResults == null || dctResults.Count == 0)
 				{
-					if (string.IsNullOrWhiteSpace(this.ErrorMessage))
+					if (string.IsNullOrWhiteSpace(ErrorMessage))
 						ReportError("ScanForFiles returned an empty xml result when downloading files");
 					return false;
 				}
@@ -177,7 +179,7 @@ namespace MyEMSLReader
 				Dictionary<ArchivedFileInfo, bool> dctFiles = CheckLockedStatus(dctResults, cookieJar, out authToken);
 				if (dctFiles.Count == 0)
 				{
-					if (string.IsNullOrWhiteSpace(this.ErrorMessage))
+					if (string.IsNullOrWhiteSpace(ErrorMessage))
 						ReportError("Query did not return any files");
 				}
 
@@ -199,21 +201,18 @@ namespace MyEMSLReader
 								folderLayout = DownloadFolderLayout.DatasetNameAndSubFolders;
 								break;
 							}
-							else
-							{
-								lstOutputFilePaths.Add(archivedFile.RelativePathWindows);
-							}
+
+							lstOutputFilePaths.Add(archivedFile.RelativePathWindows);
 						}
 
 					}
 				}
 
 				Int64 bytesDownloaded;
-				Dictionary<Int64, string> dctFilesDownloaded;
 
 				// Download "Locked" files (those that are still on spinning disks and have not yet been purged)
 				// Keys in this dictionary are FileIDs, values are relative file paths
-				dctFilesDownloaded = DownloadLockedFiles(dctFiles, cookieJar, authToken, dctDestFilePathOverride, downloadFolderPath, folderLayout, out bytesDownloaded);
+				Dictionary<long, string> dctFilesDownloaded = DownloadLockedFiles(dctFiles, cookieJar, authToken, dctDestFilePathOverride, downloadFolderPath, folderLayout, out bytesDownloaded);
 
 				// Create a list of the files that remain (files that could not be downloaded directly)
 				// These files will be downloaded via the cart mechanism
@@ -222,8 +221,7 @@ namespace MyEMSLReader
 				{
 					if (!dctFilesDownloaded.ContainsKey(fileID))
 					{
-						bool reportMessage = false;
-						bool downloadFile = IsDownloadRequired(dctFiles, fileID, downloadFolderPath, folderLayout, reportMessage);
+						bool downloadFile = IsDownloadRequired(dctFiles, fileID, downloadFolderPath, folderLayout, reportMessage: false);
 						
 						if (downloadFile)
 							lstFilesRemaining.Add(fileID);
@@ -242,7 +240,7 @@ namespace MyEMSLReader
 				success = CreateScrollID(lstFilesRemaining, ref cookieJar, out authToken);
 				if (!success)
 				{
-					if (string.IsNullOrWhiteSpace(this.ErrorMessage))
+					if (string.IsNullOrWhiteSpace(ErrorMessage))
 						ReportError("Scroll ID is empty; cannot download files");
 					return false;
 				}
@@ -251,7 +249,7 @@ namespace MyEMSLReader
 				Int64 cartID = CreateCart(lstFilesRemaining, cookieJar, authToken);
 				if (cartID <= 0)
 				{
-					if (string.IsNullOrWhiteSpace(this.ErrorMessage))
+					if (string.IsNullOrWhiteSpace(ErrorMessage))
 						ReportError("Cart ID is 0; cannot download files");
 					return false;
 				}
@@ -260,7 +258,7 @@ namespace MyEMSLReader
 				success = InitializeCartCreation(cartID, cookieJar);
 				if (!success)
 				{
-					if (string.IsNullOrWhiteSpace(this.ErrorMessage))
+					if (string.IsNullOrWhiteSpace(ErrorMessage))
 						ReportError("Error initializing cart " + cartID);
 					return false;
 				}
@@ -274,21 +272,21 @@ namespace MyEMSLReader
 				success = WaitForCartSuccess(cartID, cookieJar, maxMinutesToWait, out tarFileURL);
 				if (!success)
 				{
-					if (string.IsNullOrWhiteSpace(this.ErrorMessage))
+					if (string.IsNullOrWhiteSpace(ErrorMessage))
 						ReportError("Error waiting for cart " + cartID + " to become available");
 					return false;
 				}
 
 				// Extract the files from the .tar file
-				success = DownloadTarFileWithRetry(cookieJar, dctFiles.Keys.ToList<ArchivedFileInfo>(), lstFilesRemaining, bytesDownloaded, dctDestFilePathOverride, downloadFolderPath, folderLayout, tarFileURL, ref dctFilesDownloaded);
+				success = DownloadTarFileWithRetry(cookieJar, dctFiles.Keys.ToList(), lstFilesRemaining, bytesDownloaded, dctDestFilePathOverride, downloadFolderPath, folderLayout, tarFileURL, ref dctFilesDownloaded);
 
 			}
 			catch (Exception ex)
 			{
-				if (string.IsNullOrWhiteSpace(this.ErrorMessage))
+				if (string.IsNullOrWhiteSpace(ErrorMessage))
 					ReportError("Error in MyEMSLReader.Downloader.Downloadfiles: " + ex.Message);
-				else if (this.ThrowErrors)
-					throw ex;
+				else if (ThrowErrors)
+					throw;
 			}
 			finally
 			{
@@ -308,7 +306,7 @@ namespace MyEMSLReader
 		/// If a file is "locked" then that means the file is available on spinning disk
 		/// If the file is not locked, then the file only resides on tape and will need to be restored by the tape robot
 		/// </summary>
-		/// <param name="xmlString"></param>
+		/// <param name="dctResults"></param>
 		/// <param name="cookieJar"></param>
 		/// <param name="authToken"></param>
 		/// <returns></returns>
@@ -342,14 +340,14 @@ namespace MyEMSLReader
 
 					bool fileLocked = false;
 
-					if (!this.ForceDownloadViaCart)
+					if (!ForceDownloadViaCart)
 					{
 						// Construct the URL, e.g. https://my.emsl.pnl.gov/myemsl/item/foo/bar/824531/2.txt?token=ODUiaSI6WyI4MjQ1MzEiXSwicyI6IjIwMTMtMDgtMjBUMTY6MTI6MjEtMDc6MDAiLCJ1IjoiaHVZTndwdFlFZUd6REFBbXVjZXB6dyIsImQiOiAzNjAwJ9NESG37bQjVDlWCJWdrTVqA0wifgrbemVW+nMLgyx/2OfHGk2kFUsrJoOOTdBVsiPrHaeX6/MiaS/szVJKS1ve9UM8pufEEoNEyMBlq7ZxolLfK0Y3OicRPkiKzXZaXkQ7fxc/ec/Ba3uz9wHEs5e+1xYuO36KkSyGGW/xQ7OFx4SyZUm3PrLDk87YPapwoU/30gSk2082oSBOqHuTHzfOjjtbxAIuMa27AbwwOIjG8/Xq4h7squzFNfh/knAkNQ3+21wuZukpsNslWpYO796AFgI2rITaw7HPGJMZKwi+QlMmx27OHE2Qh47b5VQUJUp2tEorFwMjgECo+xX75vg&locked
 						// Note that "2.txt" in this URL is just a dummy filename
 						// Since we're performing a Head request, it doesn't matter what filename we use
 						string URL = Configuration.SearchServerUri + "/myemsl/item/foo/bar/" + archivedFile.FileID + "/2.txt?token=" + authToken + "&locked";
 
-						int maxAttempts = 2;
+						const int maxAttempts = 2;
 						Exception mostRecentException;
 						HttpStatusCode responseStatusCode;
 
@@ -400,7 +398,7 @@ namespace MyEMSLReader
 
 		protected Int64 ComputeTotalBytes(Dictionary<ArchivedFileInfo, bool> dctFiles)
 		{
-			return ComputeTotalBytes(dctFiles.Keys.ToList<ArchivedFileInfo>());
+			return ComputeTotalBytes(dctFiles.Keys.ToList());
 		}
 
 		protected Int64 ComputeTotalBytes(List<ArchivedFileInfo> dctFiles)
@@ -449,21 +447,22 @@ namespace MyEMSLReader
 
 			try
 			{
-				var querySpec = new Dictionary<string, object>();
-				querySpec.Add("items", lstFiles);
-
-				querySpec.Add("auth_token", authToken);
+				var querySpec = new Dictionary<string, object>
+				{
+					{"items", lstFiles},
+					{"auth_token", authToken}
+				};
 
 				// Base Url will be https://my.emsl.pnl.gov/myemsl/api/2/cart
 				string URL = Configuration.ApiUri + "2/cart";
-				string postData = Pacifica.Core.Utilities.ObjectToJson(querySpec);
+				string postData = Utilities.ObjectToJson(querySpec);
 
-				int maxAttempts = 4;
+				const int maxAttempts = 4;
 				string xmlString = string.Empty;
 				Exception mostRecentException;
-				bool allowEmptyResponseData = false;
+				const bool allowEmptyResponseData = false;
 
-				bool success = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Post, maxAttempts, allowEmptyResponseData, ref xmlString, out mostRecentException);
+				bool success = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Post, maxAttempts, allowEmptyResponseData, out xmlString, out mostRecentException);
 
 				if (string.IsNullOrEmpty(xmlString))
 				{
@@ -488,7 +487,7 @@ namespace MyEMSLReader
 					return 0;
 				}
 
-				this.DownloadCartState = CartState.Unsubmitted;
+				DownloadCartState = CartState.Unsubmitted;
 			}
 			catch (Exception ex)
 			{
@@ -508,12 +507,12 @@ namespace MyEMSLReader
 			{
 
 				// Scan for Files
-				var scanMode = Reader.ScanMode.CreateScrollID;
+				const Reader.ScanMode scanMode = Reader.ScanMode.CreateScrollID;
 
 				Dictionary<string, object> dctResults = ScanForFiles(lstFileIDs, scanMode, ref cookieJar);
 				if (dctResults == null || dctResults.Count == 0)
 				{
-					if (string.IsNullOrWhiteSpace(this.ErrorMessage))
+					if (string.IsNullOrWhiteSpace(ErrorMessage))
 						ReportError("ScanForFiles returned an empty xml result when obtaiing a scroll ID");
 					return false;
 				}
@@ -537,12 +536,12 @@ namespace MyEMSLReader
 				string URL = Configuration.ElasticSearchUri + "simple_items?search_type=scan&scan&auth";
 				string postData = scrollID;
 
-				int maxAttempts = 4;
+				const int maxAttempts = 4;
 				string responseData = string.Empty;
 				Exception mostRecentException;
-				bool allowEmptyResponseData = false;
+				const bool allowEmptyResponseData = false;
 
-				bool success = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Post, maxAttempts, allowEmptyResponseData, ref responseData, out mostRecentException);
+				bool success = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Post, maxAttempts, allowEmptyResponseData, out responseData, out mostRecentException);
 				if (!success)
 				{
 					string msg = "Error obtaining an AuthToken for the scroll ID";
@@ -593,13 +592,12 @@ namespace MyEMSLReader
 			bool success = false;
 			bool triedGC = false;
 
-			HttpStatusCode responseStatusCode;
-
 			while (!success && attempts <= maxAttempts)
 			{
 				try
 				{
 					attempts++;
+					HttpStatusCode responseStatusCode;
 					success = EasyHttp.GetFile(URL, cookieJar, out responseStatusCode, downloadFilePath, timeoutSeconds);
 
 					if (!success)
@@ -610,9 +608,8 @@ namespace MyEMSLReader
 					// This exception occurs for errors "cannot access the file '...' because it is being used by another process."
 					if (!triedGC)
 					{
-						MyEMSLBase.GarbageCollectNow();
+						GarbageCollectNow();
 						triedGC = true;
-						continue;
 					}
 					else
 					{
@@ -633,9 +630,8 @@ namespace MyEMSLReader
 					{
 						// Wait 2 seconds, then retry
 						Console.WriteLine("Exception in DownloadFile on attempt " + attempts + ": " + ex.Message);
-						System.Threading.Thread.Sleep(2000);
+						Thread.Sleep(2000);
 						timeoutSeconds = (int)(Math.Ceiling(timeoutSeconds * 1.5));
-						continue;
 					}
 				}
 			}
@@ -678,21 +674,21 @@ namespace MyEMSLReader
 					}
 					
 					var fiTargetFile = new FileInfo(downloadFilePath);
+					Debug.Assert(fiTargetFile.Directory != null, "fiTargetFile.Directory != null");
 					if (!fiTargetFile.Directory.Exists)
 					{
 						ReportMessage("Creating target folder: " + fiTargetFile.Directory.FullName);
 						fiTargetFile.Directory.Create();
 					}
 
-					int maxAttempts = 5;
-					Exception mostRecentException;
+					const int maxAttempts = 5;
 					bool fileInUseByOtherProcess = false;
-					bool reportMessage = true;
 
-					bool downloadFile = IsDownloadRequired(archivedFile, downloadFilePath, reportMessage);
+					bool downloadFile = IsDownloadRequired(archivedFile, downloadFilePath, reportMessage: true);
 
 					if (downloadFile)
-					{						
+					{
+						Exception mostRecentException;
 						bool retrievalSuccess = DownloadFile(URL, cookieJar, maxAttempts, downloadFilePath, out mostRecentException, out fileInUseByOtherProcess);
 
 						if (retrievalSuccess)
@@ -718,8 +714,8 @@ namespace MyEMSLReader
 						dctFilesDownloaded.Add(archivedFile.FileID, archivedFile.PathWithInstrumentAndDatasetWindows);
 					}
 
-					if (!this.DownloadedFiles.ContainsKey(downloadFilePath))
-						this.DownloadedFiles.Add(downloadFilePath, archivedFile);
+					if (!DownloadedFiles.ContainsKey(downloadFilePath))
+						DownloadedFiles.Add(downloadFilePath, archivedFile);
 
 					bytesDownloaded += archivedFile.FileSizeBytes;
 					UpdateProgress(bytesDownloaded, bytesToDownload);
@@ -749,7 +745,7 @@ namespace MyEMSLReader
 
 			try
 			{
-				int maxAttempts = 5;
+				const int maxAttempts = 5;
 				Exception mostRecentException = null;
 
 				int timeoutSeconds = 100;
@@ -776,9 +772,8 @@ namespace MyEMSLReader
 						{
 							// Wait 2 seconds, then retry
 							Console.WriteLine("Exception in DownloadTarFileWithRetry on attempt " + attempts + ": " + ex.Message);
-							System.Threading.Thread.Sleep(2000);
+							Thread.Sleep(2000);
 							timeoutSeconds = (int)(Math.Ceiling(timeoutSeconds * 1.5));
-							continue;
 						}
 					}
 				}
@@ -822,7 +817,7 @@ namespace MyEMSLReader
 			ref Dictionary<Int64, string> dctFilesDownloaded,
 			int timeoutSeconds = 100)
 		{
-			double maxTimeoutHours = 24;
+			const double maxTimeoutHours = 24;
 			NetworkCredential loginCredentials = null;
 			HttpWebRequest request = EasyHttp.InitializeRequest(tarFileURL, ref cookieJar, ref timeoutSeconds, loginCredentials, maxTimeoutHours);
 
@@ -914,6 +909,7 @@ namespace MyEMSLReader
 
 						// Create the target folder if necessary
 						var targetFile = new FileInfo(downloadFilePath);
+						Debug.Assert(targetFile.Directory != null, "targetFile.Directory != null");
 						if (!targetFile.Directory.Exists)
 							targetFile.Directory.Create();
 
@@ -925,8 +921,8 @@ namespace MyEMSLReader
 
 						UpdateFileModificationTime(targetFile, archivedFile.SubmissionTimeValue);
 
-						if (!this.DownloadedFiles.ContainsKey(downloadFilePath))
-							this.DownloadedFiles.Add(downloadFilePath, archivedFile);
+						if (!DownloadedFiles.ContainsKey(downloadFilePath))
+							DownloadedFiles.Add(downloadFilePath, archivedFile);
 
 						bytesDownloaded += archivedFile.FileSizeBytes;
 						UpdateProgress(bytesDownloaded, bytesToDownload);
@@ -943,9 +939,9 @@ namespace MyEMSLReader
 				string responseData = string.Empty;
 				if (ex.Response != null)
 				{
-					using (StreamReader sr = new StreamReader(ex.Response.GetResponseStream()))
+					using (var sr = new StreamReader(ex.Response.GetResponseStream()))
 					{
-						int maxLines = 20;
+						const int maxLines = 20;
 						int linesRead = 0;
 						while (sr.Peek() > -1 && linesRead < maxLines)
 						{
@@ -1029,12 +1025,12 @@ namespace MyEMSLReader
 				string URL = Configuration.ApiUri + "2/cart/" + cartID + "?submit";
 				string postData = string.Empty;
 
-				int maxAttempts = 4;
+				const int maxAttempts = 4;
 				string xmlString = string.Empty;
 				Exception mostRecentException;
-				bool allowEmptyResponseData = true;
+				const bool allowEmptyResponseData = true;
 
-				success = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Post, maxAttempts, allowEmptyResponseData, ref xmlString, out mostRecentException);
+				success = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Post, maxAttempts, allowEmptyResponseData, out xmlString, out mostRecentException);
 				if (!success)
 				{
 					string msg = "Error initializing creation of cart " + cartID;
@@ -1043,7 +1039,7 @@ namespace MyEMSLReader
 
 					ReportError(msg);
 				}
-				this.DownloadCartState = CartState.Building;
+				DownloadCartState = CartState.Building;
 
 			}
 			catch (Exception ex)
@@ -1060,6 +1056,7 @@ namespace MyEMSLReader
 		/// </summary>
 		/// <param name="dctFiles"></param>
 		/// <param name="fileID"></param>
+		/// <param name="downloadFolderPath"></param>
 		/// <param name="folderLayout"></param>
 		/// <param name="reportMessage"></param>
 		/// <returns></returns>
@@ -1084,6 +1081,7 @@ namespace MyEMSLReader
 		/// </summary>
 		/// <param name="archivedFile"></param>
 		/// <param name="downloadFilePath"></param>
+		/// <param name="reportMessage"></param>
 		/// <returns></returns>
 		protected bool IsDownloadRequired(ArchivedFileInfo archivedFile, string downloadFilePath, bool reportMessage)
 		{
@@ -1096,7 +1094,7 @@ namespace MyEMSLReader
 			}
 			else
 			{
-				switch (this.OverwriteMode)
+				switch (OverwriteMode)
 				{
 					case Overwrite.Always:
 						if (reportMessage) ReportMessage("Overwriting " + downloadFilePath);
@@ -1126,7 +1124,7 @@ namespace MyEMSLReader
 						downloadFile = false;
 						break;
 					default:
-						throw new ArgumentOutOfRangeException("Unrecognized OverwriteMode: " + this.OverwriteMode.ToString());
+						throw new ArgumentOutOfRangeException("Unrecognized OverwriteMode: " + OverwriteMode.ToString());
 				}
 			}
 
@@ -1136,21 +1134,21 @@ namespace MyEMSLReader
 		protected new void ResetStatus()
 		{
 			base.ResetStatus();
-			this.DownloadCartState = CartState.NoCart;
-			this.PercentComplete = 0;
-			this.DownloadedFiles.Clear();
+			DownloadCartState = CartState.NoCart;
+			PercentComplete = 0;
+			DownloadedFiles.Clear();
 		}
 
-		private Dictionary<string, object> ScanForFiles(List<Int64> lstFileIDs, Reader.ScanMode scanMode, ref CookieContainer cookieJar)
+		private Dictionary<string, object> ScanForFiles(IEnumerable<long> lstFileIDs, Reader.ScanMode scanMode, ref CookieContainer cookieJar)
 		{
 			var dctSearchTerms = new List<KeyValuePair<string, string>>();
 
 			foreach (var fileID in lstFileIDs)
 			{
-				dctSearchTerms.Add(new KeyValuePair<string, string>("_id", fileID.ToString()));
+				dctSearchTerms.Add(new KeyValuePair<string, string>("_id", fileID.ToString(CultureInfo.InvariantCulture)));
 			}
 
-			var logicalOperator = SearchOperator.Or;
+			const SearchOperator logicalOperator = SearchOperator.Or;
 
 			Dictionary<string, object> dctResults = mReader.RunQuery(dctSearchTerms, dctSearchTerms.Count + 1, logicalOperator, scanMode, ref cookieJar);
 
@@ -1202,9 +1200,8 @@ namespace MyEMSLReader
 					{
 						// Wait 2 seconds, then retry
 						Console.WriteLine("Exception in SendHeadRequestWithRetry on attempt " + attempts + ": " + ex.Message);
-						System.Threading.Thread.Sleep(2000);
+						Thread.Sleep(2000);
 						timeoutSeconds = (int)(Math.Ceiling(timeoutSeconds * 1.5));
-						continue;
 					}
 				}
 			}
@@ -1223,10 +1220,10 @@ namespace MyEMSLReader
 			switch (cartState)
 			{
 				case "unsubmitted":
-					this.DownloadCartState = CartState.Unsubmitted;
+					DownloadCartState = CartState.Unsubmitted;
 					break;
 				case "building":
-					this.DownloadCartState = CartState.Building;
+					DownloadCartState = CartState.Building;
 					break;
 				case "available":
 					tarFileURL = ReadDictionaryValue(dctCartInfo, "url", string.Empty);
@@ -1236,17 +1233,17 @@ namespace MyEMSLReader
 					}
 					else
 					{
-						this.DownloadCartState = CartState.Available;
+						DownloadCartState = CartState.Available;
 					}
 					break;
 				case "expired":
-					this.DownloadCartState = CartState.Expired;
+					DownloadCartState = CartState.Expired;
 					break;
 				case "admin":
-					this.DownloadCartState = CartState.Admin;
+					DownloadCartState = CartState.Admin;
 					break;
 				case "unknown":
-					this.DownloadCartState = CartState.Unknown;
+					DownloadCartState = CartState.Unknown;
 					break;
 				default:
 					// Some other unknown state; ignore it
@@ -1271,7 +1268,7 @@ namespace MyEMSLReader
 			if (bytesToDownload > 0)
 			{
 				double percentComplete = bytesDownloaded / (double)bytesToDownload * 100;
-				this.PercentComplete = Math.Round(percentComplete);
+				PercentComplete = Math.Round(percentComplete);
 
 				OnProgressUpdate(new ProgressEventArgs(percentComplete));
 			}
@@ -1293,15 +1290,14 @@ namespace MyEMSLReader
 				string URL = Configuration.ApiUri + "2/cart/" + cartID;
 				string postData = string.Empty;
 
-				int maxAttempts = 3;
+				const int maxAttempts = 3;
 				string xmlString = string.Empty;
-				Exception mostRecentException;
-				bool allowEmptyResponseData = false;
+				const bool allowEmptyResponseData = false;
 
-
-				while (this.DownloadCartState != CartState.Available)
+				while (DownloadCartState != CartState.Available)
 				{
-					bool success = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Get, maxAttempts, allowEmptyResponseData, ref xmlString, out mostRecentException);
+					Exception mostRecentException;
+					bool success = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Get, maxAttempts, allowEmptyResponseData, out xmlString, out mostRecentException);
 
 					if (success)
 					{
@@ -1328,11 +1324,12 @@ namespace MyEMSLReader
 
 								tarFileURL = UpdateCartState(dctCartInfo[0], cartState);
 
-								if (this.DownloadCartState == CartState.Available)
+								if (DownloadCartState == CartState.Available)
 								{
 									break;
 								}
-								else if (this.DownloadCartState == CartState.Expired)
+								
+								if (DownloadCartState == CartState.Expired)
 								{
 									ReportError("Cart " + cartID + " is expired and cannot be downloaded; aborting");
 									break;
@@ -1363,7 +1360,7 @@ namespace MyEMSLReader
 					}
 
 					// Sleep for 5 to 30 seconds (depending on how Int64 we've been waiting)
-					System.Threading.Thread.Sleep(sleepTimeSeconds * 1000);
+					Thread.Sleep(sleepTimeSeconds * 1000);
 				}
 
 			}
@@ -1373,7 +1370,7 @@ namespace MyEMSLReader
 				return false;
 			}
 
-			if (this.DownloadCartState == CartState.Available)
+			if (DownloadCartState == CartState.Available)
 			{
 				if (notifyWhenCartAvailable)
 					ReportMessage("Cart " + cartID + " is now ready for download");

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace MyEMSLReader
 {
@@ -49,7 +48,6 @@ namespace MyEMSLReader
 		/// Constructor
 		/// </summary>
 		public DatasetListInfoByID()
-			: base()
 		{
 			mDatasetsAndSubDirs = new Dictionary<int, string>();
 		}
@@ -100,9 +98,7 @@ namespace MyEMSLReader
 			{
 				mErrorMessages.Clear();
 
-				bool recurse = true;
-
-				mArchivedFiles = mReader.FindFilesByDatasetID(mDatasetsAndSubDirs, recurse);
+				mArchivedFiles = mReader.FindFilesByDatasetID(mDatasetsAndSubDirs, recurse: true);
 				mCacheDate = DateTime.UtcNow;
 				mCacheIsStale = false;
 

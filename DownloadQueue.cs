@@ -2,7 +2,6 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace MyEMSLReader
 {
@@ -35,7 +34,7 @@ namespace MyEMSLReader
 		/// <summary>
 		/// Keys are MyEMSL File IDs, values are struct udtFileToDownload
 		/// </summary>
-		public Dictionary<Int64, DownloadQueue.udtFileToDownload> FilesToDownload
+		public Dictionary<Int64, udtFileToDownload> FilesToDownload
 		{
 			get;
 			private set;
@@ -52,14 +51,14 @@ namespace MyEMSLReader
 
 		#endregion
 
+		/// <summary>
 		/// Constructor
 		/// </summary>
-		/// <param name="datasetName"></param>
 		/// <remarks></remarks>
 		public DownloadQueue()
 		{
-			this.FilesToDownload = new Dictionary<Int64, DownloadQueue.udtFileToDownload>();
-			this.DownloadedFiles = new Dictionary<string, ArchivedFileInfo>();
+			FilesToDownload = new Dictionary<Int64, udtFileToDownload>();
+			DownloadedFiles = new Dictionary<string, ArchivedFileInfo>();
 		}
 
 		/// <summary>
@@ -68,9 +67,7 @@ namespace MyEMSLReader
 		/// <param name="fileInfo">Archive File Info</param>
 		public void AddFileToDownloadQueue(ArchivedFileInfo fileInfo)
 		{
-			bool unzipRequired = false;
-			string destFilePath = string.Empty;
-			AddFileToDownloadQueue(fileInfo.FileID, fileInfo, unzipRequired, destFilePath);
+			AddFileToDownloadQueue(fileInfo.FileID, fileInfo, unzipRequired: false, destFilePath: string.Empty);
 		}
 
 		/// <summary>
@@ -108,16 +105,18 @@ namespace MyEMSLReader
 		public void AddFileToDownloadQueue(Int64 myEMSLFileID, ArchivedFileInfo fileInfo, bool unzipRequired, string destFilePath)
 		{
 
-			if (this.FilesToDownload.ContainsKey(myEMSLFileID))
+			if (FilesToDownload.ContainsKey(myEMSLFileID))
 				return;
 
 			if (string.IsNullOrWhiteSpace(destFilePath))
 				destFilePath = string.Empty;
 
-			var newFile = new udtFileToDownload();
-			newFile.UnzipRequired = unzipRequired;
-			newFile.FileInfo = fileInfo;
-			newFile.DestFilePath = destFilePath;
+			var newFile = new udtFileToDownload
+			{
+				UnzipRequired = unzipRequired, 
+				FileInfo = fileInfo, 
+				DestFilePath = destFilePath
+			};
 
 			if (newFile.UnzipRequired && fileInfo == null)
 			{
@@ -126,19 +125,19 @@ namespace MyEMSLReader
 				throw new InvalidDataException(message);
 			}
 
-			this.FilesToDownload.Add(myEMSLFileID, newFile);
+			FilesToDownload.Add(myEMSLFileID, newFile);
 		}
 
 		public void Clear()
 		{
-			this.FilesToDownload.Clear();
+			FilesToDownload.Clear();
 		}
 
 
 		public bool ProcessDownloadQueue(string downloadFolderPath, Downloader.DownloadFolderLayout folderLayout)
 		{
 
-			if (this.FilesToDownload.Count == 0)
+			if (FilesToDownload.Count == 0)
 			{
 				OnError("Download queue is empty; nothing to download");
 				return false;
@@ -149,13 +148,13 @@ namespace MyEMSLReader
 				var downloader = new Downloader();
 
 				// Attach events
-				downloader.ErrorEvent += new MessageEventHandler(OnErrorEvent);
-				downloader.MessageEvent += new MessageEventHandler(OnMessageEvent);
-				downloader.ProgressEvent += new ProgressEventHandler(OnProgressEvent);
+				downloader.ErrorEvent += OnErrorEvent;
+				downloader.MessageEvent += OnMessageEvent;
+				downloader.ProgressEvent += OnProgressEvent;
 
 				var dctDestFilePathOverride = new Dictionary<Int64, string>();
 				
-				foreach (var fileToDownload in this.FilesToDownload)
+				foreach (var fileToDownload in FilesToDownload)
 				{
 					if (!string.IsNullOrEmpty(fileToDownload.Value.DestFilePath))
 					{
@@ -163,20 +162,20 @@ namespace MyEMSLReader
 					}					
 				}
 
-				bool success = downloader.DownloadFiles(this.FilesToDownload.Keys.ToList(), dctDestFilePathOverride, downloadFolderPath, folderLayout);
+				bool success = downloader.DownloadFiles(FilesToDownload.Keys.ToList(), dctDestFilePathOverride, downloadFolderPath, folderLayout);
 
 				if (success)
 				{
-					this.DownloadedFiles = downloader.DownloadedFiles;
+					DownloadedFiles = downloader.DownloadedFiles;
 
-					foreach (var file in this.FilesToDownload)
+					foreach (var file in FilesToDownload)
 					{
 						if (FileDownloadedEvent != null)
 						{
 							FileDownloadedEvent(this, new FileDownloadedEventArgs(downloadFolderPath, file.Value.FileInfo, file.Value.UnzipRequired));
 						}
 					}
-					this.FilesToDownload.Clear();
+					FilesToDownload.Clear();
 
 				}
 

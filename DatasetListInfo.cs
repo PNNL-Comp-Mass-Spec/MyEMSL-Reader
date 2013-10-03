@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace MyEMSLReader
 {
@@ -49,7 +48,6 @@ namespace MyEMSLReader
 		/// Constructor
 		/// </summary>
 		public DatasetListInfo()
-			: base()
 		{
 			mDatasetsAndSubDirs = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);			
 		}

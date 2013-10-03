@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using System.Globalization;
 using System.Net;
-using System.Text;
-using System.Web;
+using System.Threading;
 using Pacifica.Core;
 
 namespace MyEMSLReader
@@ -40,7 +38,7 @@ namespace MyEMSLReader
 
 		public static void GarbageCollectNow()
 		{
-			int intMaxWaitTimeMSec = 1000;
+			const int intMaxWaitTimeMSec = 1000;
 			GarbageCollectNow(intMaxWaitTimeMSec);
 		}
 
@@ -48,29 +46,29 @@ namespace MyEMSLReader
 		{
 			const int THREAD_SLEEP_TIME_MSEC = 100;
 
-			int intTotalThreadWaitTimeMsec = 0;
 			if (intMaxWaitTimeMSec < 100)
 				intMaxWaitTimeMSec = 100;
 			if (intMaxWaitTimeMSec > 5000)
 				intMaxWaitTimeMSec = 5000;
 
-			System.Threading.Thread.Sleep(100);
+			Thread.Sleep(100);
 
 			try
 			{
-				var gcThread = new System.Threading.Thread(GarbageCollectWaitForGC);
+				var gcThread = new Thread(GarbageCollectWaitForGC);
 				gcThread.Start();
 
-				intTotalThreadWaitTimeMsec = 0;
+				int intTotalThreadWaitTimeMsec = 0;
 				while (gcThread.IsAlive && intTotalThreadWaitTimeMsec < intMaxWaitTimeMSec)
 				{
-					System.Threading.Thread.Sleep(THREAD_SLEEP_TIME_MSEC);
+					Thread.Sleep(THREAD_SLEEP_TIME_MSEC);
 					intTotalThreadWaitTimeMsec += THREAD_SLEEP_TIME_MSEC;
 				}
 				if (gcThread.IsAlive)
 					gcThread.Abort();
 
 			}
+			// ReSharper disable once EmptyGeneralCatchClause
 			catch
 			{
 				// Ignore errors here
@@ -85,6 +83,7 @@ namespace MyEMSLReader
 				GC.Collect();
 				GC.WaitForPendingFinalizers();
 			}
+			// ReSharper disable once EmptyGeneralCatchClause
 			catch
 			{
 				// Ignore errors here
@@ -116,7 +115,7 @@ namespace MyEMSLReader
 
 		protected Int64 ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, Int64 valueIfMissing)
 		{
-			string valueText = ReadDictionaryValue(dctData, keyName, valueIfMissing.ToString());
+			string valueText = ReadDictionaryValue(dctData, keyName, valueIfMissing.ToString(CultureInfo.InvariantCulture));
 			Int64 value;
 
 			if (Int64.TryParse(valueText, out value))
@@ -137,12 +136,12 @@ namespace MyEMSLReader
 		/// <param name="ex"></param>
 		protected void ReportError(string errorMessage, Exception ex)
 		{
-			this.ErrorMessage = errorMessage;
+			ErrorMessage = errorMessage;
 
 			OnErrorMessage(new MessageEventArgs(errorMessage));
-			System.Threading.Thread.Sleep(10);
+			Thread.Sleep(10);
 
-			if (this.ThrowErrors)
+			if (ThrowErrors)
 			{
 				if (ex == null)
 					throw new Exception(errorMessage);
@@ -161,7 +160,7 @@ namespace MyEMSLReader
 
 		protected void ResetStatus()
 		{
-			this.ErrorMessage = string.Empty;
+			ErrorMessage = string.Empty;
 		}
 
 			
@@ -218,7 +217,7 @@ namespace MyEMSLReader
 			string postData, EasyHttp.HttpMethod postMethod,
 			int maxAttempts,
 			bool allowEmptyResponseData,
-			ref string responseData,
+			out string responseData,
 			out Exception mostRecentException
 			)
 		{
@@ -229,7 +228,7 @@ namespace MyEMSLReader
 			int timeoutSeconds = 2;
 			int attempts = 0;
 			bool retrievalSuccess = false;
-			HttpStatusCode responseStatusCode = HttpStatusCode.NotFound;
+			var responseStatusCode = HttpStatusCode.NotFound;
 
 			while (!retrievalSuccess && attempts <= maxAttempts)
 			{
@@ -266,7 +265,7 @@ namespace MyEMSLReader
 					{
 						// Wait 2 seconds, then retry
 						Console.WriteLine("Exception in SendHTTPRequestWithRetry on attempt " + attempts + ": " + ex.Message);
-						System.Threading.Thread.Sleep(2000);
+						Thread.Sleep(2000);
 						timeoutSeconds = (int)(Math.Ceiling(timeoutSeconds * 1.5));
 						continue;
 					}
