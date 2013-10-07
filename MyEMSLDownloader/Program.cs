@@ -12,23 +12,27 @@ namespace MyEMSLDownloader
 		static double mPercentComplete;
 		static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
 
-		private static bool mAutoTestMode;
 		private static string mDatasetName;
 		private static string mSubfolder;
 		private static string mFileMask;
 		private static string mOutputFolderPath;
+
+		private static bool mPreviewMode;
+		private static bool mAutoTestMode;
 
 		private static MyEMSLReader.DatasetListInfo mDatasetListInfo;
 
 		static int Main(string[] args)
 		{
 			var objParseCommandLine = new FileProcessor.clsParseCommandLine();
-
-			mAutoTestMode = false;
+		
 			mDatasetName = string.Empty;
 			mSubfolder = string.Empty;
 			mFileMask = string.Empty;
 			mOutputFolderPath = string.Empty;
+
+			mPreviewMode = false;
+			mAutoTestMode = false;
 
 			try
 			{
@@ -61,7 +65,7 @@ namespace MyEMSLDownloader
 					{
 						Console.WriteLine("Reader did not find any files");
 					}
-					else if (true)
+					else if (!mPreviewMode)
 					{
 						TestDownloader(lstFileIDs);
 					}
@@ -71,10 +75,12 @@ namespace MyEMSLDownloader
 
 					if (archiveFiles.Count == 0)
 						Console.WriteLine("DatasetListInfo did not find any files");
-					else if (true)
+					else
 					{
 						ShowFiles(archiveFiles);
-						TestDownloader(archiveFiles);
+
+						if (!mPreviewMode)
+							TestDownloader(archiveFiles);
 					}
 
 				}
@@ -82,10 +88,16 @@ namespace MyEMSLDownloader
 				{
 					var archiveFiles = FindFiles(mDatasetName, mSubfolder, mFileMask);
 
+					if (mPreviewMode)
+						Console.WriteLine("\nPreviewing files that would be downloaded\n");
+
 					ShowFiles(archiveFiles);
 
-					Console.WriteLine();
-					DownloadFiles(archiveFiles, mOutputFolderPath);
+					if (!mPreviewMode)
+					{
+						Console.WriteLine();
+						DownloadFiles(archiveFiles, mOutputFolderPath);
+					}
 
 				}
 			}
@@ -155,7 +167,7 @@ namespace MyEMSLDownloader
 		private static bool SetOptionsUsingCommandLineParameters(FileProcessor.clsParseCommandLine objParseCommandLine)
 		{
 			// Returns True if no problems; otherwise, returns false
-			var lstValidParameters = new List<string> { "Dataset", "SubDir", "Files", "O", "Test" };
+			var lstValidParameters = new List<string> { "Dataset", "SubDir", "Files", "O", "Preview", "Test" };
 
 			try
 			{
@@ -178,10 +190,18 @@ namespace MyEMSLDownloader
 				if (objParseCommandLine.NonSwitchParameterCount > 0)
 					mDatasetName = objParseCommandLine.RetrieveNonSwitchParameter(0);
 
+				if (objParseCommandLine.NonSwitchParameterCount > 1)
+					mSubfolder = objParseCommandLine.RetrieveNonSwitchParameter(1);
+				
 				if (!ParseParameter(objParseCommandLine, "Dataset", "a dataset name", ref mDatasetName)) return false;
 				if (!ParseParameter(objParseCommandLine, "SubDir", "a subfolder name", ref mSubfolder)) return false;
 				if (!ParseParameter(objParseCommandLine, "Files", "a file mas", ref mFileMask)) return false;
 				if (!ParseParameter(objParseCommandLine, "O", "an output folder path", ref mOutputFolderPath)) return false;
+
+				if (objParseCommandLine.IsParameterPresent("Preview"))
+				{
+					mPreviewMode = true;
+				}
 
 				if (objParseCommandLine.IsParameterPresent("Test"))
 				{
@@ -258,17 +278,26 @@ namespace MyEMSLDownloader
 				Console.WriteLine();
 
 				Console.Write("Program syntax #1:" + Environment.NewLine + exeName);
-				Console.WriteLine(" /Dataset:DatasetName [/SubDir:SubFolderName] [/Files:FileMask] [/O:OutputFolder]");
+				Console.WriteLine(" DatasetName [SubFolderName] [/Files:FileMask] [/O:OutputFolder] [/Preview]");
 
 				Console.WriteLine();
 				Console.Write("Program syntax #2:" + Environment.NewLine + exeName);
-				Console.WriteLine(" /Test");
+				Console.WriteLine(" /Dataset:DatasetName [/SubDir:SubFolderName] [/Files:FileMask] [/O:OutputFolder] [/Preview]");
 
 				Console.WriteLine();
-				Console.WriteLine("To download files for a given dataset, use /Dataset plus optionally /SubDir and/or /Files");
+				Console.Write("Program syntax #3:" + Environment.NewLine + exeName);
+				Console.WriteLine(" /Test [/Preview]");
+
+				Console.WriteLine();
+				Console.WriteLine("To download files for a given dataset, enter the dataset name, plus optionally the SubFolder name");
+				Console.WriteLine("The names can be entered separated by spaces, or using /Dataset plus optionally /SubDir");
+				Console.WriteLine();
+				Console.WriteLine("Use /Files to filter for specific files, for example /Files:*.txt");
 				Console.WriteLine("Files will be downloaded to the folder with the .exe; override using /O");
 				Console.WriteLine();
 				Console.WriteLine("Alternatively, use /Test to perform automatic tests using predefined dataset names");
+				Console.WriteLine();
+				Console.WriteLine("Use /Preview to view files that would be downloaded, but not actually download them");
 				Console.WriteLine();
 				Console.WriteLine("Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2013");
 				Console.WriteLine("Version: " + GetAppVersion());
