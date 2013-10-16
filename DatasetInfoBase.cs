@@ -481,6 +481,7 @@ namespace MyEMSLReader
 				else
 				{
 					// This is a programming bug
+					// ReSharper disable once NotResolvedInText
 					throw new ArgumentOutOfRangeException("Forward slash not found in the relative file path; this code should not be reached");
 				}
 

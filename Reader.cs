@@ -988,7 +988,12 @@ namespace MyEMSLReader
 				{
 					string msg = "No results returned from MyEMSL after " + maxAttempts + " attempts";
 					if (mostRecentException != null)
-						msg += ": " + mostRecentException.Message;
+					{
+						if (mostRecentException.Message.StartsWith("Aurora Offline"))
+							msg += ": Aurora Offline";
+						else
+							msg += ": " + mostRecentException.Message;
+					}
 
 					ReportError(msg, mostRecentException);
 				}

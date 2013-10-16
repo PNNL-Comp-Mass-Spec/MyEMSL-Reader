@@ -260,7 +260,14 @@ namespace MyEMSLReader
 						ReportMessage("Warning, access forbidden to URL; likely a cookie problem " + URL);
 						break;
 					}
-					
+
+					if (mostRecentException.Message.StartsWith("Aurora Offline"))
+					{
+						// Access denied; no point in retrying the request
+						ReportMessage("Aurora is offline; cannot query MyEMSL");
+						break;
+					}
+
 					if (attempts <= maxAttempts)
 					{
 						// Wait 2 seconds, then retry
