@@ -402,6 +402,25 @@ namespace MyEMSLReader
 			return lstFilesFiltered;
 		}
 
+		private List<ArchivedFileInfo> FilterFilesByDatasetName(List<ArchivedFileInfo> lstFiles, IEnumerable<string> datasetNames)
+		{
+			var lstFilesFiltered = new List<ArchivedFileInfo>();
+			var lstDatasetNamesSorted = new SortedSet<string>(datasetNames, StringComparer.CurrentCultureIgnoreCase);
+
+			// Equivalent Linq expression: 
+			// return lstFiles.Where(file => lstDatasetNamesSorted.Contains(file.Dataset)).ToList();
+
+			foreach (var file in lstFiles)
+			{
+				if (lstDatasetNamesSorted.Contains(file.Dataset))
+				{
+					lstFilesFiltered.Add(file);
+				}
+			}
+
+			return lstFilesFiltered;
+		}
+
 		protected List<ArchivedFileInfo> FilterFilesBySubDir(List<ArchivedFileInfo> lstFiles, Dictionary<string, string> dctDatasetsAndSubDirs)
 		{
 			var lstFilesFiltered = new List<ArchivedFileInfo>();
@@ -466,7 +485,11 @@ namespace MyEMSLReader
 		/// If the keys in dctDatasetsAndSubDirs start with DATASET_ID_TAG then they are Dataset IDs and not dataset names
 		/// If the keys in dctDatasetsAndSubDirs start with DATA_PKG_ID_TAG then they are Data Package IDs and not dataset names
 		/// </remarks>
-		protected List<ArchivedFileInfo> FindFilesByDataset(Dictionary<string, string> dctDatasetsAndSubDirs, bool recurse, string instrumentName, List<KeyValuePair<string, string>> dctSearchTerms)
+		protected List<ArchivedFileInfo> FindFilesByDataset(
+			Dictionary<string, string> dctDatasetsAndSubDirs, 
+			bool recurse, 
+			string instrumentName, 
+			List<KeyValuePair<string, string>> dctSearchTerms)
 		{
 
 			try
@@ -507,6 +530,16 @@ namespace MyEMSLReader
 
 				List<ArchivedFileInfo> lstFiles = QueryElasticSearch(dctSearchTerms, logicalOperator);
 
+				if (dctDatasetsAndSubDirs.Count > 0)
+				{
+					if (!dctDatasetsAndSubDirs.First().Key.StartsWith(DATASET_ID_TAG) &&
+					    !dctDatasetsAndSubDirs.First().Key.StartsWith(DATA_PKG_ID_TAG))
+					{
+						// Filter the files to remove any that are not an exact match to the dataset names in dctSearchTerms
+						lstFiles = FilterFilesByDatasetName(lstFiles, dctDatasetsAndSubDirs.Keys);
+					}
+				}
+				
 				if (!recurse)
 				{
 					// Filter the files to remove any not in the "root" folder

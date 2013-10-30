@@ -14,7 +14,7 @@ using ExtensionMethods;
 // Website: http://panomics.pnnl.gov/ or http://www.sysbio.org/resources/staff/
 // -------------------------------------------------------------------------------
 // 
-// Last modified June 28, 2013
+// Last modified October 17, 2013
 
 namespace FileProcessor
 {
@@ -61,7 +61,7 @@ namespace FileProcessor
 		/// <returns>True if any of the parameters are not present in strParameterList()</returns>
 		public bool InvalidParametersPresent(List<string> objParameterList)
 		{
-			bool blnCaseSensitive = false;
+			const bool blnCaseSensitive = false;
 			return InvalidParametersPresent(objParameterList, blnCaseSensitive);
 		}
 
@@ -72,7 +72,7 @@ namespace FileProcessor
 		/// <returns>True if any of the parameters are not present in strParameterList()</returns>
 		public bool InvalidParametersPresent(string[] strParameterList)
 		{
-			bool blnCaseSensitive = false;
+			const bool blnCaseSensitive = false;
 			return InvalidParametersPresent(strParameterList, blnCaseSensitive);
 		}
 
@@ -110,13 +110,13 @@ namespace FileProcessor
 
 		public List<string> InvalidParameters(List<string> lstValidParameters)
 		{
-			bool blnCaseSensitive = false;
+			const bool blnCaseSensitive = false;
 			return InvalidParameters(lstValidParameters, blnCaseSensitive);
 		}
 
 		public List<string> InvalidParameters(List<string> lstValidParameters, bool blnCaseSensitive)
 		{
-			List<string> lstInvalidParameters = new List<string>();
+			var lstInvalidParameters = new List<string>();
 
 		
 			try {
@@ -124,7 +124,7 @@ namespace FileProcessor
 
 				foreach (KeyValuePair<string, string> item in mSwitches) {
 					string itemKey = item.Key;
-					int intMatchCount = 0;
+					int intMatchCount;
 
 					if (blnCaseSensitive) {
 						intMatchCount = (from validItem in lstValidParameters where validItem == itemKey select validItem).Count();
@@ -152,8 +152,8 @@ namespace FileProcessor
 		/// <returns>True if present, otherwise false</returns>
 		public bool IsParameterPresent(string strParameterName)
 		{
-			string strValue = string.Empty;
-			bool blnCaseSensitive = false;
+			string strValue;
+			const bool blnCaseSensitive = false;
 			return RetrieveValueForParameter(strParameterName, out strValue, blnCaseSensitive);
 		}
 
@@ -191,22 +191,12 @@ namespace FileProcessor
 			//
 			// If /? or /help is found, then returns False and sets mShowHelp to True
 
-			string strCmdLine = string.Empty;
-			string strKey = null;
-			string strValue = null;
-
-			int intCharLoc = 0;
-
-			int intIndex = 0;
-			string[] strParameters = null;
-
-			bool blnSwitchParam = false;
-
 			mSwitches.Clear();
 			mNonSwitchParameters.Clear();
 
 			try
 			{
+				string strCmdLine;
 				try
 				{
 					// .CommandLine() returns the full command line
@@ -240,12 +230,12 @@ namespace FileProcessor
 					// This appears to be fixed in .NET 2.0 and above
 					// If an exception does occur here, we'll show the error message at the console, then sleep for 2 seconds
 
-					Console.WriteLine("------------------------------------------------------------------------------");
-					Console.WriteLine("This program cannot be run from a network share.  Please map a drive to the");
-					Console.WriteLine(" network share you are currently accessing or copy the program files and");
-					Console.WriteLine(" required DLL's to your local computer.");
-					Console.WriteLine(" Exception: " + ex.Message);
-					Console.WriteLine("------------------------------------------------------------------------------");
+					Console.WriteLine(@"------------------------------------------------------------------------------");
+					Console.WriteLine(@"This program cannot be run from a network share.  Please map a drive to the");
+					Console.WriteLine(@" network share you are currently accessing or copy the program files and");
+					Console.WriteLine(@" required DLL's to your local computer.");
+					Console.WriteLine(@" Exception: " + ex.Message);
+					Console.WriteLine(@"------------------------------------------------------------------------------");
 
 					PauseAtConsole(5000, 1000);
 
@@ -256,11 +246,11 @@ namespace FileProcessor
 				if (mDebugMode)
 				{
 					Console.WriteLine();
-					Console.WriteLine("Debugging command line parsing");
+					Console.WriteLine(@"Debugging command line parsing");
 					Console.WriteLine();
 				}
 
-				strParameters = SplitCommandLineParams(strCmdLine);
+				string[] strParameters = SplitCommandLineParams(strCmdLine);
 
 				if (mDebugMode)
 				{
@@ -271,7 +261,8 @@ namespace FileProcessor
 				{
 					return false;
 				}
-				else if (strCmdLine.IndexOf(chSwitchStartChar + "?") > 0 | strCmdLine.ToLower().IndexOf(chSwitchStartChar + "help") > 0)
+				
+				if (strCmdLine.IndexOf(chSwitchStartChar + "?") > 0 | strCmdLine.ToLower().IndexOf(chSwitchStartChar + "help") > 0)
 				{
 					mShowHelp = true;
 					return false;
@@ -280,13 +271,15 @@ namespace FileProcessor
 				// Parse the command line
 				// Note that strParameters(0) is the path to the Executable for the calling program
 
+				int intIndex;
 				for (intIndex = 1; intIndex <= strParameters.Length - 1; intIndex++)
 				{
 					if (strParameters[intIndex].Length > 0)
 					{
-						strKey = strParameters[intIndex].TrimStart(' ');
-						strValue = string.Empty;
+						string strKey = strParameters[intIndex].TrimStart(' ');
+						string strValue = string.Empty;
 
+						bool blnSwitchParam;
 						if (strKey.StartsWith(chSwitchStartChar))
 						{
 							blnSwitchParam = true;
@@ -304,7 +297,7 @@ namespace FileProcessor
 						if (blnSwitchParam)
 						{
 							// Look for strSwitchParameterChar in strParameters(intIndex)
-							intCharLoc = strParameters[intIndex].IndexOf(chSwitchParameterChar);
+							int intCharLoc = strParameters[intIndex].IndexOf(chSwitchParameterChar);
 
 							if (intCharLoc >= 0)
 							{
@@ -326,7 +319,7 @@ namespace FileProcessor
 
 							if (mDebugMode)
 							{
-								Console.WriteLine("SwitchParam: " + strKey + "=" + strValue);
+								Console.WriteLine(@"SwitchParam: " + strKey + @"=" + strValue);
 							}
 
 							// Note: .Item() will add strKey if it doesn't exist (which is normally the case)
@@ -341,7 +334,7 @@ namespace FileProcessor
 
 							if (mDebugMode)
 							{
-								Console.WriteLine("NonSwitchParam " + mNonSwitchParameters.Count + ": " + strKey);
+								Console.WriteLine(@"NonSwitchParam " + mNonSwitchParameters.Count + @": " + strKey);
 							}
 
 							mNonSwitchParameters.Add(strKey);
@@ -359,8 +352,8 @@ namespace FileProcessor
 			if (mDebugMode)
 			{
 				Console.WriteLine();
-				Console.WriteLine("Switch Count = " + mSwitches.Count);
-				Console.WriteLine("NonSwitch Count = " + mNonSwitchParameters.Count);
+				Console.WriteLine(@"Switch Count = " + mSwitches.Count);
+				Console.WriteLine(@"NonSwitch Count = " + mNonSwitchParameters.Count);
 				Console.WriteLine();
 			}
 
@@ -378,11 +371,10 @@ namespace FileProcessor
 
 		public static void PauseAtConsole(int intMillisecondsToPause, int intMillisecondsBetweenDots)
 		{
-			int intIteration = 0;
-			int intTotalIterations = 0;
+			int intTotalIterations;
 
 			Console.WriteLine();
-			Console.Write("Continuing in " + (intMillisecondsToPause / 1000.0).ToString("0") + " seconds ");
+			Console.Write(@"Continuing in " + (intMillisecondsToPause / 1000.0).ToString("0") + @" seconds ");
 
 			try
 			{
@@ -397,7 +389,7 @@ namespace FileProcessor
 				intTotalIterations = 1;
 			}
 
-			intIteration = 0;
+			int intIteration = 0;
 			do
 			{
 				Console.Write('.');
@@ -443,9 +435,6 @@ namespace FileProcessor
 		/// <returns></returns>
 		public bool RetrieveParameter(int intParameterIndex, out string strKey, out string strValue)
 		{
-
-			int intIndex = 0;
-
 			try
 			{
 				strKey = string.Empty;
@@ -455,7 +444,7 @@ namespace FileProcessor
 				{
 					Dictionary<string, string>.Enumerator iEnum = mSwitches.GetEnumerator();
 
-					intIndex = 0;
+					int intIndex = 0;
 					while (iEnum.MoveNext())
 					{
 						if (intIndex == intParameterIndex)
@@ -542,19 +531,17 @@ namespace FileProcessor
 
 		protected string[] SplitCommandLineParams(string strCmdLine)
 		{
-			List<string> strParameters = new List<string>();
-			string strParameter = null;
+			var strParameters = new List<string>();
 
 			int intIndexStart = 0;
 			int intIndexEnd = 0;
-			bool blnInsideDoubleQuotes = false;
 
 			try
 			{
 
 				if (!string.IsNullOrEmpty(strCmdLine))
 				{
-					blnInsideDoubleQuotes = false;
+					bool blnInsideDoubleQuotes = false;
 
 					while (intIndexStart < strCmdLine.Length)
 					{
@@ -571,7 +558,7 @@ namespace FileProcessor
 							if (strCmdLine[intIndexEnd] == ' ' || intIndexEnd == strCmdLine.Length - 1)
 							{
 								// Found the end of a parameter
-								strParameter = strCmdLine.Substring(intIndexStart, intIndexEnd - intIndexStart + 1).TrimEnd(' ');
+								string strParameter = strCmdLine.Substring(intIndexStart, intIndexEnd - intIndexStart + 1).TrimEnd(' ');
 
 								if (strParameter.StartsWith('"'))
 								{
@@ -587,7 +574,7 @@ namespace FileProcessor
 								{
 									if (mDebugMode)
 									{
-										Console.WriteLine("Param " + strParameters.Count + ": " + strParameter);
+										Console.WriteLine(@"Param " + strParameters.Count + @": " + strParameter);
 									}
 									strParameters.Add(strParameter);
 								}
@@ -598,9 +585,7 @@ namespace FileProcessor
 
 						intIndexEnd += 1;
 					}
-
 				}
-
 			}
 			catch (System.Exception ex)
 			{
