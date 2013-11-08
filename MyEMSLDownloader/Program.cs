@@ -7,7 +7,7 @@ namespace MyEMSLDownloader
 {
 	class Program
 	{
-		private const string PROGRAM_DATE = "October 30, 2013";
+		private const string PROGRAM_DATE = "November 8, 2013";
 
 		static double mPercentComplete;
 		static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
@@ -59,6 +59,10 @@ namespace MyEMSLDownloader
 
 				if (mAutoTestMode)
 				{
+
+                    // var exampleDownloader = new DownloadExample();
+                    // exampleDownloader.StartTest();
+
 					var lstFileIDs = TestReader();
 
 					if (lstFileIDs.Count == 0)
@@ -334,7 +338,7 @@ namespace MyEMSLDownloader
 		static List<long> TestReader()
 		{
 
-			Console.WriteLine("Looking for files for test datasets using the Rader class");
+			Console.WriteLine("Looking for files for test datasets using the Reader class");
 			Console.WriteLine();
 
 			var reader = new MyEMSLReader.Reader
