@@ -458,7 +458,7 @@ namespace MyEMSLReader
 				string postData = Utilities.ObjectToJson(querySpec);
 
 				const int maxAttempts = 4;
-				string xmlString = string.Empty;
+				string xmlString;
 				Exception mostRecentException;
 				const bool allowEmptyResponseData = false;
 
