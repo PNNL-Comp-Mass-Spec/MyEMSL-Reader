@@ -7,7 +7,7 @@ namespace MyEMSLReader
 	/// <summary>
 	/// Tracks the file info for multiple data packages (by dataset ID)
 	/// </summary>
-	public class DatasetPackageListInfo : DatasetInfoBase
+	public class DataPackageListInfo : DatasetInfoBase
 	{
 		#region "Module variables"
 
@@ -47,7 +47,7 @@ namespace MyEMSLReader
 		/// <summary>
 		/// Constructor
 		/// </summary>
-		public DatasetPackageListInfo()
+		public DataPackageListInfo()
 		{
 			mDataPackagesAndSubDirs = new Dictionary<int, string>();
 		}
@@ -64,7 +64,7 @@ namespace MyEMSLReader
 		/// <summary>
 		/// Add a dataset ID to search for in MyEMSL
 		/// </summary>
-		/// <param name="dataPackageID">Data Package ID ID</param>
+		/// <param name="dataPackageID">Data Package ID</param>
 		/// <param name="subDir">Subdirectory name to filter on</param>
 		public void AddDataPackage(int dataPackageID, string subDir)
 		{

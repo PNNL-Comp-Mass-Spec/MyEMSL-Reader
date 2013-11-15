@@ -7,12 +7,13 @@ namespace MyEMSLDownloader
 {
 	class Program
 	{
-		private const string PROGRAM_DATE = "November 8, 2013";
+		private const string PROGRAM_DATE = "November 15, 2013";
 
 		static double mPercentComplete;
 		static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
 
 		private static string mDatasetName;
+		private static int mDataPkgID;
 		private static string mSubfolder;
 		private static string mFileMask;
 		private static string mOutputFolderPath;
@@ -21,12 +22,14 @@ namespace MyEMSLDownloader
 		private static bool mAutoTestMode;
 
 		private static MyEMSLReader.DatasetListInfo mDatasetListInfo;
+		private static MyEMSLReader.DataPackageListInfo mDataPackageListInfo;
 
 		static int Main(string[] args)
 		{
 			var objParseCommandLine = new FileProcessor.clsParseCommandLine();
-		
+
 			mDatasetName = string.Empty;
+			mDataPkgID = 0;
 			mSubfolder = string.Empty;
 			mFileMask = string.Empty;
 			mOutputFolderPath = string.Empty;
@@ -54,14 +57,19 @@ namespace MyEMSLDownloader
 				}
 
 				mDatasetListInfo = new DatasetListInfo();
+				mDataPackageListInfo = new DataPackageListInfo();
+
 				mDatasetListInfo.ErrorEvent += mDatasetListInfo_ErrorEvent;
 				mDatasetListInfo.MessageEvent += mDatasetListInfo_MessageEvent;
+
+				mDataPackageListInfo.ErrorEvent += mDatasetListInfo_ErrorEvent;
+				mDataPackageListInfo.MessageEvent += mDatasetListInfo_MessageEvent;
 
 				if (mAutoTestMode)
 				{
 
-                    // var exampleDownloader = new DownloadExample();
-                    // exampleDownloader.StartTest();
+					// var exampleDownloader = new DownloadExample();
+					// exampleDownloader.StartTest();
 
 					var lstFileIDs = TestReader();
 
@@ -90,7 +98,12 @@ namespace MyEMSLDownloader
 				}
 				else
 				{
-					var archiveFiles = FindFiles(mDatasetName, mSubfolder, mFileMask);
+					List<DatasetFolderOrFileInfo> archiveFiles;
+
+					if (mDataPkgID > 0)
+						archiveFiles = FindDataPkgFiles(mDataPkgID, mSubfolder, mFileMask);
+					else
+						archiveFiles = FindDatasetFiles(mDatasetName, mSubfolder, mFileMask);
 
 					if (mPreviewMode)
 						Console.WriteLine("\nPreviewing files that would be downloaded\n");
@@ -100,7 +113,10 @@ namespace MyEMSLDownloader
 					if (!mPreviewMode)
 					{
 						Console.WriteLine();
-						DownloadFiles(archiveFiles, mOutputFolderPath);
+						if (mDataPkgID > 0)
+							DownloadDataPackageFiles(archiveFiles, mOutputFolderPath);
+						else
+							DownloadDatasetFiles(archiveFiles, mOutputFolderPath);
 					}
 
 				}
@@ -115,12 +131,22 @@ namespace MyEMSLDownloader
 			return 0;
 		}
 
-		private static void DownloadFiles(IEnumerable<DatasetFolderOrFileInfo> archiveFiles, string outputFolderPath)
+		private static void DownloadDatasetFiles(IEnumerable<DatasetFolderOrFileInfo> archiveFiles, string outputFolderPath)
 		{
-			mDatasetListInfo.ClearDownloadQueue();
+			DownloadFiles(mDatasetListInfo, archiveFiles, outputFolderPath);
+		}
+
+		private static void DownloadDataPackageFiles(IEnumerable<DatasetFolderOrFileInfo> archiveFiles, string outputFolderPath)
+		{
+			DownloadFiles(mDataPackageListInfo, archiveFiles, outputFolderPath);
+		}
+
+		private static void DownloadFiles(DatasetInfoBase downloader, IEnumerable<DatasetFolderOrFileInfo> archiveFiles, string outputFolderPath)
+		{
+			downloader.ClearDownloadQueue();
 			foreach (var archiveFile in archiveFiles)
 			{
-				mDatasetListInfo.AddFileToDownloadQueue(archiveFile.FileInfo);
+				downloader.AddFileToDownloadQueue(archiveFile.FileInfo);
 			}
 
 			Downloader.DownloadFolderLayout folderLayout;
@@ -129,7 +155,7 @@ namespace MyEMSLDownloader
 			else
 				folderLayout = Downloader.DownloadFolderLayout.SingleDataset;
 
-			bool success = mDatasetListInfo.ProcessDownloadQueue(outputFolderPath, folderLayout);
+			bool success = downloader.ProcessDownloadQueue(outputFolderPath, folderLayout);
 
 			if (success)
 			{
@@ -142,7 +168,7 @@ namespace MyEMSLDownloader
 
 		}
 
-		private static List<DatasetFolderOrFileInfo> FindFiles(string datasetName, string subfolder, string fileMask)
+		private static List<DatasetFolderOrFileInfo> FindDatasetFiles(string datasetName, string subfolder, string fileMask)
 		{
 
 			mDatasetListInfo.AddDataset(datasetName);
@@ -151,6 +177,18 @@ namespace MyEMSLDownloader
 				fileMask = "*";
 
 			var archiveFiles = mDatasetListInfo.FindFiles(fileMask, subfolder);
+
+			return archiveFiles;
+		}
+
+		private static List<DatasetFolderOrFileInfo> FindDataPkgFiles(int dataPkgID, string subfolder, string fileMask)
+		{
+			mDataPackageListInfo.AddDataPackage(dataPkgID);
+
+			if (string.IsNullOrEmpty(fileMask))
+				fileMask = "*";
+
+			var archiveFiles = mDataPackageListInfo.FindFiles(fileMask, subfolder);
 
 			return archiveFiles;
 		}
@@ -171,7 +209,7 @@ namespace MyEMSLDownloader
 		private static bool SetOptionsUsingCommandLineParameters(FileProcessor.clsParseCommandLine objParseCommandLine)
 		{
 			// Returns True if no problems; otherwise, returns false
-			var lstValidParameters = new List<string> { "Dataset", "SubDir", "Files", "O", "Preview", "Test" };
+			var lstValidParameters = new List<string> { "Dataset", "DataPkg", "SubDir", "Files", "O", "Preview", "Test" };
 
 			try
 			{
@@ -196,8 +234,20 @@ namespace MyEMSLDownloader
 
 				if (objParseCommandLine.NonSwitchParameterCount > 1)
 					mSubfolder = objParseCommandLine.RetrieveNonSwitchParameter(1);
-				
+
 				if (!ParseParameter(objParseCommandLine, "Dataset", "a dataset name", ref mDatasetName)) return false;
+
+				string dataPkgString = "";
+				if (!ParseParameter(objParseCommandLine, "DataPkg", "a data package ID", ref dataPkgString)) return false;
+				if (!string.IsNullOrEmpty(dataPkgString))
+				{
+					if (!int.TryParse(dataPkgString, out mDataPkgID))
+					{
+						ShowErrorMessage("Data package ID must be an integer: " + dataPkgString);
+						return false;
+					}
+				}
+
 				if (!ParseParameter(objParseCommandLine, "SubDir", "a subfolder name", ref mSubfolder)) return false;
 				if (!ParseParameter(objParseCommandLine, "Files", "a file mas", ref mFileMask)) return false;
 				if (!ParseParameter(objParseCommandLine, "O", "an output folder path", ref mOutputFolderPath)) return false;
@@ -387,7 +437,7 @@ namespace MyEMSLDownloader
 					lstFileIDs.Add(archivedFile.FileID);
 				}
 
-				var dataPackageInfoCache = new MyEMSLReader.DatasetPackageListInfo();
+				var dataPackageInfoCache = new MyEMSLReader.DataPackageListInfo();
 				dataPackageInfoCache.AddDataPackage(814);
 
 				var archiveFiles = dataPackageInfoCache.FindFiles("SamplePrepTest_Plasma*", @"misc\final melissa tables");
@@ -528,7 +578,7 @@ namespace MyEMSLDownloader
 			Console.WriteLine("Downloading " + archiveFiles.Count + " files");
 			Console.WriteLine();
 
-			DownloadFiles(archiveFiles, mOutputFolderPath);
+			DownloadDatasetFiles(archiveFiles, mOutputFolderPath);
 		}
 
 		private static void WriteToErrorStream(string strErrorMessage)
