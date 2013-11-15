@@ -49,11 +49,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArchivedFileInfo.cs" />
+    <Compile Include="DataPackageListInfo.cs" />
     <Compile Include="DatasetFolderOrFileInfo.cs" />
     <Compile Include="DatasetListInfoByID.cs" />
     <Compile Include="DatasetInfoBase.cs" />
     <Compile Include="DatasetListInfo.cs" />
-    <Compile Include="DatasetPackageListInfo.cs" />
     <Compile Include="Downloader.cs" />
     <Compile Include="DownloadQueue.cs" />
     <Compile Include="EventArgs.cs" />
