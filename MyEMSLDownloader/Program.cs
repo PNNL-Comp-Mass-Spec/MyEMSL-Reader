@@ -7,7 +7,7 @@ namespace MyEMSLDownloader
 {
 	class Program
 	{
-		private const string PROGRAM_DATE = "November 15, 2013";
+		private const string PROGRAM_DATE = "December 16, 2013";
 
 		static double mPercentComplete;
 		static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
@@ -18,6 +18,7 @@ namespace MyEMSLDownloader
 		private static string mFileMask;
 		private static string mOutputFolderPath;
 
+		private static bool mMultiDatasetMode;
 		private static bool mPreviewMode;
 		private static bool mAutoTestMode;
 
@@ -33,6 +34,8 @@ namespace MyEMSLDownloader
 			mSubfolder = string.Empty;
 			mFileMask = string.Empty;
 			mOutputFolderPath = string.Empty;
+
+			mMultiDatasetMode = false;
 
 			mPreviewMode = false;
 			mAutoTestMode = false;
@@ -150,7 +153,7 @@ namespace MyEMSLDownloader
 			}
 
 			Downloader.DownloadFolderLayout folderLayout;
-			if (string.IsNullOrEmpty(outputFolderPath))
+			if (mMultiDatasetMode)
 				folderLayout = Downloader.DownloadFolderLayout.DatasetNameAndSubFolders;
 			else
 				folderLayout = Downloader.DownloadFolderLayout.SingleDataset;
@@ -209,7 +212,7 @@ namespace MyEMSLDownloader
 		private static bool SetOptionsUsingCommandLineParameters(FileProcessor.clsParseCommandLine objParseCommandLine)
 		{
 			// Returns True if no problems; otherwise, returns false
-			var lstValidParameters = new List<string> { "Dataset", "DataPkg", "SubDir", "Files", "O", "Preview", "Test" };
+			var lstValidParameters = new List<string> { "Dataset", "DataPkg", "SubDir", "Files", "O", "D", "Preview", "Test" };
 
 			try
 			{
@@ -250,7 +253,13 @@ namespace MyEMSLDownloader
 
 				if (!ParseParameter(objParseCommandLine, "SubDir", "a subfolder name", ref mSubfolder)) return false;
 				if (!ParseParameter(objParseCommandLine, "Files", "a file mas", ref mFileMask)) return false;
+
 				if (!ParseParameter(objParseCommandLine, "O", "an output folder path", ref mOutputFolderPath)) return false;
+
+				if (objParseCommandLine.IsParameterPresent("D"))
+				{
+					mMultiDatasetMode = true;
+				}
 
 				if (objParseCommandLine.IsParameterPresent("Preview"))
 				{
@@ -332,11 +341,11 @@ namespace MyEMSLDownloader
 				Console.WriteLine();
 
 				Console.Write("Program syntax #1:" + Environment.NewLine + exeName);
-				Console.WriteLine(" DatasetName [SubFolderName] [/Files:FileMask] [/O:OutputFolder] [/Preview]");
+				Console.WriteLine(" DatasetName [SubFolderName] [/Files:FileMask] [/O:OutputFolder] [/D] [/Preview]");
 
 				Console.WriteLine();
 				Console.Write("Program syntax #2:" + Environment.NewLine + exeName);
-				Console.WriteLine(" /Dataset:DatasetName [/SubDir:SubFolderName] [/Files:FileMask] [/O:OutputFolder] [/Preview]");
+				Console.WriteLine(" /Dataset:DatasetName [/SubDir:SubFolderName] [/Files:FileMask] [/O:OutputFolder] [/D] [/Preview]");
 
 				Console.WriteLine();
 				Console.Write("Program syntax #3:" + Environment.NewLine + exeName);
@@ -348,6 +357,7 @@ namespace MyEMSLDownloader
 				Console.WriteLine();
 				Console.WriteLine("Use /Files to filter for specific files, for example /Files:*.txt");
 				Console.WriteLine("Files will be downloaded to the folder with the .exe; override using /O");
+				Console.WriteLine("Use /D to create a folder with the dataset name, then store the files within that folder");
 				Console.WriteLine();
 				Console.WriteLine("Alternatively, use /Test to perform automatic tests using predefined dataset names");
 				Console.WriteLine();
