@@ -51,7 +51,11 @@ copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Ca
 copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\CaptureTaskManager\CaptureTaskManager\bin\Debug_NoDartFTP" /y
 copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\DatasetArchivePlugin\DatasetArchivePlugin\bin\Debug" /y
 copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\DatasetArchivePlugin\DatasetArchivePlugin\bin\Debug_NoDartFTP" /y
+copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\DatasetArchivePlugin\pacifica\Pacifica.DMS_Metadata\bin\Debug" /y
 copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\ArchiveVerifyPlugin\bin\Debug" /y
+
+copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\MyEMSL_MTS_File_Cache_Manager\Lib" /y
+copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\MyEMSL_MTS_File_Cache_Manager\bin\Debug" /y
 
 copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Space_Manager\DMS_Space_Manager\RefLib" /y
 copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Space_Manager\DMS_Space_Manager\Bin\Debug" /y

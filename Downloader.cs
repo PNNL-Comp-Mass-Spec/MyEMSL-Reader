@@ -443,7 +443,7 @@ namespace MyEMSLReader
 
 		protected Int64 CreateCart(List<Int64> lstFiles, CookieContainer cookieJar, string authToken)
 		{
-			Int64 cartID = 0;
+			Int64 cartID;
 
 			try
 			{
@@ -464,7 +464,7 @@ namespace MyEMSLReader
 
 				bool success = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Post, maxAttempts, allowEmptyResponseData, out xmlString, out mostRecentException);
 
-				if (string.IsNullOrEmpty(xmlString))
+				if (!success || string.IsNullOrEmpty(xmlString))
 				{
 					ReportError("Error creating download cart after " + maxAttempts + " attempts", mostRecentException);
 				}
@@ -537,7 +537,7 @@ namespace MyEMSLReader
 				string postData = scrollID;
 
 				const int maxAttempts = 4;
-				string responseData = string.Empty;
+				string responseData;
 				Exception mostRecentException;
 				const bool allowEmptyResponseData = false;
 
@@ -778,12 +778,6 @@ namespace MyEMSLReader
 					}
 				}
 
-				if (success)
-				{
-					ReportMessage("Successfully extracted files from .tar file at " + tarFileURL);
-					UpdateProgress(1, 1);
-				}
-
 				if (!success)
 				{
 					if (mostRecentException == null)
@@ -794,6 +788,9 @@ namespace MyEMSLReader
 					return false;
 				}
 
+				ReportMessage("Successfully extracted files from .tar file at " + tarFileURL);
+				UpdateProgress(1, 1);
+
 			}
 			catch (Exception ex)
 			{
@@ -801,7 +798,7 @@ namespace MyEMSLReader
 				return false;
 			}
 
-			return success;
+			return true;
 
 		}
 
@@ -842,7 +839,7 @@ namespace MyEMSLReader
 
 					Stream ReceiveStream = response.GetResponseStream();
 
-					TarInputStream tarIn = new TarInputStream(ReceiveStream);
+					var tarIn = new TarInputStream(ReceiveStream);
 					TarEntry tarEntry;
 					while ((tarEntry = tarIn.GetNextEntry()) != null)
 					{
@@ -1017,7 +1014,7 @@ namespace MyEMSLReader
 
 		protected bool InitializeCartCreation(Int64 cartID, CookieContainer cookieJar)
 		{
-			bool success = false;
+			bool success;
 
 			try
 			{
@@ -1026,7 +1023,7 @@ namespace MyEMSLReader
 				string postData = string.Empty;
 
 				const int maxAttempts = 4;
-				string xmlString = string.Empty;
+				string xmlString;
 				Exception mostRecentException;
 				const bool allowEmptyResponseData = true;
 
@@ -1291,7 +1288,7 @@ namespace MyEMSLReader
 				string postData = string.Empty;
 
 				const int maxAttempts = 3;
-				string xmlString = string.Empty;
+				string xmlString;
 				const bool allowEmptyResponseData = false;
 
 				while (DownloadCartState != CartState.Available)
@@ -1377,8 +1374,8 @@ namespace MyEMSLReader
 
 				return true;
 			}
-			else
-				return false;
+			
+			return false;
 		}
 
 		#endregion

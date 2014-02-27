@@ -554,10 +554,9 @@ namespace MyEMSLReader
 		{
 			if (mCacheIsStale || DateTime.UtcNow.Subtract(mCacheDate).TotalMinutes >= CACHE_REFRESH_THRESHOLD_MINUTES)
 				return RefreshInfo();
-			else
-				return true;
+			
+			return true;
 		}
-
 
 		#region "Events"
 

@@ -14,7 +14,7 @@ namespace MyEMSLReader
 	///   Optionally filter on Subdirectory name below the dataset folder to limit the search space
 	/// Also supports searching by Data Package ID
 	/// </summary>
-	/// <remarks>Written by Matthew Monroe for PNNL in August 2013</remarks>
+	/// <remarks>Written by Matthew Monroe for PNNL in August 2013.  Last updated February 2014</remarks>
 	public class Reader : MyEMSLBase
 	{
 		#region "Constants"
@@ -402,7 +402,7 @@ namespace MyEMSLReader
 			return lstFilesFiltered;
 		}
 
-		private List<ArchivedFileInfo> FilterFilesByDatasetName(List<ArchivedFileInfo> lstFiles, IEnumerable<string> datasetNames)
+		private List<ArchivedFileInfo> FilterFilesByDatasetName(IEnumerable<ArchivedFileInfo> lstFiles, IEnumerable<string> datasetNames)
 		{
 			var lstFilesFiltered = new List<ArchivedFileInfo>();
 			var lstDatasetNamesSorted = new SortedSet<string>(datasetNames, StringComparer.CurrentCultureIgnoreCase);
@@ -448,9 +448,9 @@ namespace MyEMSLReader
 				if (!string.IsNullOrWhiteSpace(file.SubDirPath))
 				{
 
-					List<string> lstRequiredSubDirTree = currentSubDir.Split(new char[] { '/', '\\' }).ToList();
+					var lstRequiredSubDirTree = currentSubDir.Split(new char[] { '/', '\\' }).ToList();
 
-					List<string> lstFileSubDirTree = file.SubDirPath.Split(new char[] { '/', '\\' }).ToList();
+					var lstFileSubDirTree = file.SubDirPath.Split(new char[] { '/', '\\' }).ToList();
 
 					if (lstFileSubDirTree.Count >= lstRequiredSubDirTree.Count)
 					{
@@ -660,6 +660,7 @@ namespace MyEMSLReader
 						bool publicFile = ReadDictionaryValue(dctFileInfo, "aged", false);
 
 						string fileName = ReadDictionaryValue(dctFileInfo, "filename", string.Empty);
+
 						Int64 fileSizeBytes = ReadDictionaryValue(dctFileInfo, "size", 0);
 						string datasetName = ReadDictionaryValue(dctFileInfo, "groups.omics.dms.dataset", string.Empty);
 
@@ -686,7 +687,7 @@ namespace MyEMSLReader
 
 						int existingIndex;
 
-						if (dctMostRecentVersionPointers.TryGetValue(archiveFile.PathWithInstrumentAndDatasetWindows, out existingIndex))
+						if (dctMostRecentVersionPointers.TryGetValue(archiveFile.PathWithDataset, out existingIndex))
 						{
 							// Found a duplicate file
 							if (IncludeAllRevisions)
@@ -697,7 +698,7 @@ namespace MyEMSLReader
 								if (lstFiles[existingIndex].TransactionID < archiveFile.TransactionID)
 								{
 									// This file is newer; update dctUniqueFiles
-									dctMostRecentVersionPointers[archiveFile.PathWithInstrumentAndDatasetWindows] = lstFiles.Count - 1;
+									dctMostRecentVersionPointers[archiveFile.PathWithDataset] = lstFiles.Count - 1;
 								}
 
 							}
@@ -715,7 +716,7 @@ namespace MyEMSLReader
 						{
 							// This is a new file; add it to lstFiles and update dctUniqueFiles
 							lstFiles.Add(archiveFile);
-							dctMostRecentVersionPointers.Add(archiveFile.PathWithInstrumentAndDatasetWindows, lstFiles.Count - 1);
+							dctMostRecentVersionPointers.Add(archiveFile.PathWithDataset, lstFiles.Count - 1);
 						}
 
 
@@ -779,8 +780,8 @@ namespace MyEMSLReader
 		{
 			if (text.Contains(" "))
 				return '"' + text + '"';
-			else
-				return text;
+			
+			return text;
 		}
 
 		/// <summary>

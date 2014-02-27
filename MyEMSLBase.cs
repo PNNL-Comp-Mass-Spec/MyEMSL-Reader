@@ -145,8 +145,8 @@ namespace MyEMSLReader
 			{
 				if (ex == null)
 					throw new Exception(errorMessage);
-				else
-					throw new Exception(errorMessage, ex);
+				
+				throw new Exception(errorMessage, ex);
 			}
 		}
 
@@ -274,7 +274,6 @@ namespace MyEMSLReader
 						Console.WriteLine("Exception in SendHTTPRequestWithRetry on attempt " + attempts + ": " + ex.Message);
 						Thread.Sleep(2000);
 						timeoutSeconds = (int)(Math.Ceiling(timeoutSeconds * 1.5));
-						continue;
 					}
 				}
 			}

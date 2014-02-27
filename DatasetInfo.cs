@@ -122,8 +122,8 @@ namespace MyEMSLReader
 				{
 					if (mErrorMessages.Count == 0)
 						return true;
-					else
-						return false;
+					
+					return false;
 				}
 
 				mDatasetID = mArchivedFiles.First().DatasetID;

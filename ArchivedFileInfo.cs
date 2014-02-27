@@ -94,9 +94,38 @@ namespace MyEMSLReader
 		}
 
 		/// <summary>
+		/// Relative path to the file, including the dataset name
+		/// </summary>
+		/// <remarks>Uses Windows-style slashes</remarks>
+		public string PathWithDataset
+		{
+			get
+			{
+				string fullPath = string.Empty;				
+
+				if (!string.IsNullOrWhiteSpace(Dataset))
+					fullPath = Path.Combine(fullPath, Dataset);
+
+				return Path.Combine(fullPath, RelativePathWindows).Replace("/", @"\");
+			}
+		}
+
+		/// <summary>
+		/// Relative path to the file, including the dataset name
+		/// </summary>
+		/// <remarks>Uses Unix-style slashes</remarks>
+		public string PathWithDatasetUnix
+		{
+			get
+			{
+				return PathWithDataset.Replace(@"\", "/");
+			}
+		}
+
+		/// <summary>
 		/// Relative path to the file, including the instrument, year_quarter, and dataset
 		/// </summary>
-		/// <remarks>Uses unix-style slashes</remarks>
+		/// <remarks>Uses Unix-style slashes</remarks>
 		public string PathWithInstrumentAndDatasetUnix
 		{
 			get
@@ -108,7 +137,7 @@ namespace MyEMSLReader
 		/// <summary>
 		/// Relative path to the file, including the instrument, year_quarter, and dataset
 		/// </summary>
-		/// <remarks>Uses Windows-style slashes</remarks>
+		/// <remarks>Uses Windows-style slashes.  Note that instrument IMS_TOF_4 was renamed to IMS04_AgTOF05 in 2013, and thus there are datasets with files associated with both instruments in MyEMSL</remarks>
 		public string PathWithInstrumentAndDatasetWindows
 		{
 			get
@@ -150,8 +179,8 @@ namespace MyEMSLReader
 			{
 				if (string.IsNullOrWhiteSpace(SubDirPath))
 					return Filename;
-				else
-					return Path.Combine(SubDirPath, Filename).Replace("/", @"\");
+				
+				return Path.Combine(SubDirPath, Filename).Replace("/", @"\");
 			}
 		}
 
@@ -188,8 +217,8 @@ namespace MyEMSLReader
 				DateTime dtSubmissionTime;
 				if (DateTime.TryParse(SubmissionTime, out dtSubmissionTime))
 					return dtSubmissionTime;
-				else
-					return DateTime.Now;
+				
+				return DateTime.Now;
 			}			
 		}
 
