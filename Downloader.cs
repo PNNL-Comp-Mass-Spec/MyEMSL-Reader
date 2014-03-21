@@ -447,6 +447,11 @@ namespace MyEMSLReader
 
 			try
 			{
+				// The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
+				// For more info, see comments in Reader.RunQuery()
+				if (ServicePointManager.ServerCertificateValidationCallback == null)
+					ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
+
 				var querySpec = new Dictionary<string, object>
 				{
 					{"items", lstFiles},
@@ -532,6 +537,11 @@ namespace MyEMSLReader
 					return false;
 				}
 
+				// The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
+				// For more info, see comments in Reader.RunQuery()
+				if (ServicePointManager.ServerCertificateValidationCallback == null)
+					ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
+
 				// Obtain a new authorization token by posting to https://my.emsl.pnl.gov/myemsl/elasticsearch/simple_items?search_type=scan&scan&auth
 				string URL = Configuration.ElasticSearchUri + "simple_items?search_type=scan&scan&auth";
 				string postData = scrollID;
@@ -591,6 +601,11 @@ namespace MyEMSLReader
 			int attempts = 0;
 			bool success = false;
 			bool triedGC = false;
+
+			// The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
+			// For more info, see comments in Reader.RunQuery()
+			if (ServicePointManager.ServerCertificateValidationCallback == null)
+				ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
 
 			while (!success && attempts <= maxAttempts)
 			{
@@ -814,6 +829,11 @@ namespace MyEMSLReader
 			ref Dictionary<Int64, string> dctFilesDownloaded,
 			int timeoutSeconds = 100)
 		{
+			// The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
+			// For more info, see comments in Reader.RunQuery()
+			if (ServicePointManager.ServerCertificateValidationCallback == null)
+				ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
+
 			const double maxTimeoutHours = 24;
 			NetworkCredential loginCredentials = null;
 			HttpWebRequest request = EasyHttp.InitializeRequest(tarFileURL, ref cookieJar, ref timeoutSeconds, loginCredentials, maxTimeoutHours);
@@ -1018,6 +1038,11 @@ namespace MyEMSLReader
 
 			try
 			{
+				// The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
+				// For more info, see comments in Reader.RunQuery()
+				if (ServicePointManager.ServerCertificateValidationCallback == null)
+					ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
+
 				// Note that even though postData is empty we need to "Post" to https://my.emsl.pnl.gov/myemsl/api/2/cart/11?submit
 				string URL = Configuration.ApiUri + "2/cart/" + cartID + "?submit";
 				string postData = string.Empty;
@@ -1163,6 +1188,10 @@ namespace MyEMSLReader
 
 			mostRecentException = null;
 
+			// The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
+			// For more info, see comments in Reader.RunQuery()
+			if (ServicePointManager.ServerCertificateValidationCallback == null)
+				ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
 			var responseHeaders = new WebHeaderCollection();
 
 			int timeoutSeconds = 2;
@@ -1282,6 +1311,10 @@ namespace MyEMSLReader
 
 			try
 			{
+				// The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
+				// For more info, see comments in Reader.RunQuery()
+				if (ServicePointManager.ServerCertificateValidationCallback == null)
+					ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
 
 				// Construct the URL, e.g. http://my.emsl.pnl.gov/myemsl/api/2/cart/15
 				string URL = Configuration.ApiUri + "2/cart/" + cartID;

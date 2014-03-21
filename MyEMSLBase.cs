@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
+using System.Net.Security;
 using System.Threading;
 using Pacifica.Core;
 
@@ -222,6 +223,11 @@ namespace MyEMSLReader
 			)
 		{
 
+			// The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
+			// For more info, see comments in Reader.RunQuery()
+			if (ServicePointManager.ServerCertificateValidationCallback == null)
+				ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
+
 			mostRecentException = null;
 			responseData = string.Empty;
 
@@ -310,7 +316,7 @@ namespace MyEMSLReader
 
 			return true;
 		}
-		
+
 		#region "Events"
 
 		public event MessageEventHandler ErrorEvent;
