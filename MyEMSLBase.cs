@@ -91,6 +91,20 @@ namespace MyEMSLReader
 			}
 		}
 
+		protected static int IncreaseTimeout(int timeoutSeconds)
+		{
+			if (timeoutSeconds < 8)
+			{
+				timeoutSeconds *= 2;
+			}
+			else
+			{
+				timeoutSeconds = (int)(Math.Ceiling(timeoutSeconds * 1.5));
+			}
+
+			return timeoutSeconds;
+		}
+
 		protected string ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, string valueIfMissing)
 		{
 			object value;
@@ -249,8 +263,8 @@ namespace MyEMSLReader
 					{
 						if (string.IsNullOrEmpty(responseData))
 						{
-							Console.WriteLine("Empty responseDate in SendHTTPRequestWithRetry on attempt " + attempts);
-							timeoutSeconds = (int)(Math.Ceiling(timeoutSeconds * 1.5));
+							Console.WriteLine("Empty responseData in SendHTTPRequestWithRetry on attempt " + attempts);
+							timeoutSeconds = IncreaseTimeout(timeoutSeconds);
 						}
 						else
 							retrievalSuccess = true;
@@ -279,7 +293,7 @@ namespace MyEMSLReader
 						// Wait 2 seconds, then retry
 						Console.WriteLine("Exception in SendHTTPRequestWithRetry on attempt " + attempts + ": " + ex.Message);
 						Thread.Sleep(2000);
-						timeoutSeconds = (int)(Math.Ceiling(timeoutSeconds * 1.5));
+						timeoutSeconds = IncreaseTimeout(timeoutSeconds);
 					}
 				}
 			}

@@ -646,7 +646,7 @@ namespace MyEMSLReader
 						// Wait 2 seconds, then retry
 						Console.WriteLine("Exception in DownloadFile on attempt " + attempts + ": " + ex.Message);
 						Thread.Sleep(2000);
-						timeoutSeconds = (int)(Math.Ceiling(timeoutSeconds * 1.5));
+						timeoutSeconds = IncreaseTimeout(timeoutSeconds);
 					}
 				}
 			}
@@ -788,7 +788,7 @@ namespace MyEMSLReader
 							// Wait 2 seconds, then retry
 							Console.WriteLine("Exception in DownloadTarFileWithRetry on attempt " + attempts + ": " + ex.Message);
 							Thread.Sleep(2000);
-							timeoutSeconds = (int)(Math.Ceiling(timeoutSeconds * 1.5));
+							timeoutSeconds = IncreaseTimeout(timeoutSeconds);
 						}
 					}
 				}
@@ -1209,7 +1209,7 @@ namespace MyEMSLReader
 					if (responseHeaders == null || responseHeaders.Count == 0)
 					{
 						Console.WriteLine("Empty headers in SendHeadRequestWithRetry on attempt " + attempts);
-						timeoutSeconds = (int)(Math.Ceiling(timeoutSeconds * 1.5));
+						timeoutSeconds = IncreaseTimeout(timeoutSeconds);
 					}
 					else
 						success = true;
@@ -1227,7 +1227,7 @@ namespace MyEMSLReader
 						// Wait 2 seconds, then retry
 						Console.WriteLine("Exception in SendHeadRequestWithRetry on attempt " + attempts + ": " + ex.Message);
 						Thread.Sleep(2000);
-						timeoutSeconds = (int)(Math.Ceiling(timeoutSeconds * 1.5));
+						timeoutSeconds = IncreaseTimeout(timeoutSeconds);
 					}
 				}
 			}
