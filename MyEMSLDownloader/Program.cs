@@ -7,7 +7,7 @@ namespace MyEMSLDownloader
 {
 	class Program
 	{
-		private const string PROGRAM_DATE = "February 27, 2014";
+		private const string PROGRAM_DATE = "August 11, 2014";
 
 		static double mPercentComplete;
 		static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
@@ -415,15 +415,19 @@ namespace MyEMSLDownloader
 			Console.WriteLine();
 			Console.WriteLine();
 
-			var lstFileIDs2 = TestMultiDatasetID(reader);
+			var lstFileIDs2 = TestOneDatasetByID(reader);
 			Console.WriteLine();
 			Console.WriteLine();
 
-			var lstFileIDs3 = TestOneDataset(reader);
+			var lstFileIDs3 = TestMultiDatasetID(reader);
 			Console.WriteLine();
 			Console.WriteLine();
 
-			var lstFileIDs4 = TestOneDataPackage(reader);
+			var lstFileIDs4 = TestOneDataset(reader);
+			Console.WriteLine();
+			Console.WriteLine();
+
+			var lstFileIDs5 = TestOneDataPackage(reader);
 			Console.WriteLine();
 			Console.WriteLine();
 
@@ -525,16 +529,9 @@ namespace MyEMSLDownloader
 			return lstFileIDs;
 		}
 
-		static List<long> TestMultiDatasetID(MyEMSLReader.Reader reader)
+		private static List<long> TestDatasetByID(Reader reader, Dictionary<int, string> dctDatasetsAndSubDirs)
 		{
 			var lstFileIDs = new List<long>();
-
-			var dctDatasetsAndSubDirs = new Dictionary<int, string>
-			{
-				{54007, "SIC201309041722_Auto976603"},
-				{334448, "SIC201309112159_Auto977994"},
-				{334455, ""}
-			};
 
 			try
 			{
@@ -553,6 +550,33 @@ namespace MyEMSLDownloader
 
 			return lstFileIDs;
 		}
+
+		private static List<long> TestOneDatasetByID(MyEMSLReader.Reader reader)
+		{
+			var dctDatasetsAndSubDirs = new Dictionary<int, string>
+			{
+				{382287, ""}
+			};
+
+			var lstFileIDs = TestDatasetByID(reader, dctDatasetsAndSubDirs);
+
+			return lstFileIDs;
+		}		
+
+		static List<long> TestMultiDatasetID(MyEMSLReader.Reader reader)
+		{
+			var dctDatasetsAndSubDirs = new Dictionary<int, string>
+			{
+				{54007, "SIC201309041722_Auto976603"},
+				{334448, "SIC201309112159_Auto977994"},
+				{334455, ""}
+			};
+
+			var lstFileIDs = TestDatasetByID(reader, dctDatasetsAndSubDirs);
+
+			return lstFileIDs;
+		}
+
 		static void TestDownloader(List<long> lstFileIDs)
 		{
 			Console.WriteLine("Downloading " + lstFileIDs.Count + " files");

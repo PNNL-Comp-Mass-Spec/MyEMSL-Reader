@@ -403,6 +403,40 @@ namespace MyEMSLReader
 			return lstFilesFiltered;
 		}
 
+		private List<ArchivedFileInfo> FilterFilesByDatasetID(IEnumerable<ArchivedFileInfo> lstFiles, IEnumerable<string> dctDatasetsAndSubDirs)
+		{
+			var lstFilesFiltered = new List<ArchivedFileInfo>();
+			var lstDatasetIDsSorted = new SortedSet<int>();
+
+			foreach (var item in dctDatasetsAndSubDirs)
+			{
+				string datasetIDText = item.Replace(DATASET_ID_TAG, "");
+				int datasetID;
+				if (int.TryParse(datasetIDText, out datasetID))
+				{
+					lstDatasetIDsSorted.Add(datasetID);
+				}
+				else
+				{
+					throw new InvalidOperationException("Error in FilterFilesByDatasetID: Search key not in the expected form of " + DATASET_ID_TAG + "123456");
+				}
+
+			}
+
+			// Equivalent Linq expression: 
+			// return lstFiles.Where(file => lstDatasetIDsSorted.Contains(file.DatasetID) || file.DatasetID == 0).ToList();
+
+			foreach (var file in lstFiles)
+			{
+				if (lstDatasetIDsSorted.Contains(file.DatasetID) || file.DatasetID == 0)
+				{
+					lstFilesFiltered.Add(file);
+				}
+			}
+
+			return lstFilesFiltered;
+		}		
+				
 		private List<ArchivedFileInfo> FilterFilesByDatasetName(IEnumerable<ArchivedFileInfo> lstFiles, IEnumerable<string> datasetNames)
 		{
 			var lstFilesFiltered = new List<ArchivedFileInfo>();
@@ -514,6 +548,9 @@ namespace MyEMSLReader
 					}
 				}
 
+				// Make sure that dctDatasetsAndSubDirs does not contain a mix of datasets, dataset IDs, and data package IDs
+				ValidateDatasetInfoDictionary(dctDatasetsAndSubDirs);
+
 				SearchOperator logicalOperator;
 
 				if (dctDatasetsAndSubDirs.Count == 1)
@@ -529,30 +566,13 @@ namespace MyEMSLReader
 					logicalOperator = SearchOperator.Or;
 				}
 
+				// Run the query
 				List<ArchivedFileInfo> lstFiles = QueryElasticSearch(dctSearchTerms, logicalOperator);
 
-				if (dctDatasetsAndSubDirs.Count > 0)
-				{
-					if (!dctDatasetsAndSubDirs.First().Key.StartsWith(DATASET_ID_TAG) &&
-					    !dctDatasetsAndSubDirs.First().Key.StartsWith(DATA_PKG_ID_TAG))
-					{
-						// Filter the files to remove any that are not an exact match to the dataset names in dctSearchTerms
-						lstFiles = FilterFilesByDatasetName(lstFiles, dctDatasetsAndSubDirs.Keys);
-					}
-				}
-				
-				if (!recurse)
-				{
-					// Filter the files to remove any not in the "root" folder
-					lstFiles = FilterFilesNoRecursion(lstFiles, dctDatasetsAndSubDirs);
-				}
+				// Filter the results
+				lstFiles = FilterElasticSearchResults(dctDatasetsAndSubDirs, recurse, lstFiles, filterOnSubDir);
 
-				if (filterOnSubDir)
-				{
-					// Filter on subDir
-					lstFiles = FilterFilesBySubDir(lstFiles, dctDatasetsAndSubDirs);
-				}
-
+				// Return the results, sorted by foldedr path and file name
 				return (from item in lstFiles orderby item.PathWithInstrumentAndDatasetWindows select item).ToList();
 
 			}
@@ -565,6 +585,45 @@ namespace MyEMSLReader
 
 				return new List<ArchivedFileInfo>();
 			}
+		}
+
+		private List<ArchivedFileInfo> FilterElasticSearchResults(
+			Dictionary<string, string> dctDatasetsAndSubDirs, 
+			bool recurse, List<ArchivedFileInfo> lstFiles,
+		    bool filterOnSubDir)
+		{
+
+			if (dctDatasetsAndSubDirs.Count > 0)
+			{
+				if (dctDatasetsAndSubDirs.First().Key.StartsWith(DATASET_ID_TAG))
+				{
+					// Filter the files to remove any that are not an exact match to the dataset ID
+					lstFiles = FilterFilesByDatasetID(lstFiles, dctDatasetsAndSubDirs.Keys);
+				}
+				else if (dctDatasetsAndSubDirs.First().Key.StartsWith(DATA_PKG_ID_TAG))
+				{
+					// Files stored in MyEMSL for data packages do not have the data package ID associated with them (each file has DatasetID = 0)
+					// Thus, we cannot filter them and will instead need to trust the results returned by MyEMSL
+				}
+				else
+				{
+					// Filter the files to remove any that are not an exact match to the dataset names in dctSearchTerms
+					lstFiles = FilterFilesByDatasetName(lstFiles, dctDatasetsAndSubDirs.Keys);
+				}
+			}
+
+			if (!recurse)
+			{
+				// Filter the files to remove any not in the "root" folder
+				lstFiles = FilterFilesNoRecursion(lstFiles, dctDatasetsAndSubDirs);
+			}
+
+			if (filterOnSubDir)
+			{
+				// Filter on subDir
+				lstFiles = FilterFilesBySubDir(lstFiles, dctDatasetsAndSubDirs);
+			}
+			return lstFiles;
 		}
 
 		protected SearchEntity GetEntityType(Dictionary<string, string> dctDatasetsAndSubDirs)
@@ -1062,7 +1121,49 @@ namespace MyEMSLReader
 				return dctResults;
 			}
 
+		}
 
+		/// <summary>
+		/// Examines the keys in dctDatasetsAndSubDirs to make sure that they are not a mix of datasets, dataset IDs, and data package IDs
+		/// </summary>
+		/// <param name="dctDatasetsAndSubDirs">Dictionary to examine</param>
+		private static void ValidateDatasetInfoDictionary(Dictionary<string, string> dctDatasetsAndSubDirs)
+		{
+
+			int tagCountDatasetID = 0;
+			int tagCountDataPkgID = 0;
+			int tagCountDatasetName = 0;
+
+			foreach (string item in dctDatasetsAndSubDirs.Keys)
+			{
+				if (item.StartsWith(DATASET_ID_TAG))
+				{
+					tagCountDatasetID++;
+				}
+				else if (item.StartsWith(DATA_PKG_ID_TAG))
+				{
+					tagCountDataPkgID++;
+				}
+				else
+				{
+					tagCountDatasetName++;
+				}
+			}
+
+			if (tagCountDataPkgID > 0 && tagCountDatasetID > 0)
+			{
+				throw new Exception("Coding error: dctDatasetsAndSubDirs has both data package ID and dataset ID entries");
+			}
+
+			if (tagCountDataPkgID > 0 && tagCountDatasetName > 0)
+			{
+				throw new Exception("Coding error: dctDatasetsAndSubDirs has both data package ID and dataset name entries");
+			}
+
+			if (tagCountDatasetID > 0 && tagCountDatasetName > 0)
+			{
+				throw new Exception("Coding error: dctDatasetsAndSubDirs has both dataset ID and dataset name entries");
+			}
 		}
 
 		#endregion
