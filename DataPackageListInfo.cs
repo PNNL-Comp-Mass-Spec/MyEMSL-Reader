@@ -92,7 +92,7 @@ namespace MyEMSLReader
 		}
 
 		/// <summary>
-		/// Looks for the given file, returning any matches as a list
+		/// Looks for the given file, returning any matches as a list (searches this folder and subfolders)
 		/// </summary>
 		/// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
 		/// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
@@ -101,9 +101,23 @@ namespace MyEMSLReader
 		/// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
 		public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, int dataPackageID)
 		{
+			return FindFiles(fileName, subFolderName, dataPackageID, recurse: true);
+		}
+
+		/// <summary>
+		/// Looks for the given file, returning any matches as a list
+		/// </summary>
+		/// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
+		/// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
+		/// <param name="dataPackageID">Data Package ID filter</param>
+		/// <param name="recurse">True to search all subfolders; false to only search the root folder (or only subFolderName)</param>
+		/// <returns>List of matching files</returns>
+		/// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
+		public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, int dataPackageID, bool recurse)
+		{
 			string datasetName = string.Empty;
 
-			return FindFiles(fileName, subFolderName, datasetName, dataPackageID, recurse: true);
+			return FindFiles(fileName, subFolderName, datasetName, dataPackageID, recurse);
 		}
 
 		public override bool RefreshInfo()
