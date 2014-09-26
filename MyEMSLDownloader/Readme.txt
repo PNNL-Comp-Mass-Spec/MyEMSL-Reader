@@ -17,6 +17,10 @@ MyEMSLDownloader.exe /Dataset:DatasetName [/SubDir:SubFolderName] [/Files:FileMa
                      [/O:OutputFolder] [/D] [/Preview]
 
 Program syntax #3:
+MyEMSLDownloader.exe /DataPkg:DataPackageID [/SubDir:SubFolderName] [/Files:FileMask] 
+                     [/O:OutputFolder] [/Preview]
+
+Program syntax #4:
 MyEMSLDownloader.exe /Test [/Preview]
 
 To download files for a given dataset, enter the dataset name, plus optionally the SubFolder name
@@ -25,6 +29,8 @@ The names can be entered separated by spaces, or using /Dataset plus optionally 
 Use /Files to filter for specific files, for example /Files:*.txt
 Files will be downloaded to the folder with the .exe; override using /O
 Use /D to create a folder with the dataset name, then store the files within that folder
+
+Use /DataPkg to retrieve files from a specific data package
 
 Alternatively, use /Test to perform automatic tests using predefined dataset names
 

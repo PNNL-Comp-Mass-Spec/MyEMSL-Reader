@@ -7,7 +7,7 @@ namespace MyEMSLDownloader
 {
 	class Program
 	{
-		private const string PROGRAM_DATE = "August 11, 2014";
+		private const string PROGRAM_DATE = "September 25, 2014";
 
 		static double mPercentComplete;
 		static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
@@ -349,6 +349,10 @@ namespace MyEMSLDownloader
 
 				Console.WriteLine();
 				Console.Write("Program syntax #3:" + Environment.NewLine + exeName);
+				Console.WriteLine(" /DataPkg:DataPackageID [/SubDir:SubFolderName] [/Files:FileMask] [/O:OutputFolder] [/Preview]");
+
+				Console.WriteLine();
+				Console.Write("Program syntax #4:" + Environment.NewLine + exeName);
 				Console.WriteLine(" /Test [/Preview]");
 
 				Console.WriteLine();
@@ -358,6 +362,8 @@ namespace MyEMSLDownloader
 				Console.WriteLine("Use /Files to filter for specific files, for example /Files:*.txt");
 				Console.WriteLine("Files will be downloaded to the folder with the .exe; override using /O");
 				Console.WriteLine("Use /D to create a folder with the dataset name, then store the files within that folder");
+				Console.WriteLine();
+				Console.WriteLine("Use /DataPkg to retrieve files from a specific data package");
 				Console.WriteLine();
 				Console.WriteLine("Alternatively, use /Test to perform automatic tests using predefined dataset names");
 				Console.WriteLine();
