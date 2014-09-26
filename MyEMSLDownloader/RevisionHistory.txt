@@ -1,0 +1,11 @@
+MyEMSLDownloader Revision History
+
+Version 1.0.5364; September 8, 2014
+	- Added test function TestOneDatasetByID
+
+Version 1.0.5120; January 7, 2014
+	- Added MultiDatasetMode option (switch /D)
+
+Version 1.0.5028; October 7, 2013
+	- Initial release
+
