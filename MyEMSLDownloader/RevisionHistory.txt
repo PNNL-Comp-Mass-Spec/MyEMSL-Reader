@@ -1,5 +1,8 @@
 MyEMSLDownloader Revision History
 
+Version 1.0.5428; November 11, 2014
+	- Added switch /DisableCart
+
 Version 1.0.5381; September 25, 2014
 	- Updated syntax to describe /DataPkg
 

@@ -134,7 +134,13 @@ namespace MyEMSLReader
 		}
 
 
-		public bool ProcessDownloadQueue(string downloadFolderPath, Downloader.DownloadFolderLayout folderLayout)
+	    public bool ProcessDownloadQueue(string downloadFolderPath, Downloader.DownloadFolderLayout folderLayout)
+	    {
+	        return ProcessDownloadQueue(downloadFolderPath, folderLayout, false);
+	    }
+
+
+	    public bool ProcessDownloadQueue(string downloadFolderPath, Downloader.DownloadFolderLayout folderLayout, bool disableCart)
 		{
 
 			if (FilesToDownload.Count == 0)
@@ -151,6 +157,8 @@ namespace MyEMSLReader
 				downloader.ErrorEvent += OnErrorEvent;
 				downloader.MessageEvent += OnMessageEvent;
 				downloader.ProgressEvent += OnProgressEvent;
+
+                downloader.DisableCart = disableCart;
 
 				var dctDestFilePathOverride = new Dictionary<Int64, string>();
 				

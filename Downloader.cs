@@ -59,7 +59,13 @@ namespace MyEMSLReader
 			private set;
 		}
 
-		/// <summary>
+        /// <summary>
+        /// When true, then will never download files using the cart mechanism
+        /// </summary>
+        /// <remarks>ForceDownloadViaCart takes precedence over DisableCart</remarks>
+        public bool DisableCart { get; set; }
+
+	    /// <summary>
 		/// The most recently downloaded files.  Keys are the full path to the downloaded file; values are extended file info
 		/// </summary>
 		public Dictionary<string, ArchivedFileInfo> DownloadedFiles
@@ -235,7 +241,13 @@ namespace MyEMSLReader
 					return true;
 				}
 
-				// Scan for the remaining files, thereby creating a ScrollID
+			    if (!ForceDownloadViaCart && DisableCart)
+			    {
+                    ReportError(lstFilesRemaining.Count + " purged files(s) could not be downloaded because DisableCart=true");
+                    return false;
+			    }
+
+			    // Scan for the remaining files, thereby creating a ScrollID
 				// We will also obtain a new authorization token, which will be associated with the ScrollID
 				success = CreateScrollID(lstFilesRemaining, ref cookieJar, out authToken);
 				if (!success)
@@ -591,15 +603,26 @@ namespace MyEMSLReader
 
 		}
 
-		protected bool DownloadFile(string URL, CookieContainer cookieJar, int maxAttempts, string downloadFilePath, out Exception mostRecentException, out bool fileInUseByOtherProcess)
+		protected bool DownloadFile(
+            string URL, 
+            CookieContainer cookieJar, 
+            int maxAttempts, 
+            string downloadFilePath, 
+            bool fileIsLocked,
+            out Exception mostRecentException, 
+            out bool fileInUseByOtherProcess)
 		{
 
 			mostRecentException = null;
 			fileInUseByOtherProcess = false;
 
 			int timeoutSeconds = 100;
-			int attempts = 0;
-			bool success = false;
+			int attempts = 1;
+
+            if (maxAttempts < 1)
+                maxAttempts = 1;
+
+            bool success = false;
 			bool triedGC = false;
 
 			// The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
@@ -636,18 +659,30 @@ namespace MyEMSLReader
 				}
 				catch (Exception ex)
 				{
-					
-					if (attempts >= maxAttempts)
-					{
-						success = false;
-					}
-					else
-					{
-						// Wait 2 seconds, then retry
-						Console.WriteLine("Exception in DownloadFile on attempt " + attempts + ": " + ex.Message);
-						Thread.Sleep(2000);
-						timeoutSeconds = IncreaseTimeout(timeoutSeconds);
-					}
+				    var responseStatusCode = HttpStatusCode.OK;
+
+                    var webException = ex.InnerException as WebException;
+                    if (webException != null)
+                    {
+                        responseStatusCode = ((HttpWebResponse)webException.Response).StatusCode;
+                    }
+
+                    if (!fileIsLocked && responseStatusCode == HttpStatusCode.ServiceUnavailable)
+                    {
+                        success = false;
+                        mostRecentException = webException;
+                    }
+                    else if (attempts >= maxAttempts)
+                    {
+                        success = false;
+                    }
+                    else
+                    {
+                        // Wait 2 seconds, then retry
+                        Console.WriteLine("Exception in DownloadFile on attempt " + attempts + ": " + ex.Message);
+                        Thread.Sleep(2000);
+                        timeoutSeconds = IncreaseTimeout(timeoutSeconds);
+                    }
 				}
 			}
 
@@ -671,10 +706,25 @@ namespace MyEMSLReader
 				// Determine total amount of data to be downloaded
 				Int64 bytesToDownload = ComputeTotalBytes(dctFiles);
 
-				var lstLockedFiles = GetLockedFileList(dctFiles);
+                // Keys are FileIDs, values are True if the file is locked (available on spinning disk)
+                var lstDirectDownloadFiles = new Dictionary<ArchivedFileInfo, bool>();
 
-				foreach (var archivedFile in lstLockedFiles)
+                // Only download "locked" files, i.e. files that are on spinning disk
+                foreach (var item in GetFileListByLockStatus(dctFiles, true))
+                    lstDirectDownloadFiles.Add(item, true);
+
+                if (DisableCart)
+                {
+                    // Directly download the purged files too
+                    foreach (var item in GetFileListByLockStatus(dctFiles, false))
+                        lstDirectDownloadFiles.Add(item, false);
+                }
+
+                foreach (var archivedFileInfo in lstDirectDownloadFiles)
 				{
+                    var archivedFile = archivedFileInfo.Key;
+                    var fileIsLocked = archivedFileInfo.Value;
+
 					// Construct the URL, e.g. https://my.emsl.pnl.gov/myemsl/item/foo/bar/824531/Euplotes_1_HPRP_1_16_22Nov09_Falcon_09-09-14_peaks.dat?token=ODUiaSI6WyI4MjQ1MzEiXSwicyI6IjIwMTMtMDgtMjBUMTY6MTI6MjEtMDc6MDAiLCJ1IjoiaHVZTndwdFlFZUd6REFBbXVjZXB6dyIsImQiOiAzNjAwJ9NESG37bQjVDlWCJWdrTVqA0wifgrbemVW+nMLgyx/2OfHGk2kFUsrJoOOTdBVsiPrHaeX6/MiaS/szVJKS1ve9UM8pufEEoNEyMBlq7ZxolLfK0Y3OicRPkiKzXZaXkQ7fxc/ec/Ba3uz9wHEs5e+1xYuO36KkSyGGW/xQ7OFx4SyZUm3PrLDk87YPapwoU/30gSk2082oSBOqHuTHzfOjjtbxAIuMa27AbwwOIjG8/Xq4h7squzFNfh/knAkNQ3+21wuZukpsNslWpYO796AFgI2rITaw7HPGJMZKwi+QlMmx27OHE2Qh47b5VQUJUp2tEorFwMjgECo+xX75vg&locked
 					string URL = Configuration.SearchServerUri + "/myemsl/item/foo/bar/" + archivedFile.FileID + "/" + archivedFile.Filename + "?token=" + authToken + "&locked";
 
@@ -696,15 +746,20 @@ namespace MyEMSLReader
 						fiTargetFile.Directory.Create();
 					}
 
-					const int maxAttempts = 5;
+					const int DEFAULT_MAX_ATTEMPTS = 5;
 					bool fileInUseByOtherProcess = false;
 
-					bool downloadFile = IsDownloadRequired(archivedFile, downloadFilePath, reportMessage: true);
+                    bool downloadFile = IsDownloadRequired(archivedFile, downloadFilePath, fileIsLocked, reportMessage: true);
 
 					if (downloadFile)
 					{
+					    var maxAttempts = DEFAULT_MAX_ATTEMPTS;
+					    
+                        if (!fileIsLocked)
+					        maxAttempts = 1;
+
 						Exception mostRecentException;
-						bool retrievalSuccess = DownloadFile(URL, cookieJar, maxAttempts, downloadFilePath, out mostRecentException, out fileInUseByOtherProcess);
+						bool retrievalSuccess = DownloadFile(URL, cookieJar, maxAttempts, downloadFilePath, fileIsLocked, out mostRecentException, out fileInUseByOtherProcess);
 
 						if (retrievalSuccess)
 						{
@@ -1008,10 +1063,10 @@ namespace MyEMSLReader
 			return archivedFileLookup;
 		}
 
-		protected List<ArchivedFileInfo> GetLockedFileList(Dictionary<ArchivedFileInfo, bool> dctFiles)
+		protected List<ArchivedFileInfo> GetFileListByLockStatus(Dictionary<ArchivedFileInfo, bool> dctFiles, bool locked)
 		{
 			var lstLockedFiles = (from item in dctFiles
-								  where item.Value == true
+                                  where item.Value == locked
 								  select item.Key).ToList();
 			return lstLockedFiles;
 		}
@@ -1024,7 +1079,7 @@ namespace MyEMSLReader
 			return lstFilteredKeys;
 		}
 
-		protected List<int> GetUniqueDatasetIDList(Dictionary<ArchivedFileInfo, bool> dctFiles)
+	    protected List<int> GetUniqueDatasetIDList(Dictionary<ArchivedFileInfo, bool> dctFiles)
 		{
 			var lstDatasetIDs = (from item in dctFiles
 								 group item by item.Key.DatasetID into g
@@ -1093,7 +1148,7 @@ namespace MyEMSLReader
 			string downloadFilePath = ConstructDownloadfilePath(folderLayout, archivedFile);
 			downloadFilePath = Path.Combine(downloadFolderPath, downloadFilePath);
 
-			bool downloadFile = IsDownloadRequired(archivedFile, downloadFilePath, reportMessage);
+            bool downloadFile = IsDownloadRequired(archivedFile, downloadFilePath, fileIsLocked: false, reportMessage: reportMessage);
 
 			return downloadFile;
 		}
@@ -1103,15 +1158,17 @@ namespace MyEMSLReader
 		/// </summary>
 		/// <param name="archivedFile"></param>
 		/// <param name="downloadFilePath"></param>
+		/// <param name="fileIsLocked">True if the file is available on spinning disk</param>
 		/// <param name="reportMessage"></param>
 		/// <returns></returns>
-		protected bool IsDownloadRequired(ArchivedFileInfo archivedFile, string downloadFilePath, bool reportMessage)
+		protected bool IsDownloadRequired(ArchivedFileInfo archivedFile, string downloadFilePath, bool fileIsLocked, bool reportMessage)
 		{
 			bool downloadFile;
+		    string message;
 
 			if (!File.Exists(downloadFilePath))
 			{
-				if (reportMessage) ReportMessage("Downloading " + downloadFilePath);
+			    message = "Downloading " + downloadFilePath;
 				downloadFile = true;
 			}
 			else
@@ -1119,30 +1176,30 @@ namespace MyEMSLReader
 				switch (OverwriteMode)
 				{
 					case Overwrite.Always:
-						if (reportMessage) ReportMessage("Overwriting " + downloadFilePath);
+						message = "Overwriting " + downloadFilePath;
 						downloadFile = true;
 						break;
 					case Overwrite.IfChanged:
 						if (string.IsNullOrEmpty(archivedFile.Sha1Hash))
 						{
-							if (reportMessage) ReportMessage("Overwriting (Sha1 hash missing) " + downloadFilePath);
+							message = "Overwriting (Sha1 hash missing) " + downloadFilePath;
 							downloadFile = true;
 							break;
 						}
 
 						if (FileMatchesHash(downloadFilePath, archivedFile.Sha1Hash))
 						{
-							if (reportMessage) ReportMessage("Skipping (file unchanged) " + downloadFilePath);
+							message = "Skipping (file unchanged) " + downloadFilePath;
 							downloadFile = false;
 						}
 						else
 						{
-							if (reportMessage) ReportMessage("Overwriting changed file " + downloadFilePath);
+							message = "Overwriting changed file " + downloadFilePath;
 							downloadFile = true;
 						}
 						break;
 					case Overwrite.Never:
-						if (reportMessage) ReportMessage("Skipping (Overwrite disabled) " + downloadFilePath);
+						message = "Skipping (Overwrite disabled) " + downloadFilePath;
 						downloadFile = false;
 						break;
 					default:
@@ -1150,7 +1207,16 @@ namespace MyEMSLReader
 				}
 			}
 
-			return downloadFile;
+		    if (reportMessage)
+		    {
+		        if (!fileIsLocked)
+		        {
+		            message += "; file is purged, download may fail";
+		        }
+		        ReportMessage(message);
+		    }
+
+		    return downloadFile;
 		}
 
 		protected new void ResetStatus()

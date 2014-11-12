@@ -7,7 +7,7 @@ namespace MyEMSLDownloader
 {
 	class Program
 	{
-		private const string PROGRAM_DATE = "September 25, 2014";
+		private const string PROGRAM_DATE = "November 11, 2014";
 
 		static double mPercentComplete;
 		static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
@@ -19,6 +19,8 @@ namespace MyEMSLDownloader
 		private static string mOutputFolderPath;
 
 		private static bool mMultiDatasetMode;
+	    private static bool mDisableCart;
+
 		private static bool mPreviewMode;
 		private static bool mAutoTestMode;
 
@@ -36,6 +38,7 @@ namespace MyEMSLDownloader
 			mOutputFolderPath = string.Empty;
 
 			mMultiDatasetMode = false;
+            mDisableCart = false;
 
 			mPreviewMode = false;
 			mAutoTestMode = false;
@@ -101,7 +104,7 @@ namespace MyEMSLDownloader
 				}
 				else
 				{
-					List<DatasetFolderOrFileInfo> archiveFiles;
+					List<DatasetFolderOrFileInfo> archiveFiles;                    
 
 					if (mDataPkgID > 0)
 						archiveFiles = FindDataPkgFiles(mDataPkgID, mSubfolder, mFileMask);
@@ -144,12 +147,14 @@ namespace MyEMSLDownloader
 			DownloadFiles(mDataPackageListInfo, archiveFiles, outputFolderPath);
 		}
 
-		private static void DownloadFiles(DatasetInfoBase downloader, IEnumerable<DatasetFolderOrFileInfo> archiveFiles, string outputFolderPath)
+        private static void DownloadFiles(DatasetInfoBase myEMSLInfoCache, IEnumerable<DatasetFolderOrFileInfo> archiveFiles, string outputFolderPath)
 		{
-			downloader.ClearDownloadQueue();
+            myEMSLInfoCache.ClearDownloadQueue();
+            myEMSLInfoCache.DisableCart = mDisableCart;
+
 			foreach (var archiveFile in archiveFiles)
 			{
-				downloader.AddFileToDownloadQueue(archiveFile.FileInfo);
+                myEMSLInfoCache.AddFileToDownloadQueue(archiveFile.FileInfo);
 			}
 
 			Downloader.DownloadFolderLayout folderLayout;
@@ -158,7 +163,7 @@ namespace MyEMSLDownloader
 			else
 				folderLayout = Downloader.DownloadFolderLayout.SingleDataset;
 
-			bool success = downloader.ProcessDownloadQueue(outputFolderPath, folderLayout);
+            bool success = myEMSLInfoCache.ProcessDownloadQueue(outputFolderPath, folderLayout);
 
 			if (success)
 			{
@@ -212,7 +217,7 @@ namespace MyEMSLDownloader
 		private static bool SetOptionsUsingCommandLineParameters(FileProcessor.clsParseCommandLine objParseCommandLine)
 		{
 			// Returns True if no problems; otherwise, returns false
-			var lstValidParameters = new List<string> { "Dataset", "DataPkg", "SubDir", "Files", "O", "D", "Preview", "Test" };
+            var lstValidParameters = new List<string> { "Dataset", "DataPkg", "SubDir", "Files", "O", "D", "DisableCart", "Preview", "Test" };
 
 			try
 			{
@@ -260,6 +265,11 @@ namespace MyEMSLDownloader
 				{
 					mMultiDatasetMode = true;
 				}
+
+                if (objParseCommandLine.IsParameterPresent("DisableCart"))
+                {
+                    mDisableCart = true;
+                }
 
 				if (objParseCommandLine.IsParameterPresent("Preview"))
 				{
@@ -341,19 +351,22 @@ namespace MyEMSLDownloader
 				Console.WriteLine();
 
 				Console.Write("Program syntax #1:" + Environment.NewLine + exeName);
-				Console.WriteLine(" DatasetName [SubFolderName] [/Files:FileMask] [/O:OutputFolder] [/D] [/Preview]");
+			    Console.WriteLine(" DatasetName [SubFolderName] [/Files:FileMask] [/O:OutputFolder] ");
+                Console.WriteLine(" [/D] [/Preview] [/DisableCart]");
 
 				Console.WriteLine();
 				Console.Write("Program syntax #2:" + Environment.NewLine + exeName);
-				Console.WriteLine(" /Dataset:DatasetName [/SubDir:SubFolderName] [/Files:FileMask] [/O:OutputFolder] [/D] [/Preview]");
+				Console.WriteLine(" /Dataset:DatasetName [/SubDir:SubFolderName] [/Files:FileMask] [/O:OutputFolder]");
+                Console.WriteLine(" [/D] [/Preview] [/DisableCart]");
 
 				Console.WriteLine();
 				Console.Write("Program syntax #3:" + Environment.NewLine + exeName);
-				Console.WriteLine(" /DataPkg:DataPackageID [/SubDir:SubFolderName] [/Files:FileMask] [/O:OutputFolder] [/Preview]");
+				Console.WriteLine(" /DataPkg:DataPackageID [/SubDir:SubFolderName] [/Files:FileMask] [/O:OutputFolder]");
+                Console.WriteLine(" [/Preview] [/DisableCart]");
 
 				Console.WriteLine();
 				Console.Write("Program syntax #4:" + Environment.NewLine + exeName);
-				Console.WriteLine(" /Test [/Preview]");
+                Console.WriteLine(" /Test [/Preview]  [/DisableCart]");
 
 				Console.WriteLine();
 				Console.WriteLine("To download files for a given dataset, enter the dataset name, plus optionally the SubFolder name");
@@ -368,6 +381,7 @@ namespace MyEMSLDownloader
 				Console.WriteLine("Alternatively, use /Test to perform automatic tests using predefined dataset names");
 				Console.WriteLine();
 				Console.WriteLine("Use /Preview to view files that would be downloaded, but not actually download them");
+                Console.WriteLine("Use /DisableCart to disable use of the download cart mechanism for retrieving files that exist on tape but not on spinning disk");
 				Console.WriteLine();
 				Console.WriteLine("Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2013");
 				Console.WriteLine("Version: " + GetAppVersion());

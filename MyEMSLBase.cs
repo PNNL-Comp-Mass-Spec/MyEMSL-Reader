@@ -151,12 +151,19 @@ namespace MyEMSLReader
 		/// <param name="ex"></param>
 		protected void ReportError(string errorMessage, Exception ex)
 		{
-			ErrorMessage = errorMessage;
+		    if (!string.IsNullOrEmpty(ErrorMessage) && String.CompareOrdinal(ErrorMessage, errorMessage) == 0)
+		    {
+                // Duplicate error message; do not fire ErrorEvent
+		    }
+		    else
+		    {
+		        ErrorMessage = errorMessage;
 
-			OnErrorMessage(new MessageEventArgs(errorMessage));
-			Thread.Sleep(10);
+		        OnErrorMessage(new MessageEventArgs(errorMessage));
+		        Thread.Sleep(10);
+		    }
 
-			if (ThrowErrors)
+		    if (ThrowErrors)
 			{
 				if (ex == null)
 					throw new Exception(errorMessage);
@@ -245,7 +252,7 @@ namespace MyEMSLReader
 			mostRecentException = null;
 			responseData = string.Empty;
 
-			int timeoutSeconds = 2;
+			int timeoutSeconds = 10;
 			int attempts = 0;
 			bool retrievalSuccess = false;
 			var responseStatusCode = HttpStatusCode.NotFound;

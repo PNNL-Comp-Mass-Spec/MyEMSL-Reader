@@ -8,6 +8,9 @@ using System.Text.RegularExpressions;
 
 namespace MyEMSLReader
 {
+    /// <summary>
+    /// Tracks the file info for one or more datasets or data packages
+    /// </summary>
 	public abstract class DatasetInfoBase
 	{
 
@@ -40,6 +43,12 @@ namespace MyEMSLReader
 		#endregion
 
 		#region "Properties"
+
+        /// <summary>
+        /// When true, then will never download files using the cart mechanism
+        /// </summary>
+        /// <remarks>ForceDownloadViaCart takes precedence over DisableCart</remarks>
+        public bool DisableCart { get; set; }
 
 		/// <summary>
 		/// The most recently downloaded files; keys are the full paths to the downloaded file, values are extended file info
@@ -525,13 +534,13 @@ namespace MyEMSLReader
 			return new Regex(strSearchSpec, RegexOptions.Compiled | RegexOptions.IgnoreCase);
 		}
 
-		public bool ProcessDownloadQueue(string downloadFolderPath, Downloader.DownloadFolderLayout folderLayout)
+        public bool ProcessDownloadQueue(string downloadFolderPath, Downloader.DownloadFolderLayout folderLayout)
 		{
 
 			mErrorMessages.Clear();
 			mDownloadedFiles.Clear();
 
-			bool success = mDownloadQueue.ProcessDownloadQueue(downloadFolderPath, folderLayout);
+			bool success = mDownloadQueue.ProcessDownloadQueue(downloadFolderPath, folderLayout, DisableCart);
 
 			if (success)
 			{
