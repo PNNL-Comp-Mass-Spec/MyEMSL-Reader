@@ -56,6 +56,7 @@ namespace MyEMSLReader
 		/// Add a dataset name to search for in MyEMSL
 		/// </summary>
 		/// <param name="datasetName">Dataset Name</param>
+        /// <remarks>Call RefreshInfo to retrieve the MyEMSL-tracked files for the added datasets</remarks>
 		public void AddDataset(string datasetName)
 		{
 			AddDataset(datasetName, string.Empty);
@@ -65,7 +66,8 @@ namespace MyEMSLReader
 		/// Add a dataset name to search for in MyEMSL
 		/// </summary>
 		/// <param name="datasetName">Dataset Name</param>
-		/// <param name="subDir">Subdirectory name to filter on</param>
+		/// <param name="subDir">Subdirectory name to filter on (exact match; cannot contain wildcards)</param>
+        /// /// <remarks>Call RefreshInfo to retrieve the MyEMSL-tracked files for the added datasets</remarks>
 		public void AddDataset(string datasetName, string subDir)
 		{
 			if (string.IsNullOrWhiteSpace(subDir))

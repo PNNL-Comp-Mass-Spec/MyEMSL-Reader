@@ -332,7 +332,7 @@ namespace MyEMSLReader
 		/// <summary>
 		/// Find all files in MyEMSL for a list of datasets (by dataset name)
 		/// </summary>
-		/// <param name="dctDatasetsAndSubDirs">Keys are dataset name, values are the optional Subdirectory name to filter on for the given dataset</param>
+        /// <param name="dctDatasetsAndSubDirs">Keys are dataset name, values are the optional Subdirectory name to filter on for the given dataset (exact match; cannot contain wildcards)</param>
 		/// <returns>List of matched files</returns>
 		public List<ArchivedFileInfo> FindFilesByDatasetName(Dictionary<string, string> dctDatasetsAndSubDirs)
 		{
@@ -342,7 +342,7 @@ namespace MyEMSLReader
 		/// <summary>
 		/// Find all files in MyEMSL for a list of datasets (by dataset name)
 		/// </summary>
-		/// <param name="dctDatasetsAndSubDirs">Keys are dataset names, values are the optional Subdirectory name to filter on for the given dataset</param>
+        /// <param name="dctDatasetsAndSubDirs">Keys are dataset names, values are the optional Subdirectory name to filter on for the given dataset (exact match; cannot contain wildcards)</param>
 		/// <param name="recurse">True to recursively search for files</param>
 		/// <returns>List of matched files</returns>
 		public List<ArchivedFileInfo> FindFilesByDatasetName(Dictionary<string, string> dctDatasetsAndSubDirs, bool recurse)
