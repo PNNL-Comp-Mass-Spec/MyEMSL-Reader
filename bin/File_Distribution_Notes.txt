@@ -12,6 +12,7 @@ DataPackage Archive Manager        \\protoapps\DMS_Programs\DataPackage_Archive_
 
 MyEMSL Downloader       \\floyd\software\MyEMSLDownloader
 MyEMSL Downloader       \\pnl\projects\OmicsSW\DMS_Programs\AnalysisToolManagerDistribution\MyEMSLDownloader
+MyEMSL Downloader       C:\DMS_Programs\MyEMSLDownloader
 
 MyEMSL MTS File Cache Manager      \\proteinseqs\DMS_Programs\MyEMSL_Cache_Manager
 

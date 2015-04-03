@@ -267,6 +267,15 @@ namespace MyEMSLDownloader
 
                         var dataValues = dataLine.Split('\t').ToList();
 
+                        if (dataValues.Count == 0)
+                            continue;
+
+                        if (dataValues.Count < 2)
+                        {
+                            Console.WriteLine("Skipping line since less than 2 columns: " + dataLine);
+                            continue;
+                        }
+
                         if (headerMap.Count == 0)
                         {
                             MapHeaders(dataValues, headerNames, headerMap);
