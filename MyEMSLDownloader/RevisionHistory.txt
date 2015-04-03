@@ -1,5 +1,13 @@
 MyEMSLDownloader Revision History
 
+Version 1.0.5571; April 3, 2015
+	- Added switch /FileList to the MyEMSLDownloader to allow for download of files from a series of datasets
+
+Version 1.0.5570; April 2, 2015
+	- Updated MyEMSLReader that fixes cart download bug
+
+Updated MyEMSLReader that fixes cart download bug
+
 Version 1.0.5428; November 11, 2014
 	- Added switch /DisableCart
 

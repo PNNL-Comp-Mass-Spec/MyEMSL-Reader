@@ -464,9 +464,15 @@ namespace MyEMSLReader
 				if (ServicePointManager.ServerCertificateValidationCallback == null)
 					ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
 
-				var querySpec = new Dictionary<string, object>
+                // The Item IDs passed to the cart must be integers stored as strings
+                // If this is not done, the python code validating that we are authorized to view the files will not find a match
+                // and will report HTTP Status Code 403: Forbidden
+                // 
+                List<string> lstFileIDsAsStrings = lstFiles.Select(fileId => fileId.ToString(CultureInfo.InvariantCulture)).ToList();
+
+			    var querySpec = new Dictionary<string, object>
 				{
-					{"items", lstFiles},
+					{"items", lstFileIDsAsStrings},
 					{"auth_token", authToken}
 				};
 
@@ -555,7 +561,10 @@ namespace MyEMSLReader
 					ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
 
 				// Obtain a new authorization token by posting to https://my.emsl.pnl.gov/myemsl/elasticsearch/simple_items?search_type=scan&scan&auth
-				string URL = Configuration.ElasticSearchUri + "simple_items?search_type=scan&scan&auth";
+				
+                // This worked until February 2015, but it no longer works
+                //     URL = Configuration.ElasticSearchUri + "simple_items?search_type=scan&scan&auth";
+                string URL = Configuration.ElasticSearchUri + "simple_items?auth&search_type=scan&scan";
 				string postData = scrollID;
 
 				const int maxAttempts = 4;
@@ -1387,13 +1396,13 @@ namespace MyEMSLReader
 				string postData = string.Empty;
 
 				const int maxAttempts = 3;
-				string xmlString;
-				const bool allowEmptyResponseData = false;
+			    const bool allowEmptyResponseData = false;
 
 				while (DownloadCartState != CartState.Available)
 				{
 					Exception mostRecentException;
-					bool success = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Get, maxAttempts, allowEmptyResponseData, out xmlString, out mostRecentException);
+				    string xmlString;
+				    bool success = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Get, maxAttempts, allowEmptyResponseData, out xmlString, out mostRecentException);
 
 					if (success)
 					{
