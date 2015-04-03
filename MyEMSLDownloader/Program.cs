@@ -15,7 +15,7 @@ namespace MyEMSLDownloader
 
     class Program
     {
-        private const string PROGRAM_DATE = "April 2, 2015";
+        private const string PROGRAM_DATE = "April 3, 2015";
 
         static double mPercentComplete;
         static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
@@ -82,75 +82,53 @@ namespace MyEMSLDownloader
 
                 if (mAutoTestMode)
                 {
-
-                    // var exampleDownloader = new DownloadExample();
-                    // exampleDownloader.StartTest();
-
-                    var lstFileIDs = TestReader();
-
-                    if (lstFileIDs.Count == 0)
-                    {
-                        Console.WriteLine("Reader did not find any files");
-                    }
-                    else if (!mPreviewMode)
-                    {
-                        TestDownloader(lstFileIDs);
-                    }
-                    Console.WriteLine();
-
-                    var archiveFiles = TestDatasetListInfo();
-
-                    if (archiveFiles.Count == 0)
-                        Console.WriteLine("DatasetListInfo did not find any files");
-                    else
-                    {
-                        ShowFiles(archiveFiles);
-
-                        if (!mPreviewMode)
-                            TestDownloader(archiveFiles);
-                    }
-
+                    AutoTestModeStart();                   
+                    return 0;
                 }
+
+                List<DatasetFolderOrFileInfo> archiveFiles;
+
+                if (mDataPkgID > 0)
+                    archiveFiles = FindDataPkgFiles(mDataPkgID, mSubfolder, mFileMask);
                 else
                 {
-                    List<DatasetFolderOrFileInfo> archiveFiles;
-
-                    if (mDataPkgID > 0)
-                        archiveFiles = FindDataPkgFiles(mDataPkgID, mSubfolder, mFileMask);
+                    if (string.IsNullOrWhiteSpace(mFileListPath))
+                    {
+                        archiveFiles = FindDatasetFiles(mDatasetName, mSubfolder, mFileMask);
+                    }
                     else
                     {
-                        if (string.IsNullOrWhiteSpace(mFileListPath))
+                        var fiFileListFile = new FileInfo(mFileListPath);
+                        if (!fiFileListFile.Exists)
                         {
-                            archiveFiles = FindDatasetFiles(mDatasetName, mSubfolder, mFileMask);
+                            Console.WriteLine("File not found: " + fiFileListFile.FullName);
+                            return -1;
                         }
-                        else
-                        {
-                            var fiFileListFile = new FileInfo(mFileListPath);
-                            if (!fiFileListFile.Exists)
-                            {
-                                Console.WriteLine("File not found: " + fiFileListFile.FullName);
-                                return -1;
-                            }
 
-                            archiveFiles = FindFileListFiles(fiFileListFile);
-                        }
+                        archiveFiles = FindFileListFiles(fiFileListFile);
                     }
-
-                    if (mPreviewMode)
-                        Console.WriteLine("\nPreviewing files that would be downloaded\n");
-
-                    ShowFiles(archiveFiles);
-
-                    if (!mPreviewMode)
-                    {
-                        Console.WriteLine();
-                        if (mDataPkgID > 0)
-                            DownloadDataPackageFiles(archiveFiles, mOutputFolderPath);
-                        else
-                            DownloadDatasetFiles(archiveFiles, mOutputFolderPath);
-                    }
-
                 }
+
+                Console.WriteLine();
+
+                if (mPreviewMode)
+                    Console.WriteLine("Previewing files that would be downloaded; count = " + archiveFiles.Count);
+                else
+                    Console.WriteLine("Downloading files from MyEMSL; count = " + archiveFiles.Count);
+
+                Console.WriteLine();
+
+                ShowFiles(archiveFiles);
+
+                if (!mPreviewMode)
+                {
+                    Console.WriteLine();
+                    if (mDataPkgID > 0)
+                        DownloadDataPackageFiles(archiveFiles, mOutputFolderPath);
+                    else
+                        DownloadDatasetFiles(archiveFiles, mOutputFolderPath);
+                }
+
             }
             catch (Exception ex)
             {
@@ -162,6 +140,35 @@ namespace MyEMSLDownloader
             return 0;
         }
 
+        private static void AutoTestModeStart()
+        {
+            // var exampleDownloader = new DownloadExample();
+            // exampleDownloader.StartTest();
+
+            var lstFileIDs = TestReader();
+
+            if (lstFileIDs.Count == 0)
+            {
+                Console.WriteLine("Reader did not find any files");
+            }
+            else if (!mPreviewMode)
+            {
+                TestDownloader(lstFileIDs);
+            }
+            Console.WriteLine();
+
+            var archiveFiles = TestDatasetListInfo();
+
+            if (archiveFiles.Count == 0)
+                Console.WriteLine("DatasetListInfo did not find any files");
+            else
+            {
+                ShowFiles(archiveFiles);
+
+                if (!mPreviewMode)
+                    TestDownloader(archiveFiles);
+            }
+        }
 
         private static void DownloadDatasetFiles(IEnumerable<DatasetFolderOrFileInfo> archiveFiles, string outputFolderPath)
         {
@@ -173,7 +180,10 @@ namespace MyEMSLDownloader
             DownloadFiles(mDataPackageListInfo, archiveFiles, outputFolderPath);
         }
 
-        private static void DownloadFiles(DatasetInfoBase myEMSLInfoCache, IEnumerable<DatasetFolderOrFileInfo> archiveFiles, string outputFolderPath)
+        private static void DownloadFiles(
+            DatasetInfoBase myEMSLInfoCache,
+            IEnumerable<DatasetFolderOrFileInfo> archiveFiles,
+            string outputFolderPath)
         {
             myEMSLInfoCache.ClearDownloadQueue();
             myEMSLInfoCache.DisableCart = mDisableCart;
@@ -202,15 +212,18 @@ namespace MyEMSLDownloader
 
         }
 
-        private static List<DatasetFolderOrFileInfo> FindDatasetFiles(string datasetName, string subfolder, string fileMask)
+        private static List<DatasetFolderOrFileInfo> FindDatasetFiles(
+            string datasetName,
+            string subfolder,
+            string fileMask)
         {
 
-            mDatasetListInfo.AddDataset(datasetName);
+            mDatasetListInfo.AddDataset(datasetName, subfolder);
 
             if (string.IsNullOrEmpty(fileMask))
                 fileMask = "*";
 
-            var archiveFiles = mDatasetListInfo.FindFiles(fileMask, subfolder);
+            var archiveFiles = mDatasetListInfo.FindFiles(fileMask, subfolder, datasetName, true);
 
             return archiveFiles;
         }
@@ -285,10 +298,13 @@ namespace MyEMSLDownloader
                         {
                             datasetFiles = new List<udtFileInfo>();
                             datasetsToSearch.Add(dataset, datasetFiles);
-                            mDatasetListInfo.AddDataset(dataset);
                         }
 
                         datasetFiles.Add(fileToFind);
+
+                        // Add the dataset name so that all of its tracked files will be determined 
+                        // when MyEMSL is first queried via RefreshInfoIfStale (which calls RefreshInfo)
+                        mDatasetListInfo.AddDataset(dataset, fileToFind.SubDir);
 
                     }
                 }
@@ -299,18 +315,25 @@ namespace MyEMSLDownloader
                 {
                     foreach (var fileToFind in dataset.Value)
                     {
-                        var archiveFilesToAdd = FindDatasetFiles(dataset.Key, fileToFind.SubDir, fileToFind.FileMask);
+                        var archiveFilesToAdd = FindDatasetFiles(dataset.Key, fileToFind.SubDir, fileToFind.FileMask).ToList();
 
                         foreach (var archiveFile in archiveFilesToAdd)
                         {
-                            if (String.Compare(archiveFile.FileInfo.Dataset, dataset.Key, StringComparison.OrdinalIgnoreCase) == 0)
+                            if (String.Equals(archiveFile.FileInfo.Dataset, dataset.Key, StringComparison.OrdinalIgnoreCase))
                             {
-                                archiveFiles.Add(archiveFile);
+                                var alreadyAdded = (from item in archiveFiles where item.FileID == archiveFile.FileID select item).ToList().Any();
+
+                                if (!alreadyAdded)
+                                    archiveFiles.Add(archiveFile);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Unexpected dataset name: " + dataset.Key);
                             }
                         }
-                        
+
                     }
-                    
+
                 }
 
                 return archiveFiles;
@@ -328,7 +351,7 @@ namespace MyEMSLDownloader
             {
                 foreach (var headerName in headerNames)
                 {
-                    if (String.Compare(dataValues[colIndex], headerName, StringComparison.OrdinalIgnoreCase) == 0)
+                    if (String.Equals(dataValues[colIndex], headerName, StringComparison.OrdinalIgnoreCase))
                     {
                         headerMap.Add(headerName, colIndex);
                         break;
@@ -347,7 +370,7 @@ namespace MyEMSLDownloader
 
         private static string GetAppVersion()
         {
-            return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() + " (" + PROGRAM_DATE + ")";
+            return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version + " (" + PROGRAM_DATE + ")";
         }
 
         private static bool SetOptionsUsingCommandLineParameters(clsParseCommandLine objParseCommandLine)
@@ -429,7 +452,11 @@ namespace MyEMSLDownloader
             return false;
         }
 
-        private static bool ParseParameter(clsParseCommandLine objParseCommandLine, string parameterName, string description, ref string targetVariable)
+        private static bool ParseParameter(
+            clsParseCommandLine objParseCommandLine,
+            string parameterName,
+            string description,
+            ref string targetVariable)
         {
             string value;
             if (objParseCommandLine.RetrieveValueForParameter(parameterName, out value))
@@ -480,7 +507,7 @@ namespace MyEMSLDownloader
 
         private static void ShowProgramHelp()
         {
-            string exeName = System.IO.Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            string exeName = Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
             try
             {
@@ -606,8 +633,8 @@ namespace MyEMSLDownloader
         static List<long> TestOneDataPackage(Reader reader)
         {
             var lstFileIDs = new List<long>();
-            int dataPkgID = 814;
-            string subDir = "";
+            const int dataPkgID = 814;
+            const string subDir = "";
 
             try
             {
@@ -636,8 +663,7 @@ namespace MyEMSLDownloader
         static List<long> TestOneDataset(Reader reader)
         {
             var lstFileIDs = new List<long>();
-            string datasetName;
-            string subDir = "";
+            const string subDir = "";
 
             //datasetName = "Blank_B-2_20Apr12_Draco_12-02-37";
             // datasetName = "QC_Shew_11_06_pt5_d2_11Jun12_Draco_12-04-14";
@@ -648,7 +674,7 @@ namespace MyEMSLDownloader
             //datasetName = "SWT_LCQData_300";
             //subDir = "SIC201309041722_Auto976603";
 
-            datasetName = "SysVirol_SM001_MA15_10-4pfu_7d_5_A_11May10_Phoenix_10-03-34";
+            const string datasetName = "SysVirol_SM001_MA15_10-4pfu_7d_5_A_11May10_Phoenix_10-03-34";
 
             try
             {
@@ -787,7 +813,7 @@ namespace MyEMSLDownloader
         {
             try
             {
-                using (var swErrorStream = new System.IO.StreamWriter(Console.OpenStandardError()))
+                using (var swErrorStream = new StreamWriter(Console.OpenStandardError()))
                 {
                     swErrorStream.WriteLine(strErrorMessage);
                 }

@@ -113,7 +113,7 @@ namespace MyEMSLReader
 		{
 			ThrowErrors = true;
 			OverwriteMode = Overwrite.IfChanged;
-			DownloadedFiles = new Dictionary<string, ArchivedFileInfo>(StringComparer.CurrentCultureIgnoreCase);
+            DownloadedFiles = new Dictionary<string, ArchivedFileInfo>(StringComparer.OrdinalIgnoreCase);
 
 			mReader = new Reader();
 			ResetStatus();
@@ -197,7 +197,7 @@ namespace MyEMSLReader
 					if (lstDatasetIDs.Count > 1)
 					{
 						// Look for conflicts
-						var lstOutputFilePaths = new SortedSet<string>(StringComparer.CurrentCultureIgnoreCase);
+                        var lstOutputFilePaths = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
 						foreach (var archivedFile in dctFiles.Keys)
 						{
 							if (lstOutputFilePaths.Contains(archivedFile.RelativePathWindows))

@@ -106,7 +106,7 @@ namespace MyEMSLReader
 
 			mArchivedFiles = new List<ArchivedFileInfo>();
 
-			mDownloadedFiles = new Dictionary<string, ArchivedFileInfo>(StringComparer.CurrentCultureIgnoreCase);
+            mDownloadedFiles = new Dictionary<string, ArchivedFileInfo>(StringComparer.OrdinalIgnoreCase);
 
 			mDownloadQueue = new DownloadQueue();
 
@@ -238,7 +238,7 @@ namespace MyEMSLReader
 		}
 
 		/// <summary>
-		/// Looks for the given file, returning any matches as a list
+		/// Looks for the given file in all datasets added using AddDataset(), returning any matches as a list
 		/// </summary>
 		/// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
 		/// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
@@ -302,7 +302,12 @@ namespace MyEMSLReader
 		/// <param name="recurse">True to search all subfolders; false to only search the root folder (or only subFolderName)</param>
 		/// <returns>List of matching files</returns>
 		/// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
-		public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, string datasetName, int dataPackageID, bool recurse)
+		public List<DatasetFolderOrFileInfo> FindFiles(
+            string fileName, 
+            string subFolderName, 
+            string datasetName, 
+            int dataPackageID, 
+            bool recurse)
 		{
 
 			// Re-query the web service if the information is out-of-date
@@ -349,7 +354,7 @@ namespace MyEMSLReader
 			{
 				if (!string.IsNullOrWhiteSpace(datasetName))
 				{
-					if (!string.Equals(datasetName, archivedFile.Dataset, StringComparison.CurrentCultureIgnoreCase))
+                    if (!string.Equals(datasetName, archivedFile.Dataset, StringComparison.OrdinalIgnoreCase))
 						continue;
 				}
 
@@ -464,7 +469,7 @@ namespace MyEMSLReader
 			{
 				if (!string.IsNullOrWhiteSpace(datasetName))
 				{
-					if (!string.Equals(datasetName, archivedFile.Dataset, StringComparison.CurrentCultureIgnoreCase))
+                    if (!string.Equals(datasetName, archivedFile.Dataset, StringComparison.OrdinalIgnoreCase))
 						continue;
 				}
 

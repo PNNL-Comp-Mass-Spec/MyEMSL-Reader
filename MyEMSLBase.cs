@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
-using System.Net.Security;
 using System.Threading;
 using Pacifica.Core;
 
@@ -35,8 +34,7 @@ namespace MyEMSLReader
 		}
 
 		#endregion
-
-
+	   
 		public static void GarbageCollectNow()
 		{
 			const int intMaxWaitTimeMSec = 1000;
@@ -90,6 +88,16 @@ namespace MyEMSLReader
 				// Ignore errors here
 			}
 		}
+
+        protected static Dictionary<string, SortedSet<string>> GetSingleItemSortedSetDictionary(string datasetNameOrID, string subDir)
+        {
+            var dctDatasetsAndSubDirLists = new Dictionary<string, SortedSet<string>>(StringComparer.OrdinalIgnoreCase)
+			{
+				{datasetNameOrID, new SortedSet<string>(StringComparer.OrdinalIgnoreCase) { subDir } }
+			};
+
+            return dctDatasetsAndSubDirLists;
+        }
 
 		protected static int IncreaseTimeout(int timeoutSeconds)
 		{
@@ -151,7 +159,7 @@ namespace MyEMSLReader
 		/// <param name="ex"></param>
 		protected void ReportError(string errorMessage, Exception ex)
 		{
-		    if (!string.IsNullOrEmpty(ErrorMessage) && String.CompareOrdinal(ErrorMessage, errorMessage) == 0)
+		    if (!string.IsNullOrEmpty(ErrorMessage) && String.Equals(ErrorMessage, errorMessage, StringComparison.OrdinalIgnoreCase))
 		    {
                 // Duplicate error message; do not fire ErrorEvent
 		    }
@@ -252,7 +260,7 @@ namespace MyEMSLReader
 			mostRecentException = null;
 			responseData = string.Empty;
 
-			int timeoutSeconds = 10;
+			int timeoutSeconds = 25;
 			int attempts = 0;
 			bool retrievalSuccess = false;
 			var responseStatusCode = HttpStatusCode.NotFound;

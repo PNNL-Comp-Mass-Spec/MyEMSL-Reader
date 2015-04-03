@@ -4,123 +4,136 @@ using System.Linq;
 
 namespace MyEMSLReader
 {
-	/// <summary>
-	/// Tracks the dataset info for multiple datasets (by dataset name)
-	/// </summary>
-	public class DatasetListInfo : DatasetInfoBase
-	{
-		#region "Module variables"
+    /// <summary>
+    /// Tracks the dataset info for multiple datasets (by dataset name)
+    /// </summary>
+    public class DatasetListInfo : DatasetInfoBase
+    {
+        #region "Module variables"
 
-		/// <summary>
-		/// Keys are dataset names, values are the optional Subdirectory name to filter on for the given dataset
-		/// </summary>
-		protected Dictionary<string, string> mDatasetsAndSubDirs;
-	
-		#endregion
+        /// <summary>
+        /// Keys are dataset names, values are the optional Subdirectory name (or names) to filter on for the given dataset
+        /// </summary>
+        protected Dictionary<string, SortedSet<string>> mDatasetsAndSubDirLists;
 
-		#region "Properties"
+        #endregion
 
-		/// <summary>
-		/// Dataset names
-		/// </summary>
-		public List<string> Datasets
-		{
-			get
-			{
-				return mDatasetsAndSubDirs.Keys.ToList();
-			}
-		}
+        #region "Properties"
 
-		/// <summary>
-		/// Keys are dataset names, values are the optional Subdirectory name to filter on for the given dataset
-		/// </summary>
-		public Dictionary<string, string> DatasetsAndSubDirs
-		{
-			get
-			{
-				return mDatasetsAndSubDirs;
-			}
-		}
+        /// <summary>
+        /// Dataset names
+        /// </summary>
+        public List<string> Datasets
+        {
+            get
+            {
+                return mDatasetsAndSubDirLists.Keys.ToList();
+            }
+        }
 
-		#endregion
+        /// <summary>
+        /// Keys are dataset names, values are a list of subdirectory names to filter on for the given dataset (empty string means do not filter)
+        /// </summary>
+        public Dictionary<string, SortedSet<string>> DatasetsAndSubDirs
+        {
+            get
+            {
+                return mDatasetsAndSubDirLists;
+            }
+        }
 
-		/// <summary>
-		/// Constructor
-		/// </summary>
-		public DatasetListInfo()
-		{
-			mDatasetsAndSubDirs = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);			
-		}
+        #endregion
 
-		/// <summary>
-		/// Add a dataset name to search for in MyEMSL
-		/// </summary>
-		/// <param name="datasetName">Dataset Name</param>
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public DatasetListInfo()
+        {
+            mDatasetsAndSubDirLists = new Dictionary<string, SortedSet<string>>(StringComparer.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Add a dataset name to search for in MyEMSL
+        /// </summary>
+        /// <param name="datasetName">Dataset Name</param>
         /// <remarks>Call RefreshInfo to retrieve the MyEMSL-tracked files for the added datasets</remarks>
-		public void AddDataset(string datasetName)
-		{
-			AddDataset(datasetName, string.Empty);
-		}
+        public void AddDataset(string datasetName)
+        {
+            AddDataset(datasetName, string.Empty);
+        }
 
-		/// <summary>
-		/// Add a dataset name to search for in MyEMSL
-		/// </summary>
-		/// <param name="datasetName">Dataset Name</param>
-		/// <param name="subDir">Subdirectory name to filter on (exact match; cannot contain wildcards)</param>
+        /// <summary>
+        /// Add a dataset name to search for in MyEMSL
+        /// </summary>
+        /// <param name="datasetName">Dataset Name</param>
+        /// <param name="subDir">Subdirectory name to filter on (exact match; cannot contain wildcards)</param>
         /// /// <remarks>Call RefreshInfo to retrieve the MyEMSL-tracked files for the added datasets</remarks>
-		public void AddDataset(string datasetName, string subDir)
-		{
-			if (string.IsNullOrWhiteSpace(subDir))
-				subDir = string.Empty;
+        public void AddDataset(string datasetName, string subDir)
+        {
+            if (string.IsNullOrWhiteSpace(subDir))
+                subDir = string.Empty;
 
-			if (mDatasetsAndSubDirs.Keys.Contains(datasetName))
-				mDatasetsAndSubDirs[datasetName] = subDir;
-			else
-			{
-				mDatasetsAndSubDirs.Add(datasetName, subDir);
-				mCacheIsStale = true;
-			}
-		}
+            SortedSet<string> subDirsForDataset;
 
-		public void Clear()
-		{
-			mDatasetsAndSubDirs.Clear();
-			mCacheIsStale = true;
-		}
+            if (mDatasetsAndSubDirLists.TryGetValue(datasetName, out subDirsForDataset))
+            {
+                if (!subDirsForDataset.Contains(subDir, StringComparer.OrdinalIgnoreCase))
+                {
+                    subDirsForDataset.Add(subDir);
+                    mCacheIsStale = true;
+                }
+            }
+            else
+            {
+                subDirsForDataset = new SortedSet<string> {
+                    subDir
+                };
 
-		public bool ContainsDataset(string datasetName)
-		{
-			return mDatasetsAndSubDirs.ContainsKey(datasetName);
-		}
+                mDatasetsAndSubDirLists.Add(datasetName, subDirsForDataset);
 
-		public override bool RefreshInfo()
-		{
+                mCacheIsStale = true;
+            }
+        }
 
-			try
-			{
-				mErrorMessages.Clear();
+        public void Clear()
+        {
+            mDatasetsAndSubDirLists.Clear();
+            mCacheIsStale = true;
+        }
 
-				mArchivedFiles = mReader.FindFilesByDatasetName(mDatasetsAndSubDirs);
-				mCacheDate = DateTime.UtcNow;
-				mCacheIsStale = false;
+        public bool ContainsDataset(string datasetName)
+        {
+            return mDatasetsAndSubDirLists.ContainsKey(datasetName);
+        }
 
-				if (mArchivedFiles.Count == 0)
-				{
-					if (mErrorMessages.Count == 0)
-						return true;
-					
-					return false;
-				}
+        public override bool RefreshInfo()
+        {
 
-				return true;
+            try
+            {
+                mErrorMessages.Clear();
 
-			}
-			catch (Exception ex)
-			{
-				mErrorMessages.Add("Error in MyEMSLReader.DatasetListInfo.RefreshInfo: " + ex.Message);
-				return false;
-			}
-		}
-	
-	}
+                mArchivedFiles = mReader.FindFilesByDatasetName(mDatasetsAndSubDirLists);
+                mCacheDate = DateTime.UtcNow;
+                mCacheIsStale = false;
+
+                if (mArchivedFiles.Count == 0)
+                {
+                    if (mErrorMessages.Count == 0)
+                        return true;
+
+                    return false;
+                }
+
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                mErrorMessages.Add("Error in MyEMSLReader.DatasetListInfo.RefreshInfo: " + ex.Message);
+                return false;
+            }
+        }
+
+    }
 }
