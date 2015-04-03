@@ -1,0 +1,33 @@
+Distribute MyEMSLReader.dll by comparing
+F:\My Documents\Projects\DataMining\DMS_Managers\MyEMSL_Reader\MyEMSLDownloader\bin\Debug
+to these folders:
+
+Analysis Manager        \\pnl\projects\OmicsSW\DMS_Programs\AnalysisToolManagerDistribution
+Analysis Manager        \\pnl\projects\OmicsSW\DMS_Programs\AnalysisToolManagerDistribution_NewDecon2LS
+
+Capture Task Manager    \\pnl\projects\OmicsSW\DMS_Programs\CaptureTaskManagerDistribution
+
+DataPackage Archive Manager        \\pnl\projects\OmicsSW\DMS_Programs\AnalysisToolManagerDistribution_NewDecon2LS\DataPackage_Archive_Manager
+DataPackage Archive Manager        \\protoapps\DMS_Programs\DataPackage_Archive_Manager
+
+MyEMSL Downloader       \\floyd\software\MyEMSLDownloader
+MyEMSL Downloader       \\pnl\projects\OmicsSW\DMS_Programs\AnalysisToolManagerDistribution\MyEMSLDownloader
+
+MyEMSL MTS File Cache Manager      \\proteinseqs\DMS_Programs\MyEMSL_Cache_Manager
+
+Space Manager           \\pnl\projects\OmicsSW\DMS_Programs\CaptureTaskManagerDistribution\SpaceManager
+
+Mage                    \\pnl\projects\OmicsSW\DMS_Programs\AnalysisToolManagerDistribution
+
+
+Distribute Mage by comparing 
+  F:\My Documents\Projects\DataMining\DMS_Programs\Mage\Installer\Output 
+to
+  \\floyd\software\Mage
+  
+And 
+  F:\My Documents\Projects\DataMining\DMS_Programs\Mage\DeployedFiles
+to
+  \\floyd\software\Mage\Exe_Only
+
+
