@@ -1024,9 +1024,9 @@ namespace MyEMSLReader
 
         }
 
-        protected new void ResetStatus()
+        protected override sealed void ResetStatus()
         {
-            base.ResetStatus();
+            base.ResetStatus();           
         }
 
         internal Dictionary<string, object> RunQuery(List<KeyValuePair<string, string>> dctSearchTerms, int maxFileCount)

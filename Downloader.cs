@@ -225,14 +225,15 @@ namespace MyEMSLReader
 				var lstFilesRemaining = new List<Int64>();
 				foreach (var fileID in lstFileIDs)
 				{
-					if (!dctFilesDownloaded.ContainsKey(fileID))
-					{
-						bool downloadFile = IsDownloadRequired(dctFiles, fileID, downloadFolderPath, folderLayout, reportMessage: false);
-						
-						if (downloadFile)
-							lstFilesRemaining.Add(fileID);
-					}
+				    if (dctFilesDownloaded.ContainsKey(fileID))
+				    {
+				        continue;
+				    }
 
+				    bool downloadFile = IsDownloadRequired(dctFiles, fileID, downloadFolderPath, folderLayout, reportMessage: false);
+						
+				    if (downloadFile)
+				        lstFilesRemaining.Add(fileID);
 				}
 
 				if (lstFilesRemaining.Count == 0)
@@ -415,12 +416,7 @@ namespace MyEMSLReader
 
 		protected Int64 ComputeTotalBytes(List<ArchivedFileInfo> dctFiles)
 		{
-			Int64 bytesToDownload = 0;
-			foreach (var archivedFile in dctFiles)
-			{
-				bytesToDownload += archivedFile.FileSizeBytes;
-			}
-
+            Int64 bytesToDownload = dctFiles.Sum(archivedFile => archivedFile.FileSizeBytes);
 			return bytesToDownload;
 		}
 
@@ -1228,7 +1224,7 @@ namespace MyEMSLReader
 		    return downloadFile;
 		}
 
-		protected new void ResetStatus()
+        protected override sealed void ResetStatus()
 		{
 			base.ResetStatus();
 			DownloadCartState = CartState.NoCart;

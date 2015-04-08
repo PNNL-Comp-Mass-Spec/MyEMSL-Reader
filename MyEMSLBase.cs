@@ -188,7 +188,7 @@ namespace MyEMSLReader
 
 		}
 
-		protected void ResetStatus()
+		protected virtual void ResetStatus()
 		{
 			ErrorMessage = string.Empty;
 		}
