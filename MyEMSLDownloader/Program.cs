@@ -15,7 +15,7 @@ namespace MyEMSLDownloader
 
     class Program
     {
-        private const string PROGRAM_DATE = "April 8, 2015";
+        private const string PROGRAM_DATE = "September 21, 2015";
 
         static double mPercentComplete;
         static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
@@ -32,6 +32,7 @@ namespace MyEMSLDownloader
 
         private static bool mPreviewMode;
         private static bool mAutoTestMode;
+        private static bool mUseTestInstance;
 
         private static DatasetListInfo mDatasetListInfo;
         private static DataPackageListInfo mDataPackageListInfo;
@@ -51,10 +52,11 @@ namespace MyEMSLDownloader
 
             mPreviewMode = false;
             mAutoTestMode = false;
+            mUseTestInstance = false;
 
             try
             {
-                bool success = false;
+                var success = false;
 
                 if (objParseCommandLine.ParseCommandLine())
                 {
@@ -76,9 +78,11 @@ namespace MyEMSLDownloader
 
                 mDatasetListInfo.ErrorEvent += mDatasetListInfo_ErrorEvent;
                 mDatasetListInfo.MessageEvent += mDatasetListInfo_MessageEvent;
+                mDatasetListInfo.UseTestInstance = mUseTestInstance;
 
                 mDataPackageListInfo.ErrorEvent += mDatasetListInfo_ErrorEvent;
                 mDataPackageListInfo.MessageEvent += mDatasetListInfo_MessageEvent;
+                mDataPackageListInfo.UseTestInstance = mUseTestInstance;
 
                 if (mAutoTestMode)
                 {
@@ -199,7 +203,7 @@ namespace MyEMSLDownloader
             else
                 folderLayout = Downloader.DownloadFolderLayout.SingleDataset;
 
-            bool success = myEMSLInfoCache.ProcessDownloadQueue(outputFolderPath, folderLayout);
+            var success = myEMSLInfoCache.ProcessDownloadQueue(outputFolderPath, folderLayout);
 
             if (success)
             {
@@ -385,7 +389,10 @@ namespace MyEMSLDownloader
         private static bool SetOptionsUsingCommandLineParameters(clsParseCommandLine objParseCommandLine)
         {
             // Returns True if no problems; otherwise, returns false
-            var lstValidParameters = new List<string> { "Dataset", "DataPkg", "SubDir", "Files", "O", "D", "FileList", "DisableCart", "Preview", "Test" };
+            var lstValidParameters = new List<string> { 
+                "Dataset", "DataPkg", "SubDir", "Files", 
+                "O", "D", "FileList", "DisableCart", 
+                "Preview", "Test", "UseTest" };
 
             try
             {
@@ -393,7 +400,7 @@ namespace MyEMSLDownloader
                 if (objParseCommandLine.InvalidParametersPresent(lstValidParameters))
                 {
                     var badArguments = new List<string>();
-                    foreach (string item in objParseCommandLine.InvalidParameters(lstValidParameters))
+                    foreach (var item in objParseCommandLine.InvalidParameters(lstValidParameters))
                     {
                         badArguments.Add("/" + item);
                     }
@@ -413,7 +420,7 @@ namespace MyEMSLDownloader
 
                 if (!ParseParameter(objParseCommandLine, "Dataset", "a dataset name", ref mDatasetName)) return false;
 
-                string dataPkgString = "";
+                var dataPkgString = "";
                 if (!ParseParameter(objParseCommandLine, "DataPkg", "a data package ID", ref dataPkgString)) return false;
                 if (!string.IsNullOrEmpty(dataPkgString))
                 {
@@ -449,6 +456,11 @@ namespace MyEMSLDownloader
                 if (objParseCommandLine.IsParameterPresent("Test"))
                 {
                     mAutoTestMode = true;
+                }
+
+                if (objParseCommandLine.IsParameterPresent("UseTest"))
+                {
+                    mUseTestInstance = true;
                 }
 
                 return true;
@@ -500,9 +512,9 @@ namespace MyEMSLDownloader
             Console.WriteLine();
             Console.WriteLine(strSeparator);
             Console.WriteLine(strTitle);
-            string strMessage = strTitle + ":";
+            var strMessage = strTitle + ":";
 
-            foreach (string item in items)
+            foreach (var item in items)
             {
                 Console.WriteLine("   " + item);
                 strMessage += " " + item;
@@ -516,7 +528,7 @@ namespace MyEMSLDownloader
 
         private static void ShowProgramHelp()
         {
-            string exeName = Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            var exeName = Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
             try
             {
@@ -526,26 +538,26 @@ namespace MyEMSLDownloader
 
                 Console.Write("Program syntax #1:" + Environment.NewLine + exeName);
                 Console.WriteLine(" DatasetName [SubFolderName] [/Files:FileMask] [/O:OutputFolder] ");
-                Console.WriteLine(" [/D] [/Preview] [/DisableCart]");
+                Console.WriteLine(" [/D] [/Preview] [/DisableCart] [/UseTest]");
 
                 Console.WriteLine();
                 Console.Write("Program syntax #2:" + Environment.NewLine + exeName);
                 Console.WriteLine(" /Dataset:DatasetName [/SubDir:SubFolderName] [/Files:FileMask] [/O:OutputFolder]");
-                Console.WriteLine(" [/D] [/Preview] [/DisableCart]");
+                Console.WriteLine(" [/D] [/Preview] [/DisableCart] [/UseTest]");
 
                 Console.WriteLine();
                 Console.Write("Program syntax #3:" + Environment.NewLine + exeName);
                 Console.WriteLine(" /DataPkg:DataPackageID [/SubDir:SubFolderName] [/Files:FileMask] [/O:OutputFolder]");
-                Console.WriteLine(" [/Preview] [/DisableCart]");
+                Console.WriteLine(" [/Preview] [/DisableCart] [/UseTest]");
 
                 Console.WriteLine();
                 Console.Write("Program syntax #4:" + Environment.NewLine + exeName);
                 Console.WriteLine(" /FileList:FileInfoFile.txt [/O:OutputFolder]");
-                Console.WriteLine(" [/Preview] [/DisableCart]");
+                Console.WriteLine(" [/Preview] [/DisableCart] [/UseTest]");
 
                 Console.WriteLine();
                 Console.Write("Program syntax #5:" + Environment.NewLine + exeName);
-                Console.WriteLine(" /Test [/Preview]  [/DisableCart]");
+                Console.WriteLine(" /Test [/Preview] [/DisableCart]");
 
                 Console.WriteLine();
                 Console.WriteLine("To download files for a given dataset, enter the dataset name, plus optionally the SubFolder name");
@@ -566,6 +578,8 @@ namespace MyEMSLDownloader
                 Console.WriteLine();
                 Console.WriteLine("Use /Preview to view files that would be downloaded, but not actually download them");
                 Console.WriteLine("Use /DisableCart to disable use of the download cart mechanism for retrieving files that exist on tape but not on spinning disk");
+                Console.WriteLine();
+                Console.WriteLine("Use /UseTest to connect to test0.my.emsl.pnl.gov instead of my.emsl.pnl.gov");
                 Console.WriteLine();
                 Console.WriteLine("Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2013");
                 Console.WriteLine("Version: " + GetAppVersion());
@@ -614,6 +628,7 @@ namespace MyEMSLDownloader
             reader.ErrorEvent += reader_ErrorEvent;
             reader.MessageEvent += reader_MessageEvent;
             reader.ProgressEvent += reader_ProgressEvent;
+            reader.UseTestInstance = mUseTestInstance;
 
             var lstFileIDs1 = TestMultiDataset(reader);
             Console.WriteLine();
@@ -790,8 +805,9 @@ namespace MyEMSLDownloader
             downloader.ErrorEvent += reader_ErrorEvent;
             downloader.MessageEvent += reader_MessageEvent;
             downloader.ProgressEvent += reader_ProgressEvent;
-
+            
             downloader.OverwriteMode = Downloader.Overwrite.IfChanged;
+            downloader.UseTestInstance = mUseTestInstance;
 
             try
             {

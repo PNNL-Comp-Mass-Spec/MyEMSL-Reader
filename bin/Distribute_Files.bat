@@ -67,35 +67,13 @@ copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Sp
 copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Space_Manager\DMS_Space_Manager\Bin\Release" /y
 
 copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\Mage\lib" /y
-copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\Mage\bin\Debug" /y
-copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\Mage\bin\Release" /y
+copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage_SVN\Mage\lib" /y
+
 copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\DeployedFiles\MageFileProcessor" /y
 copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\DeployedFiles\MageExtractor" /y
-
-copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\MageDisplayLib\bin\Debug" /y
-copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\MageExtContentFilters\bin\Debug" /y
-copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\MageExtExtractionFilters\bin\Debug" /y
-copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\MageExtractor\bin\Debug" /y
-copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\MageFilePackager\bin\Debug" /y
-copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\MageFileProcessor\bin\Debug" /y
-copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\MageMetadataProcessor\bin\Debug" /y
-copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\MageUIComponents\bin\Debug" /y
-copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\Ranger\bin\Debug" /y
-copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\RangerLib\bin\Debug" /y
-copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage_SVN\Mage\lib" /y
 copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\DeployedFiles\MageFilePackager" /y
 copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\DeployedFiles\MageMetaDataProcessor" /y
 copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\DeployedFiles\Ranger" /y
-copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\MageDisplayLib\bin\Release" /y
-copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\MageExtContentFilters\bin\Release" /y
-copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\MageExtExtractionFilters\bin\Release" /y
-copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\MageExtractor\bin\Release" /y
-copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\MageFilePackager\bin\Release" /y
-copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\MageFileProcessor\bin\Release" /y
-copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\MageMetadataProcessor\bin\Release" /y
-copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\MageUIComponents\bin\Release" /y
-copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\Ranger\bin\Release" /y
-copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\RangerLib\bin\Release" /y
 
 copy debug\Pacifica.Core.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Common" /y
 copy debug\Pacifica.Core.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Program\bin" /y

@@ -122,8 +122,8 @@ namespace FileProcessor
 			try {
 				// Find items in mSwitches whose keys are not in lstValidParameters)		
 
-				foreach (KeyValuePair<string, string> item in mSwitches) {
-					string itemKey = item.Key;
+				foreach (var item in mSwitches) {
+					var itemKey = item.Key;
 					int intMatchCount;
 
 					if (blnCaseSensitive) {
@@ -250,7 +250,7 @@ namespace FileProcessor
 					Console.WriteLine();
 				}
 
-				string[] strParameters = SplitCommandLineParams(strCmdLine);
+				var strParameters = SplitCommandLineParams(strCmdLine);
 
 				if (mDebugMode)
 				{
@@ -276,8 +276,8 @@ namespace FileProcessor
 				{
 					if (strParameters[intIndex].Length > 0)
 					{
-						string strKey = strParameters[intIndex].TrimStart(' ');
-						string strValue = string.Empty;
+						var strKey = strParameters[intIndex].TrimStart(' ');
+						var strValue = string.Empty;
 
 						bool blnSwitchParam;
 						if (strKey.StartsWith(chSwitchStartChar))
@@ -297,7 +297,7 @@ namespace FileProcessor
 						if (blnSwitchParam)
 						{
 							// Look for strSwitchParameterChar in strParameters(intIndex)
-							int intCharLoc = strParameters[intIndex].IndexOf(chSwitchParameterChar);
+							var intCharLoc = strParameters[intIndex].IndexOf(chSwitchParameterChar);
 
 							if (intCharLoc >= 0)
 							{
@@ -389,7 +389,7 @@ namespace FileProcessor
 				intTotalIterations = 1;
 			}
 
-			int intIteration = 0;
+			var intIteration = 0;
 			do
 			{
 				Console.Write('.');
@@ -410,7 +410,7 @@ namespace FileProcessor
 		/// <returns>The value of the parameter at the given index; empty string if no value or invalid index</returns>
 		public string RetrieveNonSwitchParameter(int intParameterIndex)
 		{
-			string strValue = string.Empty;
+			var strValue = string.Empty;
 
 			if (intParameterIndex < mNonSwitchParameters.Count)
 			{
@@ -442,9 +442,9 @@ namespace FileProcessor
 
 				if (intParameterIndex < mSwitches.Count)
 				{
-					Dictionary<string, string>.Enumerator iEnum = mSwitches.GetEnumerator();
+					var iEnum = mSwitches.GetEnumerator();
 
-					int intIndex = 0;
+					var intIndex = 0;
 					while (iEnum.MoveNext())
 					{
 						if (intIndex == intParameterIndex)
@@ -509,7 +509,7 @@ namespace FileProcessor
 				}
 				else
 				{
-					Dictionary<string, string>.Enumerator iEnum = mSwitches.GetEnumerator();
+					var iEnum = mSwitches.GetEnumerator();
 
 					while (iEnum.MoveNext())
 					{
@@ -533,15 +533,15 @@ namespace FileProcessor
 		{
 			var strParameters = new List<string>();
 
-			int intIndexStart = 0;
-			int intIndexEnd = 0;
+			var intIndexStart = 0;
+			var intIndexEnd = 0;
 
 			try
 			{
 
 				if (!string.IsNullOrEmpty(strCmdLine))
 				{
-					bool blnInsideDoubleQuotes = false;
+					var blnInsideDoubleQuotes = false;
 
 					while (intIndexStart < strCmdLine.Length)
 					{
@@ -558,7 +558,7 @@ namespace FileProcessor
 							if (strCmdLine[intIndexEnd] == ' ' || intIndexEnd == strCmdLine.Length - 1)
 							{
 								// Found the end of a parameter
-								string strParameter = strCmdLine.Substring(intIndexStart, intIndexEnd - intIndexStart + 1).TrimEnd(' ');
+								var strParameter = strCmdLine.Substring(intIndexStart, intIndexEnd - intIndexStart + 1).TrimEnd(' ');
 
 								if (strParameter.StartsWith('"'))
 								{

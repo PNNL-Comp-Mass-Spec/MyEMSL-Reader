@@ -101,7 +101,7 @@ namespace MyEMSLReader
 		{
 			get
 			{
-				string fullPath = string.Empty;				
+				var fullPath = string.Empty;				
 
 				if (!string.IsNullOrWhiteSpace(Dataset))
 					fullPath = Path.Combine(fullPath, Dataset);
@@ -142,7 +142,7 @@ namespace MyEMSLReader
 		{
 			get
 			{
-				string fullPath = string.Empty;
+				var fullPath = string.Empty;
 				if (!string.IsNullOrWhiteSpace(Instrument))
 					fullPath = Path.Combine(fullPath, Instrument);
 

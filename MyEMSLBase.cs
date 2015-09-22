@@ -57,7 +57,7 @@ namespace MyEMSLReader
 				var gcThread = new Thread(GarbageCollectWaitForGC);
 				gcThread.Start();
 
-				int intTotalThreadWaitTimeMsec = 0;
+				var intTotalThreadWaitTimeMsec = 0;
 				while (gcThread.IsAlive && intTotalThreadWaitTimeMsec < intMaxWaitTimeMSec)
 				{
 					Thread.Sleep(THREAD_SLEEP_TIME_MSEC);
@@ -127,7 +127,7 @@ namespace MyEMSLReader
 
 		protected bool ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, bool valueIfMissing)
 		{
-			string valueText = ReadDictionaryValue(dctData, keyName, valueIfMissing.ToString());
+			var valueText = ReadDictionaryValue(dctData, keyName, valueIfMissing.ToString());
 			bool value;
 
 			if (bool.TryParse(valueText, out value))
@@ -138,7 +138,7 @@ namespace MyEMSLReader
 
 		protected Int64 ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, Int64 valueIfMissing)
 		{
-			string valueText = ReadDictionaryValue(dctData, keyName, valueIfMissing.ToString(CultureInfo.InvariantCulture));
+			var valueText = ReadDictionaryValue(dctData, keyName, valueIfMissing.ToString(CultureInfo.InvariantCulture));
 			Int64 value;
 
 			if (Int64.TryParse(valueText, out value))
@@ -260,9 +260,9 @@ namespace MyEMSLReader
 			mostRecentException = null;
 			responseData = string.Empty;
 
-			int timeoutSeconds = 25;
-			int attempts = 0;
-			bool retrievalSuccess = false;
+			var timeoutSeconds = 25;
+			var attempts = 0;
+			var retrievalSuccess = false;
 			var responseStatusCode = HttpStatusCode.NotFound;
 
 			while (!retrievalSuccess && attempts <= maxAttempts)
@@ -322,7 +322,7 @@ namespace MyEMSLReader
 			errorMessage = ReadDictionaryValue(dctResults, "error", "");
 			if (!string.IsNullOrEmpty(errorMessage))
 			{
-				int charIndex = errorMessage.IndexOf("{");
+				var charIndex = errorMessage.IndexOf("{");
 
 				// Truncate the message after the first curly bracket
 				if (charIndex > 0)
@@ -335,7 +335,7 @@ namespace MyEMSLReader
 				return false;
 			}
 
-			bool timedOut = ReadDictionaryValue(dctResults, "timed_out", false);
+			var timedOut = ReadDictionaryValue(dctResults, "timed_out", false);
 
 			if (timedOut)
 			{

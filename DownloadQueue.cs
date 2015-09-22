@@ -49,6 +49,12 @@ namespace MyEMSLReader
 			private set;
 		}
 
+        /// <summary>
+        /// When False use https://my.emsl.pnl.gov/myemsl/elasticsearch/simple_items
+        /// When True use  https://test0.my.emsl.pnl.gov/myemsl/search/simple/index.shtml
+        /// </summary>
+        public bool UseTestInstance { get; set; }
+
 		#endregion
 
 		/// <summary>
@@ -77,7 +83,7 @@ namespace MyEMSLReader
 		/// <param name="unzipRequired">True if the file will need to be unzipped after the download (this DLL will not unzip the file; it will simply include this in event FileDownloadedEventArgs)</param>
 		public void AddFileToDownloadQueue(ArchivedFileInfo fileInfo, bool unzipRequired)
 		{
-			string destFilePath = string.Empty;
+			var destFilePath = string.Empty;
 			AddFileToDownloadQueue(fileInfo.FileID, fileInfo, unzipRequired, destFilePath);
 		}
 
@@ -90,7 +96,7 @@ namespace MyEMSLReader
 		/// <remarks>fileInfo can be null if unzipRequired is false</remarks>
 		public void AddFileToDownloadQueue(Int64 myEMSLFileID, ArchivedFileInfo fileInfo, bool unzipRequired)
 		{
-			string destFilePath = string.Empty;
+			var destFilePath = string.Empty;
 			AddFileToDownloadQueue(myEMSLFileID, fileInfo, unzipRequired, destFilePath);
 		}
 
@@ -120,7 +126,7 @@ namespace MyEMSLReader
 
 			if (newFile.UnzipRequired && fileInfo == null)
 			{
-				string message = "Cannot queue file " + myEMSLFileID + " for download because the UnzipRequired flag was set, but the ArchivedFileInfo parameter is null";
+				var message = "Cannot queue file " + myEMSLFileID + " for download because the UnzipRequired flag was set, but the ArchivedFileInfo parameter is null";
 				Console.WriteLine(message);
 				throw new InvalidDataException(message);
 			}
@@ -160,6 +166,8 @@ namespace MyEMSLReader
 
                 downloader.DisableCart = disableCart;
 
+			    downloader.UseTestInstance = UseTestInstance;
+
 				var dctDestFilePathOverride = new Dictionary<Int64, string>();
 				
 				foreach (var fileToDownload in FilesToDownload)
@@ -170,7 +178,7 @@ namespace MyEMSLReader
 					}					
 				}
 
-				bool success = downloader.DownloadFiles(FilesToDownload.Keys.ToList(), dctDestFilePathOverride, downloadFolderPath, folderLayout);
+				var success = downloader.DownloadFiles(FilesToDownload.Keys.ToList(), dctDestFilePathOverride, downloadFolderPath, folderLayout);
 
 				if (success)
 				{

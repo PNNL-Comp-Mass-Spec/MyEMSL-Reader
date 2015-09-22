@@ -10,7 +10,7 @@ namespace MyEMSLDownloader
         public void StartTest()
         {
 
-            DatasetListInfo datasetListInfo = new DatasetListInfo();
+            var datasetListInfo = new DatasetListInfo();
             datasetListInfo.ErrorEvent += datasetListInfo_ErrorEvent;
             datasetListInfo.MessageEvent += datasetListInfo_MessageEvent;
 
@@ -22,13 +22,13 @@ namespace MyEMSLDownloader
         protected void GetFileStart(DatasetListInfo datasetListInfo)
         {
 
-            string datasetFolderPathFromDMS = @"\\MyEMSL\Exact01\2010_2\SysVirol_SM001_mock-7d_3_B_11May10_Phoenix_10-03-35";
+            var datasetFolderPathFromDMS = @"\\MyEMSL\Exact01\2010_2\SysVirol_SM001_mock-7d_3_B_11May10_Phoenix_10-03-35";
 
             if (datasetFolderPathFromDMS.StartsWith(@"\\MyEMSL"))
             {
-                string datasetName = "SysVirol_SM001_mock-7d_3_B_11May10_Phoenix_10-03-35";
+                var datasetName = "SysVirol_SM001_mock-7d_3_B_11May10_Phoenix_10-03-35";
 
-                string outputFolderPath = @"C:\temp";
+                var outputFolderPath = @"C:\temp";
 
                 GetRawFile(datasetListInfo, datasetName, outputFolderPath);
             }
@@ -59,7 +59,7 @@ namespace MyEMSLDownloader
 			else
 				folderLayout = Downloader.DownloadFolderLayout.SingleDataset;
 
-			bool success = datasetListInfo.ProcessDownloadQueue(outputFolderPath, folderLayout);
+			var success = datasetListInfo.ProcessDownloadQueue(outputFolderPath, folderLayout);
 
 			if (success)
 			{
