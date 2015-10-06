@@ -359,7 +359,7 @@ namespace MyEMSLReader
 			try
 			{
 
-				var lstFiles = mReader.ParseResults(dctResults, out authToken);
+				var lstFiles = mReader.ParseElasticSearchResults(dctResults, out authToken);
 
 				if (string.IsNullOrWhiteSpace(authToken))
 				{
@@ -483,7 +483,7 @@ namespace MyEMSLReader
 			try
 			{
 				// The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
-				// For more info, see comments in Reader.RunQuery()
+                // For more info, see comments in Reader.RunElasticSearchQuery()
 				if (ServicePointManager.ServerCertificateValidationCallback == null)
 					ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
 
@@ -579,7 +579,7 @@ namespace MyEMSLReader
 				}
 
 				// The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
-				// For more info, see comments in Reader.RunQuery()
+                // For more info, see comments in Reader.RunElasticSearchQuery()
 				if (ServicePointManager.ServerCertificateValidationCallback == null)
 					ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
 
@@ -606,7 +606,7 @@ namespace MyEMSLReader
 					return false;
 				}
 
-				var lstFiles = mReader.ParseResults(responseData, out authToken);
+				var lstFiles = mReader.ParseElasticSearchResults(responseData, out authToken);
 				if (string.IsNullOrWhiteSpace(authToken))
 				{
 					ReportError("myemsl_auth_token is empty; cannot download data using scroll ID");
@@ -658,7 +658,7 @@ namespace MyEMSLReader
 			var triedGC = false;
 
 			// The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
-			// For more info, see comments in Reader.RunQuery()
+            // For more info, see comments in Reader.RunElasticSearchQuery()
 			if (ServicePointManager.ServerCertificateValidationCallback == null)
 				ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
 
@@ -917,7 +917,7 @@ namespace MyEMSLReader
 			int timeoutSeconds = 100)
 		{
 			// The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
-			// For more info, see comments in Reader.RunQuery()
+            // For more info, see comments in Reader.RunElasticSearchQuery()
 			if (ServicePointManager.ServerCertificateValidationCallback == null)
 				ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
 
@@ -1128,7 +1128,7 @@ namespace MyEMSLReader
 			try
 			{
 				// The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
-				// For more info, see comments in Reader.RunQuery()
+                // For more info, see comments in Reader.RunElasticSearchQuery()
 				if (ServicePointManager.ServerCertificateValidationCallback == null)
 					ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
 
@@ -1272,7 +1272,7 @@ namespace MyEMSLReader
 
 			const SearchOperator logicalOperator = SearchOperator.Or;
 
-			var dctResults = mReader.RunQuery(dctSearchTerms, dctSearchTerms.Count + 1, logicalOperator, scanMode, ref cookieJar);
+			var dctResults = mReader.RunElasticSearchQuery(dctSearchTerms, dctSearchTerms.Count + 1, logicalOperator, scanMode, ref cookieJar);
 
 			return dctResults;
 
@@ -1289,7 +1289,7 @@ namespace MyEMSLReader
 			mostRecentException = null;
 
 			// The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
-			// For more info, see comments in Reader.RunQuery()
+            // For more info, see comments in Reader.RunElasticSearchQuery()
 			if (ServicePointManager.ServerCertificateValidationCallback == null)
 				ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
 			var responseHeaders = new WebHeaderCollection();
@@ -1412,7 +1412,7 @@ namespace MyEMSLReader
 			try
 			{
 				// The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
-				// For more info, see comments in Reader.RunQuery()
+                // For more info, see comments in Reader.RunElasticSearchQuery()
 				if (ServicePointManager.ServerCertificateValidationCallback == null)
 					ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
 

@@ -1,0 +1,24 @@
+MyEMSL Reader Revision History
+
+Version 1.1.5756; October 5, 2015
+	- Adding support for the new Item Search service that replaces Elastic Search
+
+Version 1.0.5571; April 3, 2015
+	- MyEMSLDownloader now supports filtering on multiple subdirectories for each dataset
+	- Added switch /FileList
+	- Bug fix: Now passing file IDs as a list of strings instead of a list of integers when creating the cart for download
+
+Version 1.0.5342; August 17, 2014
+	- Now filtering the MyEMSL search results by Dataset ID and Dataset Name
+
+Version 1.0.5171; February 27, 2014
+	- Updated the Reader to properly detect duplicate files for datasets for which the instrument has been renamed
+
+Version 1.0.5140; January 27, 2014
+	- Added /D switch to MyEMSLDownloader
+
+Version 1.0.5051; October 30, 2013
+	- Updated FindFilesByDataset to filter on dataset name (necessary to avoid matching a similarly named dataset as the target dataset)
+
+Version 1.0.5028; October 7, 2013
+	- Initial release
