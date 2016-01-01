@@ -356,19 +356,19 @@ namespace MyEMSLReader
 
 		#region "Event Handlers"
 
-		public void OnErrorMessage(MessageEventArgs e)
+        protected void OnErrorMessage(MessageEventArgs e)
 		{
 			if (ErrorEvent != null)
 				ErrorEvent(this, e);
 		}
 
-		public void OnMessage(MessageEventArgs e)
+        protected void OnMessage(MessageEventArgs e)
 		{
 			if (MessageEvent != null)
 				MessageEvent(this, e);
 		}
 
-		public void OnProgressUpdate(ProgressEventArgs e)
+        protected void OnProgressUpdate(ProgressEventArgs e)
 		{
 			if (ProgressEvent != null)
 				ProgressEvent(this, e);

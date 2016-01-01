@@ -1,5 +1,8 @@
 MyEMSL Reader Revision History
 
+Version 1.1.5843; December 31, 2015
+	- Add debug info to RunElasticSearchQuery
+
 Version 1.1.5756; October 5, 2015
 	- Adding support for the new Item Search service that replaces Elastic Search
 

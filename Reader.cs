@@ -1396,6 +1396,8 @@ namespace MyEMSLReader
              */
 
             var dctResults = new Dictionary<string, object>();
+            var currentURL = "Undefined";
+            var currentStatus = "authenticating";
 
             try
             {
@@ -1478,13 +1480,15 @@ namespace MyEMSLReader
                     authURL = "https://" + Configuration.SearchServerHostName + Configuration.TEST_AUTH_RELATIVE_PATH;
                 }
 
+                currentURL = string.Copy(authURL);
+
                 var auth = new Auth(new Uri(authURL));
 
                 if (cookieJar == null)
                 {
                     if (!auth.GetAuthCookies(out cookieJar))
                     {
-                        ReportError("Auto-login to ingest.my.emsl.pnl.gov failed authentication for user " + Environment.UserDomainName + @"\" + Environment.UserName);
+                        ReportError("Auto-login to " + authURL + " failed authentication for user " + Environment.UserDomainName + @"\" + Environment.UserName);
                         return dctResults;
                     }
                 }
@@ -1521,6 +1525,9 @@ namespace MyEMSLReader
                     querySpec["size"] = maxFileCount;
                     var postData = Utilities.ObjectToJson(querySpec);
                     const bool allowEmptyResponseData = false;
+
+                    currentURL = string.Copy(URL);
+                    currentStatus = "Posting JSON {" + postData + "}";
 
                     var retrievalSuccess = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Post, maxAttempts, allowEmptyResponseData, out responseData, out mostRecentException);
 
@@ -1563,6 +1570,8 @@ namespace MyEMSLReader
 
                 }
 
+                currentStatus = "Examining response";
+
                 if (string.IsNullOrEmpty(responseData))
                 {
                     var msg = "No results returned from MyEMSL after " + maxAttempts + " attempts";
@@ -1577,6 +1586,8 @@ namespace MyEMSLReader
                     ReportError(msg, mostRecentException);
                 }
 
+                currentStatus = "Logging out";
+
                 if (scanMode == ScanMode.SimpleSearch)
                 {
                     Utilities.Logout(cookieJar);
@@ -1587,7 +1598,8 @@ namespace MyEMSLReader
             }
             catch (Exception ex)
             {
-                ReportError("Error in MyEMSLReader.Reader.RunElasticSearchQuery: " + ex.Message, ex);
+                ReportError("Error in MyEMSLReader.Reader.RunElasticSearchQuery contacting " + currentURL + " [" + currentStatus + "]: " + ex.Message, ex);
+
                 return dctResults;
             }
 
