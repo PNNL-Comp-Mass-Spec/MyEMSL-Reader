@@ -1,5 +1,8 @@
 MyEMSLDownloader Revision History
 
+Version 1.0.5891; February 17, 2016
+	- Updated MyEMSLReader that extracts files from .tar files even if the MyEMSL FileID cannot be determined
+
 Version 1.0.5571; April 3, 2015
 	- Added switch /FileList to the MyEMSLDownloader to allow for download of files from a series of datasets
 

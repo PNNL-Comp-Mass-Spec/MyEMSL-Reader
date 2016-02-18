@@ -18,7 +18,9 @@ MyEMSL MTS File Cache Manager      \\proteinseqs\DMS_Programs\MyEMSL_Cache_Manag
 
 Space Manager           \\pnl\projects\OmicsSW\DMS_Programs\CaptureTaskManagerDistribution\SpaceManager
 
-Mage                    \\pnl\projects\OmicsSW\DMS_Programs\AnalysisToolManagerDistribution
+Mage                 	F:\My Documents\Projects\DataMining\DMS_Programs\Mage\Mage\lib   
+Mage                 	\\FLOYD\software\Mage\Exe_Only\MageFileProcessor
+Mage                 	\\FLOYD\software\Mage\Exe_Only\MageExtractor
 
 
 Distribute Mage by comparing 
