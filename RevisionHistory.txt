@@ -1,5 +1,8 @@
 MyEMSL Reader Revision History
 
+Version 1.1.5891; February 17, 2016
+	- The downloader now extracts files from .tar files even if the MyEMSL FileID cannot be determined
+
 Version 1.1.5843; December 31, 2015
 	- Add debug info to RunElasticSearchQuery
 

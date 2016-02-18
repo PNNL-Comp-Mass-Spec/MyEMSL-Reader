@@ -58,8 +58,8 @@ namespace MyEMSLReader
         #region "Properties"
 
         /// <summary>
-        /// When True, then will include all revisions of files that were imported to MyEMSL multiple times
-        /// When False, then only reports the newest version of a file
+        /// When True, will include all revisions of files that were imported to MyEMSL multiple times
+        /// When False, only reports the newest version of a file
         /// </summary>
         /// <remarks>Default is False</remarks>
         public bool IncludeAllRevisions
@@ -681,7 +681,10 @@ namespace MyEMSLReader
         /// </param>
         /// <param name="recurse">True to recursively find files</param>
         /// <param name="instrumentName">Ignored if dctDatasetsAndSubDirLists has more than one entry</param>
-        /// <param name="dctSearchTerms">If dctDatasetsAndSubDirLists only has one entry, then the dataset name will be ignored (it cannot be blank, but it could be "dummy" or "unknown" or "0", etc.)</param>
+        /// <param name="dctSearchTerms">
+        /// If dctDatasetsAndSubDirLists only has one entry, the dataset name will be ignored 
+        /// (it cannot be blank, but it could be "dummy" or "unknown" or "0", etc.)
+        /// </param>
         /// <returns>Files that were found</returns>
         /// <remarks>
         /// If the keys in dctDatasetsAndSubDirLists start with DATASET_ID_TAG then they are Dataset IDs and not dataset names

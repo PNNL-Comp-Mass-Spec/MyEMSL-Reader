@@ -1,5 +1,4 @@
 ﻿using System;
-using System.CodeDom;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -48,7 +47,7 @@ namespace MyEMSLReader
         #region "Properties"
 
         /// <summary>
-        /// When true, then will never download files using the cart mechanism
+        /// When true, will never download files using the cart mechanism
         /// </summary>
         /// <remarks>ForceDownloadViaCart takes precedence over DisableCart</remarks>
         public bool DisableCart { get; set; }
@@ -154,7 +153,10 @@ namespace MyEMSLReader
         /// Queue a file to be downloaded
         /// </summary>
         /// <param name="fileInfo">Archive File Info</param>
-        /// <param name="unzipRequired">True if the file will need to be unzipped after the download (this DLL will not unzip the file; it will simply include this in event FileDownloadedEventArgs)</param>
+        /// <param name="unzipRequired">
+        /// True if the file will need to be unzipped after the download 
+        /// (this DLL will not unzip the file; it will simply include this in event FileDownloadedEventArgs)
+        /// </param>
         public void AddFileToDownloadQueue(ArchivedFileInfo fileInfo, bool unzipRequired)
         {
             mDownloadQueue.AddFileToDownloadQueue(fileInfo, unzipRequired);
@@ -165,7 +167,10 @@ namespace MyEMSLReader
         /// </summary>
         /// <param name="myEMSLFileID">MyEMSL File ID</param>
         /// <param name="fileInfo">Archive File Info</param>
-        /// <param name="unzipRequired">True if the file will need to be unzipped after the download (this DLL will not unzip the file; it will simply include this in event FileDownloadedEventArgs)</param>
+        /// <param name="unzipRequired">
+        /// True if the file will need to be unzipped after the download 
+        /// (this DLL will not unzip the file; it will simply include this in event FileDownloadedEventArgs)
+        /// </param>
         /// <remarks>fileInfo can be null if unzipRequired is false</remarks>
         public void AddFileToDownloadQueue(Int64 myEMSLFileID, ArchivedFileInfo fileInfo, bool unzipRequired)
         {
@@ -225,7 +230,7 @@ namespace MyEMSLReader
         public static Int64 ExtractMyEMSLFileID(string filePath, out string newFilePath)
         {
 
-            var charIndex = filePath.LastIndexOf(MYEMSL_FILEID_TAG);
+            var charIndex = filePath.LastIndexOf(MYEMSL_FILEID_TAG, StringComparison.Ordinal);
             newFilePath = string.Copy(filePath);
 
             if (charIndex > 0)
@@ -356,7 +361,7 @@ namespace MyEMSLReader
                 // Assure that subFolderName has windows-style slashes (if it even has slashes)
                 subFolderName = subFolderName.Replace("/", @"\");
 
-                // If subFolderName does have multiple foldernames, then only the final folder can have wildcards
+                // If subFolderName does have multiple foldernames, only the final folder can have wildcards
                 subFolderPathParts = subFolderName.Split('\\').ToList();
 
                 reFolder = GetFileSearchRegEx(subFolderPathParts.Last());
@@ -562,6 +567,13 @@ namespace MyEMSLReader
             return new Regex(strSearchSpec, RegexOptions.Compiled | RegexOptions.IgnoreCase);
         }
 
+        /// <summary>
+        /// Retrieve queued files from MyEMSL
+        /// </summary>
+        /// <param name="downloadFolderPath">Target folder path (ignored for files defined in dctDestFilePathOverride)</param>
+        /// <param name="folderLayout">Folder Layout (ignored for files defined in dctDestFilePathOverride)</param>
+        /// <returns>True if success, false if an error</returns>
+        /// <remarks>Returns False if the download queue is empty</remarks>
         public bool ProcessDownloadQueue(string downloadFolderPath, Downloader.DownloadFolderLayout folderLayout)
         {
 

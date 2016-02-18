@@ -50,11 +50,23 @@ namespace MyEMSLReader
 			UpdateDatasetName(datasetName);
 		}
 
+        /// <summary>
+        /// Queue a file to be downloaded
+        /// </summary>
+        /// <param name="myEMSLFileID">MyEMSL file ID</param>
 		public void AddFileToDownloadQueue(Int64 myEMSLFileID)
 		{
 			AddFileToDownloadQueue(myEMSLFileID, false);
 		}
 
+        /// <summary>
+        /// Queue a file to be downloaded
+        /// </summary>
+        /// <param name="myEMSLFileID">MyEMSL file ID</param>
+        /// <param name="unzipRequired">
+        /// True if the file will need to be unzipped after the download 
+        /// (this DLL will not unzip the file; it will simply include this in event FileDownloadedEventArgs)
+        /// </param>
 		public void AddFileToDownloadQueue(Int64 myEMSLFileID, bool unzipRequired)
 		{
 			if (mDownloadQueue.FilesToDownload.ContainsKey(myEMSLFileID))

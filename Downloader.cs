@@ -60,7 +60,7 @@ namespace MyEMSLReader
 		}
 
         /// <summary>
-        /// When true, then will never download files using the cart mechanism
+        /// When true, will never download files using the cart mechanism
         /// </summary>
         /// <remarks>ForceDownloadViaCart takes precedence over DisableCart</remarks>
         public bool DisableCart { get; set; }
@@ -75,7 +75,7 @@ namespace MyEMSLReader
 		}
 
 		/// <summary>
-		/// When true, then will always download files using the cart mechanism, which is likely slower if the file is not purged to tape
+		/// When true, will always download files using the cart mechanism, which is likely slower if the file is not purged to tape
 		/// </summary>
 		public bool ForceDownloadViaCart
 		{
@@ -344,7 +344,7 @@ namespace MyEMSLReader
 		/// <summary>
 		/// Determine the "locked" status of each file
 		/// If a file is "locked" then that means the file is available on spinning disk
-		/// If the file is not locked, then the file only resides on tape and will need to be restored by the tape robot
+		/// If the file is not locked, the file only resides on tape and will need to be restored by the tape robot
 		/// </summary>
 		/// <param name="dctResults"></param>
 		/// <param name="cookieJar"></param>
@@ -946,9 +946,9 @@ namespace MyEMSLReader
 					// This way, the .tar file is never actually created on a local hard drive
 					// Code modeled after https://github.com/icsharpcode/SharpZipLib/wiki/GZip-and-Tar-Samples
 
-					var ReceiveStream = response.GetResponseStream();
+					var receiveStream = response.GetResponseStream();
 
-					var tarIn = new TarInputStream(ReceiveStream);
+                    var tarIn = new TarInputStream(receiveStream);
 					TarEntry tarEntry;
 					while ((tarEntry = tarIn.GetNextEntry()) != null)
 					{
@@ -969,51 +969,110 @@ namespace MyEMSLReader
 
 						// The Filename of the tar entry should start with a folder name that is a MyEMSL FileID
 						var charIndex = sourceFile.IndexOf(Path.DirectorySeparatorChar);
-						if (charIndex < 1)
-						{
-							ReportMessage("Warning, skipping invalid entry in .tar file; does not start with a MyEMSL FileID value: " + sourceFile);
-							continue;
-						}
 
-						var fileIDText = sourceFile.Substring(0, charIndex);
-						Int64 fileID;
-						if (!Int64.TryParse(fileIDText, out fileID))
-						{
-							ReportMessage("Warning, skipping invalid entry in .tar file; does not start with a MyEMSL FileID value: " + sourceFile);
-							continue;
-						}
+					    Int64 fileID = 0;
+                        var fileIdFound = true;
 
-						// Lookup fileID in dctFiles
-						var archivedFileLookup = GetArchivedFileByID(lstFilesInArchive, fileID);
+                        // The default output file path is the relative path of the file in the .tar file
+                        // This will get changed below once the MyEMSL FileID is known
+                        
+                        // Make sure the path doesn't start with a backslash
+					    var downloadFilePath = sourceFile.TrimStart('\\');
+					    var originalFileSubmissionTime = DateTime.MinValue;
+					    ArchivedFileInfo archivedFile = null;
 
-						if (archivedFileLookup.Count == 0)
-						{
-							ReportMessage("Warning, skipping .tar file entry since MyEMSL FileID '" + fileID + "' was not recognized: " + sourceFile);
-							continue;
-						}
+					    if (charIndex < 1)
+					    {
+					        ReportMessage("Warning, .tar file entry does not contain a backslash; " +
+					                      "unable to validate the file or customize the output path: " + sourceFile);
+					        fileIdFound = false;
+					    }
 
-						// Confirm that the name of the file in the .Tar file matches the expected file name
-						// Names in the tar file will be limited to 255 characters (including any preceding parent folder names) so we should not compare the full name
-						// Furthermore, the primary filename is limited to 100 characters, so it too could be truncated
+					    if (fileIdFound)
+					    {
+					        var fileIDText = sourceFile.Substring(0, charIndex);					        
+					        if (!Int64.TryParse(fileIDText, out fileID))
+					        {
+					            ReportMessage("Warning, .tar file entry does not contain a MyEMSL FileID value; " +
+					                          "unable to validate the file or customize the output path: " + sourceFile);
+					            fileIdFound = false;
+					        }
+					    }
 
-						var archivedFile = archivedFileLookup.First();
+					    if (fileIdFound)
+					    {
+					        // Lookup fileID in dctFiles
+					        var archivedFileLookup = GetArchivedFileByID(lstFilesInArchive, fileID);
 
-						var fiSourceFile = new FileInfo(sourceFile);
-						if (!archivedFile.Filename.ToLower().StartsWith(fiSourceFile.Name.ToLower()))
-							ReportMessage("Warning, name conflict; filename in .tar file is " + fiSourceFile.Name + " but expected filename is " + archivedFile.Filename);
+					        if (archivedFileLookup.Count == 0)
+					        {
+					            ReportMessage("Warning, MyEMSL FileID '" + fileID + "' was not recognized; " +
+					                          "unable to validate the file or customize the output path: " + sourceFile);
+					            fileIdFound = false;
+					        }
+					        else
+					        {                                
+					            // Confirm that the name of the file in the .Tar file matches the expected file name
+					            // Names in the tar file will be limited to 255 characters (including any preceding parent folder names) so we should not compare the full name
+					            // Furthermore, the primary filename is limited to 100 characters, so it too could be truncated
 
-						// Define the local file path
-						var downloadFilePath = ConstructDownloadfilePath(folderLayout, archivedFile);
-						downloadFilePath = Path.Combine(downloadFolderPath, downloadFilePath);
+					            archivedFile = archivedFileLookup.First();
 
-						string filePathOverride;
-						if (dctDestFilePathOverride.TryGetValue(archivedFile.FileID, out filePathOverride))
-						{
-							if (!string.IsNullOrEmpty(filePathOverride))
-								downloadFilePath = filePathOverride;
-						}
+					            var fiSourceFile = new FileInfo(sourceFile);
+					            if (!archivedFile.Filename.ToLower().StartsWith(fiSourceFile.Name.ToLower()))
+					                ReportMessage("Warning, name conflict; filename in .tar file is " + fiSourceFile.Name +
+					                              " but expected filename is " + archivedFile.Filename);
 
-						// Create the target folder if necessary
+                                // Define the local file path
+						        downloadFilePath = ConstructDownloadfilePath(folderLayout, archivedFile);
+						        downloadFilePath = Path.Combine(downloadFolderPath, downloadFilePath);
+
+						        string filePathOverride;
+						        if (dctDestFilePathOverride.TryGetValue(archivedFile.FileID, out filePathOverride))
+						        {
+							        if (!string.IsNullOrEmpty(filePathOverride))
+								        downloadFilePath = filePathOverride;
+						        }
+
+                                originalFileSubmissionTime = archivedFile.SubmissionTimeValue;
+
+					        }
+					    }
+
+                        if (!fileIdFound)
+                        {
+                            sourceFile = sourceFile.TrimStart('\\');
+
+                            switch (folderLayout)
+                            {
+                                case DownloadFolderLayout.FlatNoSubfolders:
+                                    downloadFilePath = Path.GetFileName(sourceFile);
+                                    break;
+                                case DownloadFolderLayout.SingleDataset:
+                                    downloadFilePath = sourceFile;
+                                    break;
+                                case DownloadFolderLayout.DatasetNameAndSubFolders:
+                                case DownloadFolderLayout.InstrumentYearQuarterDataset:
+                                default:
+                                    ReportMessage("Warning, due to the missing MyEMSL FileID the DownloadFolderLayout cannot be honored");
+                                    downloadFilePath = sourceFile;
+                                    break;
+                            }
+
+                            downloadFilePath = Path.Combine(downloadFolderPath, downloadFilePath);
+
+                            var subDirPath = Path.GetDirectoryName(sourceFile);
+                            if (string.IsNullOrEmpty(subDirPath))
+                                subDirPath = string.Empty;
+                            else
+                            {
+                                subDirPath = subDirPath.Replace(@"\", "/");
+                            }
+
+                            archivedFile = new ArchivedFileInfo("UnknownDataset", Path.GetFileName(sourceFile), subDirPath);                            
+                        }
+
+					    // Create the target folder if necessary
 						var targetFile = new FileInfo(downloadFilePath);
 						Debug.Assert(targetFile.Directory != null, "targetFile.Directory != null");
 						if (!targetFile.Directory.Exists)
@@ -1025,9 +1084,19 @@ namespace MyEMSLReader
 							tarIn.CopyEntryContents(outStr);
 						}
 
-						UpdateFileModificationTime(targetFile, archivedFile.SubmissionTimeValue);
+					    targetFile.Refresh();
 
-						if (!DownloadedFiles.ContainsKey(downloadFilePath))
+					    if (originalFileSubmissionTime > DateTime.MinValue)
+					    {
+					        UpdateFileModificationTime(targetFile, originalFileSubmissionTime);
+					    }
+
+					    if (archivedFile.FileSizeBytes == 0 && targetFile.Exists)
+					    {
+					        archivedFile.FileSizeBytes = targetFile.Length;
+					    }
+
+					    if (!DownloadedFiles.ContainsKey(downloadFilePath))
 							DownloadedFiles.Add(downloadFilePath, archivedFile);
 
 						bytesDownloaded += archivedFile.FileSizeBytes;

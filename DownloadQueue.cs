@@ -134,18 +134,34 @@ namespace MyEMSLReader
 			FilesToDownload.Add(myEMSLFileID, newFile);
 		}
 
+        /// <summary>
+        /// Clear the download queue
+        /// </summary>
 		public void Clear()
 		{
 			FilesToDownload.Clear();
 		}
 
-
-	    public bool ProcessDownloadQueue(string downloadFolderPath, Downloader.DownloadFolderLayout folderLayout)
+        /// <summary>
+        /// Retrieve queued files from MyEMSL
+        /// </summary>
+        /// <param name="downloadFolderPath">Target folder path (ignored for files defined in dctDestFilePathOverride)</param>
+        /// <param name="folderLayout">Folder Layout (ignored for files defined in dctDestFilePathOverride)</param>
+        /// <returns>True if success, false if an error</returns>
+        /// <remarks>Returns False if the download queue is empty</remarks>
+        public bool ProcessDownloadQueue(string downloadFolderPath, Downloader.DownloadFolderLayout folderLayout)
 	    {
 	        return ProcessDownloadQueue(downloadFolderPath, folderLayout, false);
 	    }
 
-
+        /// <summary>
+        /// Retrieve queued files from MyEMSL
+        /// </summary>
+        /// <param name="downloadFolderPath">Target folder path (ignored for files defined in dctDestFilePathOverride)</param>
+        /// <param name="folderLayout">Folder Layout (ignored for files defined in dctDestFilePathOverride)</param>
+        /// <param name="disableCart">When true, will never download files using the cart mechanism</param>
+        /// <returns>True if success, false if an error</returns>
+        /// <remarks>Returns False if the download queue is empty</remarks>
 	    public bool ProcessDownloadQueue(string downloadFolderPath, Downloader.DownloadFolderLayout folderLayout, bool disableCart)
 		{
 
