@@ -959,7 +959,7 @@ namespace MyEMSLReader
 
 						var sourceFile = tarEntry.Name;
 
-						// Int64 files (over 100 characters) will have part of their name in tarEntry.Name and part of it in tarEntry.Prefix
+                        // Long filenames (over 100 characters) will have part of their name in tarEntry.Name and part of it in tarEntry.Prefix
 						// Check for this
 						if (!string.IsNullOrEmpty(tarEntry.Prefix))
 							sourceFile = tarEntry.Prefix + '/' + sourceFile;
@@ -967,7 +967,8 @@ namespace MyEMSLReader
 						// Convert the unix forward slashes in the filenames to windows backslashes
 						sourceFile = sourceFile.Replace('/', Path.DirectorySeparatorChar);
 
-						// The Filename of the tar entry should start with a folder name that is a MyEMSL FileID
+						// The Filename of the tar entry used to start with a folder name that is a MyEMSL FileID
+                        // As of March 2016 that is no longer the case
 						var charIndex = sourceFile.IndexOf(Path.DirectorySeparatorChar);
 
 					    Int64 fileID = 0;
@@ -983,8 +984,10 @@ namespace MyEMSLReader
 
 					    if (charIndex < 1)
 					    {
+                            /*
 					        ReportMessage("Warning, .tar file entry does not contain a backslash; " +
 					                      "unable to validate the file or customize the output path: " + sourceFile);
+                            */
 					        fileIdFound = false;
 					    }
 
@@ -1069,7 +1072,20 @@ namespace MyEMSLReader
                                 subDirPath = subDirPath.Replace(@"\", "/");
                             }
 
-                            archivedFile = new ArchivedFileInfo("UnknownDataset", Path.GetFileName(sourceFile), subDirPath);                            
+                            // Look for this file in lstFilesInArchive
+                            var archivedFileLookup = GetArchivedFileByPath(lstFilesInArchive, sourceFile);
+
+                            if (archivedFileLookup.Count == 0)
+                            {
+                                ReportMessage("File path not recognized: " + sourceFile);
+                                archivedFile = new ArchivedFileInfo("UnknownDataset", Path.GetFileName(sourceFile), subDirPath);
+                            }
+                            else
+                            {
+                                archivedFile = archivedFileLookup.First();
+                                originalFileSubmissionTime = archivedFile.SubmissionTimeValue;
+                            }
+                            
                         }
 
 					    // Create the target folder if necessary
@@ -1165,6 +1181,15 @@ namespace MyEMSLReader
 									  select item).ToList();
 			return archivedFileLookup;
 		}
+
+        protected List<ArchivedFileInfo> GetArchivedFileByPath(List<ArchivedFileInfo> lstFilesInArchive, string filePath)
+        {
+            var archivedFileLookup = (from item in lstFilesInArchive
+                                      where string.Equals(item.RelativePathWindows, filePath, StringComparison.InvariantCultureIgnoreCase)
+                                      select item).ToList();
+
+            return archivedFileLookup;
+        }
 
 		protected List<ArchivedFileInfo> GetFileListByLockStatus(Dictionary<ArchivedFileInfo, bool> dctFiles, bool locked)
 		{

@@ -1,5 +1,10 @@
 MyEMSL Reader Revision History
 
+Version 1.1.5906; March 3, 2016
+	- Use the relative path of files in the downloaded .tar file to look for matches in lstFilesInArchive
+		- Used to update the file modification time to the original time
+	- Update ICSharpCode.SharpZipLib.dll	
+
 Version 1.1.5891; February 17, 2016
 	- The downloader now extracts files from .tar files even if the MyEMSL FileID cannot be determined
 
