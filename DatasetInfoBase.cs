@@ -17,7 +17,7 @@ namespace MyEMSLReader
         #region "Constants"
 
         public const string MYEMSL_FILEID_TAG = "@MyEMSLID_";
-        protected const int CACHE_REFRESH_THRESHOLD_MINUTES = 5;
+        private const int CACHE_REFRESH_THRESHOLD_MINUTES = 5;
 
         #endregion
 
@@ -35,12 +35,15 @@ namespace MyEMSLReader
 
         protected DownloadQueue mDownloadQueue;
 
-        protected bool mUseTestInstance;
+        private bool mUseTestInstance;
 
         /// <summary>
         /// The most recently downloaded files; keys are the full paths to the downloaded file, values are extended file info
         /// </summary>
         protected Dictionary<string, ArchivedFileInfo> mDownloadedFiles;
+
+        // Do not search for * or ? because we treat those as filename wildcards
+        private readonly Regex mReplaceReservedRegExChars;
 
         #endregion
 
@@ -138,6 +141,8 @@ namespace MyEMSLReader
             mDownloadQueue.FileDownloadedEvent += OnFileDownloadedEvent;
 
             mLastProgressWriteTime = DateTime.UtcNow;
+
+            mReplaceReservedRegExChars = new Regex(@"([\^\$\.\|\+\(\)\[\{\\])", RegexOptions.Compiled);
         }
 
         /// <summary>
@@ -559,10 +564,16 @@ namespace MyEMSLReader
 
         }
 
-        protected Regex GetFileSearchRegEx(string name)
+        private Regex GetFileSearchRegEx(string name)
         {
-            var strSearchSpec = "^" + name + "$";
-            strSearchSpec = strSearchSpec.Replace("*", ".*");
+            // Look for symbols reserved by RegEx
+            // Replace them with escaped versions
+            // For example, if name is "K00059_3-oxoacyl-[acyl-carrier_protein]_reductase_[EC_1_1_1_100].html" 
+            // Update it to be         "K00059_3-oxoacyl-\[acyl-carrier_protein]_reductase_\[EC_1_1_1_100]\.html\"
+
+            var escapedName = mReplaceReservedRegExChars.Replace(name, @"\\\1");
+
+            var strSearchSpec = "^" + escapedName.Replace("*", ".*") + "$";
 
             return new Regex(strSearchSpec, RegexOptions.Compiled | RegexOptions.IgnoreCase);
         }
@@ -599,7 +610,7 @@ namespace MyEMSLReader
         /// </summary>
         /// <returns>True if success, false if an error</returns>
         /// <remarks></remarks>
-        protected bool RefreshInfoIfStale()
+        private bool RefreshInfoIfStale()
         {
             if (mCacheIsStale || DateTime.UtcNow.Subtract(mCacheDate).TotalMinutes >= CACHE_REFRESH_THRESHOLD_MINUTES)
                 return RefreshInfo();
@@ -630,7 +641,7 @@ namespace MyEMSLReader
             }
         }
 
-        protected void OnMessageEvent(object sender, MessageEventArgs e)
+        private void OnMessageEvent(object sender, MessageEventArgs e)
         {
             if (MessageEvent != null)
             {
@@ -641,7 +652,7 @@ namespace MyEMSLReader
             }
         }
 
-        protected void OnProgressEvent(object sender, ProgressEventArgs e)
+        private void OnProgressEvent(object sender, ProgressEventArgs e)
         {
             if (ProgressEvent != null)
             {
@@ -649,7 +660,7 @@ namespace MyEMSLReader
             }
         }
 
-        protected void OnFileDownloadedEvent(object sender, FileDownloadedEventArgs e)
+        private void OnFileDownloadedEvent(object sender, FileDownloadedEventArgs e)
         {
             if (FileDownloadedEvent != null)
             {

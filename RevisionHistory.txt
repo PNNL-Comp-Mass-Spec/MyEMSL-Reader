@@ -1,5 +1,9 @@
 MyEMSL Reader Revision History
 
+Version 1.1.5946; April 12, 2016
+	- Escape symbols reserved by RegEx when looking for matching files
+		- Found necessary given file names with square brackets in the name
+
 Version 1.1.5906; March 3, 2016
 	- Use the relative path of files in the downloaded .tar file to look for matches in lstFilesInArchive
 		- Used to update the file modification time to the original time
