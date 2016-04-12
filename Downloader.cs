@@ -339,7 +339,7 @@ namespace MyEMSLReader
 
 		#endregion
 
-		#region "Protected Methods"
+		#region "Private Methods"
 
 		/// <summary>
 		/// Determine the "locked" status of each file
@@ -350,7 +350,7 @@ namespace MyEMSLReader
 		/// <param name="cookieJar"></param>
 		/// <param name="authToken"></param>
 		/// <returns></returns>
-		protected Dictionary<ArchivedFileInfo, bool> CheckLockedStatus(Dictionary<string, object> dctResults, CookieContainer cookieJar, out string authToken)
+		private Dictionary<ArchivedFileInfo, bool> CheckLockedStatus(Dictionary<string, object> dctResults, CookieContainer cookieJar, out string authToken)
 		{
 			var dctFiles = new Dictionary<ArchivedFileInfo, bool>();
 			var dtLastStatusTime = DateTime.UtcNow;
@@ -436,18 +436,18 @@ namespace MyEMSLReader
 		}
 
 
-		protected Int64 ComputeTotalBytes(Dictionary<ArchivedFileInfo, bool> dctFiles)
+		private Int64 ComputeTotalBytes(Dictionary<ArchivedFileInfo, bool> dctFiles)
 		{
 			return ComputeTotalBytes(dctFiles.Keys.ToList());
 		}
 
-		protected Int64 ComputeTotalBytes(List<ArchivedFileInfo> dctFiles)
+		private Int64 ComputeTotalBytes(List<ArchivedFileInfo> dctFiles)
 		{
             var bytesToDownload = dctFiles.Sum(archivedFile => archivedFile.FileSizeBytes);
 			return bytesToDownload;
 		}
 
-		protected string ConstructDownloadfilePath(DownloadFolderLayout folderLayout, ArchivedFileInfo archivedFile)
+		private string ConstructDownloadfilePath(DownloadFolderLayout folderLayout, ArchivedFileInfo archivedFile)
 		{
 			string downloadFilePath;
 			switch (folderLayout)
@@ -476,7 +476,7 @@ namespace MyEMSLReader
 			return downloadFilePath;
 		}
 
-		protected Int64 CreateCart(List<Int64> lstFiles, CookieContainer cookieJar, string authToken)
+		private Int64 CreateCart(List<Int64> lstFiles, CookieContainer cookieJar, string authToken)
 		{
 			Int64 cartID;
 
@@ -545,7 +545,7 @@ namespace MyEMSLReader
 		}
 
 
-		protected bool CreateScrollID(List<Int64> lstFileIDs, ref CookieContainer cookieJar, out string authToken)
+		private bool CreateScrollID(List<Int64> lstFileIDs, ref CookieContainer cookieJar, out string authToken)
 		{
 			authToken = string.Empty;
 
@@ -635,7 +635,7 @@ namespace MyEMSLReader
 
 		}
 
-		protected bool DownloadFile(
+		private bool DownloadFile(
             string URL, 
             CookieContainer cookieJar, 
             int maxAttempts, 
@@ -721,7 +721,7 @@ namespace MyEMSLReader
 			return success;
 		}
 
-		protected Dictionary<Int64, string> DownloadLockedFiles(
+		private Dictionary<Int64, string> DownloadLockedFiles(
 			Dictionary<ArchivedFileInfo, bool> dctFiles,
 			CookieContainer cookieJar,
 			string authToken,
@@ -832,7 +832,7 @@ namespace MyEMSLReader
 			return dctFilesDownloaded;
 		}
 
-		protected bool DownloadTarFileWithRetry(
+		private bool DownloadTarFileWithRetry(
 			CookieContainer cookieJar,
 			List<ArchivedFileInfo> lstFilesInArchive,
 			List<Int64> lstFilesRemaining,
@@ -904,7 +904,7 @@ namespace MyEMSLReader
 
 		}
 
-		protected bool DownloadAndExtractTarFile(
+		private bool DownloadAndExtractTarFile(
 			CookieContainer cookieJar,
 			List<ArchivedFileInfo> lstFilesInArchive,
 			List<Int64> lstFilesRemaining,
@@ -1154,7 +1154,7 @@ namespace MyEMSLReader
 			return true;
 		}
 
-		protected bool FileMatchesHash(string localFilePath, string Sha1HashExpected)
+		private bool FileMatchesHash(string localFilePath, string Sha1HashExpected)
 		{
 			var fileMatchesHash = false;
 
@@ -1174,7 +1174,7 @@ namespace MyEMSLReader
 			return fileMatchesHash;
 		}
 
-		protected List<ArchivedFileInfo> GetArchivedFileByID(List<ArchivedFileInfo> lstFilesInArchive, Int64 fileID)
+		private List<ArchivedFileInfo> GetArchivedFileByID(List<ArchivedFileInfo> lstFilesInArchive, Int64 fileID)
 		{
 			var archivedFileLookup = (from item in lstFilesInArchive
 									  where item.FileID == fileID
@@ -1182,7 +1182,7 @@ namespace MyEMSLReader
 			return archivedFileLookup;
 		}
 
-        protected List<ArchivedFileInfo> GetArchivedFileByPath(List<ArchivedFileInfo> lstFilesInArchive, string filePath)
+        private List<ArchivedFileInfo> GetArchivedFileByPath(List<ArchivedFileInfo> lstFilesInArchive, string filePath)
         {
             var archivedFileLookup = (from item in lstFilesInArchive
                                       where string.Equals(item.RelativePathWindows, filePath, StringComparison.InvariantCultureIgnoreCase)
@@ -1191,7 +1191,7 @@ namespace MyEMSLReader
             return archivedFileLookup;
         }
 
-		protected List<ArchivedFileInfo> GetFileListByLockStatus(Dictionary<ArchivedFileInfo, bool> dctFiles, bool locked)
+		private List<ArchivedFileInfo> GetFileListByLockStatus(Dictionary<ArchivedFileInfo, bool> dctFiles, bool locked)
 		{
 			var lstLockedFiles = (from item in dctFiles
                                   where item.Value == locked
@@ -1199,7 +1199,7 @@ namespace MyEMSLReader
 			return lstLockedFiles;
 		}
 
-		protected List<string> GetMyEmslLockedField(List<string> headerKeys)
+		private List<string> GetMyEmslLockedField(List<string> headerKeys)
 		{
 			var lstFilteredKeys = (from item in headerKeys
 								   where item.Contains("MyEMSL-Locked")
@@ -1207,7 +1207,7 @@ namespace MyEMSLReader
 			return lstFilteredKeys;
 		}
 
-	    protected List<int> GetUniqueDatasetIDList(Dictionary<ArchivedFileInfo, bool> dctFiles)
+	    private List<int> GetUniqueDatasetIDList(Dictionary<ArchivedFileInfo, bool> dctFiles)
 		{
 			var lstDatasetIDs = (from item in dctFiles
 								 group item by item.Key.DatasetID into g
@@ -1215,7 +1215,7 @@ namespace MyEMSLReader
 			return lstDatasetIDs;
 		}
 
-		protected bool InitializeCartCreation(Int64 cartID, CookieContainer cookieJar)
+		private bool InitializeCartCreation(Int64 cartID, CookieContainer cookieJar)
 		{
 			bool success;
 
@@ -1265,7 +1265,7 @@ namespace MyEMSLReader
 		/// <param name="folderLayout"></param>
 		/// <param name="reportMessage"></param>
 		/// <returns></returns>
-		protected bool IsDownloadRequired(Dictionary<ArchivedFileInfo, bool> dctFiles, Int64 fileID, string downloadFolderPath, DownloadFolderLayout folderLayout, bool reportMessage)
+		private bool IsDownloadRequired(Dictionary<ArchivedFileInfo, bool> dctFiles, Int64 fileID, string downloadFolderPath, DownloadFolderLayout folderLayout, bool reportMessage)
 		{
 			var lstMatches = (from item in dctFiles where item.Key.FileID == fileID select item.Key).ToList();
 
@@ -1289,7 +1289,7 @@ namespace MyEMSLReader
 		/// <param name="fileIsLocked">True if the file is available on spinning disk</param>
 		/// <param name="reportMessage"></param>
 		/// <returns></returns>
-		protected bool IsDownloadRequired(ArchivedFileInfo archivedFile, string downloadFilePath, bool fileIsLocked, bool reportMessage)
+		private bool IsDownloadRequired(ArchivedFileInfo archivedFile, string downloadFilePath, bool fileIsLocked, bool reportMessage)
 		{
 			bool downloadFile;
 		    string message;
@@ -1372,7 +1372,7 @@ namespace MyEMSLReader
 
 		}
 
-		protected WebHeaderCollection SendHeadRequestWithRetry(
+		private WebHeaderCollection SendHeadRequestWithRetry(
 			string URL,
 			CookieContainer cookieJar,
 			int maxAttempts,
@@ -1430,7 +1430,7 @@ namespace MyEMSLReader
 		}
 
 
-		protected string UpdateCartState(Dictionary<string, object> dctCartInfo, string cartState)
+		private string UpdateCartState(Dictionary<string, object> dctCartInfo, string cartState)
 		{
 			var tarFileURL = string.Empty;
 
@@ -1473,7 +1473,7 @@ namespace MyEMSLReader
 			return tarFileURL;
 		}
 
-		protected void UpdateFileModificationTime(FileInfo fiTargetFile, DateTime dtSubmissionTime)
+		private void UpdateFileModificationTime(FileInfo fiTargetFile, DateTime dtSubmissionTime)
 		{
 			// Update the file modification time
 			fiTargetFile.Refresh();
@@ -1483,7 +1483,7 @@ namespace MyEMSLReader
 			}
 		}
 
-		protected void UpdateProgress(Int64 bytesDownloaded, Int64 bytesToDownload)
+		private void UpdateProgress(Int64 bytesDownloaded, Int64 bytesToDownload)
 		{
 			if (bytesToDownload > 0)
 			{
@@ -1494,7 +1494,7 @@ namespace MyEMSLReader
 			}
 		}
 
-		protected bool WaitForCartSuccess(Int64 cartID, CookieContainer cookieJar, int maxMinutesToWait, out string tarFileURL)
+		private bool WaitForCartSuccess(Int64 cartID, CookieContainer cookieJar, int maxMinutesToWait, out string tarFileURL)
 		{
 			var dtStartTime = DateTime.UtcNow;
 			var dtLastUpdateTime = DateTime.UtcNow.Subtract(new TimeSpan(0, 0, 50));

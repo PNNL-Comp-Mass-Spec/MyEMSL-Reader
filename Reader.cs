@@ -21,20 +21,20 @@ namespace MyEMSLReader
 
         // When using the Item Search service, we remove the "groups." portion from the beginning of these search terms
 
-        protected const string QUERY_SPEC_INSTRUMENT = "groups.omics.dms.instrument";
-        protected const string QUERY_SPEC_DATASET_ID = "groups.omics.dms.dataset_id";
-        protected const string QUERY_SPEC_DATASET_NAME = "groups.omics.dms.dataset";
+        private const string QUERY_SPEC_INSTRUMENT = "groups.omics.dms.instrument";
+        private const string QUERY_SPEC_DATASET_ID = "groups.omics.dms.dataset_id";
+        private const string QUERY_SPEC_DATASET_NAME = "groups.omics.dms.dataset";
 
-        protected const string QUERY_SPEC_DATA_PACKAGE_ID = "groups.omics.dms.datapackage_id";
-        // Unused: protected const string QUERY_SPEC_DATA_PACKAGE_ID_ALT = "extended_metadata.gov_pnnl_emsl_dms_datapackage.id";
+        private const string QUERY_SPEC_DATA_PACKAGE_ID = "groups.omics.dms.datapackage_id";
+        // Unused: private const string QUERY_SPEC_DATA_PACKAGE_ID_ALT = "extended_metadata.gov_pnnl_emsl_dms_datapackage.id";
 
-        protected const string QUERY_SPEC_FILENAME = "filename";
-        protected const string QUERY_SPEC_EUS_PROPOSAL = "proposals";
-        // Unused: protected const string QUERY_SPEC_ANALYSIS_TOOL = "extended_metadata.gov_pnnl_emsl_dms_analysisjob.tool.name.untouched";
-        // Unused: protected const string QUERY_SPEC_DATASET_NAME_ALT = "extended_metadata.gov_pnnl_emsl_dms_dataset.name.untouched";
+        private const string QUERY_SPEC_FILENAME = "filename";
+        private const string QUERY_SPEC_EUS_PROPOSAL = "proposals";
+        // Unused: private const string QUERY_SPEC_ANALYSIS_TOOL = "extended_metadata.gov_pnnl_emsl_dms_analysisjob.tool.name.untouched";
+        // Unused: private const string QUERY_SPEC_DATASET_NAME_ALT = "extended_metadata.gov_pnnl_emsl_dms_dataset.name.untouched";
 
-        protected const string DATASET_ID_TAG = "#*#*#_DATASET_ID_";
-        protected const string DATA_PKG_ID_TAG = "#*#*#_DATA_PKG_ID_";
+        private const string DATASET_ID_TAG = "#*#*#_DATASET_ID_";
+        private const string DATA_PKG_ID_TAG = "#*#*#_DATA_PKG_ID_";
 
         #endregion
 
@@ -47,7 +47,7 @@ namespace MyEMSLReader
             CreateScrollID = 2			// Create a scroll ID
         }
 
-        protected enum SearchEntity
+        private enum SearchEntity
         {
             DatasetName = 0,
             DatasetID = 1,
@@ -441,14 +441,14 @@ namespace MyEMSLReader
 
         #endregion
 
-        #region "Protected Methods"
+        #region "private Methods"
 
         /// <summary>
         /// Convert a dictionary of dataset names and SubDir names to a dictionary of dataset names and SubDir lists (with one item per list for each dataset)
         /// </summary>
         /// <param name="dctDatasetsAndSubDirs"></param>
         /// <returns>Dictionary where Keys are dataset names, and Values are a list of subdirectory names to filter on for the given dataset</returns>
-        protected Dictionary<string, SortedSet<string>> ConvertDatasetSubDirDictToSubDirListDict(
+        private Dictionary<string, SortedSet<string>> ConvertDatasetSubDirDictToSubDirListDict(
             Dictionary<string, string> dctDatasetsAndSubDirs)
         {
 
@@ -472,7 +472,7 @@ namespace MyEMSLReader
         /// </param>
         /// <param name="datasetName">Dataset Name</param>
         /// <param name="subDir">Subdirectory name to filter on (exact match; cannot contain wildcards)</param>
-        protected void ConvertDatasetSubDirAddToDictionary(
+        private void ConvertDatasetSubDirAddToDictionary(
             Dictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists,
             string datasetName,
             string subDir)
@@ -500,7 +500,7 @@ namespace MyEMSLReader
 
         }
 
-        protected List<ArchivedFileInfo> FilterFilesNoRecursion(
+        private List<ArchivedFileInfo> FilterFilesNoRecursion(
             List<ArchivedFileInfo> lstFiles,
             Dictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists)
         {
@@ -604,7 +604,7 @@ namespace MyEMSLReader
             return lstFilesFiltered;
         }
 
-        protected List<ArchivedFileInfo> FilterFilesBySubDir(
+        private List<ArchivedFileInfo> FilterFilesBySubDir(
             List<ArchivedFileInfo> lstFiles,
             Dictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists)
         {
@@ -690,7 +690,7 @@ namespace MyEMSLReader
         /// If the keys in dctDatasetsAndSubDirLists start with DATASET_ID_TAG then they are Dataset IDs and not dataset names
         /// If the keys in dctDatasetsAndSubDirLists start with DATA_PKG_ID_TAG then they are Data Package IDs and not dataset names
         /// </remarks>
-        protected List<ArchivedFileInfo> FindFilesByDataset(
+        private List<ArchivedFileInfo> FindFilesByDataset(
             Dictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists,
             bool recurse,
             string instrumentName,
@@ -820,7 +820,7 @@ namespace MyEMSLReader
             return lstFiles;
         }
 
-        protected SearchEntity GetEntityType(Dictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists)
+        private SearchEntity GetEntityType(Dictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists)
         {
             var entityType = SearchEntity.DatasetName;
 
@@ -1204,7 +1204,7 @@ namespace MyEMSLReader
 
         }
 
-        protected bool LookupSubDirFilterByDataset(
+        private bool LookupSubDirFilterByDataset(
             Dictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists,
             ArchivedFileInfo file,
             SearchEntity entityType,
@@ -1240,7 +1240,7 @@ namespace MyEMSLReader
             return success;
         }
 
-        protected string PossiblyQuoteString(string text)
+        private string PossiblyQuoteString(string text)
         {
             if (text.Contains(" "))
                 return '"' + text + '"';
@@ -1254,7 +1254,7 @@ namespace MyEMSLReader
         /// <param name="dctSearchTerms">Query search terms</param>
         /// <param name="logicalOperator">Whether to AND or OR the search terms together</param>
         /// <returns>List of files</returns>
-        protected List<ArchivedFileInfo> QueryElasticSearch(
+        private List<ArchivedFileInfo> QueryElasticSearch(
             List<KeyValuePair<string, string>> dctSearchTerms, 
             SearchOperator logicalOperator)
         {
@@ -1304,7 +1304,7 @@ namespace MyEMSLReader
         /// <param name="dctSearchTerms">Query search terms</param>
         /// <param name="logicalOperator">Whether to AND or OR the search terms together</param>
         /// <returns>List of files</returns>
-        protected List<ArchivedFileInfo> QueryItemSearchService(
+        private List<ArchivedFileInfo> QueryItemSearchService(
             List<KeyValuePair<string, string>> dctSearchTerms, 
             SearchOperator logicalOperator)
         {

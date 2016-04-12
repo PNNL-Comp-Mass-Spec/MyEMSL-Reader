@@ -223,7 +223,7 @@ namespace MyEMSLReader
 
 		#region "Event handlers"
 
-		protected void OnError(string errorMessage)
+        private void OnError(string errorMessage)
 		{
 			if (ErrorEvent != null)
 			{

@@ -14,7 +14,7 @@ namespace MyEMSLReader
         /// <summary>
         /// Keys are dataset names, values are the optional Subdirectory name (or names) to filter on for the given dataset
         /// </summary>
-        protected Dictionary<string, SortedSet<string>> mDatasetsAndSubDirLists;
+        private readonly Dictionary<string, SortedSet<string>> mDatasetsAndSubDirLists;
 
         #endregion
 

@@ -30,7 +30,7 @@ namespace MyEMSLReader
 		public string ErrorMessage
 		{
 			get;
-			protected set;
+			private set;
 		}
 
 		#endregion
@@ -75,7 +75,7 @@ namespace MyEMSLReader
 
 		}
 
-		protected static void GarbageCollectWaitForGC()
+        private static void GarbageCollectWaitForGC()
 		{
 			try
 			{
@@ -99,7 +99,7 @@ namespace MyEMSLReader
             return dctDatasetsAndSubDirLists;
         }
 
-		protected static int IncreaseTimeout(int timeoutSeconds)
+        protected static int IncreaseTimeout(int timeoutSeconds)
 		{
 			if (timeoutSeconds < 8)
 			{
@@ -113,7 +113,7 @@ namespace MyEMSLReader
 			return timeoutSeconds;
 		}
 
-		protected string ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, string valueIfMissing)
+        protected string ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, string valueIfMissing)
 		{
 			object value;
 			if (dctData.TryGetValue(keyName, out value))
@@ -125,7 +125,7 @@ namespace MyEMSLReader
 
 		}
 
-		protected bool ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, bool valueIfMissing)
+        protected bool ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, bool valueIfMissing)
 		{
 			var valueText = ReadDictionaryValue(dctData, keyName, valueIfMissing.ToString());
 			bool value;
@@ -136,7 +136,7 @@ namespace MyEMSLReader
 			return valueIfMissing;
 		}
 
-		protected Int64 ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, Int64 valueIfMissing)
+        protected Int64 ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, Int64 valueIfMissing)
 		{
 			var valueText = ReadDictionaryValue(dctData, keyName, valueIfMissing.ToString(CultureInfo.InvariantCulture));
 			Int64 value;
@@ -146,8 +146,8 @@ namespace MyEMSLReader
 
 			return valueIfMissing;
 		}
-	
-		protected void ReportError(string errorMessage)
+
+        protected void ReportError(string errorMessage)
 		{
 			ReportError(errorMessage, null);
 		}
@@ -157,7 +157,7 @@ namespace MyEMSLReader
 		/// </summary>
 		/// <param name="errorMessage"></param>
 		/// <param name="ex"></param>
-		protected void ReportError(string errorMessage, Exception ex)
+        protected void ReportError(string errorMessage, Exception ex)
 		{
 		    if (!string.IsNullOrEmpty(ErrorMessage) && String.Equals(ErrorMessage, errorMessage, StringComparison.OrdinalIgnoreCase))
 		    {
@@ -180,7 +180,7 @@ namespace MyEMSLReader
 			}
 		}
 
-		protected void ReportMessage(string strMessage)
+        protected void ReportMessage(string strMessage)
 		{
 
 			if (!string.IsNullOrEmpty(strMessage))
@@ -193,8 +193,8 @@ namespace MyEMSLReader
 			ErrorMessage = string.Empty;
 		}
 
-			
-		protected List<Dictionary<string, object>> RetrieveDictionaryListByKey(Dictionary<string, object> dctResults, string keyName)
+
+        protected List<Dictionary<string, object>> RetrieveDictionaryListByKey(Dictionary<string, object> dctResults, string keyName)
 		{
 			object value;
 			if (!dctResults.TryGetValue(keyName, out value))
@@ -218,7 +218,7 @@ namespace MyEMSLReader
 			return dctList;
 		}
 
-		protected Dictionary<string, object> RetrieveDictionaryObjectByKey(Dictionary<string, object> dctResults, string keyName)
+        protected Dictionary<string, object> RetrieveDictionaryObjectByKey(Dictionary<string, object> dctResults, string keyName)
 		{
 			object value;
 
@@ -242,7 +242,7 @@ namespace MyEMSLReader
 			return dctValue;
 		}
 
-		protected bool SendHTTPRequestWithRetry(
+        protected bool SendHTTPRequestWithRetry(
 			string URL, CookieContainer cookieJar,
 			string postData, EasyHttp.HttpMethod postMethod,
 			int maxAttempts,
@@ -316,19 +316,19 @@ namespace MyEMSLReader
 			return retrievalSuccess;
 		}
 
-		protected bool ValidSearchResults(Dictionary<string, object> dctResults, out string errorMessage)
+        protected bool ValidSearchResults(Dictionary<string, object> dctResults, out string errorMessage)
 		{
 			// Check for an error
 			errorMessage = ReadDictionaryValue(dctResults, "error", "");
 			if (!string.IsNullOrEmpty(errorMessage))
 			{
-				var charIndex = errorMessage.IndexOf("{");
+				var charIndex = errorMessage.IndexOf('{');
 
 				// Truncate the message after the first curly bracket
 				if (charIndex > 0)
 					errorMessage = errorMessage.Substring(0, charIndex);
 
-				charIndex = errorMessage.IndexOf("; shardFailures");
+				charIndex = errorMessage.IndexOf("; shardFailures", StringComparison.Ordinal);
 				if (charIndex > 0)
 					errorMessage = errorMessage.Substring(0, charIndex);
 

@@ -14,7 +14,7 @@ namespace MyEMSLReader
 		/// <summary>
 		/// Keys are data package IDs, values are the optional Subdirectory name to filter on for the given data package
 		/// </summary>
-		protected Dictionary<int, string> mDataPackagesAndSubDirs;
+        private readonly Dictionary<int, string> mDataPackagesAndSubDirs;
 
 		#endregion
 

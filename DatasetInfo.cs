@@ -11,8 +11,8 @@ namespace MyEMSLReader
 
 		#region "Module variables"
 
-		protected string mDatasetName;
-		protected int mDatasetID;
+		private string mDatasetName;
+		private int mDatasetID;
 
 		#endregion
 

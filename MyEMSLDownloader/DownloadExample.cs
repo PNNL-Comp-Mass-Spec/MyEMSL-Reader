@@ -19,7 +19,7 @@ namespace MyEMSLDownloader
         }
 
 
-        protected void GetFileStart(DatasetListInfo datasetListInfo)
+        private void GetFileStart(DatasetListInfo datasetListInfo)
         {
 
             var datasetFolderPathFromDMS = @"\\MyEMSL\Exact01\2010_2\SysVirol_SM001_mock-7d_3_B_11May10_Phoenix_10-03-35";
@@ -35,7 +35,7 @@ namespace MyEMSLDownloader
 
         }
 
-        protected void GetRawFile(DatasetListInfo datasetListInfo, string datasetName, string outputFolderPath)
+        private void GetRawFile(DatasetListInfo datasetListInfo, string datasetName, string outputFolderPath)
         {            
             datasetListInfo.AddDataset(datasetName);
 
@@ -86,12 +86,12 @@ namespace MyEMSLDownloader
 
 		#region "Event Handlers"
 
-		protected void datasetListInfo_ErrorEvent(object sender, MessageEventArgs e)
+		private void datasetListInfo_ErrorEvent(object sender, MessageEventArgs e)
 		{
 			ShowErrorMessage(e.Message);
 		}
 
-		protected void datasetListInfo_MessageEvent(object sender, MessageEventArgs e)
+        private void datasetListInfo_MessageEvent(object sender, MessageEventArgs e)
 		{
 			Console.WriteLine(e.Message);
 		}
