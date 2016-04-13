@@ -142,7 +142,7 @@ namespace MyEMSLReader
 
             mLastProgressWriteTime = DateTime.UtcNow;
 
-            mReplaceReservedRegExChars = new Regex(@"([\^\$\.\|\+\(\)\[\{\\])", RegexOptions.Compiled);
+            mReplaceReservedRegExChars = new Regex(@"(?<Symbol>[\^\$\.\|\+\(\)\[\{\\])", RegexOptions.Compiled);
         }
 
         /// <summary>
@@ -571,7 +571,7 @@ namespace MyEMSLReader
             // For example, if name is "K00059_3-oxoacyl-[acyl-carrier_protein]_reductase_[EC_1_1_1_100].html" 
             // Update it to be         "K00059_3-oxoacyl-\[acyl-carrier_protein]_reductase_\[EC_1_1_1_100]\.html\"
 
-            var escapedName = mReplaceReservedRegExChars.Replace(name, @"\\\1");
+            var escapedName = mReplaceReservedRegExChars.Replace(name, @"\${Symbol}");
 
             var strSearchSpec = "^" + escapedName.Replace("*", ".*") + "$";
 
