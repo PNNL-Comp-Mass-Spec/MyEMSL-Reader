@@ -1,5 +1,8 @@
 MyEMSLDownloader Revision History
 
+Version 1.0.5959; April 25, 2016
+	- Update to .NET 4.5.1
+
 Version 1.0.5891; February 17, 2016
 	- Updated MyEMSLReader that extracts files from .tar files even if the MyEMSL FileID cannot be determined
 

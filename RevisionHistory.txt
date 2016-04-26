@@ -1,5 +1,8 @@
 MyEMSL Reader Revision History
 
+Version 1.1.5959; April 25, 2016
+	- Update to .NET 4.5.1
+
 Version 1.1.5946; April 12, 2016
 	- Escape symbols reserved by RegEx when looking for matching files
 		- Found necessary given file names with square brackets in the name
