@@ -5,7 +5,7 @@ copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\An
 copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_Ape_PlugIn\bin\Debug" /y
 copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\dms_managers\Analysis_Manager\Plugins\AM_AScore_PlugIn\bin\Debug" /y
 copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_Cyclops_PlugIn\bin\Debug" /y
-copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\dms_managers\Analysis_Manager\Plugins\AM_Decon2ls_PlugIn_Decon2LSV2\bin" /y
+copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_Decon2ls_PlugIn_Decon2LSV2\bin\Debug" /y
 copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\dms_managers\Analysis_Manager\Plugins\AM_DTA_Import_PlugIn\bin" /y
 copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\dms_managers\Analysis_Manager\Plugins\AM_DTA_Split_PlugIn\bin" /y
 copy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\dms_managers\Analysis_Manager\Plugins\AM_DtaRefinery_PlugIn\bin" /y
