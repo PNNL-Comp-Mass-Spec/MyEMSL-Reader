@@ -1405,10 +1405,10 @@ namespace MyEMSLReader
             try
             {
                 var searchSpec = new Dictionary<string, string>
-				{
-					{"default_operator", "AND"}, 
-					{"default_field", "_all"}
-				};
+                {
+                    {"default_operator", "AND"},
+                    {"default_field", "_all"}
+                };
 
                 string operatorString;
                 switch (logicalOperator)
@@ -1420,7 +1420,8 @@ namespace MyEMSLReader
                         operatorString = " OR ";
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException("Unrecognized value for logicalOperator: " + logicalOperator);
+                        throw new ArgumentOutOfRangeException("Unrecognized value for logicalOperator: " +
+                                                              logicalOperator);
                 }
 
                 var queryTerms = new StringBuilder();
@@ -1434,26 +1435,26 @@ namespace MyEMSLReader
                 searchSpec.Add("query", queryTerms.ToString());
 
                 var queryStringSpec = new Dictionary<string, object>
-				{
-					{"query_string", searchSpec}
-				};
+                {
+                    {"query_string", searchSpec}
+                };
 
                 var mustSpec = new Dictionary<string, object>
-				{
-					{"must", queryStringSpec}
-				};
+                {
+                    {"must", queryStringSpec}
+                };
 
                 var boolSpec = new Dictionary<string, object>
-				{
-					{"bool", mustSpec}
-				};
+                {
+                    {"bool", mustSpec}
+                };
 
                 var querySpec = new Dictionary<string, object>
-				{
-					{"query", boolSpec},
-					{"from", 0},
-					{"size", maxFileCount}
-				};
+                {
+                    {"query", boolSpec},
+                    {"from", 0},
+                    {"size", maxFileCount}
+                };
 
                 // The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
                 // This hack was added in March 2014 because Proto-10 reported error 
@@ -1491,7 +1492,8 @@ namespace MyEMSLReader
                 {
                     if (!auth.GetAuthCookies(out cookieJar))
                     {
-                        ReportError("Auto-login to " + authURL + " failed authentication for user " + Environment.UserDomainName + @"\" + Environment.UserName);
+                        ReportError("Auto-login to " + authURL + " failed authentication for user " +
+                                    Environment.UserDomainName + @"\" + Environment.UserName);
                         return dctResults;
                     }
                 }
@@ -1532,7 +1534,9 @@ namespace MyEMSLReader
                     currentURL = string.Copy(URL);
                     currentStatus = "Posting JSON {" + postData + "}";
 
-                    var retrievalSuccess = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Post, maxAttempts, allowEmptyResponseData, out responseData, out mostRecentException);
+                    var retrievalSuccess = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Post,
+                                                                    maxAttempts, allowEmptyResponseData,
+                                                                    out responseData, out mostRecentException);
 
                     if (!retrievalSuccess || string.IsNullOrWhiteSpace(responseData))
                     {
@@ -1599,9 +1603,31 @@ namespace MyEMSLReader
                 return dctResults;
 
             }
+            catch (System.Net.WebException ex)
+            {
+                var response = ex.Response as HttpWebResponse;
+
+                if (response != null)
+                {
+                    if (response.StatusCode == HttpStatusCode.ServiceUnavailable)
+                    {
+                        // MyEMSL is Offline
+                        ReportError("MyEMSL is offline", false);
+                        return dctResults;
+                    }
+                }
+
+                ReportError(
+                    "WebException in MyEMSLReader.Reader.RunElasticSearchQuery contacting " + currentURL + 
+                    " [" + currentStatus + "]: " + ex.Message, ex);
+
+                return dctResults;
+            }
             catch (Exception ex)
             {
-                ReportError("Error in MyEMSLReader.Reader.RunElasticSearchQuery contacting " + currentURL + " [" + currentStatus + "]: " + ex.Message, ex);
+                ReportError(
+                    "Error in MyEMSLReader.Reader.RunElasticSearchQuery contacting " + currentURL + 
+                    " [" + currentStatus + "]: " + ex.Message, ex);
 
                 return dctResults;
             }

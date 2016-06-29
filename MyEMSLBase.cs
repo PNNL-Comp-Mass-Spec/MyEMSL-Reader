@@ -147,19 +147,34 @@ namespace MyEMSLReader
 			return valueIfMissing;
 		}
 
+        /// <summary>
+        /// Report an error.  Will throw an exception if this.ThrowErrors is true
+        /// </summary>
+        /// <param name="errorMessage">Error Message</param>
         protected void ReportError(string errorMessage)
 		{
 			ReportError(errorMessage, null);
 		}
 
-		/// <summary>
-		/// Report an error.  Will throw an exception if this.ThrowErrors is true
+	    /// <summary>
+        /// Report an error.  Will throw an exception if this.ThrowErrors is true and allowThrowErrors is true
+	    /// </summary>
+        /// <param name="errorMessage">Error Message</param>
+        /// <param name="allowThrowErrors">True to throw errors as an exception if ThrowErrors is true</param>
+        protected void ReportError(string errorMessage, bool allowThrowErrors)
+	    {
+	        ReportError(errorMessage, null, allowThrowErrors);
+	    }
+
+	    /// <summary>
+        /// Report an error.  Will throw an exception if this.ThrowErrors is true and allowThrowErrors is true
 		/// </summary>
-		/// <param name="errorMessage"></param>
-		/// <param name="ex"></param>
-        protected void ReportError(string errorMessage, Exception ex)
+		/// <param name="errorMessage">Error Message</param>
+		/// <param name="ex">Exception</param>
+		/// <param name="allowThrowErrors">True to throw errors as an exception if ThrowErrors is true</param>
+        protected void ReportError(string errorMessage, Exception ex, bool allowThrowErrors = true)
 		{
-		    if (!string.IsNullOrEmpty(ErrorMessage) && String.Equals(ErrorMessage, errorMessage, StringComparison.OrdinalIgnoreCase))
+		    if (!string.IsNullOrEmpty(ErrorMessage) && string.Equals(ErrorMessage, errorMessage, StringComparison.OrdinalIgnoreCase))
 		    {
                 // Duplicate error message; do not fire ErrorEvent
 		    }
@@ -171,7 +186,7 @@ namespace MyEMSLReader
 		        Thread.Sleep(10);
 		    }
 
-		    if (ThrowErrors)
+            if (allowThrowErrors && ThrowErrors)
 			{
 				if (ex == null)
 					throw new Exception(errorMessage);

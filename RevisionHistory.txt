@@ -1,5 +1,8 @@
 MyEMSL Reader Revision History
 
+Version 1.1.6024; June 29, 2016
+	- Check for response code 503 (Service Unavailable)
+
 Version 1.1.5959; April 25, 2016
 	- Update to .NET 4.5.1
 
