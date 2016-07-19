@@ -1,5 +1,8 @@
 MyEMSLDownloader Revision History
 
+Version 1.0.6044; July 19, 2016
+	- Add switch /ForceCart
+
 Version 1.0.5959; April 25, 2016
 	- Update to .NET 4.5.1
 

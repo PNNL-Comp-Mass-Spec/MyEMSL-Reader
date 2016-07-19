@@ -4,7 +4,7 @@ using MyEMSLReader;
 
 namespace MyEMSLDownloader
 {
-    class DownloadExample
+    internal class DownloadExample
     {
 
         public void StartTest()
@@ -39,6 +39,7 @@ namespace MyEMSLDownloader
         {            
             datasetListInfo.AddDataset(datasetName);
 
+            Console.WriteLine("Searching for " + datasetName + ".raw");
             var archiveFiles = datasetListInfo.FindFiles(datasetName + ".raw", subFolderName: string.Empty, recurse: false);
 
             DownloadFiles(datasetListInfo, archiveFiles, outputFolderPath);
@@ -50,7 +51,8 @@ namespace MyEMSLDownloader
 			datasetListInfo.ClearDownloadQueue();
 			foreach (var archiveFile in archiveFiles)
 			{
-				datasetListInfo.AddFileToDownloadQueue(archiveFile.FileInfo);
+                Console.WriteLine("Downloading File ID {0}: {1}", archiveFile.FileID, archiveFile.FileInfo.Filename);
+                datasetListInfo.AddFileToDownloadQueue(archiveFile.FileInfo);
 			}
 
 			Downloader.DownloadFolderLayout folderLayout;

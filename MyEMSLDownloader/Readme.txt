@@ -9,19 +9,23 @@ to preview the files that will be downloaded.
 == Details ==
 
 Program syntax #1:
-MyEMSLDownloader.exe DatasetName [SubFolderName] [/Files:FileMask] 
-                     [/O:OutputFolder] [/D] [/Preview]
+MyEMSLDownloader.exe DatasetName [SubFolderName] [/Files:FileMask] [/O:OutputFolder]
+                     [/D] [/Preview] [/V] [/DisableCart] [/ForceCart] [/UseTest]
 
 Program syntax #2:
-MyEMSLDownloader.exe /Dataset:DatasetName [/SubDir:SubFolderName] [/Files:FileMask] 
-                     [/O:OutputFolder] [/D] [/Preview]
+MyEMSLDownloader.exe /Dataset:DatasetName [/SubDir:SubFolderName] [/Files:FileMask] [/O:OutputFolder]
+                     [/D] [/Preview] [/V] [/DisableCart] [/ForceCart] [/UseTest]
 
 Program syntax #3:
-MyEMSLDownloader.exe /DataPkg:DataPackageID [/SubDir:SubFolderName] [/Files:FileMask] 
-                     [/O:OutputFolder] [/Preview]
+MyEMSLDownloader.exe /DataPkg:DataPackageID [/SubDir:SubFolderName] [/Files:FileMask] [/O:OutputFolder]
+                     [/Preview] [/V] [/DisableCart] [/ForceCart] [/UseTest]
 
 Program syntax #4:
-MyEMSLDownloader.exe /Test [/Preview]
+MyEMSLDownloader.exe /FileList:FileInfoFile.txt [/O:OutputFolder]
+                     [/Preview] [/V] [/DisableCart] [/ForceCart] [/UseTest]
+
+Program syntax #5:
+MyEMSLDownloader.exe /Test [/Preview] [/V] [/DisableCart] [/ForceCart]
 
 To download files for a given dataset, enter the dataset name, plus optionally the SubFolder name
 The names can be entered separated by spaces, or using /Dataset plus optionally /SubDir
@@ -32,9 +36,20 @@ Use /D to create a folder with the dataset name, then store the files within tha
 
 Use /DataPkg to retrieve files from a specific data package
 
+Use /FileList to specify a file with a list of datasets and files to retrieve
+The file must be a tab-delimited text file, with columns Dataset and File, and optionally with column SubDir
+The file names in the File column are allowed to contain wildcards
+When /FileList is used, /D is automatically enabled
+
 Alternatively, use /Test to perform automatic tests using predefined dataset names
 
 Use /Preview to view files that would be downloaded, but not actually download them
+Use /V to enable verbose preview, showing extended details about each file
+
+Use /DisableCart to disable use of the download cart mechanism for retrieving files that exist on tape but not on spinning disk
+Use /ForceCart to force the use of the download cart; this option overrides /DisableCart
+
+Use /UseTest to connect to test0.my.emsl.pnl.gov instead of my.emsl.pnl.gov
 
 -------------------------------------------------------------------------------
 Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2013

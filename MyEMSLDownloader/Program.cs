@@ -13,9 +13,9 @@ namespace MyEMSLDownloader
         public string SubDir;
     }
 
-    class Program
+    internal static class Program
     {
-        private const string PROGRAM_DATE = "June 29, 2016";
+        private const string PROGRAM_DATE = "July 19, 2016";
 
         static double mPercentComplete;
         static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
@@ -29,6 +29,7 @@ namespace MyEMSLDownloader
 
         private static bool mMultiDatasetMode;
         private static bool mDisableCart;
+        private static bool mForceDownloadViaCart;
 
         private static bool mPreviewMode;
         private static bool mVerbosePreview;
@@ -50,6 +51,7 @@ namespace MyEMSLDownloader
 
             mMultiDatasetMode = false;
             mDisableCart = false;
+            mForceDownloadViaCart = false;
 
             mPreviewMode = false;
             mVerbosePreview = false;
@@ -148,8 +150,8 @@ namespace MyEMSLDownloader
 
         private static void AutoTestModeStart()
         {
-            // var exampleDownloader = new DownloadExample();
-            // exampleDownloader.StartTest();
+            var exampleDownloader = new DownloadExample();
+            exampleDownloader.StartTest();
 
             var lstFileIDs = TestReader();
 
@@ -193,6 +195,7 @@ namespace MyEMSLDownloader
         {
             myEMSLInfoCache.ClearDownloadQueue();
             myEMSLInfoCache.DisableCart = mDisableCart;
+            myEMSLInfoCache.ForceDownloadViaCart = mForceDownloadViaCart;
 
             foreach (var archiveFile in archiveFiles)
             {
@@ -403,7 +406,7 @@ namespace MyEMSLDownloader
             // Returns True if no problems; otherwise, returns false
             var lstValidParameters = new List<string> { 
                 "Dataset", "DataPkg", "SubDir", "Files", 
-                "O", "D", "FileList", "DisableCart", 
+                "O", "D", "FileList", "DisableCart", "ForceCart",
                 "Preview", "V", "Test", "UseTest" };
 
             try
@@ -456,6 +459,8 @@ namespace MyEMSLDownloader
                 }
 
                 mDisableCart = objParseCommandLine.IsParameterPresent("DisableCart");
+                mForceDownloadViaCart = objParseCommandLine.IsParameterPresent("ForceCart");
+
                 mPreviewMode = objParseCommandLine.IsParameterPresent("Preview");
                 mAutoTestMode = objParseCommandLine.IsParameterPresent("Test");
                 mUseTestInstance = objParseCommandLine.IsParameterPresent("UseTest");
@@ -536,26 +541,26 @@ namespace MyEMSLDownloader
 
                 Console.Write("Program syntax #1:" + Environment.NewLine + exeName);
                 Console.WriteLine(" DatasetName [SubFolderName] [/Files:FileMask] [/O:OutputFolder] ");
-                Console.WriteLine(" [/D] [/Preview] [/V] [/DisableCart] [/UseTest]");
+                Console.WriteLine(" [/D] [/Preview] [/V] [/DisableCart] [/ForceCart] [/UseTest]");
 
                 Console.WriteLine();
                 Console.Write("Program syntax #2:" + Environment.NewLine + exeName);
                 Console.WriteLine(" /Dataset:DatasetName [/SubDir:SubFolderName] [/Files:FileMask] [/O:OutputFolder]");
-                Console.WriteLine(" [/D] [/Preview] [/V] [/DisableCart] [/UseTest]");
+                Console.WriteLine(" [/D] [/Preview] [/V] [/DisableCart] [/ForceCart] [/UseTest]");
 
                 Console.WriteLine();
                 Console.Write("Program syntax #3:" + Environment.NewLine + exeName);
                 Console.WriteLine(" /DataPkg:DataPackageID [/SubDir:SubFolderName] [/Files:FileMask] [/O:OutputFolder]");
-                Console.WriteLine(" [/Preview] [/V] [/DisableCart] [/UseTest]");
+                Console.WriteLine(" [/Preview] [/V] [/DisableCart] [/ForceCart] [/UseTest]");
 
                 Console.WriteLine();
                 Console.Write("Program syntax #4:" + Environment.NewLine + exeName);
                 Console.WriteLine(" /FileList:FileInfoFile.txt [/O:OutputFolder]");
-                Console.WriteLine(" [/Preview] [/V] [/DisableCart] [/UseTest]");
+                Console.WriteLine(" [/Preview] [/V] [/DisableCart] [/ForceCart] [/UseTest]");
 
                 Console.WriteLine();
                 Console.Write("Program syntax #5:" + Environment.NewLine + exeName);
-                Console.WriteLine(" /Test [/Preview] [/V] [/DisableCart]");
+                Console.WriteLine(" /Test [/Preview] [/V] [/DisableCart] [/ForceCart]");
 
                 Console.WriteLine();
                 Console.WriteLine("To download files for a given dataset, enter the dataset name, plus optionally the SubFolder name");
@@ -576,7 +581,9 @@ namespace MyEMSLDownloader
                 Console.WriteLine();
                 Console.WriteLine("Use /Preview to view files that would be downloaded, but not actually download them");
                 Console.WriteLine("Use /V to enable verbose preview, showing extended details about each file");
+                Console.WriteLine();
                 Console.WriteLine("Use /DisableCart to disable use of the download cart mechanism for retrieving files that exist on tape but not on spinning disk");
+                Console.WriteLine("Use /ForceCart to force the use of the download cart; this option overrides /DisableCart");
                 Console.WriteLine();
                 Console.WriteLine("Use /UseTest to connect to test0.my.emsl.pnl.gov instead of my.emsl.pnl.gov");
                 Console.WriteLine();
