@@ -4,10 +4,12 @@ using System.Linq;
 
 namespace MyEMSLReader
 {
-	/// <summary>
-	/// Tracks the dataset info for multiple datasets (by dataset ID)
-	/// </summary>
-	public class DatasetListInfoByID : DatasetInfoBase
+    /// <summary>
+    /// Tracks the dataset info for multiple datasets (by dataset ID)
+    /// </summary>
+    /// 
+    [Obsolete("Valid, but unused")]
+    public class DatasetListInfoByID : DatasetInfoBase
 	{
 		#region "Module variables"
 
@@ -23,26 +25,14 @@ namespace MyEMSLReader
 		/// <summary>
 		/// Dataset IDs
 		/// </summary>
-		public List<int> DatasetIDs
-		{
-			get
-			{
-				return mDatasetsAndSubDirs.Keys.ToList();
-			}
-		}
+		public List<int> DatasetIDs => mDatasetsAndSubDirs.Keys.ToList();
 
-		/// <summary>
+        /// <summary>
 		/// Keys are dataset IDs, values are the optional Subdirectory name to filter on for the given dataset
 		/// </summary>
-		public Dictionary<int, string> DatasetsAndSubDirs
-		{
-			get
-			{
-				return mDatasetsAndSubDirs;
-			}
-		}
+		public Dictionary<int, string> DatasetsAndSubDirs => mDatasetsAndSubDirs;
 
-		#endregion
+        #endregion
 
 		/// <summary>
 		/// Constructor

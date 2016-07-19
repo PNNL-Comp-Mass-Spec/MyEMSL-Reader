@@ -28,8 +28,8 @@ namespace MyEMSLReader
         private const string QUERY_SPEC_DATA_PACKAGE_ID = "groups.omics.dms.datapackage_id";
         // Unused: private const string QUERY_SPEC_DATA_PACKAGE_ID_ALT = "extended_metadata.gov_pnnl_emsl_dms_datapackage.id";
 
-        private const string QUERY_SPEC_FILENAME = "filename";
-        private const string QUERY_SPEC_EUS_PROPOSAL = "proposals";
+        // Unused: private const string QUERY_SPEC_FILENAME = "filename";
+        // Unused: private const string QUERY_SPEC_EUS_PROPOSAL = "proposals";
         // Unused: private const string QUERY_SPEC_ANALYSIS_TOOL = "extended_metadata.gov_pnnl_emsl_dms_analysisjob.tool.name.untouched";
         // Unused: private const string QUERY_SPEC_DATASET_NAME_ALT = "extended_metadata.gov_pnnl_emsl_dms_dataset.name.untouched";
 
@@ -75,6 +75,7 @@ namespace MyEMSLReader
 
         public int LastSearchFileCountReturned
         {
+            // ReSharper disable once UnusedAutoPropertyAccessor.Global
             get;
             private set;
         }
@@ -153,6 +154,7 @@ namespace MyEMSLReader
         /// </summary>
         /// <param name="dataPkgID">Data Package ID</param>
         /// <returns>List of matched files</returns>
+        // ReSharper disable once UnusedMember.Global
         public List<ArchivedFileInfo> FindFilesByDataPackageID(int dataPkgID)
         {
             var subDir = string.Empty;
@@ -197,6 +199,7 @@ namespace MyEMSLReader
         /// </summary>
         /// <param name="dctDataPkgIDsAndSubDirs">Keys are data package ID, values are the optional Subdirectory name to filter on for the given data package</param>
         /// <returns>List of matched files</returns>
+        // ReSharper disable once UnusedMember.Global
         public List<ArchivedFileInfo> FindFilesByDataPackageID(Dictionary<int, string> dctDataPkgIDsAndSubDirs)
         {
             return FindFilesByDataPackageID(dctDataPkgIDsAndSubDirs, recurse: true);
@@ -232,6 +235,7 @@ namespace MyEMSLReader
         /// </summary>
         /// <param name="datasetID">Dataset ID</param>
         /// <returns>List of matched files</returns>
+        // ReSharper disable once UnusedMember.Global
         public List<ArchivedFileInfo> FindFilesByDatasetID(int datasetID)
         {
             return FindFilesByDatasetID(datasetID, subDir: "", recurse: true, instrumentName: "");
@@ -243,6 +247,7 @@ namespace MyEMSLReader
         /// <param name="datasetID">Dataset ID</param>
         /// <param name="subDir">Subdirectory name to filter on</param>
         /// <returns>List of matched files</returns>
+        // ReSharper disable once UnusedMember.Global
         public List<ArchivedFileInfo> FindFilesByDatasetID(int datasetID, string subDir)
         {
             return FindFilesByDatasetID(datasetID, subDir, recurse: true, instrumentName: "");
@@ -255,6 +260,7 @@ namespace MyEMSLReader
         /// <param name="subDir">Subdirectory name to filter on</param>
         /// <param name="recurse">True to recursively search for files</param>
         /// <returns>List of matched files</returns>
+        // ReSharper disable once UnusedMember.Global
         public List<ArchivedFileInfo> FindFilesByDatasetID(int datasetID, string subDir, bool recurse)
         {
             var instrumentName = string.Empty;
@@ -645,9 +651,9 @@ namespace MyEMSLReader
                 foreach (var subDir in currentSubDirList)
                 {
 
-                    var lstRequiredSubDirTree = subDir.Split(new char[] { '/', '\\' }).ToList();
+                    var lstRequiredSubDirTree = subDir.Split('/', '\\').ToList();
 
-                    var lstFileSubDirTree = file.SubDirPath.Split(new char[] { '/', '\\' }).ToList();
+                    var lstFileSubDirTree = file.SubDirPath.Split('/', '\\').ToList();
 
                     if (lstFileSubDirTree.Count >= lstRequiredSubDirTree.Count)
                     {
@@ -1343,15 +1349,9 @@ namespace MyEMSLReader
 
         }
 
-        protected override sealed void ResetStatus()
+        protected sealed override void ResetStatus()
         {
             base.ResetStatus();
-        }
-
-        internal Dictionary<string, object> RunElasticSearchQuery(List<KeyValuePair<string, string>> dctSearchTerms, int maxFileCount)
-        {
-            CookieContainer cookieJar = null;
-            return RunElasticSearchQuery(dctSearchTerms, maxFileCount, SearchOperator.And, ScanMode.SimpleSearch, ref cookieJar);
         }
 
         internal Dictionary<string, object> RunElasticSearchQuery(List<KeyValuePair<string, string>> dctSearchTerms, int maxFileCount, SearchOperator logicalOperator)
@@ -1603,18 +1603,15 @@ namespace MyEMSLReader
                 return dctResults;
 
             }
-            catch (System.Net.WebException ex)
+            catch (WebException ex)
             {
                 var response = ex.Response as HttpWebResponse;
 
-                if (response != null)
+                if (response?.StatusCode == HttpStatusCode.ServiceUnavailable)
                 {
-                    if (response.StatusCode == HttpStatusCode.ServiceUnavailable)
-                    {
-                        // MyEMSL is Offline
-                        ReportError("MyEMSL is offline", false);
-                        return dctResults;
-                    }
+                    // MyEMSL is Offline
+                    ReportError("MyEMSL is offline", false);
+                    return dctResults;
                 }
 
                 ReportError(
@@ -1709,7 +1706,7 @@ namespace MyEMSLReader
                 const int maxAttempts = 4;
                 Exception mostRecentException;
 
-                var urlWithQuery = URL + queryTerms.ToString();
+                var urlWithQuery = URL + queryTerms;
 
                 const bool allowEmptyResponseData = false;
                 const string postData = "";

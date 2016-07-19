@@ -3,10 +3,11 @@ using System.Linq;
 
 namespace MyEMSLReader
 {
-	/// <summary>
-	/// Tracks the dataset info for a single dataset (by dataset name)
-	/// </summary>
-	public class DatasetInfo : DatasetInfoBase
+    /// <summary>
+    /// Tracks the dataset info for a single dataset (by dataset name)
+    /// </summary>
+    [Obsolete("Valid, but unused")]
+    public class DatasetInfo : DatasetInfoBase
 	{
 
 		#region "Module variables"
@@ -18,23 +19,11 @@ namespace MyEMSLReader
 
 		#region "Properties"
 
-		public int DatasetID
-		{
-			get
-			{
-				return mDatasetID;
-			}
-		}
+		public int DatasetID => mDatasetID;
 
-		public string DatasetName
-		{
-			get
-			{
-				return mDatasetName;
-			}
-		}
+	    public string DatasetName => mDatasetName;
 
-		#endregion
+	    #endregion
 
 		/// <summary>
 		/// Constructor

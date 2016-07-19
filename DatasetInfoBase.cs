@@ -23,24 +23,22 @@ namespace MyEMSLReader
 
         #region "Module variables"
 
-        protected List<string> mErrorMessages;
+        protected readonly List<string> mErrorMessages;
         protected List<ArchivedFileInfo> mArchivedFiles;
 
         protected DateTime mCacheDate;
         protected bool mCacheIsStale;
 
-        protected DateTime mLastProgressWriteTime;
+        protected readonly Reader mReader;
 
-        protected Reader mReader;
-
-        protected DownloadQueue mDownloadQueue;
+        protected readonly DownloadQueue mDownloadQueue;
 
         private bool mUseTestInstance;
 
         /// <summary>
         /// The most recently downloaded files; keys are the full paths to the downloaded file, values are extended file info
         /// </summary>
-        protected Dictionary<string, ArchivedFileInfo> mDownloadedFiles;
+        protected readonly Dictionary<string, ArchivedFileInfo> mDownloadedFiles;
 
         // Do not search for * or ? because we treat those as filename wildcards
         private readonly Regex mReplaceReservedRegExChars;
@@ -61,13 +59,8 @@ namespace MyEMSLReader
         /// <value></value>
         /// <returns></returns>
         /// <remarks>Keys are the full paths to the downloaded file, values are extended file info</remarks>
-        public Dictionary<string, ArchivedFileInfo> DownloadedFiles
-        {
-            get
-            {
-                return mDownloadQueue.DownloadedFiles;
-            }
-        }
+        // ReSharper disable once UnusedMember.Global
+        public Dictionary<string, ArchivedFileInfo> DownloadedFiles => mDownloadQueue.DownloadedFiles;
 
         /// <summary>
         /// List of error messages
@@ -75,13 +68,8 @@ namespace MyEMSLReader
         /// <value></value>
         /// <returns></returns>
         /// <remarks>The messages are cleared by when these functions are called: ProcessDownloadQueue and RefreshInfo</remarks>
-        public List<string> ErrorMessages
-        {
-            get
-            {
-                return mErrorMessages;
-            }
-        }
+        // ReSharper disable once UnusedMember.Global
+        public List<string> ErrorMessages => mErrorMessages;
 
         /// <summary>
         /// MyEMSL IDs of files queued to be downloaded
@@ -89,20 +77,22 @@ namespace MyEMSLReader
         /// <value></value>
         /// <returns></returns>
         /// <remarks>Keys are MyEMSL File IDs, values are struct udtFileToDownload</remarks>
-        public Dictionary<Int64, DownloadQueue.udtFileToDownload> FilesToDownload
-        {
-            get
-            {
-                return mDownloadQueue.FilesToDownload;
-            }
-        }
+        // ReSharper disable once UnusedMember.Global
+        public Dictionary<Int64, DownloadQueue.udtFileToDownload> FilesToDownload => mDownloadQueue.FilesToDownload;
 
+        /// <summary>
+        /// When true, will always download files using the cart mechanism
+        /// </summary>
+        /// <remarks>ForceDownloadViaCart takes precedence over DisableCart</remarks>
+        public bool ForceDownloadViaCart { get; set; }
+        
         /// <summary>
         /// When False use https://my.emsl.pnl.gov/myemsl/elasticsearch/simple_items
         /// When True use  https://test0.my.emsl.pnl.gov/myemsl/search/simple/index.shtml
         /// </summary>
         public bool UseTestInstance
         {
+            // ReSharper disable once UnusedMember.Global
             get
             {
                 return mUseTestInstance;
@@ -140,8 +130,6 @@ namespace MyEMSLReader
             mDownloadQueue.ProgressEvent += OnProgressEvent;
             mDownloadQueue.FileDownloadedEvent += OnFileDownloadedEvent;
 
-            mLastProgressWriteTime = DateTime.UtcNow;
-
             mReplaceReservedRegExChars = new Regex(@"(?<Symbol>[\^\$\.\|\+\(\)\[\{\\])", RegexOptions.Compiled);
         }
 
@@ -162,6 +150,7 @@ namespace MyEMSLReader
         /// True if the file will need to be unzipped after the download 
         /// (this DLL will not unzip the file; it will simply include this in event FileDownloadedEventArgs)
         /// </param>
+        // ReSharper disable once MemberCanBeProtected.Global
         public void AddFileToDownloadQueue(ArchivedFileInfo fileInfo, bool unzipRequired)
         {
             mDownloadQueue.AddFileToDownloadQueue(fileInfo, unzipRequired);
@@ -177,6 +166,7 @@ namespace MyEMSLReader
         /// (this DLL will not unzip the file; it will simply include this in event FileDownloadedEventArgs)
         /// </param>
         /// <remarks>fileInfo can be null if unzipRequired is false</remarks>
+        // ReSharper disable once MemberCanBeProtected.Global
         public void AddFileToDownloadQueue(Int64 myEMSLFileID, ArchivedFileInfo fileInfo, bool unzipRequired)
         {
             mDownloadQueue.AddFileToDownloadQueue(myEMSLFileID, fileInfo, unzipRequired);
@@ -190,6 +180,7 @@ namespace MyEMSLReader
         /// <param name="unzipRequired">True if the file will need to be unzipped after the download (this DLL will not unzip the file; it will simply include this in event FileDownloadedEventArgs)</param>
         /// <param name="destFilePath">Explicit destination file path</param>
         /// <remarks>fileInfo can be null if unzipRequired is false</remarks>
+        // ReSharper disable once UnusedMember.Global
         public void AddFileToDownloadQueue(Int64 myEMSLFileID, ArchivedFileInfo fileInfo, bool unzipRequired, string destFilePath)
         {
             mDownloadQueue.AddFileToDownloadQueue(myEMSLFileID, fileInfo, unzipRequired, destFilePath);
@@ -202,6 +193,7 @@ namespace MyEMSLReader
         /// <param name="myEmslFileID">MyEMSL File ID</param>
         /// <returns>New path, for example QC_Shew_13-04_pt1_1_1_31Jul13_Cheetah_13-07-01.raw@MyEMSLID_84327</returns>
         /// <remarks></remarks>
+        // ReSharper disable once UnusedMember.Global
         public static string AppendMyEMSLFileID(string filePath, Int64 myEmslFileID)
         {
             return filePath + MYEMSL_FILEID_TAG + myEmslFileID.ToString(CultureInfo.InvariantCulture);
@@ -219,6 +211,7 @@ namespace MyEMSLReader
         /// <param name="filePath">Path to parse, for example QC_Shew_13-04_pt1_1_1_31Jul13_Cheetah_13-07-01.raw@MyEMSLID_84327</param>
         /// <returns>MyEMSL File ID if successfully parsed, 0 if not present or a problem</returns>
         /// <remarks></remarks>
+        // ReSharper disable once UnusedMember.Global
         public static Int64 ExtractMyEMSLFileID(string filePath)
         {
             string newFilePath;
@@ -304,6 +297,7 @@ namespace MyEMSLReader
         /// <param name="datasetName">Dataset name filter</param>
         /// <returns>List of matching files</returns>
         /// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
+        // ReSharper disable once UnusedMember.Global
         public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, string datasetName)
         {
             return FindFiles(fileName, subFolderName, datasetName, recurse: true);
@@ -334,6 +328,7 @@ namespace MyEMSLReader
         /// <param name="recurse">True to search all subfolders; false to only search the root folder (or only subFolderName)</param>
         /// <returns>List of matching files</returns>
         /// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
+        // ReSharper disable once MemberCanBeProtected.Global
         public List<DatasetFolderOrFileInfo> FindFiles(
             string fileName,
             string subFolderName,
@@ -468,6 +463,7 @@ namespace MyEMSLReader
         /// <param name="folderName">Folder name to find; can contain a wildcard, e.g. SIC*</param>
         /// <returns>List of matching folders</returns>
         /// <remarks></remarks>
+        // ReSharper disable once UnusedMember.Global
         public List<DatasetFolderOrFileInfo> FindFolders(string folderName)
         {
             var datasetName = string.Empty;
@@ -591,7 +587,7 @@ namespace MyEMSLReader
             mErrorMessages.Clear();
             mDownloadedFiles.Clear();
 
-            var success = mDownloadQueue.ProcessDownloadQueue(downloadFolderPath, folderLayout, DisableCart);
+            var success = mDownloadQueue.ProcessDownloadQueue(downloadFolderPath, folderLayout, DisableCart, ForceDownloadViaCart);
 
             if (success)
             {
@@ -603,6 +599,7 @@ namespace MyEMSLReader
 
         }
 
+        // ReSharper disable once MemberCanBeProtected.Global
         public abstract bool RefreshInfo();
 
         /// <summary>
@@ -610,6 +607,7 @@ namespace MyEMSLReader
         /// </summary>
         /// <returns>True if success, false if an error</returns>
         /// <remarks></remarks>
+        // ReSharper disable once UnusedMethodReturnValue.Local
         private bool RefreshInfoIfStale()
         {
             if (mCacheIsStale || DateTime.UtcNow.Subtract(mCacheDate).TotalMinutes >= CACHE_REFRESH_THRESHOLD_MINUTES)
@@ -622,7 +620,11 @@ namespace MyEMSLReader
 
         public event MessageEventHandler ErrorEvent;
         public event MessageEventHandler MessageEvent;
+        
+        // ReSharper disable once EventNeverSubscribedTo.Global
         public event ProgressEventHandler ProgressEvent;
+        
+        // ReSharper disable once EventNeverSubscribedTo.Global
         public event FileDownloadedEventHandler FileDownloadedEvent;
 
         #endregion
@@ -654,18 +656,12 @@ namespace MyEMSLReader
 
         private void OnProgressEvent(object sender, ProgressEventArgs e)
         {
-            if (ProgressEvent != null)
-            {
-                ProgressEvent(sender, e);
-            }
+            ProgressEvent?.Invoke(sender, e);
         }
 
         private void OnFileDownloadedEvent(object sender, FileDownloadedEventArgs e)
         {
-            if (FileDownloadedEvent != null)
-            {
-                FileDownloadedEvent(sender, e);
-            }
+            FileDownloadedEvent?.Invoke(sender, e);
         }
 
         #endregion

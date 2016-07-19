@@ -17,25 +17,28 @@ namespace MyEMSLReader
 			Or = 1
 		}
 
+	    // ReSharper disable once MemberCanBeProtected.Global
 		public bool ThrowErrors
 		{
 			get;
 			set;
 		}
 
-		#endregion
+        #endregion
 
-		#region "Properties"
+        #region "Properties"
 
-		public string ErrorMessage
+        // ReSharper disable once MemberCanBeProtected.Global
+        public string ErrorMessage
 		{
 			get;
 			private set;
 		}
 
-		#endregion
-	   
-		public static void GarbageCollectNow()
+        #endregion
+
+        // ReSharper disable once MemberCanBeProtected.Global
+        public static void GarbageCollectNow()
 		{
 			const int intMaxWaitTimeMSec = 1000;
 			GarbageCollectNow(intMaxWaitTimeMSec);
@@ -372,23 +375,21 @@ namespace MyEMSLReader
 		#region "Event Handlers"
 
         protected void OnErrorMessage(MessageEventArgs e)
-		{
-			if (ErrorEvent != null)
-				ErrorEvent(this, e);
-		}
+        {
+            ErrorEvent?.Invoke(this, e);
+        }
 
-        protected void OnMessage(MessageEventArgs e)
-		{
-			if (MessageEvent != null)
-				MessageEvent(this, e);
-		}
+	    protected void OnMessage(MessageEventArgs e)
+	    {
+	        MessageEvent?.Invoke(this, e);
+	    }
 
-        protected void OnProgressUpdate(ProgressEventArgs e)
-		{
-			if (ProgressEvent != null)
-				ProgressEvent(this, e);
-		}
-		#endregion
+	    protected void OnProgressUpdate(ProgressEventArgs e)
+	    {
+	        ProgressEvent?.Invoke(this, e);
+	    }
+
+	    #endregion
 	}
 
 }

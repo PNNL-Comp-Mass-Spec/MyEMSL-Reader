@@ -8,9 +8,14 @@ namespace MyEMSLReader
 
 	public class FileDownloadedEventArgs : EventArgs
 	{
+	    // ReSharper disable once NotAccessedField.Global
 		public readonly string DownloadFolderPath;
-		public readonly ArchivedFileInfo ArchivedFile;
-		public readonly bool UnzipRequired;
+
+        // ReSharper disable once NotAccessedField.Global
+        public readonly ArchivedFileInfo ArchivedFile;
+
+        // ReSharper disable once NotAccessedField.Global
+        public readonly bool UnzipRequired;
 
 		public FileDownloadedEventArgs(string downloadFolderPath,  ArchivedFileInfo archivedFile, bool unzipRequired)
 		{

@@ -318,7 +318,7 @@ namespace MyEMSLReader
 				}
 
 				// Extract the files from the .tar file
-				success = DownloadTarFileWithRetry(cookieJar, dctFiles.Keys.ToList(), lstFilesRemaining, bytesDownloaded, dctDestFilePathOverride, downloadFolderPath, folderLayout, tarFileURL, ref dctFilesDownloaded);
+				success = DownloadTarFileWithRetry(cookieJar, dctFiles.Keys.ToList(), bytesDownloaded, dctDestFilePathOverride, downloadFolderPath, folderLayout, tarFileURL);
 
 			}
 			catch (Exception ex)
@@ -835,13 +835,11 @@ namespace MyEMSLReader
 		private bool DownloadTarFileWithRetry(
 			CookieContainer cookieJar,
 			List<ArchivedFileInfo> lstFilesInArchive,
-			List<Int64> lstFilesRemaining,
 			Int64 bytesDownloaded,
 			Dictionary<Int64, string> dctDestFilePathOverride,
 			string downloadFolderPath,
 			DownloadFolderLayout folderLayout,
-			string tarFileURL,
-			ref Dictionary<Int64, string> dctFilesDownloaded)
+			string tarFileURL)
 		{
 			var success = false;
 
@@ -858,7 +856,7 @@ namespace MyEMSLReader
 					try
 					{
 						attempts++;
-						success = DownloadAndExtractTarFile(cookieJar, lstFilesInArchive, lstFilesRemaining, bytesDownloaded, dctDestFilePathOverride, downloadFolderPath, folderLayout, tarFileURL, ref dctFilesDownloaded, timeoutSeconds);
+						success = DownloadAndExtractTarFile(cookieJar, lstFilesInArchive, bytesDownloaded, dctDestFilePathOverride, downloadFolderPath, folderLayout, tarFileURL, timeoutSeconds);
 
 						if (!success)
 							break;
@@ -907,13 +905,11 @@ namespace MyEMSLReader
 		private bool DownloadAndExtractTarFile(
 			CookieContainer cookieJar,
 			List<ArchivedFileInfo> lstFilesInArchive,
-			List<Int64> lstFilesRemaining,
 			Int64 bytesDownloaded,
 			Dictionary<Int64, string> dctDestFilePathOverride,
 			string downloadFolderPath,
 			DownloadFolderLayout folderLayout,
 			string tarFileURL,
-			ref Dictionary<Int64, string> dctFilesDownloaded,
 			int timeoutSeconds = 100)
 		{
 			// The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
@@ -944,7 +940,7 @@ namespace MyEMSLReader
 				{
 					// Download the file and extract the files as the file is downloaded
 					// This way, the .tar file is never actually created on a local hard drive
-					// Code modeled after https://github.com/icsharpcode/SharpZipLib/wiki/GZip-and-Tar-Samples
+					// Code modelled after https://github.com/icsharpcode/SharpZipLib/wiki/GZip-and-Tar-Samples
 
 					var receiveStream = response.GetResponseStream();
 
@@ -1053,10 +1049,10 @@ namespace MyEMSLReader
                                     break;
                                 case DownloadFolderLayout.SingleDataset:
                                     downloadFilePath = sourceFile;
-                                    break;
-                                case DownloadFolderLayout.DatasetNameAndSubFolders:
-                                case DownloadFolderLayout.InstrumentYearQuarterDataset:
+                                    break;                                
                                 default:
+                                    // Includes: DownloadFolderLayout.DatasetNameAndSubFolders
+                                    // Includes: DownloadFolderLayout.InstrumentYearQuarterDataset
                                     ReportMessage("Warning, due to the missing MyEMSL FileID the DownloadFolderLayout cannot be honored");
                                     downloadFilePath = sourceFile;
                                     break;
@@ -1145,13 +1141,10 @@ namespace MyEMSLReader
 			}
 			finally
 			{
-				if (response != null)
-				{
-					((IDisposable)response).Dispose();
-				}
+			    ((IDisposable)response)?.Dispose();
 			}
 
-			return true;
+		    return true;
 		}
 
 		private bool FileMatchesHash(string localFilePath, string Sha1HashExpected)
@@ -1211,7 +1204,7 @@ namespace MyEMSLReader
 		{
 			var lstDatasetIDs = (from item in dctFiles
 								 group item by item.Key.DatasetID into g
-								 select g.Key).ToList<int>();
+								 select g.Key).ToList();
 			return lstDatasetIDs;
 		}
 
@@ -1347,7 +1340,7 @@ namespace MyEMSLReader
 		    return downloadFile;
 		}
 
-        protected override sealed void ResetStatus()
+        protected sealed override void ResetStatus()
 		{
 			base.ResetStatus();
 			DownloadCartState = CartState.NoCart;

@@ -71,6 +71,7 @@ namespace MyEMSLReader
 		/// Queue a file to be downloaded
 		/// </summary>
 		/// <param name="fileInfo">Archive File Info</param>
+		// ReSharper disable once UnusedMember.Global
 		public void AddFileToDownloadQueue(ArchivedFileInfo fileInfo)
 		{
 			AddFileToDownloadQueue(fileInfo.FileID, fileInfo, unzipRequired: false, destFilePath: string.Empty);
@@ -142,27 +143,20 @@ namespace MyEMSLReader
 			FilesToDownload.Clear();
 		}
 
-        /// <summary>
-        /// Retrieve queued files from MyEMSL
-        /// </summary>
-        /// <param name="downloadFolderPath">Target folder path (ignored for files defined in dctDestFilePathOverride)</param>
-        /// <param name="folderLayout">Folder Layout (ignored for files defined in dctDestFilePathOverride)</param>
-        /// <returns>True if success, false if an error</returns>
-        /// <remarks>Returns False if the download queue is empty</remarks>
-        public bool ProcessDownloadQueue(string downloadFolderPath, Downloader.DownloadFolderLayout folderLayout)
-	    {
-	        return ProcessDownloadQueue(downloadFolderPath, folderLayout, false);
-	    }
-
-        /// <summary>
+	    /// <summary>
         /// Retrieve queued files from MyEMSL
         /// </summary>
         /// <param name="downloadFolderPath">Target folder path (ignored for files defined in dctDestFilePathOverride)</param>
         /// <param name="folderLayout">Folder Layout (ignored for files defined in dctDestFilePathOverride)</param>
         /// <param name="disableCart">When true, will never download files using the cart mechanism</param>
+        /// <param name="forceDownloadViaCart">When true, will always download files using the cart mechanism</param>
         /// <returns>True if success, false if an error</returns>
         /// <remarks>Returns False if the download queue is empty</remarks>
-	    public bool ProcessDownloadQueue(string downloadFolderPath, Downloader.DownloadFolderLayout folderLayout, bool disableCart)
+	    public bool ProcessDownloadQueue(
+            string downloadFolderPath, 
+            Downloader.DownloadFolderLayout folderLayout, 
+            bool disableCart = false, 
+            bool forceDownloadViaCart = false)
 		{
 
 			if (FilesToDownload.Count == 0)
@@ -181,8 +175,9 @@ namespace MyEMSLReader
 				downloader.ProgressEvent += OnProgressEvent;
 
                 downloader.DisableCart = disableCart;
+			    downloader.ForceDownloadViaCart = forceDownloadViaCart;
 
-			    downloader.UseTestInstance = UseTestInstance;
+                downloader.UseTestInstance = UseTestInstance;
 
 				var dctDestFilePathOverride = new Dictionary<Int64, string>();
 				
@@ -202,12 +197,9 @@ namespace MyEMSLReader
 
 					foreach (var file in FilesToDownload)
 					{
-						if (FileDownloadedEvent != null)
-						{
-							FileDownloadedEvent(this, new FileDownloadedEventArgs(downloadFolderPath, file.Value.FileInfo, file.Value.UnzipRequired));
-						}
+					    FileDownloadedEvent?.Invoke(this, new FileDownloadedEventArgs(downloadFolderPath, file.Value.FileInfo, file.Value.UnzipRequired));
 					}
-					FilesToDownload.Clear();
+				    FilesToDownload.Clear();
 
 				}
 
@@ -224,34 +216,25 @@ namespace MyEMSLReader
 		#region "Event handlers"
 
         private void OnError(string errorMessage)
-		{
-			if (ErrorEvent != null)
-			{
-				ErrorEvent(this, new MessageEventArgs(errorMessage));
-			}
-		}
+        {
+            ErrorEvent?.Invoke(this, new MessageEventArgs(errorMessage));
+        }
 
-		private void OnErrorEvent(object sender, MessageEventArgs e)
+	    private void OnErrorEvent(object sender, MessageEventArgs e)
 		{
 			OnError("MyEMSL downloader error in MyEMSLReader.DownloadQueue: " + e.Message);
 		}
 
 		private void OnMessageEvent(object sender, MessageEventArgs e)
 		{
-			if (MessageEvent != null)
-			{
-				MessageEvent(this, new MessageEventArgs("MyEMSL downloader: " + e.Message));
-			}
+		    MessageEvent?.Invoke(this, new MessageEventArgs("MyEMSL downloader: " + e.Message));
 		}
 
-		private void OnProgressEvent(object sender, ProgressEventArgs e)
-		{
-			if (ProgressEvent != null)
-			{
-				ProgressEvent(sender, e);
-			}
-		}
+	    private void OnProgressEvent(object sender, ProgressEventArgs e)
+	    {
+	        ProgressEvent?.Invoke(sender, e);
+	    }
 
-		#endregion
+	    #endregion
 	}
 }

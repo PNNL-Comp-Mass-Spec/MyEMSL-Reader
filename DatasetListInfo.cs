@@ -23,24 +23,14 @@ namespace MyEMSLReader
         /// <summary>
         /// Dataset names
         /// </summary>
-        public List<string> Datasets
-        {
-            get
-            {
-                return mDatasetsAndSubDirLists.Keys.ToList();
-            }
-        }
+        // ReSharper disable once UnusedMember.Global
+        public List<string> Datasets => mDatasetsAndSubDirLists.Keys.ToList();
 
         /// <summary>
         /// Keys are dataset names, values are a list of subdirectory names to filter on for the given dataset (empty string means do not filter)
         /// </summary>
-        public Dictionary<string, SortedSet<string>> DatasetsAndSubDirs
-        {
-            get
-            {
-                return mDatasetsAndSubDirLists;
-            }
-        }
+        // ReSharper disable once UnusedMember.Global
+        public Dictionary<string, SortedSet<string>> DatasetsAndSubDirs => mDatasetsAndSubDirLists;
 
         #endregion
 
@@ -95,12 +85,14 @@ namespace MyEMSLReader
             }
         }
 
+        // ReSharper disable once UnusedMember.Global
         public void Clear()
         {
             mDatasetsAndSubDirLists.Clear();
             mCacheIsStale = true;
         }
 
+        // ReSharper disable once UnusedMember.Global
         public bool ContainsDataset(string datasetName)
         {
             return mDatasetsAndSubDirLists.ContainsKey(datasetName);

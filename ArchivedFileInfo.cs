@@ -114,27 +114,17 @@ namespace MyEMSLReader
 		/// Relative path to the file, including the dataset name
 		/// </summary>
 		/// <remarks>Uses Unix-style slashes</remarks>
-		public string PathWithDatasetUnix
-		{
-			get
-			{
-				return PathWithDataset.Replace(@"\", "/");
-			}
-		}
+		// ReSharper disable once UnusedMember.Global
+		public string PathWithDatasetUnix => PathWithDataset.Replace(@"\", "/");
 
-		/// <summary>
+	    /// <summary>
 		/// Relative path to the file, including the instrument, year_quarter, and dataset
 		/// </summary>
 		/// <remarks>Uses Unix-style slashes</remarks>
-		public string PathWithInstrumentAndDatasetUnix
-		{
-			get
-			{
-				return PathWithInstrumentAndDatasetWindows.Replace(@"\", "/");
-			}
-		}
+	    // ReSharper disable once UnusedMember.Global
+		public string PathWithInstrumentAndDatasetUnix => PathWithInstrumentAndDatasetWindows.Replace(@"\", "/");
 
-		/// <summary>
+	    /// <summary>
 		/// Relative path to the file, including the instrument, year_quarter, and dataset
 		/// </summary>
 		/// <remarks>Uses Windows-style slashes.  Note that instrument IMS_TOF_4 was renamed to IMS04_AgTOF05 in 2013, and thus there are datasets with files associated with both instruments in MyEMSL</remarks>
@@ -160,16 +150,9 @@ namespace MyEMSLReader
 		/// Path to the file, relative to the dataset folder
 		/// </summary>
 		/// <remarks>Uses Unix-style slashes</remarks>
-		public string RelativePathUnix
-		{
-			get
-			{
-				return RelativePathWindows.Replace(@"\", "/");
-				
-			}
-		}
+		public string RelativePathUnix => RelativePathWindows.Replace(@"\", "/");
 
-		/// <summary>
+	    /// <summary>
 		/// Path to the file, relative to the dataset folder
 		/// </summary>
 		/// <remarks>Uses Windows-style slashes</remarks>
@@ -222,23 +205,13 @@ namespace MyEMSLReader
 			}			
 		}
 
-		public string SubmissionTimeODBC
-		{
-			get 
-			{
-				return SubmissionTimeValue.ToString("yyyy-MM-dd HH:mm:ss");
-			}
-		}
+	    // ReSharper disable once UnusedMember.Global
+		public string SubmissionTimeODBC => SubmissionTimeValue.ToString("yyyy-MM-dd HH:mm:ss");
 
-		public string SubmissionTimeODBC12hr
-		{
-			get
-			{
-				return SubmissionTimeValue.ToString("yyyy-MM-dd hh:mm:ss tt");
-			}
-		}
-		
-		/// <summary>
+	    // ReSharper disable once UnusedMember.Global
+	    public string SubmissionTimeODBC12hr => SubmissionTimeValue.ToString("yyyy-MM-dd hh:mm:ss tt");
+
+	    /// <summary>
 		/// MyEMSL transaction ID for this specific file
 		/// </summary>
 		/// <remarks>Incremented for every newly uploaded bundle (.tar file), and thus a good substitute for dates when comparing two files to see which is newer</remarks>
