@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,105 +10,105 @@ namespace MyEMSLReader
     /// 
     [Obsolete("Valid, but unused")]
     public class DatasetListInfoByID : DatasetInfoBase
-	{
-		#region "Module variables"
-
-		/// <summary>
-		/// Keys are dataset IDs, values are the optional Subdirectory name to filter on for the given dataset
-		/// </summary>
-		private readonly Dictionary<int, string> mDatasetsAndSubDirs;
-
-		#endregion
-
-		#region "Properties"
-
-		/// <summary>
-		/// Dataset IDs
-		/// </summary>
-		public List<int> DatasetIDs => mDatasetsAndSubDirs.Keys.ToList();
+    {
+        #region "Module variables"
 
         /// <summary>
-		/// Keys are dataset IDs, values are the optional Subdirectory name to filter on for the given dataset
-		/// </summary>
-		public Dictionary<int, string> DatasetsAndSubDirs => mDatasetsAndSubDirs;
+        /// Keys are dataset IDs, values are the optional Subdirectory name to filter on for the given dataset
+        /// </summary>
+        private readonly Dictionary<int, string> mDatasetsAndSubDirs;
 
         #endregion
 
-		/// <summary>
-		/// Constructor
-		/// </summary>
-		public DatasetListInfoByID()
-		{
-			mDatasetsAndSubDirs = new Dictionary<int, string>();
-		}
+        #region "Properties"
 
-		/// <summary>
-		/// Add a dataset ID to search for in MyEMSL
-		/// </summary>
-		/// <param name="datasetID">Dataset ID</param>
-		public void AddDataset(int datasetID)
-		{
-			AddDataset(datasetID, string.Empty);
-		}
+        /// <summary>
+        /// Dataset IDs
+        /// </summary>
+        public List<int> DatasetIDs => mDatasetsAndSubDirs.Keys.ToList();
 
-		/// <summary>
-		/// Add a dataset ID to search for in MyEMSL
-		/// </summary>
-		/// <param name="datasetID">Dataset ID</param>
-		/// <param name="subDir">Subdirectory name to filter on</param>
-		public void AddDataset(int datasetID, string subDir)
-		{
-			if (string.IsNullOrWhiteSpace(subDir))
-				subDir = string.Empty;
+        /// <summary>
+        /// Keys are dataset IDs, values are the optional Subdirectory name to filter on for the given dataset
+        /// </summary>
+        public Dictionary<int, string> DatasetsAndSubDirs => mDatasetsAndSubDirs;
 
-			if (mDatasetsAndSubDirs.Keys.Contains(datasetID))
-				mDatasetsAndSubDirs[datasetID] = subDir;
-			else
-			{
-				mDatasetsAndSubDirs.Add(datasetID, subDir);
-				mCacheIsStale = true;
-			}
-		}
+        #endregion
 
-		public void Clear()
-		{
-			mDatasetsAndSubDirs.Clear();
-			mCacheIsStale = true;
-		}
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public DatasetListInfoByID()
+        {
+            mDatasetsAndSubDirs = new Dictionary<int, string>();
+        }
 
-		public bool ContainsDataset(int datasetID)
-		{
-			return mDatasetsAndSubDirs.ContainsKey(datasetID);
-		}
+        /// <summary>
+        /// Add a dataset ID to search for in MyEMSL
+        /// </summary>
+        /// <param name="datasetID">Dataset ID</param>
+        public void AddDataset(int datasetID)
+        {
+            AddDataset(datasetID, string.Empty);
+        }
 
-		public override bool RefreshInfo()
-		{
+        /// <summary>
+        /// Add a dataset ID to search for in MyEMSL
+        /// </summary>
+        /// <param name="datasetID">Dataset ID</param>
+        /// <param name="subDir">Subdirectory name to filter on</param>
+        public void AddDataset(int datasetID, string subDir)
+        {
+            if (string.IsNullOrWhiteSpace(subDir))
+                subDir = string.Empty;
 
-			try
-			{
-				mErrorMessages.Clear();
+            if (mDatasetsAndSubDirs.Keys.Contains(datasetID))
+                mDatasetsAndSubDirs[datasetID] = subDir;
+            else
+            {
+                mDatasetsAndSubDirs.Add(datasetID, subDir);
+                mCacheIsStale = true;
+            }
+        }
 
-				mArchivedFiles = mReader.FindFilesByDatasetID(mDatasetsAndSubDirs, recurse: true);
-				mCacheDate = DateTime.UtcNow;
-				mCacheIsStale = false;
+        public void Clear()
+        {
+            mDatasetsAndSubDirs.Clear();
+            mCacheIsStale = true;
+        }
 
-				if (mArchivedFiles.Count == 0)
-				{
-					if (mErrorMessages.Count == 0)
-						return true;
-					
-					return false;
-				}
+        public bool ContainsDataset(int datasetID)
+        {
+            return mDatasetsAndSubDirs.ContainsKey(datasetID);
+        }
 
-				return true;
+        public override bool RefreshInfo()
+        {
 
-			}
-			catch (Exception ex)
-			{
-				mErrorMessages.Add("Error in MyEMSLReader.DatasetListInfoByID.RefreshInfo: " + ex.Message);
-				return false;
-			}
-		}
+            try
+            {
+                mErrorMessages.Clear();
 
-	}
+                mArchivedFiles = mReader.FindFilesByDatasetID(mDatasetsAndSubDirs, recurse: true);
+                mCacheDate = DateTime.UtcNow;
+                mCacheIsStale = false;
+
+                if (mArchivedFiles.Count == 0)
+                {
+                    if (mErrorMessages.Count == 0)
+                        return true;
+                    
+                    return false;
+                }
+
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                mErrorMessages.Add("Error in MyEMSLReader.DatasetListInfoByID.RefreshInfo: " + ex.Message);
+                return false;
+            }
+        }
+
+    }
 }

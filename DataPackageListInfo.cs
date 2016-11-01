@@ -1,146 +1,146 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace MyEMSLReader
 {
-	/// <summary>
-	/// Tracks the file info for multiple data packages (by dataset ID)
-	/// </summary>
-	public class DataPackageListInfo : DatasetInfoBase
-	{
-		#region "Module variables"
+    /// <summary>
+    /// Tracks the file info for multiple data packages (by dataset ID)
+    /// </summary>
+    public class DataPackageListInfo : DatasetInfoBase
+    {
+        #region "Module variables"
 
-		/// <summary>
-		/// Keys are data package IDs, values are the optional Subdirectory name to filter on for the given data package
-		/// </summary>
+        /// <summary>
+        /// Keys are data package IDs, values are the optional Subdirectory name to filter on for the given data package
+        /// </summary>
         private readonly Dictionary<int, string> mDataPackagesAndSubDirs;
 
-		#endregion
+        #endregion
 
-		#region "Properties"
+        #region "Properties"
 
-		/// <summary>
-		/// Dataset IDs
-		/// </summary>
-		// ReSharper disable once UnusedMember.Global
-		public List<int> DataPackageIDs => mDataPackagesAndSubDirs.Keys.ToList();
+        /// <summary>
+        /// Dataset IDs
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public List<int> DataPackageIDs => mDataPackagesAndSubDirs.Keys.ToList();
 
-	    /// <summary>
-		/// Keys are data package IDs, values are the optional Subdirectory name to filter on for the given data package
-		/// </summary>
-	    // ReSharper disable once UnusedMember.Global
-		public Dictionary<int, string> DataPackagesAndSubDirs => mDataPackagesAndSubDirs;
+        /// <summary>
+        /// Keys are data package IDs, values are the optional Subdirectory name to filter on for the given data package
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
+        public Dictionary<int, string> DataPackagesAndSubDirs => mDataPackagesAndSubDirs;
 
-	    #endregion
+        #endregion
 
-		/// <summary>
-		/// Constructor
-		/// </summary>
-		public DataPackageListInfo()
-		{
-			mDataPackagesAndSubDirs = new Dictionary<int, string>();
-		}
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public DataPackageListInfo()
+        {
+            mDataPackagesAndSubDirs = new Dictionary<int, string>();
+        }
 
-		/// <summary>
-		/// Add a data package ID to search for in MyEMSL
-		/// </summary>
-		/// <param name="dataPackageID">Data Package ID ID</param>
-		public void AddDataPackage(int dataPackageID)
-		{
-			AddDataPackage(dataPackageID, string.Empty);
-		}
+        /// <summary>
+        /// Add a data package ID to search for in MyEMSL
+        /// </summary>
+        /// <param name="dataPackageID">Data Package ID ID</param>
+        public void AddDataPackage(int dataPackageID)
+        {
+            AddDataPackage(dataPackageID, string.Empty);
+        }
 
-		/// <summary>
-		/// Add a dataset ID to search for in MyEMSL
-		/// </summary>
-		/// <param name="dataPackageID">Data Package ID</param>
-		/// <param name="subDir">Subdirectory name to filter on</param>
-		public void AddDataPackage(int dataPackageID, string subDir)
-		{
-			if (string.IsNullOrWhiteSpace(subDir))
-				subDir = string.Empty;
+        /// <summary>
+        /// Add a dataset ID to search for in MyEMSL
+        /// </summary>
+        /// <param name="dataPackageID">Data Package ID</param>
+        /// <param name="subDir">Subdirectory name to filter on</param>
+        public void AddDataPackage(int dataPackageID, string subDir)
+        {
+            if (string.IsNullOrWhiteSpace(subDir))
+                subDir = string.Empty;
 
-			if (mDataPackagesAndSubDirs.Keys.Contains(dataPackageID))
-				mDataPackagesAndSubDirs[dataPackageID] = subDir;
-			else
-			{
-				mDataPackagesAndSubDirs.Add(dataPackageID, subDir);
-				mCacheIsStale = true;
-			}
-		}
+            if (mDataPackagesAndSubDirs.Keys.Contains(dataPackageID))
+                mDataPackagesAndSubDirs[dataPackageID] = subDir;
+            else
+            {
+                mDataPackagesAndSubDirs.Add(dataPackageID, subDir);
+                mCacheIsStale = true;
+            }
+        }
 
-	    // ReSharper disable once UnusedMember.Global
-		public void Clear()
-		{
-			mDataPackagesAndSubDirs.Clear();
-			mCacheIsStale = true;
-		}
+        // ReSharper disable once UnusedMember.Global
+        public void Clear()
+        {
+            mDataPackagesAndSubDirs.Clear();
+            mCacheIsStale = true;
+        }
 
-	    // ReSharper disable once UnusedMember.Global
-		public bool ContainsDataPackage(int dataPackageID)
-		{
-			return mDataPackagesAndSubDirs.ContainsKey(dataPackageID);
-		}
+        // ReSharper disable once UnusedMember.Global
+        public bool ContainsDataPackage(int dataPackageID)
+        {
+            return mDataPackagesAndSubDirs.ContainsKey(dataPackageID);
+        }
 
-		/// <summary>
-		/// Looks for the given file, returning any matches as a list (searches this folder and subfolders)
-		/// </summary>
-		/// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
-		/// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
-		/// <param name="dataPackageID">Data Package ID filter</param>
-		/// <returns>List of matching files</returns>
-		/// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
-		// ReSharper disable once UnusedMember.Global
-		public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, int dataPackageID)
-		{
-			return FindFiles(fileName, subFolderName, dataPackageID, recurse: true);
-		}
+        /// <summary>
+        /// Looks for the given file, returning any matches as a list (searches this folder and subfolders)
+        /// </summary>
+        /// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
+        /// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
+        /// <param name="dataPackageID">Data Package ID filter</param>
+        /// <returns>List of matching files</returns>
+        /// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
+        // ReSharper disable once UnusedMember.Global
+        public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, int dataPackageID)
+        {
+            return FindFiles(fileName, subFolderName, dataPackageID, recurse: true);
+        }
 
-		/// <summary>
-		/// Looks for the given file, returning any matches as a list
-		/// </summary>
-		/// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
-		/// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
-		/// <param name="dataPackageID">Data Package ID filter</param>
-		/// <param name="recurse">True to search all subfolders; false to only search the root folder (or only subFolderName)</param>
-		/// <returns>List of matching files</returns>
-		/// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
-		public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, int dataPackageID, bool recurse)
-		{
-			var datasetName = string.Empty;
+        /// <summary>
+        /// Looks for the given file, returning any matches as a list
+        /// </summary>
+        /// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
+        /// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
+        /// <param name="dataPackageID">Data Package ID filter</param>
+        /// <param name="recurse">True to search all subfolders; false to only search the root folder (or only subFolderName)</param>
+        /// <returns>List of matching files</returns>
+        /// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
+        public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, int dataPackageID, bool recurse)
+        {
+            var datasetName = string.Empty;
 
-			return FindFiles(fileName, subFolderName, datasetName, dataPackageID, recurse);
-		}
+            return FindFiles(fileName, subFolderName, datasetName, dataPackageID, recurse);
+        }
 
-		public override bool RefreshInfo()
-		{
+        public override bool RefreshInfo()
+        {
 
-			try
-			{
-				mErrorMessages.Clear();
+            try
+            {
+                mErrorMessages.Clear();
 
-				mArchivedFiles = mReader.FindFilesByDataPackageID(mDataPackagesAndSubDirs, recurse: true);
-				mCacheDate = DateTime.UtcNow;
-				mCacheIsStale = false;
+                mArchivedFiles = mReader.FindFilesByDataPackageID(mDataPackagesAndSubDirs, recurse: true);
+                mCacheDate = DateTime.UtcNow;
+                mCacheIsStale = false;
 
-				if (mArchivedFiles.Count == 0)
-				{
-					if (mErrorMessages.Count == 0)
-						return true;
-					
-					return false;
-				}
+                if (mArchivedFiles.Count == 0)
+                {
+                    if (mErrorMessages.Count == 0)
+                        return true;
+                    
+                    return false;
+                }
 
-				return true;
+                return true;
 
-			}
-			catch (Exception ex)
-			{
-				mErrorMessages.Add("Error in MyEMSLReader.DatasetPackageListInfo.RefreshInfo: " + ex.Message);
-				return false;
-			}
-		}
+            }
+            catch (Exception ex)
+            {
+                mErrorMessages.Add("Error in MyEMSLReader.DatasetPackageListInfo.RefreshInfo: " + ex.Message);
+                return false;
+            }
+        }
 
-	}
+    }
 }

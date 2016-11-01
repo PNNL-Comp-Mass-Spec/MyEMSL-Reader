@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -729,11 +729,11 @@ namespace MyEMSLDownloader
             var lstFileIDs = new List<long>();
 
             var dctDatasetsAndSubDirs = new Dictionary<string, string>
-			{
-				// {"SWT_LCQData_300", "SIC201309041722_Auto976603"},
-				{"SysVirol_IFL001_10xA_07_11Sep13_Tiger_13-07-36", "SIC201309112159_Auto977994"},
-				{"SysVirol_IFL001_10xA_08_11Sep13_Tiger_13-07-34", ""}
-			};
+            {
+                // {"SWT_LCQData_300", "SIC201309041722_Auto976603"},
+                {"SysVirol_IFL001_10xA_07_11Sep13_Tiger_13-07-36", "SIC201309112159_Auto977994"},
+                {"SysVirol_IFL001_10xA_08_11Sep13_Tiger_13-07-34", ""}
+            };
 
             try
             {
@@ -778,9 +778,9 @@ namespace MyEMSLDownloader
         private static List<long> TestOneDatasetByID(Reader reader)
         {
             var dctDatasetsAndSubDirs = new Dictionary<int, string>
-			{
-				{382287, ""}
-			};
+            {
+                {382287, ""}
+            };
 
             var lstFileIDs = TestDatasetByID(reader, dctDatasetsAndSubDirs);
 
@@ -790,11 +790,11 @@ namespace MyEMSLDownloader
         static List<long> TestMultiDatasetID(Reader reader)
         {
             var dctDatasetsAndSubDirs = new Dictionary<int, string>
-			{
-				{54007, "SIC201309041722_Auto976603"},
-				{334448, "SIC201309112159_Auto977994"},
-				{334455, ""}
-			};
+            {
+                {54007, "SIC201309041722_Auto976603"},
+                {334448, "SIC201309112159_Auto977994"},
+                {334455, ""}
+            };
 
             var lstFileIDs = TestDatasetByID(reader, dctDatasetsAndSubDirs);
 

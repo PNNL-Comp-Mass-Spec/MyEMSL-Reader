@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -183,9 +183,9 @@ namespace MyEMSLReader
         public List<ArchivedFileInfo> FindFilesByDataPackageID(int dataPkgID, string subDir, bool recurse)
         {
             var dctSearchTerms = new List<KeyValuePair<string, string>>
-			{
-				new KeyValuePair<string, string>(QUERY_SPEC_DATA_PACKAGE_ID, dataPkgID.ToString(CultureInfo.InvariantCulture))
-			};
+            {
+                new KeyValuePair<string, string>(QUERY_SPEC_DATA_PACKAGE_ID, dataPkgID.ToString(CultureInfo.InvariantCulture))
+            };
 
             var dctDatasetsAndSubDirLists = GetSingleItemSortedSetDictionary(DATA_PKG_ID_TAG + dataPkgID, subDir);
 
@@ -278,9 +278,9 @@ namespace MyEMSLReader
         public List<ArchivedFileInfo> FindFilesByDatasetID(int datasetID, string subDir, bool recurse, string instrumentName)
         {
             var dctSearchTerms = new List<KeyValuePair<string, string>>
-			{
-				new KeyValuePair<string, string>(QUERY_SPEC_DATASET_ID, datasetID.ToString(CultureInfo.InvariantCulture))
-			};
+            {
+                new KeyValuePair<string, string>(QUERY_SPEC_DATASET_ID, datasetID.ToString(CultureInfo.InvariantCulture))
+            };
 
             var dctDatasetsAndSubDirLists = GetSingleItemSortedSetDictionary(DATASET_ID_TAG + datasetID, subDir);
 
@@ -367,9 +367,9 @@ namespace MyEMSLReader
         {
 
             var dctSearchTerms = new List<KeyValuePair<string, string>>
-			{
-				new KeyValuePair<string, string>(QUERY_SPEC_DATASET_NAME, datasetName)
-			};
+            {
+                new KeyValuePair<string, string>(QUERY_SPEC_DATASET_NAME, datasetName)
+            };
 
             var dctDatasetsAndSubDirLists = GetSingleItemSortedSetDictionary(datasetName, subDir);
 
@@ -1656,7 +1656,7 @@ namespace MyEMSLReader
             try
             {
                 var queryTerms = new StringBuilder();
-				
+                
                 switch (logicalOperator)
                 {
                     case SearchOperator.And:
@@ -1671,10 +1671,10 @@ namespace MyEMSLReader
 
                 foreach (var searchTerm in dctSearchTerms)
                 {
-	                var keyWord = searchTerm.Key;
-	                if (keyWord.StartsWith("groups."))
-	                	keyWord = keyWord.Substring(7);
-	                	
+                    var keyWord = searchTerm.Key;
+                    if (keyWord.StartsWith("groups."))
+                        keyWord = keyWord.Substring(7);
+                        
                     queryTerms.Append("/" + keyWord + "/" + searchTerm.Value);
                 }
 
@@ -1699,7 +1699,7 @@ namespace MyEMSLReader
                     Configuration.UseTestInstance = UseTestInstance;
                 }
               
-				// Expected url: https://dev1.my.emsl.pnl.gov/myemsl/status/index.php/api/item_search/
+                // Expected url: https://dev1.my.emsl.pnl.gov/myemsl/status/index.php/api/item_search/
                 var URL = Configuration.ItemSearchUri;
 
                 string responseData;
