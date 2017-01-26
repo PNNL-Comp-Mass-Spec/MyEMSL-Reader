@@ -9,16 +9,16 @@ to preview the files that will be downloaded.
 == Details ==
 
 Program syntax #1:
-MyEMSLDownloader.exe DatasetName [SubFolderName] [/Files:FileMask] [/O:OutputFolder]
-                     [/D] [/Preview] [/V] [/DisableCart] [/ForceCart] [/UseTest]
+MyEMSLDownloader.exe DatasetName [SubFolderName] [/Files:FileMask] [/FileSplit]
+                     [/O:OutputFolder] [/D] [/Preview] [/V] [/DisableCart] [/ForceCart] [/UseTest]
 
 Program syntax #2:
-MyEMSLDownloader.exe /Dataset:DatasetName [/SubDir:SubFolderName] [/Files:FileMask] [/O:OutputFolder]
-                     [/D] [/Preview] [/V] [/DisableCart] [/ForceCart] [/UseTest]
+MyEMSLDownloader.exe /Dataset:DatasetName [/SubDir:SubFolderName] [/Files:FileMask] [/FileSplit]
+                     [/O:OutputFolder] [/D] [/Preview] [/V] [/DisableCart] [/ForceCart] [/UseTest]
 
 Program syntax #3:
-MyEMSLDownloader.exe /DataPkg:DataPackageID [/SubDir:SubFolderName] [/Files:FileMask] [/O:OutputFolder]
-                     [/Preview] [/V] [/DisableCart] [/ForceCart] [/UseTest]
+MyEMSLDownloader.exe /DataPkg:DataPackageID [/SubDir:SubFolderName] [/Files:FileMask] [/FileSplit]
+                     [/O:OutputFolder] [/Preview] [/V] [/DisableCart] [/ForceCart] [/UseTest]
 
 Program syntax #4:
 MyEMSLDownloader.exe /FileList:FileInfoFile.txt [/O:OutputFolder]
@@ -32,6 +32,9 @@ The names can be entered separated by spaces, or using /Dataset plus optionally 
 
 Use /Files to filter for specific files, for example /Files:*.txt
 Files will be downloaded to the folder with the .exe; override using /O
+Use /FileSplit to indicate that /Files contains a list of filenames and/or file specs, separated by semicolons
+For example, use /Files:analysis.baf;ser /FileSplit
+
 Use /D to create a folder with the dataset name, then store the files within that folder
 
 Use /DataPkg to retrieve files from a specific data package

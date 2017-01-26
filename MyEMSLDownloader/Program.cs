@@ -15,7 +15,7 @@ namespace MyEMSLDownloader
 
     internal static class Program
     {
-        private const string PROGRAM_DATE = "July 19, 2016";
+        private const string PROGRAM_DATE = "January 25, 2017";
 
         static double mPercentComplete;
         static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
@@ -23,7 +23,22 @@ namespace MyEMSLDownloader
         private static string mDatasetName;
         private static int mDataPkgID;
         private static string mSubfolder;
+
+        /// <summary>
+        /// File spec for finding files
+        /// </summary>
+        /// <remarks>
+        /// Single file name or a file spec like *.txt
+        /// Specify a list of names and/or specs by separating with a semicolon and using switch /FileSplit
+        /// For example: analysis.baf|ser
+        /// </remarks>
         private static string mFileMask;
+
+        /// <summary>
+        /// Set to true to indicate that mFileMask contains a semicolon-separated list of file names and/or file specs
+        /// </summary>
+        private static bool mFileSplit;
+
         private static string mFileListPath;
         private static string mOutputFolderPath;
 
@@ -47,6 +62,7 @@ namespace MyEMSLDownloader
             mDataPkgID = 0;
             mSubfolder = string.Empty;
             mFileMask = string.Empty;
+            mFileSplit = false;
             mOutputFolderPath = string.Empty;
 
             mMultiDatasetMode = false;
@@ -97,12 +113,12 @@ namespace MyEMSLDownloader
                 List<DatasetFolderOrFileInfo> archiveFiles;
 
                 if (mDataPkgID > 0)
-                    archiveFiles = FindDataPkgFiles(mDataPkgID, mSubfolder, mFileMask);
+                    archiveFiles = FindDataPkgFiles(mDataPkgID, mSubfolder, mFileMask, mFileSplit);
                 else
                 {
                     if (string.IsNullOrWhiteSpace(mFileListPath))
                     {
-                        archiveFiles = FindDatasetFiles(mDatasetName, mSubfolder, mFileMask);
+                        archiveFiles = FindDatasetFiles(mDatasetName, mSubfolder, mFileMask, mFileSplit);
                     }
                     else
                     {
@@ -221,10 +237,22 @@ namespace MyEMSLDownloader
 
         }
 
+        /// <summary>
+        /// Find files for the given dataset
+        /// </summary>
+        /// <param name="datasetName">Dataset name</param>
+        /// <param name="subfolder">Subfolder to filter on (optional)</param>
+        /// <param name="fileMask">File name or file spec like *.txt to filter on (optional)</param>
+        /// <returns></returns>
+        /// <remarks>
+        /// For fileMask, specify a list of names and/or specs by separating with a vertical bar
+        /// For example: analysis.baf|ser
+        /// </remarks>
         private static List<DatasetFolderOrFileInfo> FindDatasetFiles(
             string datasetName,
             string subfolder,
-            string fileMask)
+            string fileMask,
+            bool fileSplit)
         {
 
             mDatasetListInfo.AddDataset(datasetName, subfolder);
@@ -232,19 +260,23 @@ namespace MyEMSLDownloader
             if (string.IsNullOrEmpty(fileMask))
                 fileMask = "*";
 
-            var archiveFiles = mDatasetListInfo.FindFiles(fileMask, subfolder, datasetName, true);
+            var archiveFiles = mDatasetListInfo.FindFiles(fileMask, subfolder, datasetName, true, fileSplit);
 
             return archiveFiles;
         }
 
-        private static List<DatasetFolderOrFileInfo> FindDataPkgFiles(int dataPkgID, string subfolder, string fileMask)
+        private static List<DatasetFolderOrFileInfo> FindDataPkgFiles(
+            int dataPkgID, 
+            string subfolder, 
+            string fileMask, 
+            bool fileSplit)
         {
             mDataPackageListInfo.AddDataPackage(dataPkgID);
 
             if (string.IsNullOrEmpty(fileMask))
                 fileMask = "*";
 
-            var archiveFiles = mDataPackageListInfo.FindFiles(fileMask, subfolder);
+            var archiveFiles = mDataPackageListInfo.FindFiles(fileMask, subfolder, true, fileSplit);
 
             return archiveFiles;
         }
@@ -333,7 +365,7 @@ namespace MyEMSLDownloader
                 {
                     foreach (var fileToFind in dataset.Value)
                     {
-                        var archiveFilesToAdd = FindDatasetFiles(dataset.Key, fileToFind.SubDir, fileToFind.FileMask).ToList();
+                        var archiveFilesToAdd = FindDatasetFiles(dataset.Key, fileToFind.SubDir, fileToFind.FileMask, fileSplit: false).ToList();
 
                         foreach (var archiveFile in archiveFilesToAdd)
                         {
@@ -405,7 +437,7 @@ namespace MyEMSLDownloader
         {
             // Returns True if no problems; otherwise, returns false
             var lstValidParameters = new List<string> { 
-                "Dataset", "DataPkg", "SubDir", "Files", 
+                "Dataset", "DataPkg", "SubDir", "Files", "FileSplit",
                 "O", "D", "FileList", "DisableCart", "ForceCart",
                 "Preview", "V", "Test", "UseTest" };
 
@@ -448,6 +480,9 @@ namespace MyEMSLDownloader
 
                 if (!ParseParameter(objParseCommandLine, "SubDir", "a subfolder name", ref mSubfolder)) return false;
                 if (!ParseParameter(objParseCommandLine, "Files", "a file mas", ref mFileMask)) return false;
+
+                if (objParseCommandLine.IsParameterPresent("FileSplit"))
+                    mFileSplit = true;
 
                 if (!ParseParameter(objParseCommandLine, "O", "an output folder path", ref mOutputFolderPath)) return false;
 
@@ -540,18 +575,18 @@ namespace MyEMSLDownloader
                 Console.WriteLine();
 
                 Console.Write("Program syntax #1:" + Environment.NewLine + exeName);
-                Console.WriteLine(" DatasetName [SubFolderName] [/Files:FileMask] [/O:OutputFolder] ");
-                Console.WriteLine(" [/D] [/Preview] [/V] [/DisableCart] [/ForceCart] [/UseTest]");
+                Console.WriteLine(" DatasetName [SubFolderName] [/Files:FileMask] [/FileSplit]");
+                Console.WriteLine(" [/O:OutputFolder] [/D] [/Preview] [/V] [/DisableCart] [/ForceCart] [/UseTest]");
 
                 Console.WriteLine();
                 Console.Write("Program syntax #2:" + Environment.NewLine + exeName);
-                Console.WriteLine(" /Dataset:DatasetName [/SubDir:SubFolderName] [/Files:FileMask] [/O:OutputFolder]");
-                Console.WriteLine(" [/D] [/Preview] [/V] [/DisableCart] [/ForceCart] [/UseTest]");
+                Console.WriteLine(" /Dataset:DatasetName [/SubDir:SubFolderName] [/Files:FileMask] [/FileSplit]");
+                Console.WriteLine(" [/O:OutputFolder] [/D] [/Preview] [/V] [/DisableCart] [/ForceCart] [/UseTest]");
 
                 Console.WriteLine();
                 Console.Write("Program syntax #3:" + Environment.NewLine + exeName);
-                Console.WriteLine(" /DataPkg:DataPackageID [/SubDir:SubFolderName] [/Files:FileMask] [/O:OutputFolder]");
-                Console.WriteLine(" [/Preview] [/V] [/DisableCart] [/ForceCart] [/UseTest]");
+                Console.WriteLine(" /DataPkg:DataPackageID [/SubDir:SubFolderName] [/Files:FileMask] [/FileSplit]");
+                Console.WriteLine(" [/O:OutputFolder] [/Preview] [/V] [/DisableCart] [/ForceCart] [/UseTest]");
 
                 Console.WriteLine();
                 Console.Write("Program syntax #4:" + Environment.NewLine + exeName);
@@ -568,6 +603,9 @@ namespace MyEMSLDownloader
                 Console.WriteLine();
                 Console.WriteLine("Use /Files to filter for specific files, for example /Files:*.txt");
                 Console.WriteLine("Files will be downloaded to the folder with the .exe; override using /O");
+                Console.WriteLine("Use /FileSplit to indicate that /Files contains a list of filenames and/or file specs, separated by semicolons");
+                Console.WriteLine("For example, use /Files:analysis.baf;ser /FileSplit");
+                Console.WriteLine();
                 Console.WriteLine("Use /D to create a folder with the dataset name, then store the files within that folder");
                 Console.WriteLine();
                 Console.WriteLine("Use /DataPkg to retrieve files from a specific data package");
@@ -606,7 +644,6 @@ namespace MyEMSLDownloader
 
         }
 
-
         static List<DatasetFolderOrFileInfo> TestDatasetListInfo()
         {
             Console.WriteLine("Looking for files for test datasets using the DatasetListInfo class");
@@ -619,6 +656,7 @@ namespace MyEMSLDownloader
             return archiveFiles;
 
         }
+
         static List<long> TestReader()
         {
 

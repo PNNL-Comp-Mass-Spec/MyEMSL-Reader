@@ -85,7 +85,7 @@ namespace MyEMSLReader
         /// </summary>
         /// <remarks>ForceDownloadViaCart takes precedence over DisableCart</remarks>
         public bool ForceDownloadViaCart { get; set; }
-        
+
         /// <summary>
         /// When False use https://my.emsl.pnl.gov/myemsl/elasticsearch/simple_items
         /// When True use  https://test0.my.emsl.pnl.gov/myemsl/search/simple/index.shtml
@@ -283,10 +283,10 @@ namespace MyEMSLReader
         /// <param name="recurse">True to search all subfolders; false to only search the root folder (or only subFolderName)</param>
         /// <returns>List of matching files</returns>
         /// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
-        public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, bool recurse)
+        public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, bool recurse, bool fileSplit = false)
         {
             var datasetName = string.Empty;
-            return FindFiles(fileName, subFolderName, datasetName, recurse);
+            return FindFiles(fileName, subFolderName, datasetName, recurse, fileSplit);
         }
 
         /// <summary>
@@ -306,26 +306,33 @@ namespace MyEMSLReader
         /// <summary>
         /// Looks for the given file, returning any matches as a list
         /// </summary>
-        /// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
+        /// <param name="fileName">
+        /// File name to find; can contain a wildcard, e.g. *.zip
+        /// Separate multiple values using a vertical bar, e.g. analysis.baf|ser
+        /// </param>
         /// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
         /// <param name="datasetName">Dataset name filter</param>
         /// <param name="recurse">True to search all subfolders; false to only search the root folder (or only subFolderName)</param>
         /// <returns>List of matching files</returns>
         /// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
-        public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, string datasetName, bool recurse)
+        public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, string datasetName, bool recurse, bool fileSplit = false)
         {
             const int dataPackageID = 0;
-            return FindFiles(fileName, subFolderName, datasetName, dataPackageID, recurse);
+            return FindFiles(fileName, subFolderName, datasetName, dataPackageID, recurse, fileSplit);
         }
 
         /// <summary>
         /// Looks for the given file, returning any matches as a list
         /// </summary>
-        /// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
+        /// <param name="fileName">
+        /// File name to find; can contain a wildcard, e.g. *.zip
+        /// Separate multiple values using a vertical bar, e.g. analysis.baf|ser
+        /// </param>
         /// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
         /// <param name="datasetName">Dataset name filter (blank to ignore)</param>
         /// <param name="dataPackageID">Data package ID filter (0 to ignore)</param>
         /// <param name="recurse">True to search all subfolders; false to only search the root folder (or only subFolderName)</param>
+        /// <param name="fileSplit">Set to True if fileName contains a list of file names (or file specs) separated by a semicolon</param>
         /// <returns>List of matching files</returns>
         /// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         // ReSharper disable once MemberCanBeProtected.Global
@@ -334,7 +341,8 @@ namespace MyEMSLReader
             string subFolderName,
             string datasetName,
             int dataPackageID,
-            bool recurse)
+            bool recurse,
+            bool fileSplit)
         {
 
             // Re-query the web service if the information is out-of-date
@@ -352,7 +360,6 @@ namespace MyEMSLReader
                 return lstMatches;
             }
 
-            var reFile = GetFileSearchRegEx(fileName);
             Regex reFolder;
             List<string> subFolderPathParts;
 
@@ -377,80 +384,97 @@ namespace MyEMSLReader
                 subFolderPathParts = new List<string>();
             }
 
-            foreach (var archivedFile in mArchivedFiles)
+            List<string> nameParts;
+
+            if (fileSplit)
             {
-                if (!string.IsNullOrWhiteSpace(datasetName))
-                {
-                    if (!string.Equals(datasetName, archivedFile.Dataset, StringComparison.OrdinalIgnoreCase))
-                        continue;
-                }
+                nameParts = fileName.Split(';').ToList();
+            }
+            else
+            {
+                nameParts = new List<string>() { fileName };
+            }
 
-                if (dataPackageID > 0)
-                {
-                    if (archivedFile.DataPackageID != dataPackageID)
-                        continue;
-                }
+            foreach (var namePart in nameParts)
+            {
+                var reFile = GetFileSearchRegEx(namePart);
 
-                if (!reFile.IsMatch(archivedFile.Filename))
+                foreach (var archivedFile in mArchivedFiles)
                 {
-                    continue;
-                }
-
-                var isMatch = true;
-
-                if (string.IsNullOrEmpty(subFolderName))
-                {
-                    // Validate that the file resides in the appropriate folder
-                    if (!recurse && archivedFile.RelativePathWindows.Contains("\\"))
+                    if (!string.IsNullOrWhiteSpace(datasetName))
                     {
-                        // Invalid match
-                        isMatch = false;
+                        if (!string.Equals(datasetName, archivedFile.Dataset, StringComparison.OrdinalIgnoreCase))
+                            continue;
                     }
-                }
-                else
-                {
-                    // Require a subfolder match
-                    isMatch = false;
-                    if (archivedFile.RelativePathWindows.Contains("\\"))
+
+                    if (dataPackageID > 0)
                     {
-                        var pathParts = archivedFile.RelativePathWindows.Split('\\').ToList();
-                        for (var pathIndex = pathParts.Count - 2; pathIndex >= 0; pathIndex--)
+                        if (archivedFile.DataPackageID != dataPackageID)
+                            continue;
+                    }
+
+                    if (!reFile.IsMatch(archivedFile.Filename))
+                    {
+                        continue;
+                    }
+
+                    var isMatch = true;
+
+                    if (string.IsNullOrEmpty(subFolderName))
+                    {
+                        // Validate that the file resides in the appropriate folder
+                        if (!recurse && archivedFile.RelativePathWindows.Contains("\\"))
                         {
-                            if (reFolder.IsMatch(pathParts[pathIndex]))
-                            {
-                                isMatch = true;
-                                if (subFolderPathParts.Count > 0)
-                                {
-                                    // Also require a match to the parent folders
-                                    var comparisonIndex = subFolderPathParts.Count;
-
-                                    for (var parentPathIndex = pathIndex - 1; parentPathIndex >= 0; parentPathIndex--)
-                                    {
-                                        comparisonIndex--;
-                                        if (comparisonIndex < 0)
-                                            break;
-
-                                        if (subFolderPathParts[comparisonIndex].ToLower() != pathParts[parentPathIndex].ToLower())
-                                            isMatch = false;
-                                    }
-
-                                }
-
-                                if (isMatch)
-                                    break;
-                            }
-
-                            if (!recurse)
-                                break;
+                            // Invalid match
+                            isMatch = false;
                         }
                     }
+                    else
+                    {
+                        // Require a subfolder match
+                        isMatch = false;
+                        if (archivedFile.RelativePathWindows.Contains("\\"))
+                        {
+                            var pathParts = archivedFile.RelativePathWindows.Split('\\').ToList();
+                            for (var pathIndex = pathParts.Count - 2; pathIndex >= 0; pathIndex--)
+                            {
+                                if (reFolder.IsMatch(pathParts[pathIndex]))
+                                {
+                                    isMatch = true;
+                                    if (subFolderPathParts.Count > 0)
+                                    {
+                                        // Also require a match to the parent folders
+                                        var comparisonIndex = subFolderPathParts.Count;
+
+                                        for (var parentPathIndex = pathIndex - 1; parentPathIndex >= 0; parentPathIndex--)
+                                        {
+                                            comparisonIndex--;
+                                            if (comparisonIndex < 0)
+                                                break;
+
+                                            if (subFolderPathParts[comparisonIndex].ToLower() != pathParts[parentPathIndex].ToLower())
+                                                isMatch = false;
+                                        }
+
+                                    }
+
+                                    if (isMatch)
+                                        break;
+                                }
+
+                                if (!recurse)
+                                    break;
+                            }
+                        }
+                    }
+
+                    if (isMatch)
+                    {
+                        var newMatch = new DatasetFolderOrFileInfo(archivedFile.FileID, false, archivedFile);
+                        lstMatches.Add(newMatch);
+                    }
                 }
 
-                if (isMatch)
-                {
-                    var newMatch = new DatasetFolderOrFileInfo(archivedFile.FileID, false, archivedFile);
-                    lstMatches.Add(newMatch);
-                }
             }
 
             return lstMatches;
@@ -620,10 +644,10 @@ namespace MyEMSLReader
 
         public event MessageEventHandler ErrorEvent;
         public event MessageEventHandler MessageEvent;
-        
+
         // ReSharper disable once EventNeverSubscribedTo.Global
         public event ProgressEventHandler ProgressEvent;
-        
+
         // ReSharper disable once EventNeverSubscribedTo.Global
         public event FileDownloadedEventHandler FileDownloadedEvent;
 

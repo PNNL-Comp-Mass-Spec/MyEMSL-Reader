@@ -106,11 +106,11 @@ namespace MyEMSLReader
         /// <param name="recurse">True to search all subfolders; false to only search the root folder (or only subFolderName)</param>
         /// <returns>List of matching files</returns>
         /// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
-        public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, int dataPackageID, bool recurse)
+        public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, int dataPackageID, bool recurse, bool fileSplit = false)
         {
             var datasetName = string.Empty;
 
-            return FindFiles(fileName, subFolderName, datasetName, dataPackageID, recurse);
+            return FindFiles(fileName, subFolderName, datasetName, dataPackageID, recurse, fileSplit);
         }
 
         public override bool RefreshInfo()
