@@ -15,7 +15,7 @@ namespace MyEMSLDownloader
 
     internal static class Program
     {
-        private const string PROGRAM_DATE = "January 25, 2017";
+        private const string PROGRAM_DATE = "February 13, 2017";
 
         static double mPercentComplete;
         static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
@@ -39,6 +39,7 @@ namespace MyEMSLDownloader
         /// </summary>
         private static bool mFileSplit;
 
+        private static string mFileIDList;
         private static string mFileListPath;
         private static string mOutputFolderPath;
 
@@ -116,20 +117,32 @@ namespace MyEMSLDownloader
                     archiveFiles = FindDataPkgFiles(mDataPkgID, mSubfolder, mFileMask, mFileSplit);
                 else
                 {
-                    if (string.IsNullOrWhiteSpace(mFileListPath))
-                    {
-                        archiveFiles = FindDatasetFiles(mDatasetName, mSubfolder, mFileMask, mFileSplit);
-                    }
-                    else
+                    if (!string.IsNullOrWhiteSpace(mFileListPath))
                     {
                         var fiFileListFile = new FileInfo(mFileListPath);
                         if (!fiFileListFile.Exists)
                         {
-                            Console.WriteLine("File not found: " + fiFileListFile.FullName);
+                            ShowErrorMessage("File not found: " + fiFileListFile.FullName);
                             return -1;
                         }
 
                         archiveFiles = FindFileListFiles(fiFileListFile);
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrWhiteSpace(mFileIDList))
+                        {
+                            archiveFiles = ParseExplicitFileIDs(mFileIDList);
+                            if (archiveFiles.Count == 0)
+                            {
+                                ShowErrorMessage("No File IDs were found with the /FileID paramter");
+                                return -1;
+                            }
+                        }
+                        else
+                        {
+                            archiveFiles = FindDatasetFiles(mDatasetName, mSubfolder, mFileMask, mFileSplit);
+                        }
                     }
                 }
 
@@ -243,6 +256,7 @@ namespace MyEMSLDownloader
         /// <param name="datasetName">Dataset name</param>
         /// <param name="subfolder">Subfolder to filter on (optional)</param>
         /// <param name="fileMask">File name or file spec like *.txt to filter on (optional)</param>
+        /// <param name="fileSplit"></param>
         /// <returns></returns>
         /// <remarks>
         /// For fileMask, specify a list of names and/or specs by separating with a vertical bar
@@ -266,9 +280,9 @@ namespace MyEMSLDownloader
         }
 
         private static List<DatasetFolderOrFileInfo> FindDataPkgFiles(
-            int dataPkgID, 
-            string subfolder, 
-            string fileMask, 
+            int dataPkgID,
+            string subfolder,
+            string fileMask,
             bool fileSplit)
         {
             mDataPackageListInfo.AddDataPackage(dataPkgID);
@@ -369,7 +383,7 @@ namespace MyEMSLDownloader
 
                         foreach (var archiveFile in archiveFilesToAdd)
                         {
-                            if (String.Equals(archiveFile.FileInfo.Dataset, dataset.Key, StringComparison.OrdinalIgnoreCase))
+                            if (string.Equals(archiveFile.FileInfo.Dataset, dataset.Key, StringComparison.OrdinalIgnoreCase))
                             {
                                 var alreadyAdded = (from item in archiveFiles where item.FileID == archiveFile.FileID select item).ToList().Any();
 
@@ -401,13 +415,38 @@ namespace MyEMSLDownloader
             {
                 foreach (var headerName in headerNames)
                 {
-                    if (String.Equals(dataValues[colIndex], headerName, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(dataValues[colIndex], headerName, StringComparison.OrdinalIgnoreCase))
                     {
                         headerMap.Add(headerName, colIndex);
                         break;
                     }
                 }
             }
+        }
+
+        private static List<DatasetFolderOrFileInfo> ParseExplicitFileIDs(string fileIdList)
+        {
+            var archiveFiles = new List<DatasetFolderOrFileInfo>();
+
+            var fileIDs = fileIdList.Split(',');
+            foreach (var fileID in fileIDs)
+            {
+                long fileIdValue;
+                if (!long.TryParse(fileID, out fileIdValue))
+                {
+                    Console.WriteLine("Warning: " + fileID + " is not an integer");
+                    continue;
+                }
+
+                var fileInfo = new ArchivedFileInfo("Unknown_Dataset", "Unknown_Filename", "")
+                {
+                    FileID = fileIdValue
+                };
+
+                archiveFiles.Add(new DatasetFolderOrFileInfo(fileIdValue, false, fileInfo));
+            }
+
+            return archiveFiles;
         }
 
         private static void ShowFiles(IEnumerable<DatasetFolderOrFileInfo> archiveFiles, bool verbosePreview)
@@ -417,9 +456,9 @@ namespace MyEMSLDownloader
                 Console.WriteLine(archiveFile.FileInfo.RelativePathWindows);
                 if (verbosePreview)
                 {
-                    Console.WriteLine("  FileID {0}, TransID {1}, Submitted {2}, Size {3:F1} KB", 
+                    Console.WriteLine("  FileID {0}, TransID {1}, Submitted {2}, Size {3:F1} KB",
                         archiveFile.FileID,
-                        archiveFile.FileInfo.TransactionID, 
+                        archiveFile.FileInfo.TransactionID,
                         archiveFile.FileInfo.SubmissionTime,
                         archiveFile.FileInfo.FileSizeBytes / 1024.0);
                     Console.WriteLine();
@@ -436,9 +475,9 @@ namespace MyEMSLDownloader
         private static bool SetOptionsUsingCommandLineParameters(clsParseCommandLine objParseCommandLine)
         {
             // Returns True if no problems; otherwise, returns false
-            var lstValidParameters = new List<string> { 
+            var lstValidParameters = new List<string> {
                 "Dataset", "DataPkg", "SubDir", "Files", "FileSplit",
-                "O", "D", "FileList", "DisableCart", "ForceCart",
+                "O", "D", "FileList", "FileID", "DisableCart", "ForceCart",
                 "Preview", "V", "Test", "UseTest" };
 
             try
@@ -465,10 +504,12 @@ namespace MyEMSLDownloader
                 if (objParseCommandLine.NonSwitchParameterCount > 1)
                     mSubfolder = objParseCommandLine.RetrieveNonSwitchParameter(1);
 
-                if (!ParseParameter(objParseCommandLine, "Dataset", "a dataset name", ref mDatasetName)) return false;
+                if (!ParseParameter(objParseCommandLine, "Dataset", "a dataset name", ref mDatasetName))
+                    return false;
 
                 var dataPkgString = "";
-                if (!ParseParameter(objParseCommandLine, "DataPkg", "a data package ID", ref dataPkgString)) return false;
+                if (!ParseParameter(objParseCommandLine, "DataPkg", "a data package ID", ref dataPkgString))
+                    return false;
                 if (!string.IsNullOrEmpty(dataPkgString))
                 {
                     if (!int.TryParse(dataPkgString, out mDataPkgID))
@@ -478,15 +519,22 @@ namespace MyEMSLDownloader
                     }
                 }
 
-                if (!ParseParameter(objParseCommandLine, "SubDir", "a subfolder name", ref mSubfolder)) return false;
-                if (!ParseParameter(objParseCommandLine, "Files", "a file mas", ref mFileMask)) return false;
+                if (!ParseParameter(objParseCommandLine, "SubDir", "a subfolder name", ref mSubfolder))
+                    return false;
+                if (!ParseParameter(objParseCommandLine, "Files", "a file mas", ref mFileMask))
+                    return false;
 
                 if (objParseCommandLine.IsParameterPresent("FileSplit"))
                     mFileSplit = true;
 
-                if (!ParseParameter(objParseCommandLine, "O", "an output folder path", ref mOutputFolderPath)) return false;
+                if (!ParseParameter(objParseCommandLine, "O", "an output folder path", ref mOutputFolderPath))
+                    return false;
 
-                if (!ParseParameter(objParseCommandLine, "FileList", "a filename", ref mFileListPath)) return false;
+                if (!ParseParameter(objParseCommandLine, "FileList", "a filename", ref mFileListPath))
+                    return false;
+
+                if (!ParseParameter(objParseCommandLine, "FileID", "a file ID (or comma-separated list of file IDs)", ref mFileIDList))
+                    return false;
 
                 if (!string.IsNullOrWhiteSpace(mFileListPath) || objParseCommandLine.IsParameterPresent("D"))
                 {
@@ -595,6 +643,11 @@ namespace MyEMSLDownloader
 
                 Console.WriteLine();
                 Console.Write("Program syntax #5:" + Environment.NewLine + exeName);
+                Console.WriteLine(" /FileID:1234 [/Preview] [/V]");
+
+
+                Console.WriteLine();
+                Console.Write("Program syntax #6:" + Environment.NewLine + exeName);
                 Console.WriteLine(" /Test [/Preview] [/V] [/DisableCart] [/ForceCart]");
 
                 Console.WriteLine();
@@ -614,6 +667,10 @@ namespace MyEMSLDownloader
                 Console.WriteLine("The file must be a tab-delimited text file, with columns Dataset and File, and optionally with column SubDir");
                 Console.WriteLine("The file names in the File column are allowed to contain wildcards");
                 Console.WriteLine("When /FileList is used, /D is automatically enabled");
+                Console.WriteLine();
+                Console.WriteLine("Use /FileId to specify the MyEMSL ID of a file to download (as seen with /V)");
+                Console.WriteLine("This mode does not use Simple Search to find files and can thus be used " +
+                                  "to retrieve a file that Simple Search does not find. Provide a comma separated list to retrieve multiple files.");
                 Console.WriteLine();
                 Console.WriteLine("Alternatively, use /Test to perform automatic tests using predefined dataset names");
                 Console.WriteLine();
