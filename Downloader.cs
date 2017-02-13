@@ -363,7 +363,7 @@ namespace MyEMSLReader
 
                 if (string.IsNullOrWhiteSpace(authToken))
                 {
-                    ReportError("myemsl_auth_token is empty; cannot download data");
+                    ReportError("myemsl_auth_token is empty; cannot download data", null, false);
                     return dctFiles;
                 }
 
@@ -609,7 +609,7 @@ namespace MyEMSLReader
                 var lstFiles = mReader.ParseElasticSearchResults(responseData, out authToken);
                 if (string.IsNullOrWhiteSpace(authToken))
                 {
-                    ReportError("myemsl_auth_token is empty; cannot download data using scroll ID");
+                    ReportError("myemsl_auth_token is empty; cannot download data using scroll ID", null, false);
                     return false;
                 }
 
