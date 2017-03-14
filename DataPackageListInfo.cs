@@ -104,6 +104,7 @@ namespace MyEMSLReader
         /// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
         /// <param name="dataPackageID">Data Package ID filter</param>
         /// <param name="recurse">True to search all subfolders; false to only search the root folder (or only subFolderName)</param>
+        /// <param name="fileSplit">Set to True if fileName contains a list of file names (or file specs) separated by a semicolon</param>
         /// <returns>List of matching files</returns>
         /// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, int dataPackageID, bool recurse, bool fileSplit = false)
@@ -128,7 +129,7 @@ namespace MyEMSLReader
                 {
                     if (mErrorMessages.Count == 0)
                         return true;
-                    
+
                     return false;
                 }
 

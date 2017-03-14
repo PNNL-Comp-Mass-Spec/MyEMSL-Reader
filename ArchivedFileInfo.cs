@@ -6,7 +6,7 @@ namespace MyEMSLReader
 {
     public class ArchivedFileInfo
     {
-        
+
         #region "Auto Properties"
 
         /// <summary>
@@ -73,8 +73,7 @@ namespace MyEMSLReader
             set;
         }
 
-
-        public bool IsPublicFile 
+        public bool IsPublicFile
         {
             get;
             set;
@@ -98,7 +97,7 @@ namespace MyEMSLReader
         {
             get
             {
-                var fullPath = string.Empty;				
+                var fullPath = string.Empty;
 
                 if (!string.IsNullOrWhiteSpace(Dataset))
                     fullPath = Path.Combine(fullPath, Dataset);
@@ -124,7 +123,10 @@ namespace MyEMSLReader
         /// <summary>
         /// Relative path to the file, including the instrument, year_quarter, and dataset
         /// </summary>
-        /// <remarks>Uses Windows-style slashes.  Note that instrument IMS_TOF_4 was renamed to IMS04_AgTOF05 in 2013, and thus there are datasets with files associated with both instruments in MyEMSL</remarks>
+        /// <remarks>
+        /// Uses Windows-style slashes.
+        /// Note that instrument IMS_TOF_4 was renamed to IMS04_AgTOF05 in 2013, and thus
+        /// there are datasets with files associated with both instruments in MyEMSL</remarks>
         public string PathWithInstrumentAndDatasetWindows
         {
             get
@@ -159,7 +161,7 @@ namespace MyEMSLReader
             {
                 if (string.IsNullOrWhiteSpace(SubDirPath))
                     return Filename;
-                
+
                 return Path.Combine(SubDirPath, Filename).Replace("/", @"\");
             }
         }
@@ -196,9 +198,9 @@ namespace MyEMSLReader
                 DateTime dtSubmissionTime;
                 if (DateTime.TryParse(SubmissionTime, out dtSubmissionTime))
                     return dtSubmissionTime;
-                
+
                 return DateTime.Now;
-            }			
+            }
         }
 
         // ReSharper disable once UnusedMember.Global
@@ -226,9 +228,9 @@ namespace MyEMSLReader
         /// <param name="filename">Filename</param>
         /// <param name="subDirPath">Subdirectory below dataset (empty if at the dataset level)</param>
         public ArchivedFileInfo(string dataset, string filename, string subDirPath) :
-            this(dataset, filename, subDirPath, 0) 
+            this(dataset, filename, subDirPath, 0)
         { }
-        
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -237,7 +239,7 @@ namespace MyEMSLReader
         /// <param name="subDirPath">Subdirectory below dataset (empty if at the dataset level)</param>
         /// <param name="fileID">MyEMSL File ID</param>
         public ArchivedFileInfo(string dataset, string filename, string subDirPath, Int64 fileID) :
-            this(dataset, filename, subDirPath, fileID, "", "", new Dictionary<string, object>()) 
+            this(dataset, filename, subDirPath, fileID, "", "", new Dictionary<string, object>())
         { }
 
         /// <summary>
@@ -251,12 +253,12 @@ namespace MyEMSLReader
         /// <param name="datasetYearQuarter">Dataset year quarter, e.g. 2013_3</param>
         /// <param name="dctMetadata">Metadata dictionary</param>
         public ArchivedFileInfo(
-            string dataset, 
-            string filename, 
-            string subDirPath, 
-            Int64 fileID, 
-            string instrument, 
-            string datasetYearQuarter, 
+            string dataset,
+            string filename,
+            string subDirPath,
+            Int64 fileID,
+            string instrument,
+            string datasetYearQuarter,
             Dictionary<string, object> dctMetadata)
         {
             Dataset = dataset;

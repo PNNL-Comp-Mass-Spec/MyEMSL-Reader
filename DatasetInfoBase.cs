@@ -142,7 +142,7 @@ namespace MyEMSLReader
         /// </summary>
         /// <param name="fileInfo">Archive File Info</param>
         /// <param name="unzipRequired">
-        /// True if the file will need to be unzipped after the download 
+        /// True if the file will need to be unzipped after the download
         /// (this DLL will not unzip the file; it will simply include this in event FileDownloadedEventArgs)
         /// </param>
         // ReSharper disable once MemberCanBeProtected.Global
@@ -157,7 +157,7 @@ namespace MyEMSLReader
         /// <param name="myEMSLFileID">MyEMSL File ID</param>
         /// <param name="fileInfo">Archive File Info</param>
         /// <param name="unzipRequired">
-        /// True if the file will need to be unzipped after the download 
+        /// True if the file will need to be unzipped after the download
         /// (this DLL will not unzip the file; it will simply include this in event FileDownloadedEventArgs)
         /// </param>
         /// <remarks>fileInfo can be null if unzipRequired is false</remarks>
@@ -276,6 +276,7 @@ namespace MyEMSLReader
         /// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
         /// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
         /// <param name="recurse">True to search all subfolders; false to only search the root folder (or only subFolderName)</param>
+        /// <param name="fileSplit">Set to True if fileName contains a list of file names (or file specs) separated by a semicolon</param>
         /// <returns>List of matching files</returns>
         /// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, bool recurse, bool fileSplit = false)
@@ -308,6 +309,7 @@ namespace MyEMSLReader
         /// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
         /// <param name="datasetName">Dataset name filter</param>
         /// <param name="recurse">True to search all subfolders; false to only search the root folder (or only subFolderName)</param>
+        /// <param name="fileSplit">Set to True if fileName contains a list of file names (or file specs) separated by a semicolon</param>
         /// <returns>List of matching files</returns>
         /// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, string datasetName, bool recurse, bool fileSplit = false)
@@ -583,7 +585,7 @@ namespace MyEMSLReader
         {
             // Look for symbols reserved by RegEx
             // Replace them with escaped versions
-            // For example, if name is "K00059_3-oxoacyl-[acyl-carrier_protein]_reductase_[EC_1_1_1_100].html" 
+            // For example, if name is "K00059_3-oxoacyl-[acyl-carrier_protein]_reductase_[EC_1_1_1_100].html"
             // Update it to be         "K00059_3-oxoacyl-\[acyl-carrier_protein]_reductase_\[EC_1_1_1_100]\.html\"
 
             var escapedName = mReplaceReservedRegExChars.Replace(name, @"\${Symbol}");

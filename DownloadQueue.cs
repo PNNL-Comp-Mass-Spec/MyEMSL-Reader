@@ -117,8 +117,8 @@ namespace MyEMSLReader
 
             var newFile = new udtFileToDownload
             {
-                UnzipRequired = unzipRequired, 
-                FileInfo = fileInfo, 
+                UnzipRequired = unzipRequired,
+                FileInfo = fileInfo,
                 DestFilePath = destFilePath
             };
 
@@ -150,9 +150,9 @@ namespace MyEMSLReader
         /// <returns>True if success, false if an error</returns>
         /// <remarks>Returns False if the download queue is empty</remarks>
         public bool ProcessDownloadQueue(
-            string downloadFolderPath, 
-            Downloader.DownloadFolderLayout folderLayout, 
-            bool disableCart = false, 
+            string downloadFolderPath,
+            Downloader.DownloadFolderLayout folderLayout,
+            bool disableCart = false,
             bool forceDownloadViaCart = false)
         {
 
@@ -173,13 +173,13 @@ namespace MyEMSLReader
                 downloader.UseTestInstance = UseTestInstance;
 
                 var dctDestFilePathOverride = new Dictionary<Int64, string>();
-                
+
                 foreach (var fileToDownload in FilesToDownload)
                 {
                     if (!string.IsNullOrEmpty(fileToDownload.Value.DestFilePath))
                     {
                         dctDestFilePathOverride.Add(fileToDownload.Key, fileToDownload.Value.DestFilePath);
-                    }					
+                    }
                 }
 
                 var success = downloader.DownloadFiles(FilesToDownload.Keys.ToList(), dctDestFilePathOverride, downloadFolderPath, folderLayout);

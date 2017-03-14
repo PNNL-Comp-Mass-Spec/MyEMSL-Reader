@@ -163,7 +163,7 @@ namespace MyEMSLDownloader
                     else
                         DownloadDatasetFiles(archiveFiles, mOutputFolderPath);
                 }
-
+                
             }
             catch (Exception ex)
             {
@@ -364,7 +364,7 @@ namespace MyEMSLDownloader
 
                         datasetFiles.Add(fileToFind);
 
-                        // Add the dataset name so that all of its tracked files will be determined 
+                        // Add the dataset name so that all of its tracked files will be determined
                         // when MyEMSL is first queried via RefreshInfoIfStale (which calls RefreshInfo)
                         mDatasetListInfo.AddDataset(dataset, fileToFind.SubDir);
 
@@ -494,7 +494,7 @@ namespace MyEMSLDownloader
                     return false;
                 }
 
-                // Query objParseCommandLine to see if various parameters are present						
+                // Query objParseCommandLine to see if various parameters are present
 
                 if (objParseCommandLine.NonSwitchParameterCount > 0)
                     mDatasetName = objParseCommandLine.RetrieveNonSwitchParameter(0);
@@ -534,7 +534,7 @@ namespace MyEMSLDownloader
                 if (!ParseParameter(objParseCommandLine, "FileID", "a file ID (or comma-separated list of file IDs)", ref mFileIDList))
                     return false;
 
-                if (!string.IsNullOrWhiteSpace(mFileListPath) || objParseCommandLine.IsParameterPresent("D"))
+                if (!string.IsNullOrWhiteSpace(mFileListPath))
                 {
                     mMultiDatasetMode = true;
                 }

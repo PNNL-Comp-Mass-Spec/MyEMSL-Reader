@@ -259,7 +259,7 @@ namespace MyEMSLReader
                     }
 
                     var downloadFile = IsDownloadRequired(dctFiles, fileID, downloadFolderPath, folderLayout, reportMessage: false);
-                        
+
                     if (downloadFile)
                         lstFilesRemaining.Add(fileID);
                 }
@@ -491,7 +491,7 @@ namespace MyEMSLReader
                 // The Item IDs passed to the cart must be integers stored as strings
                 // If this is not done, the python code validating that we are authorized to view the files will not find a match
                 // and will report HTTP Status Code 403: Forbidden
-                // 
+                //
                 var lstFileIDsAsStrings = lstFiles.Select(fileId => fileId.ToString(CultureInfo.InvariantCulture)).ToList();
 
                 var querySpec = new Dictionary<string, object>
@@ -585,7 +585,7 @@ namespace MyEMSLReader
                     ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
 
                 // Obtain a new authorization token by posting to https://my.emsl.pnl.gov/myemsl/elasticsearch/simple_items?search_type=scan&scan&auth
-                
+
                 // This worked until February 2015, but it no longer works
                 //     URL = Configuration.ElasticSearchUri + "simple_items?search_type=scan&scan&auth";
                 var URL = Configuration.ElasticSearchUri + "simple_items?auth&search_type=scan&scan";
@@ -637,12 +637,12 @@ namespace MyEMSLReader
         }
 
         private bool DownloadFile(
-            string URL, 
-            CookieContainer cookieJar, 
-            int maxAttempts, 
-            string downloadFilePath, 
+            string URL,
+            CookieContainer cookieJar,
+            int maxAttempts,
+            string downloadFilePath,
             bool fileIsLocked,
-            out Exception mostRecentException, 
+            out Exception mostRecentException,
             out bool fileInUseByOtherProcess)
         {
 
@@ -770,7 +770,7 @@ namespace MyEMSLReader
                         if (!string.IsNullOrEmpty(filePathOverride))
                             downloadFilePath = filePathOverride;
                     }
-                    
+
                     var fiTargetFile = new FileInfo(downloadFilePath);
                     Debug.Assert(fiTargetFile.Directory != null, "fiTargetFile.Directory != null");
                     if (!fiTargetFile.Directory.Exists)
@@ -787,7 +787,7 @@ namespace MyEMSLReader
                     if (downloadFile)
                     {
                         var maxAttempts = DEFAULT_MAX_ATTEMPTS;
-                        
+
                         if (!fileIsLocked)
                             maxAttempts = 1;
 
@@ -920,7 +920,7 @@ namespace MyEMSLReader
 
             const double maxTimeoutHours = 24;
             NetworkCredential loginCredentials = null;
-            
+
             // ReSharper disable once ExpressionIsAlwaysNull
             var request = EasyHttp.InitializeRequest(tarFileURL, ref cookieJar, ref timeoutSeconds, loginCredentials, maxTimeoutHours);
 
@@ -930,7 +930,7 @@ namespace MyEMSLReader
             request.Method = "GET";
             request.PreAuthenticate = false;
 
-            // Receive response		
+            // Receive response
             HttpWebResponse response = null;
             try
             {
@@ -973,7 +973,7 @@ namespace MyEMSLReader
 
                         // The default output file path is the relative path of the file in the .tar file
                         // This will get changed below once the MyEMSL FileID is known
-                        
+
                         // Make sure the path doesn't start with a backslash
                         var downloadFilePath = sourceFile.TrimStart('\\');
                         var originalFileSubmissionTime = DateTime.MinValue;
@@ -990,7 +990,7 @@ namespace MyEMSLReader
 
                         if (fileIdFound)
                         {
-                            var fileIDText = sourceFile.Substring(0, charIndex);					        
+                            var fileIDText = sourceFile.Substring(0, charIndex);
                             if (!Int64.TryParse(fileIDText, out fileID))
                             {
                                 ReportMessage("Warning, .tar file entry does not contain a MyEMSL FileID value; " +
@@ -1011,7 +1011,7 @@ namespace MyEMSLReader
                                 fileIdFound = false;
                             }
                             else
-                            {                                
+                            {
                                 // Confirm that the name of the file in the .Tar file matches the expected file name
                                 // Names in the tar file will be limited to 255 characters (including any preceding parent folder names) so we should not compare the full name
                                 // Furthermore, the primary filename is limited to 100 characters, so it too could be truncated
@@ -1050,7 +1050,7 @@ namespace MyEMSLReader
                                     break;
                                 case DownloadFolderLayout.SingleDataset:
                                     downloadFilePath = sourceFile;
-                                    break;                                
+                                    break;
                                 default:
                                     // Includes: DownloadFolderLayout.DatasetNameAndSubFolders
                                     // Includes: DownloadFolderLayout.InstrumentYearQuarterDataset
@@ -1082,7 +1082,7 @@ namespace MyEMSLReader
                                 archivedFile = archivedFileLookup.First();
                                 originalFileSubmissionTime = archivedFile.SubmissionTimeValue;
                             }
-                            
+
                         }
 
                         // Create the target folder if necessary
@@ -1546,7 +1546,7 @@ namespace MyEMSLReader
                                 {
                                     break;
                                 }
-                                
+
                                 if (DownloadCartState == CartState.Expired)
                                 {
                                     ReportError("Cart " + cartID + " is expired and cannot be downloaded; aborting");
@@ -1595,7 +1595,7 @@ namespace MyEMSLReader
 
                 return true;
             }
-            
+
             return false;
         }
 

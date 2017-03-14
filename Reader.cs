@@ -391,7 +391,7 @@ namespace MyEMSLReader
         /// Find all files in MyEMSL for a list of datasets (by dataset name)
         /// </summary>
         /// <param name="dctDatasetsAndSubDirs">
-        /// Keys are dataset names, 
+        /// Keys are dataset names,
         /// values are the optional Subdirectory name to filter on for the given dataset (exact match; cannot contain wildcards)
         /// </param>
         /// <param name="recurse">True to recursively search for files</param>

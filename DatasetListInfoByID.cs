@@ -7,7 +7,6 @@ namespace MyEMSLReader
     /// <summary>
     /// Tracks the dataset info for multiple datasets (by dataset ID)
     /// </summary>
-    /// 
     [Obsolete("Valid, but unused")]
     public class DatasetListInfoByID : DatasetInfoBase
     {
@@ -96,7 +95,7 @@ namespace MyEMSLReader
                 {
                     if (mErrorMessages.Count == 0)
                         return true;
-                    
+
                     return false;
                 }
 
