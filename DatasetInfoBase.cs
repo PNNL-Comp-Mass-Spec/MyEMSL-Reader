@@ -5,13 +5,14 @@ using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using PRISM;
 
 namespace MyEMSLReader
 {
     /// <summary>
     /// Tracks the file info for one or more datasets or data packages
     /// </summary>
-    public abstract class DatasetInfoBase
+    public abstract class DatasetInfoBase : clsEventNotifier
     {
 
         #region "Constants"
@@ -112,22 +113,16 @@ namespace MyEMSLReader
             mErrorMessages = new List<string>();
 
             mReader = new Reader();
-
-            // Attach events
-            mReader.ErrorEvent += OnErrorEvent;
-            mReader.MessageEvent += OnMessageEvent;
-            mReader.ProgressEvent += OnProgressEvent;
+            RegisterEvents(mReader);
 
             mArchivedFiles = new List<ArchivedFileInfo>();
 
             mDownloadedFiles = new Dictionary<string, ArchivedFileInfo>(StringComparer.OrdinalIgnoreCase);
 
             mDownloadQueue = new DownloadQueue();
+            RegisterEvents(mDownloadQueue);
 
             // Attach events
-            mDownloadQueue.ErrorEvent += OnErrorEvent;
-            mDownloadQueue.MessageEvent += OnMessageEvent;
-            mDownloadQueue.ProgressEvent += OnProgressEvent;
             mDownloadQueue.FileDownloadedEvent += OnFileDownloadedEvent;
 
             mReplaceReservedRegExChars = new Regex(@"(?<Symbol>[\^\$\.\|\+\(\)\[\{\\])", RegexOptions.Compiled);
@@ -642,46 +637,12 @@ namespace MyEMSLReader
 
         #region "Events"
 
-        public event MessageEventHandler ErrorEvent;
-        public event MessageEventHandler MessageEvent;
-
-        // ReSharper disable once EventNeverSubscribedTo.Global
-        public event ProgressEventHandler ProgressEvent;
-
         // ReSharper disable once EventNeverSubscribedTo.Global
         public event FileDownloadedEventHandler FileDownloadedEvent;
 
         #endregion
 
         #region "Event handlers"
-
-        protected void OnErrorEvent(object sender, MessageEventArgs e)
-        {
-            mErrorMessages.Add(e.Message);
-            if (ErrorEvent != null)
-            {
-                if (sender.GetType().ToString().EndsWith("DownloadQueue"))
-                    ErrorEvent(sender, e);
-                else
-                    ErrorEvent(this, new MessageEventArgs("MyEMSL reader error in MyEMSLReader.DatasetInfoBase: " + e.Message));
-            }
-        }
-
-        private void OnMessageEvent(object sender, MessageEventArgs e)
-        {
-            if (MessageEvent != null)
-            {
-                if (sender.GetType().ToString().EndsWith("DownloadQueue"))
-                    MessageEvent(sender, e);
-                else
-                    MessageEvent(this, new MessageEventArgs("MyEMSL reader: " + e.Message));
-            }
-        }
-
-        private void OnProgressEvent(object sender, ProgressEventArgs e)
-        {
-            ProgressEvent?.Invoke(sender, e);
-        }
 
         private void OnFileDownloadedEvent(object sender, FileDownloadedEventArgs e)
         {

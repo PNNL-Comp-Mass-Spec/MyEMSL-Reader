@@ -4,10 +4,12 @@ using System.Globalization;
 using System.Net;
 using System.Threading;
 using Pacifica.Core;
+using PRISM;
+using Utilities = Pacifica.Core.Utilities;
 
 namespace MyEMSLReader
 {
-    public class MyEMSLBase
+    public class MyEMSLBase : clsEventNotifier
     {
 
         #region "Enums"
@@ -185,7 +187,7 @@ namespace MyEMSLReader
             {
                 ErrorMessage = errorMessage;
 
-                OnErrorMessage(new MessageEventArgs(errorMessage));
+                OnErrorEvent(errorMessage, ex);
                 Thread.Sleep(10);
             }
 
@@ -193,7 +195,7 @@ namespace MyEMSLReader
             {
                 if (ex == null)
                     throw new Exception(errorMessage);
-                
+
                 throw new Exception(errorMessage, ex);
             }
         }
@@ -202,7 +204,7 @@ namespace MyEMSLReader
         {
 
             if (!string.IsNullOrEmpty(strMessage))
-                OnMessage(new MessageEventArgs(strMessage));
+                OnStatusEvent(strMessage);
 
         }
 
@@ -364,32 +366,7 @@ namespace MyEMSLReader
             return true;
         }
 
-        #region "Events"
 
-        public event MessageEventHandler ErrorEvent;
-        public event MessageEventHandler MessageEvent;
-        public event ProgressEventHandler ProgressEvent;
-    
-        #endregion
-
-        #region "Event Handlers"
-
-        protected void OnErrorMessage(MessageEventArgs e)
-        {
-            ErrorEvent?.Invoke(this, e);
-        }
-
-        protected void OnMessage(MessageEventArgs e)
-        {
-            MessageEvent?.Invoke(this, e);
-        }
-
-        protected void OnProgressUpdate(ProgressEventArgs e)
-        {
-            ProgressEvent?.Invoke(this, e);
-        }
-
-        #endregion
     }
 
 }

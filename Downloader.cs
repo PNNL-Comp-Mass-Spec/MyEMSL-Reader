@@ -137,6 +137,8 @@ namespace MyEMSLReader
             DownloadedFiles = new Dictionary<string, ArchivedFileInfo>(StringComparer.OrdinalIgnoreCase);
 
             mReader = new Reader();
+            RegisterEvents(mReader);
+
             ResetStatus();
         }
 
@@ -1479,10 +1481,10 @@ namespace MyEMSLReader
         {
             if (bytesToDownload > 0)
             {
-                var percentComplete = bytesDownloaded / (double)bytesToDownload * 100;
+                var percentComplete = bytesDownloaded / (float)bytesToDownload * 100;
                 PercentComplete = Math.Round(percentComplete);
 
-                OnProgressUpdate(new ProgressEventArgs(percentComplete));
+                OnProgressUpdate("Downloading data", percentComplete);
             }
         }
 

@@ -777,7 +777,7 @@ namespace MyEMSLReader
             catch (Exception ex)
             {
                 if (string.IsNullOrWhiteSpace(ErrorMessage))
-                    ReportError("Error in MyEMSLReader.Reader.FindFilesByDataset: " + ex.Message);
+                    ReportError("Error in MyEMSLReader.FindFilesByDataset: " + ex.Message, ex);
                 else if (ThrowErrors)
                     throw;
 
@@ -869,7 +869,7 @@ namespace MyEMSLReader
                 string errorMessage;
                 if (!ValidSearchResults(dctResults, out errorMessage))
                 {
-                    ReportError("Error parsing search results: " + errorMessage);
+                    ReportError("Error parsing search results (MyEMSLReader.ParseElasticSearchResults): " + errorMessage);
                     return new List<ArchivedFileInfo>();
                 }
 
@@ -882,7 +882,7 @@ namespace MyEMSLReader
                 LastSearchFileCountMatched = ReadDictionaryValue(dctHits, "total", -1);
                 if (LastSearchFileCountMatched < 0)
                 {
-                    ReportError("Hits section did not have the 'total' entry");
+                    ReportError("Hits section did not have the 'total' entry (MyEMSLReader.ParseElasticSearchResults)");
                     return new List<ArchivedFileInfo>();
                 }
 
@@ -983,7 +983,7 @@ namespace MyEMSLReader
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine("Error parsing item " + itemIndex + "; will be skipped: " + ex.Message);
+                        OnWarningEvent("Error parsing item " + itemIndex + "; will be skipped: " + ex.Message);
                     }
 
                     itemIndex++;
@@ -994,7 +994,7 @@ namespace MyEMSLReader
             }
             catch (Exception ex)
             {
-                ReportError("Error in MyEMSLReader.Reader.ParseElasticSearchResults: " + ex.Message, ex);
+                ReportError("Error in MyEMSLReader.ParseElasticSearchResults: " + ex.Message, ex);
                 return new List<ArchivedFileInfo>();
             }
 
@@ -1015,7 +1015,7 @@ namespace MyEMSLReader
                 string errorMessage;
                 if (!ValidSearchResults(dctResults, out errorMessage))
                 {
-                    ReportError("Error parsing search results: " + errorMessage);
+                    ReportError("Error parsing search results (MyEMSLReader.ParseItemSearchResults): " + errorMessage);
                     return new List<ArchivedFileInfo>();
                 }
 
@@ -1028,12 +1028,12 @@ namespace MyEMSLReader
                         LastSearchFileCountMatched = ReadDictionaryValue(dctResults, "results_count", 0);
                         if (LastSearchFileCountMatched > 0)
                         {
-                            ReportError("results_count is non-zero but the 'transactions' section was not found; Item Search service error");
+                            ReportError("results_count is non-zero but the 'transactions' section was not found; Item Search service error (MyEMSLReader.ParseItemSearchResults)");
                         }
                     }
                     else
                     {
-                        ReportError("Response did not contain a 'results_count' or a 'transactions' section; Item Search service error");
+                        ReportError("Response did not contain a 'results_count' or a 'transactions' section; Item Search service error (MyEMSLReader.ParseItemSearchResults)");
                     }
 
                     return new List<ArchivedFileInfo>();
@@ -1183,7 +1183,7 @@ namespace MyEMSLReader
                             }
                             catch (Exception ex)
                             {
-                                Console.WriteLine("Error parsing item " + itemIndex + " in transaction " + tranIndex + "; skipping item: " + ex.Message);
+                                OnWarningEvent("Error parsing item " + itemIndex + " in transaction " + tranIndex + "; skipping item: " + ex.Message);
                             }
 
                             itemIndex++;
@@ -1193,7 +1193,7 @@ namespace MyEMSLReader
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine("Error parsing transaction " + tranIndex + "; skipping transaction: " + ex.Message);
+                        OnWarningEvent("Error parsing transaction " + tranIndex + "; skipping transaction: " + ex.Message);
                     }
 
                     tranIndex++;
@@ -1204,7 +1204,7 @@ namespace MyEMSLReader
             }
             catch (Exception ex)
             {
-                ReportError("Error in MyEMSLReader.Reader.ParseItemSearchResults: " + ex.Message, ex);
+                ReportError("Error in MyEMSLReader.ParseItemSearchResults: " + ex.Message, ex);
                 return new List<ArchivedFileInfo>();
             }
 
@@ -1222,7 +1222,8 @@ namespace MyEMSLReader
             {
                 if (!dctDatasetsAndSubDirLists.TryGetValue(DATASET_ID_TAG + file.DatasetID, out subDirs))
                 {
-                    OnErrorMessage(new MessageEventArgs("File " + file.FileID + " has an unrecognized dateset ID: " + file.DatasetID + "; skipping"));
+                    ReportError("File " + file.FileID + " has an unrecognized dateset ID: " + file.DatasetID +
+                        "; skipping (MyEMSLReader.LookupSubDirFilterByDataset)");
                     success = false;
                 }
             }
@@ -1230,7 +1231,8 @@ namespace MyEMSLReader
             {
                 if (!dctDatasetsAndSubDirLists.TryGetValue(DATA_PKG_ID_TAG + file.DataPackageID, out subDirs))
                 {
-                    OnErrorMessage(new MessageEventArgs("File " + file.FileID + " has an unrecognized data package ID: " + file.DataPackageID + "; skipping"));
+                    ReportError("File " + file.FileID + " has an unrecognized data package ID: " + file.DataPackageID + 
+                        "; skipping (MyEMSLReader.LookupSubDirFilterByDataset)");
                     success = false;
                 }
             }
@@ -1238,7 +1240,8 @@ namespace MyEMSLReader
             {
                 if (!dctDatasetsAndSubDirLists.TryGetValue(file.Dataset, out subDirs))
                 {
-                    OnErrorMessage(new MessageEventArgs("File " + file.FileID + " has an unrecognized dateset name: " + file.Dataset + "; skipping"));
+                    ReportError("File " + file.FileID + " has an unrecognized dateset name: " + file.Dataset + 
+                        "; skipping (MyEMSLReader.LookupSubDirFilterByDataset)");
                     success = false;
                 }
             }
@@ -1279,7 +1282,7 @@ namespace MyEMSLReader
                 if (dctResults == null || dctResults.Count == 0)
                 {
                     if (string.IsNullOrWhiteSpace(ErrorMessage))
-                        ReportError("RunElasticSearchQuery returned an empty xml result");
+                        ReportError("MyEMSLReader.RunElasticSearchQuery returned an empty xml result");
                     LastSearchFileCountReturned = 0;
                     return new List<ArchivedFileInfo>();
                 }
@@ -1295,7 +1298,7 @@ namespace MyEMSLReader
             catch (Exception ex)
             {
                 if (string.IsNullOrWhiteSpace(ErrorMessage))
-                    ReportError("Error in MyEMSLReader.Reader.QueryElasticSearch: " + ex.Message);
+                    ReportError("Error in MyEMSLReader.QueryElasticSearch: " + ex.Message);
                 else if (ThrowErrors)
                     throw;
 
@@ -1326,7 +1329,7 @@ namespace MyEMSLReader
                 if (dctResults == null || dctResults.Count == 0)
                 {
                     if (string.IsNullOrWhiteSpace(ErrorMessage))
-                        ReportError("RunItemSearchQuery returned an empty xml result");
+                        ReportError("MyEMSLReader.RunItemSearchQuery returned an empty xml result");
                     LastSearchFileCountReturned = 0;
                     return new List<ArchivedFileInfo>();
                 }
@@ -1340,7 +1343,7 @@ namespace MyEMSLReader
             catch (Exception ex)
             {
                 if (string.IsNullOrWhiteSpace(ErrorMessage))
-                    ReportError("Error in MyEMSLReader.Reader.QueryItemSearch: " + ex.Message);
+                    ReportError("Error in MyEMSLReader.QueryItemSearch: " + ex.Message);
                 else if (ThrowErrors)
                     throw;
 
@@ -1492,7 +1495,7 @@ namespace MyEMSLReader
                 {
                     if (!auth.GetAuthCookies(out cookieJar))
                     {
-                        ReportError("Auto-login to " + authURL + " failed authentication for user " +
+                        ReportError("MyEMSLReader auto-login to " + authURL + " failed authentication for user " +
                                     Environment.UserDomainName + @"\" + Environment.UserName);
                         return dctResults;
                     }
@@ -1581,7 +1584,7 @@ namespace MyEMSLReader
 
                 if (string.IsNullOrEmpty(responseData))
                 {
-                    var msg = "No results returned from MyEMSL after " + maxAttempts + " attempts";
+                    var msg = "No results returned from MyEMSL after " + maxAttempts + " attempts (MyEMSLReader.RunElasticSearchQuery)";
                     if (mostRecentException != null)
                     {
                         if (mostRecentException.Message.StartsWith("Aurora Offline"))
@@ -1610,12 +1613,12 @@ namespace MyEMSLReader
                 if (response?.StatusCode == HttpStatusCode.ServiceUnavailable)
                 {
                     // MyEMSL is Offline
-                    ReportError("MyEMSL is offline", false);
+                    ReportError("MyEMSL is offline (MyEMSLReader.RunElasticSearchQuery)", false);
                     return dctResults;
                 }
 
                 ReportError(
-                    "WebException in MyEMSLReader.Reader.RunElasticSearchQuery contacting " + currentURL + 
+                    "WebException in MyEMSLReader.RunElasticSearchQuery contacting " + currentURL + 
                     " [" + currentStatus + "]: " + ex.Message, ex);
 
                 return dctResults;
@@ -1623,7 +1626,7 @@ namespace MyEMSLReader
             catch (Exception ex)
             {
                 ReportError(
-                    "Error in MyEMSLReader.Reader.RunElasticSearchQuery contacting " + currentURL + 
+                    "Error in MyEMSLReader.RunElasticSearchQuery contacting " + currentURL + 
                     " [" + currentStatus + "]: " + ex.Message, ex);
 
                 return dctResults;
@@ -1722,7 +1725,7 @@ namespace MyEMSLReader
                 
                 if (string.IsNullOrEmpty(responseData))
                 {
-                    var msg = "No results returned from MyEMSL after " + maxAttempts + " attempts";
+                    var msg = "No results returned from MyEMSL after " + maxAttempts + " attempts (MyEMSLReader.RunItemSearchQuery)";
                     if (mostRecentException != null)
                     {
                         if (mostRecentException.Message.StartsWith("Aurora Offline"))
@@ -1739,7 +1742,7 @@ namespace MyEMSLReader
             }
             catch (Exception ex)
             {
-                ReportError("Error in MyEMSLReader.Reader.RunItemSearchQuery: " + ex.Message, ex);
+                ReportError("Error in MyEMSLReader.RunItemSearchQuery: " + ex.Message, ex);
                 return dctResults;
             }
 

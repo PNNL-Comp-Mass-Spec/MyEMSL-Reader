@@ -122,7 +122,9 @@ namespace MyEMSLReader
             }
             catch (Exception ex)
             {
-                mErrorMessages.Add("Error in MyEMSLReader.DatasetListInfo.RefreshInfo: " + ex.Message);
+                var msg = "Error in MyEMSLReader.DatasetListInfo.RefreshInfo: " + ex.Message;
+                OnErrorEvent(msg, ex);
+                mErrorMessages.Add(msg);
                 return false;
             }
         }

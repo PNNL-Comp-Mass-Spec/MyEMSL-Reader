@@ -2,10 +2,11 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+using PRISM;
 
 namespace MyEMSLReader
 {
-    public class DownloadQueue
+    public class DownloadQueue : clsEventNotifier
     {
         #region "Structures"
         public struct udtFileToDownload
@@ -22,9 +23,6 @@ namespace MyEMSLReader
 
         #region "Events"
 
-        public event MessageEventHandler ErrorEvent;
-        public event MessageEventHandler MessageEvent;
-        public event ProgressEventHandler ProgressEvent;
         public event FileDownloadedEventHandler FileDownloadedEvent;
 
         #endregion
@@ -160,18 +158,14 @@ namespace MyEMSLReader
 
             if (FilesToDownload.Count == 0)
             {
-                OnError("Download queue is empty; nothing to download");
+                OnErrorEvent("Download queue is empty; nothing to download (ProcessDownloadQueue)");
                 return false;
             }
 
             try
             {
                 var downloader = new Downloader();
-
-                // Attach events
-                downloader.ErrorEvent += OnErrorEvent;
-                downloader.MessageEvent += OnMessageEvent;
-                downloader.ProgressEvent += OnProgressEvent;
+                RegisterEvents(downloader);
 
                 downloader.DisableCart = disableCart;
                 downloader.ForceDownloadViaCart = forceDownloadViaCart;
@@ -207,33 +201,10 @@ namespace MyEMSLReader
             }
             catch (Exception ex)
             {
-                OnError("Error in MyEMSLReader.DownloadQueue.ProcessDownloadQueue: " + ex.Message);
+                OnErrorEvent("Error in MyEMSLReader.DownloadQueue.ProcessDownloadQueue: " + ex.Message, ex);
                 return false;
             }
         }
 
-        #region "Event handlers"
-
-        private void OnError(string errorMessage)
-        {
-            ErrorEvent?.Invoke(this, new MessageEventArgs(errorMessage));
-        }
-
-        private void OnErrorEvent(object sender, MessageEventArgs e)
-        {
-            OnError("MyEMSL downloader error in MyEMSLReader.DownloadQueue: " + e.Message);
-        }
-
-        private void OnMessageEvent(object sender, MessageEventArgs e)
-        {
-            MessageEvent?.Invoke(this, new MessageEventArgs("MyEMSL downloader: " + e.Message));
-        }
-
-        private void OnProgressEvent(object sender, ProgressEventArgs e)
-        {
-            ProgressEvent?.Invoke(sender, e);
-        }
-
-        #endregion
     }
 }

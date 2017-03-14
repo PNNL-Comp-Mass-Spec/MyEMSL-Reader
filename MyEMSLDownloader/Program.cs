@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using FileProcessor;
 using MyEMSLReader;
+using PRISM;
 
 namespace MyEMSLDownloader
 {
@@ -95,14 +95,12 @@ namespace MyEMSLDownloader
                 }
 
                 mDatasetListInfo = new DatasetListInfo();
+                RegisterEvents(mDatasetListInfo);
+
                 mDataPackageListInfo = new DataPackageListInfo();
+                RegisterEvents(mDataPackageListInfo);
 
-                mDatasetListInfo.ErrorEvent += mDatasetListInfo_ErrorEvent;
-                mDatasetListInfo.MessageEvent += mDatasetListInfo_MessageEvent;
                 mDatasetListInfo.UseTestInstance = mUseTestInstance;
-
-                mDataPackageListInfo.ErrorEvent += mDatasetListInfo_ErrorEvent;
-                mDataPackageListInfo.MessageEvent += mDatasetListInfo_MessageEvent;
                 mDataPackageListInfo.UseTestInstance = mUseTestInstance;
 
                 if (mAutoTestMode)
@@ -584,7 +582,9 @@ namespace MyEMSLDownloader
 
             Console.WriteLine();
             Console.WriteLine(strSeparator);
+            Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(strMessage);
+            Console.ResetColor();
             Console.WriteLine(strSeparator);
             Console.WriteLine();
 
@@ -597,14 +597,17 @@ namespace MyEMSLDownloader
 
             Console.WriteLine();
             Console.WriteLine(strSeparator);
+            Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(strTitle);
             var strMessage = strTitle + ":";
 
+            Console.ForegroundColor = ConsoleColor.Magenta;
             foreach (var item in items)
             {
                 Console.WriteLine("   " + item);
                 strMessage += " " + item;
             }
+            Console.ResetColor();
             Console.WriteLine(strSeparator);
             Console.WriteLine();
 
@@ -725,10 +728,8 @@ namespace MyEMSLDownloader
                 IncludeAllRevisions = false
             };
 
-            // Attach events			
-            reader.ErrorEvent += reader_ErrorEvent;
-            reader.MessageEvent += reader_MessageEvent;
-            reader.ProgressEvent += reader_ProgressEvent;
+            // Attach events
+            RegisterEvents(reader);
             reader.UseTestInstance = mUseTestInstance;
 
             var lstFileIDs1 = TestMultiDataset(reader);
@@ -772,6 +773,8 @@ namespace MyEMSLDownloader
                 }
 
                 var dataPackageInfoCache = new DataPackageListInfo();
+                RegisterEvents(dataPackageInfoCache);
+
                 dataPackageInfoCache.AddDataPackage(814);
 
                 var archiveFiles = dataPackageInfoCache.FindFiles("SamplePrepTest_Plasma*", @"misc\final melissa tables");
@@ -902,10 +905,7 @@ namespace MyEMSLDownloader
             Console.WriteLine();
 
             var downloader = new Downloader();
-
-            downloader.ErrorEvent += reader_ErrorEvent;
-            downloader.MessageEvent += reader_MessageEvent;
-            downloader.ProgressEvent += reader_ProgressEvent;
+            RegisterEvents(downloader);
 
             downloader.OverwriteMode = Downloader.Overwrite.IfChanged;
             downloader.UseTestInstance = mUseTestInstance;
@@ -953,34 +953,52 @@ namespace MyEMSLDownloader
 
         #region "Event Handlers"
 
-        static void mDatasetListInfo_ErrorEvent(object sender, MessageEventArgs e)
+        private static void RegisterEvents(clsEventNotifier oProcessingClass)
         {
-            ShowErrorMessage(e.Message);
+            oProcessingClass.DebugEvent += OnDebugEvent;
+            oProcessingClass.StatusEvent += OnStatusEvent;
+            oProcessingClass.ErrorEvent += OnErrorEvent;
+            oProcessingClass.WarningEvent += OnWarningEvent;
+            oProcessingClass.ProgressUpdate += OnProgressUpdate;
         }
 
-        static void mDatasetListInfo_MessageEvent(object sender, MessageEventArgs e)
+        private static void OnDebugEvent(string message)
         {
-            Console.WriteLine(e.Message);
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine(message);
+            Console.ResetColor();
         }
 
-        static void reader_ErrorEvent(object sender, MessageEventArgs e)
+        private static void OnStatusEvent(string message)
         {
-            Console.WriteLine("Error: " + e.Message);
+            Console.WriteLine(message);
         }
 
-        static void reader_MessageEvent(object sender, MessageEventArgs e)
+        private static void OnErrorEvent(string message, Exception ex)
         {
-            Console.WriteLine(e.Message);
+            ShowErrorMessage(message);
+
+            if (ex != null)
+            {
+                Console.WriteLine(clsStackTraceFormatter.GetExceptionStackTraceMultiLine(ex));
+            }
         }
 
-        static void reader_ProgressEvent(object sender, ProgressEventArgs e)
+        private static void OnWarningEvent(string message)
         {
-            if (e.PercentComplete > mPercentComplete || DateTime.UtcNow.Subtract(mLastProgressUpdateTime).TotalSeconds >= 30)
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine(message);
+            Console.ResetColor();
+        }
+
+        private static void OnProgressUpdate(string progressmessage, float percentcomplete)
+        {
+            if (percentcomplete > mPercentComplete || DateTime.UtcNow.Subtract(mLastProgressUpdateTime).TotalSeconds >= 30)
             {
                 if (DateTime.UtcNow.Subtract(mLastProgressUpdateTime).TotalSeconds >= 1)
                 {
-                    Console.WriteLine("Percent complete: " + e.PercentComplete.ToString("0.0") + "%");
-                    mPercentComplete = e.PercentComplete;
+                    Console.WriteLine("Percent complete: " + percentcomplete.ToString("0.0") + "%");
+                    mPercentComplete = percentcomplete;
                     mLastProgressUpdateTime = DateTime.UtcNow;
                 }
             }

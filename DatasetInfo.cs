@@ -68,15 +68,15 @@ namespace MyEMSLReader
                 string message;
                 if (unzipRequired)
                 {
-                    message = "Cannot queue file " + myEMSLFileID + " for download because the UnzipRequired flag was set, but the MyEMSL FileID is not cached locally for dataset " + mDatasetName;
-                    Console.WriteLine(message);
+                    message = "Cannot queue file " + myEMSLFileID + " for download because the UnzipRequired flag was set, " +
+                              "but the MyEMSL FileID is not cached locally for dataset " + mDatasetName;
+                    OnErrorEvent(message);
                     throw new FormatException(message);
                 }
 
-                message = "Queued file " + myEMSLFileID + " for download with null ArchivedFileInfo because the MyEMSL FileID is not cached locally for dataset " + mDatasetName;
-                Console.WriteLine(message);
-
-                OnErrorEvent(this, new MessageEventArgs(message));
+                message = "Queued file " + myEMSLFileID + " for download with null ArchivedFileInfo " +
+                          "because the MyEMSL FileID is not cached locally for dataset " + mDatasetName;
+                OnErrorEvent(message);
 
                 AddFileToDownloadQueue(myEMSLFileID, null, unzipRequired: false);
             }
@@ -134,7 +134,9 @@ namespace MyEMSLReader
             }
             catch (Exception ex)
             {
-                mErrorMessages.Add("Error in MyEMSLReader.DatasetInfo.RefreshInfo: " + ex.Message);
+                var msg = "Error in MyEMSLReader.DatasetInfo.RefreshInfo: " + ex.Message;
+                OnErrorEvent(msg, ex);
+                mErrorMessages.Add(msg);
                 return false;
             }
 

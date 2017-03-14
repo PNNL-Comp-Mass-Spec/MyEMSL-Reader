@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using MyEMSLReader;
+using PRISM;
 
 namespace MyEMSLDownloader
 {
@@ -11,13 +12,14 @@ namespace MyEMSLDownloader
         {
 
             var datasetListInfo = new DatasetListInfo();
-            datasetListInfo.ErrorEvent += datasetListInfo_ErrorEvent;
-            datasetListInfo.MessageEvent += datasetListInfo_MessageEvent;
+            datasetListInfo.DebugEvent += OnDebugEvent;
+            datasetListInfo.StatusEvent += OnStatusEvent;
+            datasetListInfo.ErrorEvent += OnErrorEvent;
+            datasetListInfo.WarningEvent += OnWarningEvent;
 
             GetFileStart(datasetListInfo);
-            
-        }
 
+        }
 
         private void GetFileStart(DatasetListInfo datasetListInfo)
         {
@@ -36,7 +38,7 @@ namespace MyEMSLDownloader
         }
 
         private void GetRawFile(DatasetListInfo datasetListInfo, string datasetName, string outputFolderPath)
-        {            
+        {
             datasetListInfo.AddDataset(datasetName);
 
             Console.WriteLine("Searching for " + datasetName + ".raw");
@@ -88,14 +90,33 @@ namespace MyEMSLDownloader
 
         #region "Event Handlers"
 
-        private void datasetListInfo_ErrorEvent(object sender, MessageEventArgs e)
+        private void OnDebugEvent(string message)
         {
-            ShowErrorMessage(e.Message);
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine(message);
+            Console.ResetColor();
         }
 
-        private void datasetListInfo_MessageEvent(object sender, MessageEventArgs e)
+        private void OnStatusEvent(string message)
         {
-            Console.WriteLine(e.Message);
+            Console.WriteLine(message);
+        }
+
+        private void OnErrorEvent(string message, Exception ex)
+        {
+            ShowErrorMessage(message);
+
+            if (ex != null)
+            {
+                Console.WriteLine(clsStackTraceFormatter.GetExceptionStackTraceMultiLine(ex));
+            }
+        }
+
+        private void OnWarningEvent(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine(message);
+            Console.ResetColor();
         }
 
         #endregion
