@@ -139,6 +139,12 @@ namespace MyEMSLDownloader
                         }
                         else
                         {
+                            if (string.IsNullOrWhiteSpace(mDatasetName))
+                            {
+                                ShowErrorMessage("Dataset or data package name not specified. Use /Dataset or /DataPkg or /FileList or /FileID");
+                                System.Threading.Thread.Sleep(1000);
+                                return -1;
+                            }
                             archiveFiles = FindDatasetFiles(mDatasetName, mSubfolder, mFileMask, mFileSplit);
                         }
                     }
@@ -536,6 +542,15 @@ namespace MyEMSLDownloader
 
                 if (!string.IsNullOrWhiteSpace(mFileListPath))
                 {
+                    mMultiDatasetMode = true;
+                }
+
+                if (objParseCommandLine.IsParameterPresent("D"))
+                {
+                    if (objParseCommandLine.RetrieveValueForParameter("D", out var value))
+                    {
+                        ShowErrorMessage("The /D switch should not have a value; use /Dataset to specify a dataset name");
+                    }
                     mMultiDatasetMode = true;
                 }
 

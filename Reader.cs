@@ -438,6 +438,10 @@ namespace MyEMSLReader
             var dctSearchTerms = new List<KeyValuePair<string, string>>();
             foreach (var dataset in dctDatasetsAndSubDirLists)
             {
+                if (string.IsNullOrWhiteSpace(dataset.Key))
+                {
+                    throw new Exception("Dataset name cannot be empty when finding files by dataset name");
+                }
                 dctSearchTerms.Add(new KeyValuePair<string, string>(QUERY_SPEC_DATASET_NAME, dataset.Key));
             }
 
