@@ -1,5 +1,9 @@
 MyEMSLDownloader Revision History
 
+Version 1.1.6281; March 13, 2017
+	- Check for the use of /D:DatasetName instead /Dataset:DatasetName
+	- Updated MyEMSLReader.dll that depends on PRISM.dll and uses clsEventNotifier for reporting events
+
 Version 1.0.6229; January 20, 2017
 	- Add switch /FileSplit
 		- When used, filenames in /Files will be split on semicolons before finding the files in MyEMSL

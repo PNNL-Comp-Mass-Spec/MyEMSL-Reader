@@ -1,5 +1,8 @@
 MyEMSL Reader Revision History
 
+Version 1.2.6281; March 13, 2017
+	- Use clsEventNotifier in PRISM.dll for reporting events
+
 Version 1.1.6024; June 29, 2016
 	- Check for response code 503 (Service Unavailable)
 

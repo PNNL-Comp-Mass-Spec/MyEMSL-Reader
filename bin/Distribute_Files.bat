@@ -84,7 +84,6 @@ echo.
 @echo on
 
 xcopy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\Mage\lib" /D /Y
-xcopy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage_SVN\Mage\lib" /D /Y
 
 xcopy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\DeployedFiles\MageFileProcessor" /D /Y
 xcopy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\DeployedFiles\MageExtractor" /D /Y
@@ -101,7 +100,6 @@ xcopy debug\Pacifica.Core.dll "F:\My Documents\Projects\DataMining\DMS_Managers\
 xcopy debug\Pacifica.Core.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Space_Manager\DMS_Space_Manager\Bin\Release" /D /Y
 
 xcopy debug\Pacifica.Core.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\Mage\lib" /D /Y
-xcopy debug\Pacifica.Core.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\Mage\bin\Debug" /D /Y
 xcopy debug\Pacifica.Core.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\Mage\bin\Release" /D /Y
 xcopy debug\Pacifica.Core.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\DeployedFiles\MageFileProcessor" /D /Y
 xcopy debug\Pacifica.Core.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\DeployedFiles\MageExtractor" /D /Y
