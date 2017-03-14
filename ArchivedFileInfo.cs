@@ -16,7 +16,6 @@ namespace MyEMSLReader
         public string Dataset
         {
             get;
-            private set;
         }
 
         /// <summary>
@@ -50,9 +49,7 @@ namespace MyEMSLReader
         }
         public string Filename
         {
-            get;
-            private set;
-        }
+            get; }
 
         public Int64 FileID
         {
@@ -181,7 +178,6 @@ namespace MyEMSLReader
         public string SubDirPath
         {
             get;
-            private set;
         }
 
         public string SubmissionTime

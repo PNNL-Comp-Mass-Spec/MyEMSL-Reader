@@ -37,7 +37,6 @@ namespace MyEMSLReader
         public Dictionary<Int64, udtFileToDownload> FilesToDownload
         {
             get;
-            private set;
         }
 
         /// <summary>

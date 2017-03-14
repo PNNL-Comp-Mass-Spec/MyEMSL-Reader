@@ -13,15 +13,14 @@ namespace MyEMSLReader
 			private set;
 		}
 
-		/// <summary>
-		/// MyEMSL File ID
-		/// </summary>
-		/// <remarks>Will be 0 if this is a folder</remarks>
-		public Int64 FileID
-		{
-			get;
-			private set;
-		}
+        /// <summary>
+        /// MyEMSL File ID
+        /// </summary>
+        /// <remarks>Will be 0 if this is a folder</remarks>
+        public Int64 FileID
+        {
+            get;
+        }
 
 		/// <summary>
 		/// True if this entity is a folder in MyEMSL
@@ -32,14 +31,13 @@ namespace MyEMSLReader
 			private set;
 		}
 
-		/// <summary>
-		/// File information
-		/// </summary>
-		public ArchivedFileInfo FileInfo
-		{
-			get;
-			private set;
-		}
+        /// <summary>
+        /// File information
+        /// </summary>
+        public ArchivedFileInfo FileInfo
+        {
+            get;
+        }
 
 		/// <summary>
 		/// Constructor

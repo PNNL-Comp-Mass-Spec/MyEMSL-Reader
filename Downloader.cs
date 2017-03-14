@@ -71,7 +71,6 @@ namespace MyEMSLReader
         public Dictionary<string, ArchivedFileInfo> DownloadedFiles
         {
             get;
-            private set;
         }
 
         /// <summary>
