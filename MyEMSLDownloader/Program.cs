@@ -106,6 +106,7 @@ namespace MyEMSLDownloader
                 if (mAutoTestMode)
                 {
                     AutoTestModeStart();
+                    System.Threading.Thread.Sleep(1000);
                     return 0;
                 }
 
@@ -121,6 +122,7 @@ namespace MyEMSLDownloader
                         if (!fiFileListFile.Exists)
                         {
                             ShowErrorMessage("File not found: " + fiFileListFile.FullName);
+                            System.Threading.Thread.Sleep(1000);
                             return -1;
                         }
 
@@ -134,6 +136,7 @@ namespace MyEMSLDownloader
                             if (archiveFiles.Count == 0)
                             {
                                 ShowErrorMessage("No File IDs were found with the /FileID paramter");
+                                System.Threading.Thread.Sleep(1000);
                                 return -1;
                             }
                         }
@@ -175,9 +178,11 @@ namespace MyEMSLDownloader
             {
                 Console.WriteLine("Error occurred in Program->Main: " + Environment.NewLine + ex.Message);
                 Console.WriteLine(ex.StackTrace);
+                System.Threading.Thread.Sleep(1000);
                 return -1;
             }
 
+            System.Threading.Thread.Sleep(1000);
             return 0;
         }
 
@@ -708,8 +713,8 @@ namespace MyEMSLDownloader
                 Console.WriteLine("Website: http://panomics.pnnl.gov/ or http://omics.pnl.gov or http://www.sysbio.org/resources/staff/");
                 Console.WriteLine();
 
-                // Delay for 750 msec in case the user double clicked this file from within Windows Explorer (or started the program via a shortcut)
-                System.Threading.Thread.Sleep(750);
+                // Delay for 1 second in case the user double clicked this file from within Windows Explorer (or started the program via a shortcut)
+                System.Threading.Thread.Sleep(1000);
 
             }
             catch (Exception ex)
