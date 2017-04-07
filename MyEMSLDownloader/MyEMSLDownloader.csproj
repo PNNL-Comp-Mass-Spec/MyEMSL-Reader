@@ -41,9 +41,6 @@
     <Reference Include="Jayrock.Json">
       <HintPath>..\Lib\Jayrock.Json.dll</HintPath>
     </Reference>
-    <Reference Include="MyEMSLReader">
-      <HintPath>..\Lib\MyEMSLReader.dll</HintPath>
-    </Reference>
     <Reference Include="Pacifica.Core, Version=2.0.6018.31875, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Lib\Pacifica.Core.dll</HintPath>
@@ -67,6 +64,12 @@
     <PackageReference Include="PRISM-Library">
       <Version>1.0.2</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MyEMSLReader.csproj">
+      <Project>{3672e426-ffb5-43c0-a78b-d29e66e0076d}</Project>
+      <Name>MyEMSLReader</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

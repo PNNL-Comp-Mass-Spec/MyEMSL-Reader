@@ -73,7 +73,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy "$(TargetPath)" "$(ProjectDir)Lib" /D /Y /I
+    <PostBuildEvent>
 
 </PostBuildEvent>
   </PropertyGroup>
