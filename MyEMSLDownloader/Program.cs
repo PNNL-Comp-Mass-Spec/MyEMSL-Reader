@@ -15,7 +15,7 @@ namespace MyEMSLDownloader
 
     internal static class Program
     {
-        private const string PROGRAM_DATE = "March 13, 2017";
+        private const string PROGRAM_DATE = "May 15, 2017";
 
         static double mPercentComplete;
         static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
@@ -164,15 +164,17 @@ namespace MyEMSLDownloader
 
                 ShowFiles(archiveFiles, mVerbosePreview);
 
-                if (!mPreviewMode)
+                if (mPreviewMode)
                 {
-                    Console.WriteLine();
-                    if (mDataPkgID > 0)
-                        DownloadDataPackageFiles(archiveFiles, mOutputFolderPath);
-                    else
-                        DownloadDatasetFiles(archiveFiles, mOutputFolderPath);
+                    System.Threading.Thread.Sleep(1500);
+                    return 0;
                 }
-                
+
+                Console.WriteLine();
+                if (mDataPkgID > 0)
+                    DownloadDataPackageFiles(archiveFiles, mOutputFolderPath);
+                else
+                    DownloadDatasetFiles(archiveFiles, mOutputFolderPath);
             }
             catch (Exception ex)
             {
@@ -371,6 +373,12 @@ namespace MyEMSLDownloader
                         {
                             datasetFiles = new List<udtFileInfo>();
                             datasetsToSearch.Add(dataset, datasetFiles);
+                        }
+
+                        if (string.IsNullOrWhiteSpace(fileToFind.FileMask))
+                        {
+                            Console.WriteLine("Ignoring line with empty filename: " + dataLine.Replace("\t", "<tab>"));
+                            continue;
                         }
 
                         datasetFiles.Add(fileToFind);
