@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
 using System.Net;
 using System.Threading;
@@ -92,6 +93,48 @@ namespace MyEMSLReader
             {
                 // Ignore errors here
             }
+        }
+
+        /// <summary>
+        /// Get the value for a field, using valueIfNull if the field is null
+        /// </summary>
+        /// <param name="reader">Reader</param>
+        /// <param name="fieldName">Field name</param>
+        /// <param name="valueIfNull">Integer to return if null</param>
+        /// <param name="isNull">True if the value is null</param>
+        /// <returns>Integer</returns>
+        protected static int GetDbValue(IDataRecord reader, string fieldName, int valueIfNull, out bool isNull)
+        {
+            if (Convert.IsDBNull(reader[fieldName]))
+            {
+                isNull = true;
+                return valueIfNull;
+            }
+
+            isNull = false;
+            return (int)reader[fieldName];
+        }
+
+        /// <summary>
+        /// Get the value for a field, using valueIfNull if the field is null
+        /// </summary>
+        /// <param name="reader">Reader</param>
+        /// <param name="fieldName">Field name</param>
+        /// <param name="valueIfNull">String to return if null</param>
+        /// <param name="isNull">True if the value is null</param>
+        /// <returns>String</returns>
+        protected static string GetDbValue(IDataRecord reader, string fieldName, string valueIfNull, out bool isNull)
+        {
+            if (Convert.IsDBNull(reader[fieldName]))
+            {
+                isNull = true;
+                return valueIfNull;
+            }
+
+            isNull = false;
+
+            // Use .ToString() and not a string cast to allow for DateTime fields to convert to strings
+            return reader[fieldName].ToString();
         }
 
         protected static Dictionary<string, SortedSet<string>> GetSingleItemSortedSetDictionary(string datasetNameOrID, string subDir)

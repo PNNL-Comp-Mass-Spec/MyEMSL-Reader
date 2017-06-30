@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using Jayrock.Json.Conversion;
 using Pacifica.Core;
 
 namespace MyEMSLReader
@@ -19,13 +22,13 @@ namespace MyEMSLReader
     {
         #region "Constants"
 
-        // When using the Item Search service, we remove the "groups." portion from the beginning of these search terms
+        // Obsolete: private const string QUERY_SPEC_INSTRUMENT = "omics.dms.instrument";
 
-        private const string QUERY_SPEC_INSTRUMENT = "groups.omics.dms.instrument";
-        private const string QUERY_SPEC_DATASET_ID = "groups.omics.dms.dataset_id";
-        private const string QUERY_SPEC_DATASET_NAME = "groups.omics.dms.dataset";
+        private const string QUERY_SPEC_DATASET_ID = "omics.dms.dataset_id";
+        private const string QUERY_SPEC_DATASET_NAME = "omics.dms.dataset_name";
 
-        private const string QUERY_SPEC_DATA_PACKAGE_ID = "groups.omics.dms.datapackage_id";
+        private const string QUERY_SPEC_DATA_PACKAGE_ID = "omics.dms.datapackage_id";
+
         // Unused: private const string QUERY_SPEC_DATA_PACKAGE_ID_ALT = "extended_metadata.gov_pnnl_emsl_dms_datapackage.id";
 
         // Unused: private const string QUERY_SPEC_FILENAME = "filename";
@@ -35,6 +38,8 @@ namespace MyEMSLReader
 
         private const string DATASET_ID_TAG = "#*#*#_DATASET_ID_";
         private const string DATA_PKG_ID_TAG = "#*#*#_DATA_PKG_ID_";
+
+        private const string DEFAULT_DMS_CONNECTION_STRING = "Data Source=gigasax;Initial Catalog=DMS5;Integrated Security=SSPI";
 
         #endregion
 
@@ -56,6 +61,8 @@ namespace MyEMSLReader
         #endregion
 
         #region "Properties"
+
+        public string DMSConnectionString { get; set; } = DEFAULT_DMS_CONNECTION_STRING;
 
         /// <summary>
         /// When True, will include all revisions of files that were imported to MyEMSL multiple times
@@ -409,8 +416,8 @@ namespace MyEMSLReader
         /// Find all files in MyEMSL for a list of datasets (by dataset name)
         /// </summary>
         /// <param name="dctDatasetsAndSubDirLists">
-        /// Keys are dataset names, 
-        /// Values are a list of subdirectory names to filter on for the given dataset 
+        /// Keys are dataset names,
+        /// Values are a list of subdirectory names to filter on for the given dataset
         /// (exact match; cannot contain wildcards; empty list means do not filter by subdirectory name)
         /// </param>
         /// <returns>List of matched files</returns>
@@ -424,8 +431,8 @@ namespace MyEMSLReader
         /// Find all files in MyEMSL for a list of datasets (by dataset name)
         /// </summary>
         /// <param name="dctDatasetsAndSubDirLists">
-        /// Keys are dataset names, 
-        /// Values are a list of subdirectory names to filter on for the given dataset 
+        /// Keys are dataset names,
+        /// Values are a list of subdirectory names to filter on for the given dataset
         /// (exact match; cannot contain wildcards; empty list means do not filter by subdirectory name)
         /// </param>
         /// <param name="recurse">True to recursively search for files</param>
@@ -476,14 +483,14 @@ namespace MyEMSLReader
         /// Add a dataset name / subDir combo to the given tracking dictionary
         /// </summary>
         /// <param name="dctDatasetsAndSubDirLists">
-        /// Keys are dataset names, 
-        /// Values are a list of subdirectory names to filter on for the given dataset 
+        /// Keys are dataset names,
+        /// Values are a list of subdirectory names to filter on for the given dataset
         /// (exact match; cannot contain wildcards; empty list means do not filter by subdirectory name)
         /// </param>
         /// <param name="datasetName">Dataset Name</param>
         /// <param name="subDir">Subdirectory name to filter on (exact match; cannot contain wildcards)</param>
         private void ConvertDatasetSubDirAddToDictionary(
-            Dictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists,
+            IDictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists,
             string datasetName,
             string subDir)
         {
@@ -508,6 +515,17 @@ namespace MyEMSLReader
                 dctDatasetsAndSubDirLists.Add(datasetName, subDirsForDataset);
             }
 
+        }
+
+        /// <summary>
+        /// Return true if fileVersions has a file with the given hash
+        /// </summary>
+        /// <param name="fileVersions">List of files in MyEMSL</param>
+        /// <param name="fileHash">Sha-1 hash to find</param>
+        /// <returns>True if a match is found, otherwise false</returns>
+        private bool FileHashExists(IEnumerable<ArchivedFileInfo> fileVersions, string fileHash)
+        {
+            return (from item in fileVersions where string.Equals(item.Sha1Hash, fileHash) select item).Any();
         }
 
         private List<ArchivedFileInfo> FilterFilesNoRecursion(
@@ -579,7 +597,7 @@ namespace MyEMSLReader
 
             }
 
-            // Equivalent Linq expression: 
+            // Equivalent Linq expression:
             // return lstFiles.Where(file => lstDatasetIDsSorted.Contains(file.DatasetID) || file.DatasetID == 0).ToList();
 
             foreach (var file in lstFiles)
@@ -600,7 +618,7 @@ namespace MyEMSLReader
             var lstFilesFiltered = new List<ArchivedFileInfo>();
             var lstDatasetNamesSorted = new SortedSet<string>(datasetNames, StringComparer.OrdinalIgnoreCase);
 
-            // Equivalent Linq expression: 
+            // Equivalent Linq expression:
             // return lstFiles.Where(file => lstDatasetNamesSorted.Contains(file.Dataset)).ToList();
 
             foreach (var file in lstFiles)
@@ -685,15 +703,21 @@ namespace MyEMSLReader
         /// Searches for files associated with one or more datasets
         /// </summary>
         /// <param name="dctDatasetsAndSubDirLists">
-        /// Keys are dataset names, 
-        /// Values are a list of subdirectory names to filter on for the given dataset 
+        /// Keys are dataset names (or DATASET_ID_TAG and DatasetID or DATA_PKG_ID_TAG and DataPkgID),
+        /// Values are a list of subdirectory names to filter on for the given dataset
         /// (exact match; cannot contain wildcards; empty list means do not filter by subdirectory name)
         /// </param>
         /// <param name="recurse">True to recursively find files</param>
         /// <param name="instrumentName">Ignored if dctDatasetsAndSubDirLists has more than one entry</param>
         /// <param name="dctSearchTerms">
-        /// If dctDatasetsAndSubDirLists only has one entry, the dataset name will be ignored 
-        /// (it cannot be blank, but it could be "dummy" or "unknown" or "0", etc.)
+        /// Search terms as key/value pairs
+        /// Should support the following, but only actually supports "omics.dms.dataset_id" and omics.dms.dataset_name at present
+        ///   omics.dms.dataset_id
+        ///   omics.dms.dataset_name
+        ///   omics.dms.datapackage_id
+        ///
+        ///  If dctDatasetsAndSubDirLists only has one entry, the dataset name will be ignored and the value in dctSearchTerms will take precedence
+        ///  (it cannot be blank, but it could be "dummy" or "unknown" or "0", etc.)
         /// </param>
         /// <returns>Files that were found</returns>
         /// <remarks>
@@ -704,7 +728,7 @@ namespace MyEMSLReader
             Dictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists,
             bool recurse,
             string instrumentName,
-            List<KeyValuePair<string, string>> dctSearchTerms)
+            IEnumerable<KeyValuePair<string, string>> dctSearchTerms)
         {
 
             try
@@ -715,7 +739,7 @@ namespace MyEMSLReader
 
                 var dctDatasetsAndSubDirListsCleaned = new Dictionary<string, SortedSet<string>>(StringComparer.OrdinalIgnoreCase);
 
-                // Make sure subDir entries have unix-style slashes               
+                // Make sure subDir entries have unix-style slashes
                 foreach (var dataset in dctDatasetsAndSubDirLists)
                 {
                     var subDirList = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -743,36 +767,59 @@ namespace MyEMSLReader
                 // Make sure that dctDatasetsAndSubDirListsCleaned does not contain a mix of datasets, dataset IDs, and data package IDs
                 ValidateDatasetInfoDictionary(dctDatasetsAndSubDirListsCleaned);
 
-                SearchOperator logicalOperator;
+                var lstFiles = new List<ArchivedFileInfo>();
 
-                if (dctDatasetsAndSubDirListsCleaned.Count == 1)
-                {
-                    if (!string.IsNullOrWhiteSpace(instrumentName))
-                    {
-                        dctSearchTerms.Add(new KeyValuePair<string, string>(QUERY_SPEC_INSTRUMENT, instrumentName));
-                    }
-                    logicalOperator = SearchOperator.And;
-                }
-                else
-                {
-                    logicalOperator = SearchOperator.Or;
-                }
+                // Keys in this file are remote file paths; values are the transaction ID for that file
+                var remoteFilePaths = new Dictionary<string, ArchivedFileInfo>();
 
-                List<ArchivedFileInfo> lstFiles;
+                LastSearchFileCountMatched = 0;
+                LastSearchFileCountReturned = 0;
 
-                if (mUseItemSearch)
+                var filterOnInstrument = !string.IsNullOrWhiteSpace(instrumentName);
+
+                foreach (var searchTerm in dctSearchTerms)
                 {
+
                     // Run the query against the Item Search service
-                    lstFiles = QueryItemSearchService(dctSearchTerms, logicalOperator);
-                }
-                else
-                {
-                    // Run the query against Elastic Search
-                    lstFiles = QueryElasticSearch(dctSearchTerms, logicalOperator);                
+                    var lstFilesToAdd = RunItemSearchQuery(searchTerm.Key, searchTerm.Value);
+
+                    foreach (var remoteFile in lstFilesToAdd)
+                    {
+
+                        if (filterOnInstrument)
+                        {
+                            // Skip files that do not match this instrument
+                            var fileInstrument = remoteFile.Value.First().Instrument;
+
+                            if (!string.IsNullOrEmpty(fileInstrument) && !string.Equals(fileInstrument, instrumentName, StringComparison.OrdinalIgnoreCase))
+                                continue;
+                        }
+
+                        // Select the newest version of the item
+                        var newestVersion = (from item in remoteFile.Value orderby item.TransactionID descending select item).First();
+
+                        if (remoteFilePaths.TryGetValue(remoteFile.Key, out var existingArchiveFile))
+                        {
+                            if (newestVersion.TransactionID > existingArchiveFile.TransactionID)
+                            {
+                                lstFiles.Remove(existingArchiveFile);
+                                lstFiles.Add(newestVersion);
+                                remoteFilePaths[remoteFile.Key] = newestVersion;
+                            }
+                        }
+                        else
+                        {
+                            lstFiles.Add(newestVersion);
+                            remoteFilePaths.Add(remoteFile.Key, newestVersion);
+                            LastSearchFileCountReturned += 1;
+                        }
+
+                    }
+
                 }
 
                 // Filter the results
-                lstFiles = FilterElasticSearchResults(dctDatasetsAndSubDirListsCleaned, recurse, lstFiles, filterOnSubDir);
+                lstFiles = FilterSearchResults(dctDatasetsAndSubDirListsCleaned, recurse, lstFiles, filterOnSubDir);
 
                 // Return the results, sorted by folder path and file name
                 return (from item in lstFiles orderby item.PathWithInstrumentAndDatasetWindows select item).ToList();
@@ -789,9 +836,9 @@ namespace MyEMSLReader
             }
         }
 
-        private List<ArchivedFileInfo> FilterElasticSearchResults(
+        private List<ArchivedFileInfo> FilterSearchResults(
             Dictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists,
-            bool recurse, 
+            bool recurse,
             List<ArchivedFileInfo> lstFiles,
             bool filterOnSubDir)
         {
@@ -1086,7 +1133,7 @@ namespace MyEMSLReader
                         {
                             try
                             {
-                               
+
                                 int fileID;
                                 if (!int.TryParse(fileEntry.Key, out fileID))
                                 {
@@ -1096,7 +1143,7 @@ namespace MyEMSLReader
                                 }
 
                                 var dctFileInfo = (Dictionary<string, object>)fileEntry.Value;
-                                
+
                                 var instrumentName = ReadDictionaryValue(dctMetadata, "omics.dms.instrument", string.Empty);
                                 if (string.IsNullOrEmpty(instrumentName))
                                 {
@@ -1123,7 +1170,7 @@ namespace MyEMSLReader
 
                                 var datasetYearQuarter = ReadDictionaryValue(dctMetadata, "omics.dms.date_code", string.Empty);
                                 var subDir = ReadDictionaryValue(dctFileInfo, "full_path", string.Empty);
-                                
+
                                 if (!string.IsNullOrEmpty(subDir))
                                 {
                                     var lastSlashIndex = subDir.LastIndexOf('/');
@@ -1136,7 +1183,7 @@ namespace MyEMSLReader
                                         subDir = subDir.Substring(0, lastSlashIndex);
                                     }
                                 }
-                                
+
                                 var fileSha1Hash = ReadDictionaryValue(dctFileInfo, "hashsum", string.Empty);
 
                                 var archiveFile = new ArchivedFileInfo(datasetName, fileName, subDir, fileID, instrumentName, datasetYearQuarter, dctMetadata)
@@ -1214,8 +1261,116 @@ namespace MyEMSLReader
 
         }
 
+        private int LookupDatasetIDByName(string datasetName, out string instrument, int retryCount = 2)
+        {
+
+            var queryString = string.Format(
+                "SELECT ID, Instrument " +
+                "FROM V_Dataset_Export " +
+                "WHERE Dataset = '{0}'",
+                datasetName);
+
+            instrument = string.Empty;
+
+            while (retryCount >= 0)
+            {
+                try
+                {
+
+                    using (var connection = new SqlConnection(DMSConnectionString))
+                    {
+                        var command = new SqlCommand(queryString, connection);
+                        connection.Open();
+
+                        using (var reader = command.ExecuteReader())
+                        {
+                            if (reader.HasRows && reader.Read())
+                            {
+                                instrument = GetDbValue(reader, "Instrument", "", out _);
+                                var datasetId = GetDbValue(reader, "ID", 0, out _);
+                                return datasetId;
+                            }
+
+                        }
+                    }
+
+                    return 0;
+                }
+                catch (Exception ex)
+                {
+                    retryCount -= 1;
+                    var msg = string.Format("Exception looking up dataset name for Dataset {0}: {1}; " +
+                                            "ConnectionString: {2}, RetryCount = {3}",
+                                            datasetName, ex.Message, DMSConnectionString, retryCount);
+
+                    ReportError(msg);
+
+                    // Delay for 5 seconds before trying again
+                    if (retryCount >= 0)
+                        System.Threading.Thread.Sleep(5000);
+                }
+
+            } // while
+
+            return 0;
+        }
+
+        private string LookupDatasetNameByID(int datasetID, out string instrument, int retryCount = 2)
+        {
+
+            var queryString = string.Format(
+                "SELECT Dataset, Instrument " +
+                "FROM V_Dataset_Export WHERE " +
+                "ID = {0}",
+                datasetID);
+
+            instrument = string.Empty;
+
+            while (retryCount >= 0)
+            {
+                try
+                {
+
+                    using (var connection = new SqlConnection(DMSConnectionString))
+                    {
+                        var command = new SqlCommand(queryString, connection);
+                        connection.Open();
+
+                        using (var reader = command.ExecuteReader())
+                        {
+                            if (reader.HasRows && reader.Read())
+                            {
+                                instrument = GetDbValue(reader, "Instrument", "", out _);
+                                var datasetName= GetDbValue(reader, "Dataset", string.Empty, out _);
+                                return datasetName;
+                            }
+
+                        }
+                    }
+
+                    return string.Empty;
+                }
+                catch (Exception ex)
+                {
+                    retryCount -= 1;
+                    var msg = string.Format("Exception looking up dataset name for Dataset ID {0}: {1}; " +
+                                            "ConnectionString: {2}, RetryCount = {3}",
+                                            datasetID, ex.Message, DMSConnectionString, retryCount);
+
+                    ReportError(msg);
+
+                    // Delay for 5 seconds before trying again
+                    if (retryCount >= 0)
+                        System.Threading.Thread.Sleep(5000);
+                }
+
+            } // while
+
+            return string.Empty;
+        }
+
         private bool LookupSubDirFilterByDataset(
-            Dictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists,
+            IReadOnlyDictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists,
             ArchivedFileInfo file,
             SearchEntity entityType,
             out SortedSet<string> subDirs)
@@ -1235,7 +1390,7 @@ namespace MyEMSLReader
             {
                 if (!dctDatasetsAndSubDirLists.TryGetValue(DATA_PKG_ID_TAG + file.DataPackageID, out subDirs))
                 {
-                    ReportError("File " + file.FileID + " has an unrecognized data package ID: " + file.DataPackageID + 
+                    ReportError("File " + file.FileID + " has an unrecognized data package ID: " + file.DataPackageID +
                         "; skipping (MyEMSLReader.LookupSubDirFilterByDataset)");
                     success = false;
                 }
@@ -1244,7 +1399,7 @@ namespace MyEMSLReader
             {
                 if (!dctDatasetsAndSubDirLists.TryGetValue(file.Dataset, out subDirs))
                 {
-                    ReportError("File " + file.FileID + " has an unrecognized dateset name: " + file.Dataset + 
+                    ReportError("File " + file.FileID + " has an unrecognized dateset name: " + file.Dataset +
                         "; skipping (MyEMSLReader.LookupSubDirFilterByDataset)");
                     success = false;
                 }
@@ -1391,17 +1546,17 @@ namespace MyEMSLReader
                 {
                     "query": {
                         "bool": {
-                            "must": 
+                            "must":
                                 {
                                     "query_string": {
-                                        "default_operator": "AND", 
-                                        "default_field": "_all", 
+                                        "default_operator": "AND",
+                                        "default_field": "_all",
                                         "query": "groups.omics.dms.instrument:LTQ_4 AND groups.omics.dms.dataset_id:267771"
                                     }
-                                }            
+                                }
                         }
-                    }, 
-                    "from": 0, 
+                    },
+                    "from": 0,
                     "size": "999"
                     }
                 }
@@ -1468,7 +1623,7 @@ namespace MyEMSLReader
                 };
 
                 // The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
-                // This hack was added in March 2014 because Proto-10 reported error 
+                // This hack was added in March 2014 because Proto-10 reported error
                 //   "Could not establish trust relationship for the SSL/TLS secure channel"
                 //   when accessing https://my.emsl.pnl.gov/
                 // This workaround requires these two using statements:
@@ -1631,7 +1786,7 @@ namespace MyEMSLReader
                 }
 
                 ReportError(
-                    "WebException in MyEMSLReader.RunElasticSearchQuery contacting " + currentURL + 
+                    "WebException in MyEMSLReader.RunElasticSearchQuery contacting " + currentURL +
                     " [" + currentStatus + "]: " + ex.Message, ex);
 
                 return dctResults;
@@ -1639,7 +1794,7 @@ namespace MyEMSLReader
             catch (Exception ex)
             {
                 ReportError(
-                    "Error in MyEMSLReader.RunElasticSearchQuery contacting " + currentURL + 
+                    "Error in MyEMSLReader.RunElasticSearchQuery contacting " + currentURL +
                     " [" + currentStatus + "]: " + ex.Message, ex);
 
                 return dctResults;
@@ -1650,106 +1805,136 @@ namespace MyEMSLReader
         /// <summary>
         /// Call the Item Search service to find the matching items
         /// </summary>
-        /// <param name="dctSearchTerms">Dictionary of terms to search for</param>
-        /// <param name="logicalOperator">Whether to AND or OR the search terms together</param>
-        /// <returns>Json results dictionary</returns>
-        /// <remarks>Be sure to call Logout() when scanMode is not 0 </remarks>
-        internal Dictionary<string, object> RunItemSearchQuery(
-            List<KeyValuePair<string, string>> dctSearchTerms,
-            SearchOperator logicalOperator)
+        /// <param name="searchKey">Key to search on</param>
+        /// <param name="searchValue">Value to match</param>
+        /// <returns>Dictionary where keys are relative file paths; values are file info details</returns>
+        /// <remarks>A given remote file could have multiple hash values if multiple versions of the file have been uploaded</remarks>
+        internal Dictionary<string, List<ArchivedFileInfo>> RunItemSearchQuery(string searchKey, string searchValue)
         {
 
-            // Construct a list of search terms
-            //
-            // Example with AND
-            // /and/omics.dms.dataset/QC_Shew
-            
-            // Example with OR
-            // /or/omics.dms.experiment/6Apr15/omics.dms.experiment/5Apr15
-            
-            var dctResults = new Dictionary<string, object>();
+            var dctResults = new Dictionary<string, List<ArchivedFileInfo>>();
+
+            string datasetName;
+            int datasetId;
+            string instrument;
+
+            if (string.Equals(QUERY_SPEC_DATASET_ID, searchKey))
+            {
+
+                if (!int.TryParse(searchValue, out datasetId))
+                {
+                    ReportError("Search value is not numeric: " + searchValue + "; expecting a dataset ID");
+                }
+
+                // Contact DMS to retrieve the dataset name for this dataset ID
+                // This is a temporary fix until MyEMSL reports Dataset Name
+                datasetName = LookupDatasetNameByID(datasetId, out instrument);
+
+            }
+            else if (string.Equals(QUERY_SPEC_DATASET_NAME, searchKey))
+            {
+                datasetName = searchValue;
+
+
+                // Contact DMS to retrieve the dataset name for this dataset ID
+                // This is a temporary fix until MyEMSL reports Dataset Name
+                datasetId = LookupDatasetIDByName(datasetName, out instrument);
+            }
+            else
+            {
+                throw new NotSupportedException("MyEMSL metadata search currently only supports searching by dataset_id or dataset name");
+            }
 
             try
             {
-                var queryTerms = new StringBuilder();
-                
-                switch (logicalOperator)
+
+
+                // Example URLs:
+                // https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.dataset_id/403490
+                // https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.dataset_name/CPTAC_CompRef_P32_TMT11_17_18Jun17_Samwise_REP-17-05-01
+
+                // Future:
+                // https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.experiment/6Apr15
+
+                var metadataURL = string.Format(Configuration.MetadataServerUri + "/fileinfo/files_for_keyvalue/{0}/{1}",
+                    searchKey, searchValue);
+
+                // Retrieve a list of files already in MyEMSL for this dataset
+                var fileInfoListJSON = EasyHttp.Send(metadataURL, out HttpStatusCode responseStatusCode);
+
+                if (string.IsNullOrEmpty(fileInfoListJSON))
                 {
-                    case SearchOperator.And:
-                        queryTerms.Append("and");
-                        break;
-                    case SearchOperator.Or:
-                        queryTerms.Append("or");
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException("Unrecognized value for logicalOperator: " + logicalOperator);
+                    var msg = "No results returned from MyEMSL (MyEMSLReader.RunItemSearchQuery)";
+                    ReportError(msg);
+                    return dctResults;
                 }
 
-                foreach (var searchTerm in dctSearchTerms)
+                // Convert the response to a dictionary
+                var jsa = (Jayrock.Json.JsonArray)JsonConvert.Import(fileInfoListJSON);
+                var remoteFileInfoList = Utilities.JsonArrayToDictionaryList(jsa);
+
+                // Keys in this dictionary are relative file paths; values are file info details
+                // A given remote file could have multiple hash values if multiple versions of the file have been uploaded
+                var remoteFiles = new Dictionary<string, List<ArchivedFileInfo>>();
+
+                // Note that two files in the same directory could have the same hash value (but different names),
+                // so we cannot simply compare file hashes
+
+                foreach (var fileObj in remoteFileInfoList)
                 {
-                    var keyWord = searchTerm.Key;
-                    if (keyWord.StartsWith("groups."))
-                        keyWord = keyWord.Substring(7);
-                        
-                    queryTerms.Append("/" + keyWord + "/" + searchTerm.Value);
-                }
+                    var fileName = Utilities.GetDictionaryValue(fileObj, "name");
+                    var fileId = Utilities.GetDictionaryValue(fileObj, "_id", 0);
+                    var fileHash = Utilities.GetDictionaryValue(fileObj, "hashsum");
+                    var subFolder = Utilities.GetDictionaryValue(fileObj, "subdir");
 
+                    var relativeFilePath = Path.Combine(subFolder, fileName);
 
-                // The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
-                // This hack was added in March 2014 because Proto-10 reported error 
-                //   "Could not establish trust relationship for the SSL/TLS secure channel"
-                //   when accessing https://my.emsl.pnl.gov/
-                // This workaround requires these two using statements:
-                //   using System.Net.Security;
-                //   using System.Security.Cryptography.X509Certificates;
-
-                // Could use this to ignore all certificates (not wise)
-                // System.Net.ServicePointManager.ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
-
-                // Instead, only allow certain domains, as defined by ValidateRemoteCertificate
-                if (ServicePointManager.ServerCertificateValidationCallback == null)
-                    ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
-
-                if (Configuration.UseTestInstance != UseTestInstance)
-                {
-                    Configuration.UseTestInstance = UseTestInstance;
-                }
-              
-                // Expected url: https://dev1.my.emsl.pnl.gov/myemsl/status/index.php/api/item_search/
-                var URL = Configuration.ItemSearchUri;
-
-                string responseData;
-                const int maxAttempts = 4;
-                Exception mostRecentException;
-
-                var urlWithQuery = URL + queryTerms;
-
-                const bool allowEmptyResponseData = false;
-                const string postData = "";
-                CookieContainer cookieJar = null;
-
-                var retrievalSuccess = SendHTTPRequestWithRetry(urlWithQuery, cookieJar, postData, EasyHttp.HttpMethod.Get, maxAttempts, allowEmptyResponseData, out responseData, out mostRecentException);
-
-                if (retrievalSuccess && !string.IsNullOrWhiteSpace(responseData))
-                {
-                    // Convert the results to a Json dictionary object
-                    dctResults = Utilities.JsonToObject(responseData);
-                }
-                
-                if (string.IsNullOrEmpty(responseData))
-                {
-                    var msg = "No results returned from MyEMSL after " + maxAttempts + " attempts (MyEMSLReader.RunItemSearchQuery)";
-                    if (mostRecentException != null)
+                    if (remoteFiles.TryGetValue(relativeFilePath, out var fileVersions))
                     {
-                        if (mostRecentException.Message.StartsWith("Aurora Offline"))
-                            msg += ": Aurora Offline";
-                        else
-                            msg += ": " + mostRecentException.Message;
+                        if (FileHashExists(fileVersions, fileHash))
+                        {
+                            ReportError("Remote file listing reports the same file with the same hash more than once; " +
+                                        "ignoring: " + relativeFilePath + " with hash " + fileHash);
+                            continue;
+                        }
+
+                        // Add the file to fileVersions
+                    }
+                    else
+                    {
+                        fileVersions = new List<ArchivedFileInfo>();
+                        remoteFiles.Add(relativeFilePath, fileVersions);
                     }
 
-                    ReportError(msg, mostRecentException);
+                    var remoteFileInfo = new ArchivedFileInfo(datasetName, fileName, subFolder, fileId)
+                    {
+                        DatasetID = datasetId,
+                        DatasetYearQuarter = "",
+                        FileSizeBytes = Utilities.GetDictionaryValue(fileObj, "size", 0),
+                        Instrument = instrument,
+                        IsPublicFile = false,
+                        Sha1Hash = fileHash,
+                        SubmissionTime = Utilities.GetDictionaryValue(fileObj, "created"),
+                        TransactionID = Utilities.GetDictionaryValue(fileObj, "transaction_id", 0)
+                    };
+
+                    // remoteFileInfo.DataPackageID = 0;
+                    // remoteFileInfo.Metadata = ...;
+
+                    // var hashType = Utilities.GetDictionaryValue(fileObj, "hashtype");
+
+                    // var updatedInMyEMSL = Utilities.GetDictionaryValue(fileObj, "updated");
+                    // var deletedInMyEMSL = Utilities.GetDictionaryValue(fileObj, "deleted");
+
+                    var creationTime = Utilities.GetDictionaryValue(fileObj, "ctime");
+                    var lastWriteTime = Utilities.GetDictionaryValue(fileObj, "mtime");
+
+                    remoteFileInfo.UpdateSourceFileTimes(creationTime, lastWriteTime);
+
+                    fileVersions.Add(remoteFileInfo);
+
                 }
-             
+
                 return dctResults;
 
             }

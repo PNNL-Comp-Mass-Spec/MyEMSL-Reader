@@ -329,11 +329,6 @@ namespace MyEMSLReader
                 else if (ThrowErrors)
                     throw;
             }
-            finally
-            {
-                if (cookieJar != null)
-                    Utilities.Logout(cookieJar);
-            }
 
             return success;
         }
@@ -557,7 +552,7 @@ namespace MyEMSLReader
         }
 
 
-        private bool CreateScrollID(List<Int64> lstFileIDs, ref CookieContainer cookieJar, out string authToken)
+        private bool CreateScrollID(IReadOnlyCollection<long> lstFileIDs, ref CookieContainer cookieJar, out string authToken)
         {
             authToken = string.Empty;
 

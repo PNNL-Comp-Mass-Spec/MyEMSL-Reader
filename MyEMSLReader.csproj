@@ -41,12 +41,13 @@
     <Reference Include="Jayrock.Json">
       <HintPath>Lib\Jayrock.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Pacifica.Core, Version=2.0.6018.31875, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Pacifica.Core, Version=2.0.6389.25416, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Lib\Pacifica.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Data.Linq" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Xml" />
@@ -68,7 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="PRISM-Library">
-      <Version>1.0.4</Version>
+      <Version>1.0.6</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
