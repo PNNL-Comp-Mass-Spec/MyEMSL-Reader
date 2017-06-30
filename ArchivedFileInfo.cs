@@ -47,15 +47,29 @@ namespace MyEMSLReader
             get;
             set;
         }
+
         public string Filename
         {
-            get; }
+            get;
+        }
 
         public Int64 FileID
         {
             get;
             set;
         }
+
+        /// <summary>
+        /// Original file creation time (on the host system prior to MyEMSL ingest)
+        /// </summary>
+        /// <remarks>Use UpdateSourceFileTimes to update this value</remarks>
+        public DateTime FileCreationTime { get; private set; }
+
+        /// <summary>
+        /// Last modification time (on the host system prior to MyEMSL ingest)
+        /// </summary>
+        /// <remarks>Use UpdateSourceFileTimes to update this value</remarks>
+        public DateTime FileLastWriteTime { get; private set; }
 
         public Int64 FileSizeBytes
         {
@@ -268,6 +282,26 @@ namespace MyEMSLReader
             Instrument = instrument;
             DatasetYearQuarter = datasetYearQuarter;
             Metadata = dctMetadata;
+        }
+
+        /// <summary>
+        /// Update file creation and modification times using the string values reported by MyEMSL
+        /// </summary>
+        /// <param name="creationTime"></param>
+        /// <param name="lastWriteTime"></param>
+        public void UpdateSourceFileTimes(string creationTime, string lastWriteTime)
+        {
+            if (!string.IsNullOrWhiteSpace(creationTime))
+            {
+                if (DateTime.TryParse(creationTime, out var dtCreationTime))
+                    FileCreationTime = dtCreationTime;
+            }
+
+            if (!string.IsNullOrWhiteSpace(lastWriteTime))
+            {
+                if (DateTime.TryParse(lastWriteTime, out var dtLastWriteTime))
+                    FileLastWriteTime = dtLastWriteTime;
+            }
         }
 
         public override string ToString()
