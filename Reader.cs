@@ -1267,8 +1267,9 @@ namespace MyEMSLReader
         /// <param name="dctSearchTerms">Query search terms</param>
         /// <param name="logicalOperator">Whether to AND or OR the search terms together</param>
         /// <returns>List of files</returns>
+        [Obsolete("Deprecated in June 2017")]
         private List<ArchivedFileInfo> QueryElasticSearch(
-            List<KeyValuePair<string, string>> dctSearchTerms, 
+            List<KeyValuePair<string, string>> dctSearchTerms,
             SearchOperator logicalOperator)
         {
 
@@ -1377,6 +1378,7 @@ namespace MyEMSLReader
         /// <param name="cookieJar"></param>
         /// <returns>Json results dictionary</returns>
         /// <remarks>Be sure to call Logout() when scanMode is not 0 </remarks>
+        [Obsolete("Obsolete in June 2017; use RunItemSearchQuery instead")]
         internal Dictionary<string, object> RunElasticSearchQuery(
             List<KeyValuePair<string, string>> dctSearchTerms,
             int maxFileCount,
@@ -1411,6 +1413,8 @@ namespace MyEMSLReader
 
             try
             {
+                throw new NotImplementedException("Use RunItemSearchQuery instead of RunElasticSearchQuery");
+
                 var searchSpec = new Dictionary<string, string>
                 {
                     {"default_operator", "AND"},
@@ -1483,13 +1487,16 @@ namespace MyEMSLReader
                     Configuration.UseTestInstance = UseTestInstance;
                 }
 
-                // Call the testauth service to obtain a cookie for this session
-                var authURL = Configuration.TestAuthUri;
+                // Code deprecated in June 2017
 
-                if (Configuration.UseTestInstance)
-                {
-                    authURL = "https://" + Configuration.SearchServerHostName + Configuration.TEST_AUTH_RELATIVE_PATH;
-                }
+                // Call the testauth service to obtain a cookie for this session
+                // var authURL = Configuration.TestAuthUri;
+                var authURL = "";
+
+                //if (Configuration.UseTestInstance)
+                //{
+                //    authURL = "https://" + Configuration.SearchServerHostName + Configuration.TEST_AUTH_RELATIVE_PATH;
+                //}
 
                 currentURL = string.Copy(authURL);
 
@@ -1505,7 +1512,8 @@ namespace MyEMSLReader
                     }
                 }
 
-                var URL = Configuration.ElasticSearchUri;
+                // var URL = Configuration.ElasticSearchUri;
+                var URL = "";
 
                 if (Configuration.UseTestInstance)
                 {
@@ -1535,7 +1543,8 @@ namespace MyEMSLReader
                 while (queryEnabled)
                 {
                     querySpec["size"] = maxFileCount;
-                    var postData = Utilities.ObjectToJson(querySpec);
+                    // var postData = Utilities.ObjectToJson(querySpec);
+                    var postData = "";
                     const bool allowEmptyResponseData = false;
 
                     currentURL = string.Copy(URL);
@@ -1604,7 +1613,7 @@ namespace MyEMSLReader
 
                 if (scanMode == ScanMode.SimpleSearch)
                 {
-                    Utilities.Logout(cookieJar);
+                    // Utilities.Logout(cookieJar);
                 }
 
                 return dctResults;
