@@ -97,23 +97,6 @@ namespace MyEMSLReader
             set;
         }
 
-        private bool mUseItemSearch;
-        public bool UseItemSearch
-        {
-            get
-            {
-                return mUseItemSearch;
-            }
-            set
-            {
-                mUseItemSearch = value;
-                if (Configuration.UseItemSearch != value)
-                {
-                    Configuration.UseItemSearch = value;
-                }
-            }
-        }
-
         private bool mUseTestInstance;
 
         /// <summary>
@@ -135,11 +118,6 @@ namespace MyEMSLReader
                     Configuration.UseTestInstance = value;
                 }
 
-                if (mUseTestInstance && !UseItemSearch)
-                {
-                    // Auto-enable ItemSearch when using the test instance
-                    UseItemSearch = true;
-                }
             }
         }
 
@@ -1459,51 +1437,6 @@ namespace MyEMSLReader
             {
                 if (string.IsNullOrWhiteSpace(ErrorMessage))
                     ReportError("Error in MyEMSLReader.QueryElasticSearch: " + ex.Message);
-                else if (ThrowErrors)
-                    throw;
-
-                return new List<ArchivedFileInfo>();
-            }
-
-        }
-
-        /// <summary>
-        /// Use the Item Search service to find files in MyEMSL matching the given search times
-        /// </summary>
-        /// <param name="dctSearchTerms">Query search terms</param>
-        /// <param name="logicalOperator">Whether to AND or OR the search terms together</param>
-        /// <returns>List of files</returns>
-        private List<ArchivedFileInfo> QueryItemSearchService(
-            List<KeyValuePair<string, string>> dctSearchTerms, 
-            SearchOperator logicalOperator)
-        {
-
-            try
-            {
-             
-                LastSearchFileCountMatched = 0;
-                LastSearchFileCountReturned = 0;
-
-                var dctResults = RunItemSearchQuery(dctSearchTerms, logicalOperator);
-
-                if (dctResults == null || dctResults.Count == 0)
-                {
-                    if (string.IsNullOrWhiteSpace(ErrorMessage))
-                        ReportError("MyEMSLReader.RunItemSearchQuery returned an empty xml result");
-                    LastSearchFileCountReturned = 0;
-                    return new List<ArchivedFileInfo>();
-                }
-
-                var lstFiles = ParseItemSearchResults(dctResults);
-
-                LastSearchFileCountReturned = lstFiles.Count;
-
-                return lstFiles;
-            }
-            catch (Exception ex)
-            {
-                if (string.IsNullOrWhiteSpace(ErrorMessage))
-                    ReportError("Error in MyEMSLReader.QueryItemSearch: " + ex.Message);
                 else if (ThrowErrors)
                     throw;
 
