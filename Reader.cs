@@ -1834,16 +1834,12 @@ namespace MyEMSLReader
                 {
                     var msg = "No results returned from MyEMSL (MyEMSLReader.RunItemSearchQuery)";
                     ReportError(msg);
-                    return dctResults;
+                    return remoteFiles;
                 }
 
                 // Convert the response to a dictionary
                 var jsa = (Jayrock.Json.JsonArray)JsonConvert.Import(fileInfoListJSON);
                 var remoteFileInfoList = Utilities.JsonArrayToDictionaryList(jsa);
-
-                // Keys in this dictionary are relative file paths; values are file info details
-                // A given remote file could have multiple hash values if multiple versions of the file have been uploaded
-                var remoteFiles = new Dictionary<string, List<ArchivedFileInfo>>();
 
                 // Note that two files in the same directory could have the same hash value (but different names),
                 // so we cannot simply compare file hashes
@@ -1865,8 +1861,6 @@ namespace MyEMSLReader
                                         "ignoring: " + relativeFilePath + " with hash " + fileHash);
                             continue;
                         }
-
-                        // Add the file to fileVersions
                     }
                     else
                     {
@@ -1902,13 +1896,13 @@ namespace MyEMSLReader
 
                 }
 
-                return dctResults;
+                return remoteFiles;
 
             }
             catch (Exception ex)
             {
                 ReportError("Error in MyEMSLReader.RunItemSearchQuery: " + ex.Message, ex);
-                return dctResults;
+                return remoteFiles;
             }
 
         }
