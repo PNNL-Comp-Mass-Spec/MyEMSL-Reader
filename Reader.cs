@@ -1759,6 +1759,7 @@ namespace MyEMSLReader
         /// <remarks>A given remote file could have multiple hash values if multiple versions of the file have been uploaded</remarks>
         internal Dictionary<string, List<ArchivedFileInfo>> RunItemSearchQuery(string searchKey, string searchValue)
         {
+            const int WARNINGS_TO_LOG = 5;
 
             if (TraceMode)
                 OnDebugEvent("Entering RunItemSearchQuery");
@@ -1845,6 +1846,8 @@ namespace MyEMSLReader
                 var jsa = (Jayrock.Json.JsonArray)JsonConvert.Import(fileInfoListJSON);
                 var remoteFileInfoList = Utilities.JsonArrayToDictionaryList(jsa);
 
+                var warningCount = 0;
+
                 // Note that two files in the same directory could have the same hash value (but different names),
                 // so we cannot simply compare file hashes
 
@@ -1861,8 +1864,12 @@ namespace MyEMSLReader
                     {
                         if (FileHashExists(fileVersions, fileHash))
                         {
-                            ReportError("Remote file listing reports the same file with the same hash more than once; " +
-                                        "ignoring: " + relativeFilePath + " with hash " + fileHash);
+                            warningCount++;
+                            if (warningCount <= WARNINGS_TO_LOG)
+                            {
+                                OnWarningEvent("Remote file listing reports the same file with the same hash more than once; " +
+                                               "ignoring: " + relativeFilePath + " with hash " + fileHash);
+                            }
                             continue;
                         }
                     }
@@ -1898,6 +1905,12 @@ namespace MyEMSLReader
 
                     fileVersions.Add(remoteFileInfo);
 
+                }
+
+
+                if (warningCount > WARNINGS_TO_LOG)
+                {
+                    OnWarningEvent(string.Format("Duplicate hash value found for {0} files in MyEMSL", warningCount));
                 }
 
                 return remoteFiles;
