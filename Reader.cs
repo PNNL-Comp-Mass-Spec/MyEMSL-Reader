@@ -1787,14 +1787,23 @@ namespace MyEMSLReader
             {
                 datasetName = searchValue;
 
-
                 // Contact DMS to retrieve the dataset name for this dataset ID
-                // This is a temporary fix until MyEMSL reports Dataset Name
+                //
+                // This is required because https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.dataset_name/
+                // only works for datasets added after July 1, 2017; compare/contrast:
+                // Results:    https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.dataset_name/QC_pp_MCF-7_17_01_B_25JUN17_Frodo_REP-17-06-02
+                // Results:    https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.dataset_id/597319
+                //   vs.
+                // No results: https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.dataset_name/QC_pp_MCF-7_17_01_2_16May17_Samwise_REP-17-04-01
+                // Results:    https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.dataset_id/586916
+
                 datasetId = LookupDatasetIDByName(datasetName, out instrument);
 
                 if (TraceMode)
                     OnDebugEvent("Dataset " + datasetName + " has ID " + datasetId);
 
+                searchKey = QUERY_SPEC_DATASET_ID;
+                searchValue = datasetId.ToString();
             }
             else
             {
