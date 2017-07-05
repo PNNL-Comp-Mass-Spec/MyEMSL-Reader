@@ -306,7 +306,7 @@ namespace MyEMSLDownloader
             return archiveFiles;
         }
 
-        private static List<DatasetFolderOrFileInfo> FindFileListFiles(FileInfo fiFileListFile)
+        private static List<DatasetFolderOrFileInfo> FindFileListFiles(FileSystemInfo fiFileListFile)
         {
             const string DATASET_COLUMN = "Dataset";
             const string SUBDIR_COLUMN = "SubDir";
@@ -426,7 +426,10 @@ namespace MyEMSLDownloader
             }
         }
 
-        private static void MapHeaders(IList<string> dataValues, List<string> headerNames, IDictionary<string, int> headerMap)
+        private static void MapHeaders(
+            IList<string> dataValues,
+            IReadOnlyCollection<string> headerNames,
+            IDictionary<string, int> headerMap)
         {
             for (var colIndex = 0; colIndex < dataValues.Count; colIndex++)
             {
@@ -562,7 +565,7 @@ namespace MyEMSLDownloader
 
                 if (objParseCommandLine.IsParameterPresent("D"))
                 {
-                    if (objParseCommandLine.RetrieveValueForParameter("D", out var value))
+                    if (objParseCommandLine.RetrieveValueForParameter("D", out _))
                     {
                         ShowErrorMessage("The /D switch should not have a value; use /Dataset to specify a dataset name");
                     }

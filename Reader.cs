@@ -133,6 +133,7 @@ namespace MyEMSLReader
             MaxFileCount = 5000;
             IncludeAllRevisions = false;
             ThrowErrors = true;
+
             ResetStatus();
         }
 
