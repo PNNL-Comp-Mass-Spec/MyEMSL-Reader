@@ -115,9 +115,9 @@ namespace MyEMSLReader
             set
             {
                 mUseTestInstance = value;
-                if (Configuration.UseTestInstance != value)
+                if (mPacificaConfig.UseTestInstance != value)
                 {
-                    Configuration.UseTestInstance = value;
+                    mPacificaConfig.UseTestInstance = value;
                 }
 
             }
@@ -1581,20 +1581,20 @@ namespace MyEMSLReader
                 if (ServicePointManager.ServerCertificateValidationCallback == null)
                     ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
 
-                if (Configuration.UseTestInstance != UseTestInstance)
+                if (mPacificaConfig.UseTestInstance != UseTestInstance)
                 {
-                    Configuration.UseTestInstance = UseTestInstance;
+                    mPacificaConfig.UseTestInstance = UseTestInstance;
                 }
 
                 // Code deprecated in June 2017
 
                 // Call the testauth service to obtain a cookie for this session
-                // var authURL = Configuration.TestAuthUri;
+                // var authURL = mPacificaConfig.TestAuthUri;
                 var authURL = "";
 
-                //if (Configuration.UseTestInstance)
+                //if (mPacificaConfig.UseTestInstance)
                 //{
-                //    authURL = "https://" + Configuration.SearchServerHostName + Configuration.TEST_AUTH_RELATIVE_PATH;
+                //    authURL = "https://" + mPacificaConfig.SearchServerHostName + mPacificaConfig.TEST_AUTH_RELATIVE_PATH;
                 //}
 
                 currentURL = string.Copy(authURL);
@@ -1611,10 +1611,10 @@ namespace MyEMSLReader
                     }
                 }
 
-                // var URL = Configuration.ElasticSearchUri;
+                // var URL = mPacificaConfig.ElasticSearchUri;
                 var URL = "";
 
-                if (Configuration.UseTestInstance)
+                if (mPacificaConfig.UseTestInstance)
                 {
                     // Expected url: https://test0.my.emsl.pnl.gov/myemsl/search/simple/index.shtml
                     URL += "index.shtml";
@@ -1804,22 +1804,22 @@ namespace MyEMSLReader
             try
             {
 
-
                 // Example URLs:
                 // https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.dataset_id/403490
                 // https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.dataset_name/CPTAC_CompRef_P32_TMT11_17_18Jun17_Samwise_REP-17-05-01
 
                 // Future:
+                // https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.data_package_id/2819
                 // https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.experiment/6Apr15
 
-                var metadataURL = string.Format(Configuration.MetadataServerUri + "/fileinfo/files_for_keyvalue/{0}/{1}",
+                var metadataURL = string.Format(mPacificaConfig.MetadataServerUri + "/fileinfo/files_for_keyvalue/{0}/{1}",
                     searchKey, searchValue);
 
                 if (TraceMode)
                     OnDebugEvent("Contacting " + metadataURL);
 
                 // Retrieve a list of files already in MyEMSL for this dataset
-                var fileInfoListJSON = EasyHttp.Send(metadataURL, out HttpStatusCode responseStatusCode);
+                var fileInfoListJSON = EasyHttp.Send(mPacificaConfig, metadataURL, out HttpStatusCode responseStatusCode);
 
                 if (string.IsNullOrEmpty(fileInfoListJSON))
                 {

@@ -112,9 +112,9 @@ namespace MyEMSLReader
             set
             {
                 mUseTestInstance = value;
-                if (Configuration.UseTestInstance != value)
+                if (mPacificaConfig.UseTestInstance != value)
                 {
-                    Configuration.UseTestInstance = value;
+                    mPacificaConfig.UseTestInstance = value;
                 }
             }
         }
@@ -182,9 +182,9 @@ namespace MyEMSLReader
 
             ResetStatus();
 
-            if (Configuration.UseTestInstance != UseTestInstance)
+            if (mPacificaConfig.UseTestInstance != UseTestInstance)
             {
-                Configuration.UseTestInstance = UseTestInstance;
+                mPacificaConfig.UseTestInstance = UseTestInstance;
             }
 
             try
@@ -346,6 +346,7 @@ namespace MyEMSLReader
         /// <param name="cookieJar"></param>
         /// <param name="authToken"></param>
         /// <returns></returns>
+        [Obsolete("Obsolete in June 2017")]
         private Dictionary<ArchivedFileInfo, bool> CheckLockedStatus(Dictionary<string, object> dctResults, CookieContainer cookieJar, out string authToken)
         {
             var dctFiles = new Dictionary<ArchivedFileInfo, bool>();
@@ -385,7 +386,7 @@ namespace MyEMSLReader
                         // Construct the URL, e.g. https://my.emsl.pnl.gov/myemsl/item/foo/bar/824531/2.txt?token=ODUiaSI6WyI4MjQ1MzEiXSwicyI6IjIwMTMtMDgtMjBUMTY6MTI6MjEtMDc6MDAiLCJ1IjoiaHVZTndwdFlFZUd6REFBbXVjZXB6dyIsImQiOiAzNjAwJ9NESG37bQjVDlWCJWdrTVqA0wifgrbemVW+nMLgyx/2OfHGk2kFUsrJoOOTdBVsiPrHaeX6/MiaS/szVJKS1ve9UM8pufEEoNEyMBlq7ZxolLfK0Y3OicRPkiKzXZaXkQ7fxc/ec/Ba3uz9wHEs5e+1xYuO36KkSyGGW/xQ7OFx4SyZUm3PrLDk87YPapwoU/30gSk2082oSBOqHuTHzfOjjtbxAIuMa27AbwwOIjG8/Xq4h7squzFNfh/knAkNQ3+21wuZukpsNslWpYO796AFgI2rITaw7HPGJMZKwi+QlMmx27OHE2Qh47b5VQUJUp2tEorFwMjgECo+xX75vg&locked
                         // Note that "2.txt" in this URL is just a dummy filename
                         // Since we're performing a Head request, it doesn't matter what filename we use
-                        // var URL = Configuration.SearchServerUri + "/myemsl/item/foo/bar/" + archivedFile.FileID + "/2.txt?token=" + authToken + "&locked";
+                        // var URL = mPacificaConfig.SearchServerUri + "/myemsl/item/foo/bar/" + archivedFile.FileID + "/2.txt?token=" + authToken + "&locked";
                         var URL = "";
 
                         const int maxAttempts = 2;
@@ -477,6 +478,7 @@ namespace MyEMSLReader
             return downloadFilePath;
         }
 
+        [Obsolete("Obsolete in June 2017")]
         private Int64 CreateCart(List<Int64> lstFiles, CookieContainer cookieJar, string authToken)
         {
             Int64 cartID;
@@ -505,7 +507,7 @@ namespace MyEMSLReader
                 // Code deprecated in June 2017
 
                 // Base Url will be https://my.emsl.pnl.gov/myemsl/api/2/cart
-                //var URL = Configuration.ApiUri + "2/cart";
+                //var URL = mPacificaConfig.ApiUri + "2/cart";
                 //var postData = Utilities.ObjectToJson(querySpec);
                 var URL = "";
                 var postData = "";
@@ -551,7 +553,7 @@ namespace MyEMSLReader
             return cartID;
         }
 
-
+        [Obsolete("Obsolete in June 2017")]
         private bool CreateScrollID(IReadOnlyCollection<long> lstFileIDs, ref CookieContainer cookieJar, out string authToken)
         {
             authToken = string.Empty;
@@ -596,10 +598,10 @@ namespace MyEMSLReader
                 // Obtain a new authorization token by posting to https://my.emsl.pnl.gov/myemsl/elasticsearch/simple_items?search_type=scan&scan&auth
 
                 // This worked until February 2015, but it no longer works
-                //     URL = Configuration.ElasticSearchUri + "simple_items?search_type=scan&scan&auth";
+                //     URL = mPacificaConfig.ElasticSearchUri + "simple_items?search_type=scan&scan&auth";
 
                 // Deprecated in June 2017
-                // var URL = Configuration.ElasticSearchUri + "simple_items?auth&search_type=scan&scan";
+                // var URL = mPacificaConfig.ElasticSearchUri + "simple_items?auth&search_type=scan&scan";
                 var URL = "";
                 var postData = scrollID;
 
@@ -681,7 +683,7 @@ namespace MyEMSLReader
                 {
                     attempts++;
                     HttpStatusCode responseStatusCode;
-                    success = EasyHttp.GetFile(URL, cookieJar, out responseStatusCode, downloadFilePath, timeoutSeconds);
+                    success = EasyHttp.GetFile(mPacificaConfig, URL, cookieJar, out responseStatusCode, downloadFilePath, timeoutSeconds);
 
                     if (!success)
                         break;
@@ -775,7 +777,7 @@ namespace MyEMSLReader
                     var fileIsLocked = archivedFileInfo.Value;
 
                     // Construct the URL, e.g. https://my.emsl.pnl.gov/myemsl/item/foo/bar/824531/Euplotes_1_HPRP_1_16_22Nov09_Falcon_09-09-14_peaks.dat?token=ODUiaSI6WyI4MjQ1MzEiXSwicyI6IjIwMTMtMDgtMjBUMTY6MTI6MjEtMDc6MDAiLCJ1IjoiaHVZTndwdFlFZUd6REFBbXVjZXB6dyIsImQiOiAzNjAwJ9NESG37bQjVDlWCJWdrTVqA0wifgrbemVW+nMLgyx/2OfHGk2kFUsrJoOOTdBVsiPrHaeX6/MiaS/szVJKS1ve9UM8pufEEoNEyMBlq7ZxolLfK0Y3OicRPkiKzXZaXkQ7fxc/ec/Ba3uz9wHEs5e+1xYuO36KkSyGGW/xQ7OFx4SyZUm3PrLDk87YPapwoU/30gSk2082oSBOqHuTHzfOjjtbxAIuMa27AbwwOIjG8/Xq4h7squzFNfh/knAkNQ3+21wuZukpsNslWpYO796AFgI2rITaw7HPGJMZKwi+QlMmx27OHE2Qh47b5VQUJUp2tEorFwMjgECo+xX75vg&locked
-                    // var URL = Configuration.SearchServerUri + "/myemsl/item/foo/bar/" + archivedFile.FileID + "/" + archivedFile.Filename + "?token=" + authToken + "&locked";
+                    // var URL = mPacificaConfig.SearchServerUri + "/myemsl/item/foo/bar/" + archivedFile.FileID + "/" + archivedFile.Filename + "?token=" + authToken + "&locked";
                     var URL = "";
 
                     var downloadFilePath = ConstructDownloadfilePath(folderLayout, archivedFile);
@@ -939,7 +941,7 @@ namespace MyEMSLReader
             NetworkCredential loginCredentials = null;
 
             // ReSharper disable once ExpressionIsAlwaysNull
-            var request = EasyHttp.InitializeRequest(tarFileURL, ref cookieJar, ref timeoutSeconds, loginCredentials, maxTimeoutHours);
+            var request = EasyHttp.InitializeRequest(mPacificaConfig, tarFileURL, ref cookieJar, ref timeoutSeconds, loginCredentials, maxTimeoutHours);
 
             var bytesToDownload = ComputeTotalBytes(lstFilesInArchive);
 
@@ -1242,7 +1244,7 @@ namespace MyEMSLReader
                     ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
 
                 // Note that even though postData is empty we need to "Post" to https://my.emsl.pnl.gov/myemsl/api/2/cart/11?submit
-                // var URL = Configuration.ApiUri + "2/cart/" + cartID + "?submit";
+                // var URL = mPacificaConfig.ApiUri + "2/cart/" + cartID + "?submit";
                 var URL = "";
 
                 var postData = string.Empty;
@@ -1372,6 +1374,7 @@ namespace MyEMSLReader
             DownloadedFiles.Clear();
         }
 
+        [Obsolete("Obsolete in June 2017")]
         private Dictionary<string, object> ScanForFiles(IEnumerable<long> lstFileIDs, Reader.ScanMode scanMode, ref CookieContainer cookieJar)
         {
             var dctSearchTerms = new List<KeyValuePair<string, string>>();
@@ -1415,7 +1418,7 @@ namespace MyEMSLReader
                 try
                 {
                     attempts++;
-                    responseHeaders = EasyHttp.GetHeaders(URL, cookieJar, out responseStatusCode, timeoutSeconds);
+                    responseHeaders = EasyHttp.GetHeaders(mPacificaConfig, URL, cookieJar, out responseStatusCode, timeoutSeconds);
 
                     if (responseHeaders == null || responseHeaders.Count == 0)
                     {
@@ -1490,7 +1493,7 @@ namespace MyEMSLReader
             return tarFileURL;
         }
 
-        private void UpdateFileModificationTime(FileInfo fiTargetFile, DateTime dtSubmissionTime)
+        private void UpdateFileModificationTime(FileSystemInfo fiTargetFile, DateTime dtSubmissionTime)
         {
             // Update the file modification time
             fiTargetFile.Refresh();
@@ -1532,7 +1535,7 @@ namespace MyEMSLReader
                     ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
 
                 // Construct the URL, e.g. http://my.emsl.pnl.gov/myemsl/api/2/cart/15
-                // var URL = Configuration.ApiUri + "2/cart/" + cartID;
+                // var URL = mPacificaConfig.ApiUri + "2/cart/" + cartID;
                 var URL = "";
                 var postData = string.Empty;
 

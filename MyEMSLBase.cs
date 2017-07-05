@@ -29,6 +29,12 @@ namespace MyEMSLReader
 
         #endregion
 
+        #region "Member Variables"
+
+        protected readonly Configuration mPacificaConfig;
+
+        #endregion
+
         #region "Properties"
 
         // ReSharper disable once MemberCanBeProtected.Global
@@ -39,6 +45,14 @@ namespace MyEMSLReader
         }
 
         #endregion
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public MyEMSLBase()
+        {
+            mPacificaConfig = new Configuration();
+        }
 
         // ReSharper disable once MemberCanBeProtected.Global
         public static void GarbageCollectNow()
@@ -333,7 +347,7 @@ namespace MyEMSLReader
                 try
                 {
                     attempts++;
-                    responseData = EasyHttp.Send(URL, cookieJar, out responseStatusCode, postData, postMethod, timeoutSeconds);
+                    responseData = EasyHttp.Send(mPacificaConfig, URL, cookieJar, out responseStatusCode, postData, postMethod, timeoutSeconds);
 
                     if (allowEmptyResponseData && responseStatusCode == HttpStatusCode.OK)
                         retrievalSuccess = true;
