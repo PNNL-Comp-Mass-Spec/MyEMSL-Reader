@@ -38,10 +38,11 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Lib\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
-    <Reference Include="Jayrock.Json">
+    <Reference Include="Jayrock.Json, Version=0.9.12915.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Lib\Jayrock.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Pacifica.Core, Version=2.0.6018.31875, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Pacifica.Core, Version=2.0.6394.36418, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Lib\Pacifica.Core.dll</HintPath>
     </Reference>
