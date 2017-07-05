@@ -1283,6 +1283,9 @@ namespace MyEMSLReader
                         }
                     }
 
+                    OnWarningEvent(string.Format("Dataset {0} not found in DMS; connecting to {1}",
+                        datasetName, DMSConnectionString));
+
                     return 0;
                 }
                 catch (Exception ex)
