@@ -6,6 +6,7 @@ namespace MyEMSLReader
 {
     public class ArchivedFileInfo
     {
+        public const string SHA1 = "sha1";
 
         #region "Auto Properties"
 
@@ -76,6 +77,21 @@ namespace MyEMSLReader
             get;
             set;
         }
+
+        /// <summary>
+        /// Sha-1 or MD5 hash
+        /// </summary>
+        /// <remarks>Typically a Sha-1 hash</remarks>
+        public string Hash
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Either sha1 or md5
+        /// </summary>
+        public string HashType { get; set; }
 
         /// <summary>
         /// Instrument name for this file
@@ -180,10 +196,18 @@ namespace MyEMSLReader
             }
         }
 
+        /// <summary>
+        /// Sha-1 hash, provided Hashtype is "sha1" or empty
+        /// </summary>
         public string Sha1Hash
         {
-            get;
-            set;
+            get
+            {
+                if (string.IsNullOrEmpty(HashType) || HashType.Equals(SHA1))
+                    return Hash;
+
+                return string.Empty;
+            }
         }
 
         /// <summary>

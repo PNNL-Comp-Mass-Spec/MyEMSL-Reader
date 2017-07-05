@@ -473,11 +473,13 @@ namespace MyEMSLDownloader
                 Console.WriteLine(archiveFile.FileInfo.RelativePathWindows);
                 if (verbosePreview)
                 {
-                    Console.WriteLine("  FileID {0}, TransID {1}, Submitted {2}, Size {3:F1} KB",
+                    Console.WriteLine("  FileID {0}, TransID {1}, Submitted {2}, Size {3:F1} KB, Hash {4}, HashType {5}",
                         archiveFile.FileID,
                         archiveFile.FileInfo.TransactionID,
                         archiveFile.FileInfo.SubmissionTime,
-                        archiveFile.FileInfo.FileSizeBytes / 1024.0);
+                        archiveFile.FileInfo.FileSizeBytes / 1024.0,
+                        archiveFile.FileInfo.Sha1Hash,
+                        archiveFile.FileInfo.HashType);
                     Console.WriteLine();
                 }
 

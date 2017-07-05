@@ -965,7 +965,8 @@ namespace MyEMSLReader
 
                         var archiveFile = new ArchivedFileInfo(datasetName, fileName, subDir, fileID, instrumentName, datasetYearQuarter, dctFile)
                         {
-                            Sha1Hash = fileSha1Hash,
+                            Hash = fileSha1Hash,
+                            HashType = ArchivedFileInfo.SHA1,
                             FileSizeBytes = fileSizeBytes,
                             TransactionID = transID,
                             SubmissionTime = submissionTime,
@@ -1166,7 +1167,8 @@ namespace MyEMSLReader
 
                                 var archiveFile = new ArchivedFileInfo(datasetName, fileName, subDir, fileID, instrumentName, datasetYearQuarter, dctMetadata)
                                 {
-                                    Sha1Hash = fileSha1Hash,
+                                    Hash = fileSha1Hash,
+                                    HashType = ArchivedFileInfo.SHA1,
                                     FileSizeBytes = fileSizeBytes,
                                     TransactionID = transID,
                                     SubmissionTime = submissionTime,
@@ -1846,15 +1848,14 @@ namespace MyEMSLReader
                         FileSizeBytes = Utilities.GetDictionaryValue(fileObj, "size", 0),
                         Instrument = instrument,
                         IsPublicFile = false,
-                        Sha1Hash = fileHash,
+                        Hash = fileHash,
+                        HashType = Utilities.GetDictionaryValue(fileObj, "hashtype"),
                         SubmissionTime = Utilities.GetDictionaryValue(fileObj, "created"),
                         TransactionID = Utilities.GetDictionaryValue(fileObj, "transaction_id", 0)
                     };
 
                     // remoteFileInfo.DataPackageID = 0;
                     // remoteFileInfo.Metadata = ...;
-
-                    // var hashType = Utilities.GetDictionaryValue(fileObj, "hashtype");
 
                     // var updatedInMyEMSL = Utilities.GetDictionaryValue(fileObj, "updated");
                     // var deletedInMyEMSL = Utilities.GetDictionaryValue(fileObj, "deleted");
