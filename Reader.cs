@@ -97,6 +97,8 @@ namespace MyEMSLReader
             set;
         }
 
+        public bool TraceMode { get; set; }
+
         private bool mUseTestInstance;
 
         /// <summary>
@@ -350,6 +352,8 @@ namespace MyEMSLReader
         /// <returns>List of matched files</returns>
         public List<ArchivedFileInfo> FindFilesByDatasetName(string datasetName, string subDir, bool recurse, string instrumentName)
         {
+            if (TraceMode)
+                OnDebugEvent("Entering FindFilesByDatasetName");
 
             var dctSearchTerms = new List<KeyValuePair<string, string>>
             {
@@ -708,6 +712,9 @@ namespace MyEMSLReader
             string instrumentName,
             IEnumerable<KeyValuePair<string, string>> dctSearchTerms)
         {
+
+            if (TraceMode)
+                OnDebugEvent("Entering FindFilesByDataset");
 
             try
             {
@@ -1256,6 +1263,8 @@ namespace MyEMSLReader
             {
                 try
                 {
+                    if (TraceMode)
+                        OnDebugEvent("Running query: " + queryString);
 
                     using (var connection = new SqlConnection(DMSConnectionString))
                     {
@@ -1747,7 +1756,12 @@ namespace MyEMSLReader
         internal Dictionary<string, List<ArchivedFileInfo>> RunItemSearchQuery(string searchKey, string searchValue)
         {
 
-            var dctResults = new Dictionary<string, List<ArchivedFileInfo>>();
+            if (TraceMode)
+                OnDebugEvent("Entering RunItemSearchQuery");
+
+            // Keys in this dictionary are relative file paths; values are file info details
+            // A given remote file could have multiple hash values if multiple versions of the file have been uploaded
+            var remoteFiles = new Dictionary<string, List<ArchivedFileInfo>>();
 
             string datasetName;
             int datasetId;
@@ -1765,6 +1779,9 @@ namespace MyEMSLReader
                 // This is a temporary fix until MyEMSL reports Dataset Name
                 datasetName = LookupDatasetNameByID(datasetId, out instrument);
 
+                if (TraceMode)
+                    OnDebugEvent("Dataset ID " + datasetId + " is " + datasetName);
+
             }
             else if (string.Equals(QUERY_SPEC_DATASET_NAME, searchKey))
             {
@@ -1774,6 +1791,10 @@ namespace MyEMSLReader
                 // Contact DMS to retrieve the dataset name for this dataset ID
                 // This is a temporary fix until MyEMSL reports Dataset Name
                 datasetId = LookupDatasetIDByName(datasetName, out instrument);
+
+                if (TraceMode)
+                    OnDebugEvent("Dataset " + datasetName + " has ID " + datasetId);
+
             }
             else
             {
@@ -1793,6 +1814,9 @@ namespace MyEMSLReader
 
                 var metadataURL = string.Format(Configuration.MetadataServerUri + "/fileinfo/files_for_keyvalue/{0}/{1}",
                     searchKey, searchValue);
+
+                if (TraceMode)
+                    OnDebugEvent("Contacting " + metadataURL);
 
                 // Retrieve a list of files already in MyEMSL for this dataset
                 var fileInfoListJSON = EasyHttp.Send(metadataURL, out HttpStatusCode responseStatusCode);
