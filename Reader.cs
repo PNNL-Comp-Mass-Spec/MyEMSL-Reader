@@ -1465,6 +1465,7 @@ namespace MyEMSLReader
             base.ResetStatus();
         }
 
+        [Obsolete("Obsolete in June 2017; use RunItemSearchQuery instead")]
         internal Dictionary<string, object> RunElasticSearchQuery(List<KeyValuePair<string, string>> dctSearchTerms, int maxFileCount, SearchOperator logicalOperator)
         {
             CookieContainer cookieJar = null;
