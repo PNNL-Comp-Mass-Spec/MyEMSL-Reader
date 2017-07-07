@@ -25,6 +25,7 @@ namespace MyEMSLReader
         // Obsolete: private const string QUERY_SPEC_INSTRUMENT = "omics.dms.instrument";
 
         private const string QUERY_SPEC_DATASET_ID = "omics.dms.dataset_id";
+
         private const string QUERY_SPEC_DATASET_NAME = "omics.dms.dataset_name";
 
         private const string QUERY_SPEC_DATA_PACKAGE_ID = "omics.dms.datapackage_id";
@@ -1770,23 +1771,27 @@ namespace MyEMSLReader
             var remoteFiles = new Dictionary<string, List<ArchivedFileInfo>>();
 
             string datasetName;
-            int datasetId;
+            int datasetOrDataPackageId;
             string instrument;
+
+            bool uploadingDataPackage;
 
             if (string.Equals(QUERY_SPEC_DATASET_ID, searchKey))
             {
 
-                if (!int.TryParse(searchValue, out datasetId))
+                if (!int.TryParse(searchValue, out datasetOrDataPackageId))
                 {
                     ReportError("Search value is not numeric: " + searchValue + "; expecting a dataset ID");
                 }
 
                 // Contact DMS to retrieve the dataset name for this dataset ID
                 // This is a temporary fix until MyEMSL reports Dataset Name
-                datasetName = LookupDatasetNameByID(datasetId, out instrument);
+                datasetName = LookupDatasetNameByID(datasetOrDataPackageId, out instrument);
+
+                uploadingDataPackage = false;
 
                 if (TraceMode)
-                    OnDebugEvent("Dataset ID " + datasetId + " is " + datasetName);
+                    OnDebugEvent("Dataset ID " + datasetOrDataPackageId + " is " + datasetName);
 
             }
             else if (string.Equals(QUERY_SPEC_DATASET_NAME, searchKey))
@@ -1803,13 +1808,31 @@ namespace MyEMSLReader
                 // No results: https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.dataset_name/QC_pp_MCF-7_17_01_2_16May17_Samwise_REP-17-04-01
                 // Results:    https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.dataset_id/586916
 
-                datasetId = LookupDatasetIDByName(datasetName, out instrument);
+                datasetOrDataPackageId = LookupDatasetIDByName(datasetName, out instrument);
+
+                uploadingDataPackage = false;
 
                 if (TraceMode)
-                    OnDebugEvent("Dataset " + datasetName + " has ID " + datasetId);
+                    OnDebugEvent("Dataset " + datasetName + " has ID " + datasetOrDataPackageId);
 
                 searchKey = QUERY_SPEC_DATASET_ID;
-                searchValue = datasetId.ToString();
+                searchValue = datasetOrDataPackageId.ToString();
+            }
+            else if (string.Equals(QUERY_SPEC_DATA_PACKAGE_ID, searchKey))
+            {
+                if (!int.TryParse(searchValue, out datasetOrDataPackageId))
+                {
+                    ReportError("Search value is not numeric: " + searchValue + "; expecting a DataPackage ID");
+                }
+
+                // Dataset name and Instrument name are blank for data packages
+                datasetName = string.Empty;
+                instrument = string.Empty;
+
+                uploadingDataPackage = true;
+
+                if (TraceMode)
+                    OnDebugEvent("Obtaining metadata for DataPackage ID " + datasetOrDataPackageId);
             }
             else
             {
@@ -1824,7 +1847,7 @@ namespace MyEMSLReader
                 // https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.dataset_name/CPTAC_CompRef_P32_TMT11_17_18Jun17_Samwise_REP-17-05-01
 
                 // Future:
-                // https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.data_package_id/2819
+                // https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.datapackage_id/2819
                 // https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.experiment/6Apr15
 
                 var metadataURL = string.Format(mPacificaConfig.MetadataServerUri + "/fileinfo/files_for_keyvalue/{0}/{1}",
@@ -1882,7 +1905,6 @@ namespace MyEMSLReader
 
                     var remoteFileInfo = new ArchivedFileInfo(datasetName, fileName, subFolder, fileId)
                     {
-                        DatasetID = datasetId,
                         DatasetYearQuarter = "",
                         FileSizeBytes = Utilities.GetDictionaryValue(fileObj, "size", 0),
                         Instrument = instrument,
@@ -1893,7 +1915,17 @@ namespace MyEMSLReader
                         TransactionID = Utilities.GetDictionaryValue(fileObj, "transaction_id", 0)
                     };
 
-                    // remoteFileInfo.DataPackageID = 0;
+                    if (uploadingDataPackage)
+                    {
+                        remoteFileInfo.DatasetID = 0;
+                        remoteFileInfo.DataPackageID = datasetOrDataPackageId;
+                    }
+                    else
+                    {
+                        remoteFileInfo.DatasetID = datasetOrDataPackageId;
+                        remoteFileInfo.DataPackageID = 0;
+                    }
+
                     // remoteFileInfo.Metadata = ...;
 
                     // var updatedInMyEMSL = Utilities.GetDictionaryValue(fileObj, "updated");
