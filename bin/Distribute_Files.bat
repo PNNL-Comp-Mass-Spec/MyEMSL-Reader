@@ -56,17 +56,6 @@ echo.
 xcopy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\DataPackage_Archive_Manager\Lib" /D /Y
 xcopy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\DataPackage_Archive_Manager\bin\debug" /D /Y
 
-
-xcopy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\RefLib" /D /Y
-xcopy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\DeployedFiles" /D /Y
-xcopy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\CaptureTaskManager\CaptureTaskManager\bin\Debug" /D /Y
-xcopy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\CaptureTaskManager\CaptureTaskManager\bin\Debug_NoDartFTP" /D /Y
-xcopy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\DatasetArchivePlugin\DatasetArchivePlugin\bin\Debug" /D /Y
-xcopy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\DatasetArchivePlugin\DatasetArchivePlugin\bin\Debug_NoDartFTP" /D /Y
-xcopy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\Pacifica\Pacifica.DMS_Metadata\bin\Debug" /D /Y
-
-xcopy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\ArchiveVerifyPlugin\bin\Debug" /D /Y
-
 xcopy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\MyEMSL_MTS_File_Cache_Manager\Lib" /D /Y
 xcopy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\DMS_Managers\MyEMSL_MTS_File_Cache_Manager\bin\Debug" /D /Y
 
