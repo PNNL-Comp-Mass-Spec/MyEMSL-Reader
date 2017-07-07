@@ -15,7 +15,7 @@ namespace MyEMSLDownloader
 
     internal static class Program
     {
-        private const string PROGRAM_DATE = "May 15, 2017";
+        private const string PROGRAM_DATE = "July 7, 2017";
 
         static double mPercentComplete;
         static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
@@ -960,7 +960,7 @@ namespace MyEMSLDownloader
 
         }
 
-        static void TestDownloader(List<DatasetFolderOrFileInfo> archiveFiles)
+        static void TestDownloader(IReadOnlyCollection<DatasetFolderOrFileInfo> archiveFiles)
         {
             Console.WriteLine("Downloading " + archiveFiles.Count + " files");
             Console.WriteLine();
