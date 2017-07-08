@@ -565,9 +565,10 @@ namespace MyEMSLDownloader
 
                 if (objParseCommandLine.IsParameterPresent("D"))
                 {
-                    if (objParseCommandLine.RetrieveValueForParameter("D", out _))
+                    if (objParseCommandLine.RetrieveValueForParameter("D", out var paramValue) && !string.IsNullOrWhiteSpace(paramValue))
                     {
                         ShowErrorMessage("The /D switch should not have a value; use /Dataset to specify a dataset name");
+                        return false;
                     }
                     mMultiDatasetMode = true;
                 }
