@@ -32,7 +32,7 @@ namespace MyEMSLReader
         /// <summary>
         /// Keys are MyEMSL File IDs, values are struct udtFileToDownload
         /// </summary>
-        public Dictionary<Int64, udtFileToDownload> FilesToDownload
+        public Dictionary<long, udtFileToDownload> FilesToDownload
         {
             get;
         }
@@ -60,7 +60,7 @@ namespace MyEMSLReader
         /// <remarks></remarks>
         public DownloadQueue()
         {
-            FilesToDownload = new Dictionary<Int64, udtFileToDownload>();
+            FilesToDownload = new Dictionary<long, udtFileToDownload>();
             DownloadedFiles = new Dictionary<string, ArchivedFileInfo>();
         }
 
@@ -92,7 +92,7 @@ namespace MyEMSLReader
         /// <param name="fileInfo">Archive File Info</param>
         /// <param name="unzipRequired">True if the file will need to be unzipped after the download (this DLL will not unzip the file; it will simply include this in event FileDownloadedEventArgs)</param>
         /// <remarks>fileInfo can be null if unzipRequired is false</remarks>
-        public void AddFileToDownloadQueue(Int64 myEMSLFileID, ArchivedFileInfo fileInfo, bool unzipRequired)
+        public void AddFileToDownloadQueue(long myEMSLFileID, ArchivedFileInfo fileInfo, bool unzipRequired)
         {
             var destFilePath = string.Empty;
             AddFileToDownloadQueue(myEMSLFileID, fileInfo, unzipRequired, destFilePath);
@@ -106,7 +106,7 @@ namespace MyEMSLReader
         /// <param name="unzipRequired">True if the file will need to be unzipped after the download (this DLL will not unzip the file; it will simply include this in event FileDownloadedEventArgs)</param>
         /// <param name="destFilePath">Explicit destination file path</param>
         /// <remarks>fileInfo can be null if unzipRequired is false</remarks>
-        public void AddFileToDownloadQueue(Int64 myEMSLFileID, ArchivedFileInfo fileInfo, bool unzipRequired, string destFilePath)
+        public void AddFileToDownloadQueue(long myEMSLFileID, ArchivedFileInfo fileInfo, bool unzipRequired, string destFilePath)
         {
 
             if (FilesToDownload.ContainsKey(myEMSLFileID))

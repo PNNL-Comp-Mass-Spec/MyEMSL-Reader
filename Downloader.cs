@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading;
 using Pacifica.Core;
 using ICSharpCode.SharpZipLib.Tar;
@@ -82,6 +83,10 @@ namespace MyEMSLReader
             set;
         }
 
+        /// <summary>
+        /// Overwrite mode (IfChanged, Always, or Never)
+        /// </summary>
+        /// <remarks>Default is IfChanged</remarks>
         public Overwrite OverwriteMode
         {
             get;
@@ -100,8 +105,8 @@ namespace MyEMSLReader
         private bool mUseTestInstance;
 
         /// <summary>
-        /// When False use https://my.emsl.pnl.gov/myemsl/elasticsearch/simple_items
-        /// When True use  https://test0.my.emsl.pnl.gov/myemsl/search/simple/index.shtml
+        /// When False use https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.dataset_id/12345
+        /// When True use  https://metadatadev.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.dataset_id/12345
         /// </summary>
         public bool UseTestInstance
         {
@@ -242,7 +247,7 @@ namespace MyEMSLReader
                     }
                 }
 
-                Int64 bytesDownloaded;
+                long bytesDownloaded;
 
                 // Download "Locked" files (those that are still on spinning disks and have not yet been purged)
                 // Keys in this dictionary are FileIDs, values are relative file paths
@@ -443,7 +448,7 @@ namespace MyEMSLReader
             return ComputeTotalBytes(dctFiles.Keys.ToList());
         }
 
-        private Int64 ComputeTotalBytes(List<ArchivedFileInfo> dctFiles)
+        private long ComputeTotalBytes(IEnumerable<ArchivedFileInfo> dctFiles)
         {
             var bytesToDownload = dctFiles.Sum(archivedFile => archivedFile.FileSizeBytes);
             return bytesToDownload;
@@ -479,9 +484,9 @@ namespace MyEMSLReader
         }
 
         [Obsolete("Obsolete in June 2017")]
-        private Int64 CreateCart(List<Int64> lstFiles, CookieContainer cookieJar, string authToken)
+        private long CreateCart(List<long> lstFiles, CookieContainer cookieJar, string authToken)
         {
-            Int64 cartID;
+            long cartID;
 
             try
             {
@@ -629,7 +634,7 @@ namespace MyEMSLReader
                 }
 
                 // Verify that the files in lstFiles match those in lstFileIDs
-                var lstReturnedIDs = new SortedSet<Int64>(from item in lstFiles select item.FileID);
+                var lstReturnedIDs = new SortedSet<long>(from item in lstFiles select item.FileID);
 
                 foreach (var lstFileID in lstFileIDs)
                 {
@@ -743,7 +748,7 @@ namespace MyEMSLReader
             Dictionary<Int64, string> dctDestFilePathOverride,
             string downloadFolderPath,
             DownloadFolderLayout folderLayout,
-            out Int64 bytesDownloaded)
+            out long bytesDownloaded)
         {
             var dctFilesDownloaded = new Dictionary<Int64, string>();
             bytesDownloaded = 0;
@@ -855,8 +860,8 @@ namespace MyEMSLReader
         private bool DownloadTarFileWithRetry(
             CookieContainer cookieJar,
             List<ArchivedFileInfo> lstFilesInArchive,
-            Int64 bytesDownloaded,
-            Dictionary<Int64, string> dctDestFilePathOverride,
+            long bytesDownloaded,
+            IReadOnlyDictionary<long, string> destFilePathOverride,
             string downloadFolderPath,
             DownloadFolderLayout folderLayout,
             string tarFileURL)
@@ -925,8 +930,8 @@ namespace MyEMSLReader
         private bool DownloadAndExtractTarFile(
             CookieContainer cookieJar,
             List<ArchivedFileInfo> lstFilesInArchive,
-            Int64 bytesDownloaded,
-            Dictionary<Int64, string> dctDestFilePathOverride,
+            long bytesDownloaded,
+            IReadOnlyDictionary<long, string> destFilePathOverride,
             string downloadFolderPath,
             DownloadFolderLayout folderLayout,
             string tarFileURL,
@@ -987,7 +992,7 @@ namespace MyEMSLReader
                         // As of March 2016 that is no longer the case
                         var charIndex = sourceFile.IndexOf(Path.DirectorySeparatorChar);
 
-                        Int64 fileID = 0;
+                        long fileID = 0;
                         var fileIdFound = true;
 
                         // The default output file path is the relative path of the file in the .tar file
@@ -1010,7 +1015,7 @@ namespace MyEMSLReader
                         if (fileIdFound)
                         {
                             var fileIDText = sourceFile.Substring(0, charIndex);
-                            if (!Int64.TryParse(fileIDText, out fileID))
+                            if (!long.TryParse(fileIDText, out fileID))
                             {
                                 ReportMessage("Warning, .tar file entry does not contain a MyEMSL FileID value; " +
                                               "unable to validate the file or customize the output path: " + sourceFile);
@@ -1187,7 +1192,7 @@ namespace MyEMSLReader
             return fileMatchesHash;
         }
 
-        private List<ArchivedFileInfo> GetArchivedFileByID(List<ArchivedFileInfo> lstFilesInArchive, Int64 fileID)
+        private List<ArchivedFileInfo> GetArchivedFileByID(List<ArchivedFileInfo> lstFilesInArchive, long fileID)
         {
             var archivedFileLookup = (from item in lstFilesInArchive
                                       where item.FileID == fileID
@@ -1228,7 +1233,8 @@ namespace MyEMSLReader
             return lstDatasetIDs;
         }
 
-        private bool InitializeCartCreation(Int64 cartID, CookieContainer cookieJar)
+        [Obsolete("Obsolete in June 2017")]
+        private bool InitializeCartCreation(long cartID, CookieContainer cookieJar)
         {
             bool success;
 
@@ -1449,7 +1455,7 @@ namespace MyEMSLReader
             return responseHeaders;
         }
 
-
+        [Obsolete("Obsolete in June 2017")]
         private string UpdateCartState(Dictionary<string, object> dctCartInfo, string cartState)
         {
             var tarFileURL = string.Empty;
@@ -1503,7 +1509,7 @@ namespace MyEMSLReader
             }
         }
 
-        private void UpdateProgress(Int64 bytesDownloaded, Int64 bytesToDownload)
+        private void UpdateProgress(long bytesDownloaded, long bytesToDownload)
         {
             if (bytesToDownload > 0)
             {
@@ -1514,7 +1520,8 @@ namespace MyEMSLReader
             }
         }
 
-        private bool WaitForCartSuccess(Int64 cartID, CookieContainer cookieJar, int maxMinutesToWait, out string tarFileURL)
+        [Obsolete("Obsolete in June 2017")]
+        private bool WaitForCartSuccess(long cartID, CookieContainer cookieJar, int maxMinutesToWait, out string tarFileURL)
         {
             var dtStartTime = DateTime.UtcNow;
             var dtLastUpdateTime = DateTime.UtcNow.Subtract(new TimeSpan(0, 0, 50));
@@ -1608,7 +1615,7 @@ namespace MyEMSLReader
                         notifyWhenCartAvailable = true;
                     }
 
-                    // Sleep for 5 to 30 seconds (depending on how Int64 we've been waiting)
+                    // Sleep for 5 to 30 seconds (depending on how long we've been waiting)
                     Thread.Sleep(sleepTimeSeconds * 1000);
                 }
 

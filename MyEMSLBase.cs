@@ -198,12 +198,12 @@ namespace MyEMSLReader
             return valueIfMissing;
         }
 
-        protected Int64 ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, Int64 valueIfMissing)
+        protected long ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, long valueIfMissing)
         {
             var valueText = ReadDictionaryValue(dctData, keyName, valueIfMissing.ToString(CultureInfo.InvariantCulture));
-            Int64 value;
+            long value;
 
-            if (Int64.TryParse(valueText, out value))
+            if (long.TryParse(valueText, out value))
                 return value;
 
             return valueIfMissing;
@@ -269,7 +269,6 @@ namespace MyEMSLReader
         {
             ErrorMessage = string.Empty;
         }
-
 
         protected List<Dictionary<string, object>> RetrieveDictionaryListByKey(Dictionary<string, object> dctResults, string keyName)
         {
@@ -393,6 +392,7 @@ namespace MyEMSLReader
             return retrievalSuccess;
         }
 
+        [Obsolete("Deprecated in June 2017")]
         protected bool ValidSearchResults(Dictionary<string, object> dctResults, out string errorMessage)
         {
             // Check for an error

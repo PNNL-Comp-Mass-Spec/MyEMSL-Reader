@@ -79,7 +79,7 @@ namespace MyEMSLReader
         /// <returns></returns>
         /// <remarks>Keys are MyEMSL File IDs, values are struct udtFileToDownload</remarks>
         // ReSharper disable once UnusedMember.Global
-        public Dictionary<Int64, DownloadQueue.udtFileToDownload> FilesToDownload => mDownloadQueue.FilesToDownload;
+        public Dictionary<long, DownloadQueue.udtFileToDownload> FilesToDownload => mDownloadQueue.FilesToDownload;
 
         /// <summary>
         /// When true, will always download files using the cart mechanism
@@ -162,7 +162,7 @@ namespace MyEMSLReader
         /// </param>
         /// <remarks>fileInfo can be null if unzipRequired is false</remarks>
         // ReSharper disable once MemberCanBeProtected.Global
-        public void AddFileToDownloadQueue(Int64 myEMSLFileID, ArchivedFileInfo fileInfo, bool unzipRequired)
+        public void AddFileToDownloadQueue(long myEMSLFileID, ArchivedFileInfo fileInfo, bool unzipRequired)
         {
             mDownloadQueue.AddFileToDownloadQueue(myEMSLFileID, fileInfo, unzipRequired);
         }
@@ -176,7 +176,7 @@ namespace MyEMSLReader
         /// <param name="destFilePath">Explicit destination file path</param>
         /// <remarks>fileInfo can be null if unzipRequired is false</remarks>
         // ReSharper disable once UnusedMember.Global
-        public void AddFileToDownloadQueue(Int64 myEMSLFileID, ArchivedFileInfo fileInfo, bool unzipRequired, string destFilePath)
+        public void AddFileToDownloadQueue(long myEMSLFileID, ArchivedFileInfo fileInfo, bool unzipRequired, string destFilePath)
         {
             mDownloadQueue.AddFileToDownloadQueue(myEMSLFileID, fileInfo, unzipRequired, destFilePath);
         }
@@ -189,7 +189,7 @@ namespace MyEMSLReader
         /// <returns>New path, for example QC_Shew_13-04_pt1_1_1_31Jul13_Cheetah_13-07-01.raw@MyEMSLID_84327</returns>
         /// <remarks></remarks>
         // ReSharper disable once UnusedMember.Global
-        public static string AppendMyEMSLFileID(string filePath, Int64 myEmslFileID)
+        public static string AppendMyEMSLFileID(string filePath, long myEmslFileID)
         {
             return filePath + MYEMSL_FILEID_TAG + myEmslFileID.ToString(CultureInfo.InvariantCulture);
         }
@@ -207,7 +207,7 @@ namespace MyEMSLReader
         /// <returns>MyEMSL File ID if successfully parsed, 0 if not present or a problem</returns>
         /// <remarks></remarks>
         // ReSharper disable once UnusedMember.Global
-        public static Int64 ExtractMyEMSLFileID(string filePath)
+        public static long ExtractMyEMSLFileID(string filePath)
         {
             string newFilePath;
             return ExtractMyEMSLFileID(filePath, out newFilePath);
@@ -220,7 +220,7 @@ namespace MyEMSLReader
         /// <param name="newFilePath">Path with the MyEMSL FileID tag removed, for example QC_Shew_13-04_pt1_1_1_31Jul13_Cheetah_13-07-01.raw</param>
         /// <returns>MyEMSL File ID if successfully parsed, 0 if not present or a problem</returns>
         /// <remarks></remarks>
-        public static Int64 ExtractMyEMSLFileID(string filePath, out string newFilePath)
+        public static long ExtractMyEMSLFileID(string filePath, out string newFilePath)
         {
 
             var charIndex = filePath.LastIndexOf(MYEMSL_FILEID_TAG, StringComparison.Ordinal);
@@ -230,10 +230,10 @@ namespace MyEMSLReader
             {
                 newFilePath = filePath.Substring(0, charIndex);
 
-                Int64 myEmslFileID;
+                long myEmslFileID;
                 var myEmslFileIdText = filePath.Substring(charIndex + MYEMSL_FILEID_TAG.Length);
 
-                if (Int64.TryParse(myEmslFileIdText, out myEmslFileID))
+                if (long.TryParse(myEmslFileIdText, out myEmslFileID))
                 {
                     return myEmslFileID;
                 }
@@ -598,8 +598,8 @@ namespace MyEMSLReader
         /// <summary>
         /// Retrieve queued files from MyEMSL
         /// </summary>
-        /// <param name="downloadFolderPath">Target folder path (ignored for files defined in dctDestFilePathOverride)</param>
-        /// <param name="folderLayout">Folder Layout (ignored for files defined in dctDestFilePathOverride)</param>
+        /// <param name="downloadFolderPath">Target folder path (ignored for files defined in destFilePathOverride)</param>
+        /// <param name="folderLayout">Folder Layout (ignored for files defined in destFilePathOverride)</param>
         /// <returns>True if success, false if an error</returns>
         /// <remarks>Returns False if the download queue is empty</remarks>
         public bool ProcessDownloadQueue(string downloadFolderPath, Downloader.DownloadFolderLayout folderLayout)

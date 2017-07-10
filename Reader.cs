@@ -75,7 +75,7 @@ namespace MyEMSLReader
             get;
             set;
         }
-        public Int64 LastSearchFileCountMatched
+        public long LastSearchFileCountMatched
         {
             get;
             private set;
@@ -876,6 +876,7 @@ namespace MyEMSLReader
             return entityType;
         }
 
+        [Obsolete("Deprecated in June 2017")]
         internal List<ArchivedFileInfo> ParseElasticSearchResults(string responseData, out string authToken)
         {
             if (string.IsNullOrWhiteSpace(responseData))
@@ -895,6 +896,7 @@ namespace MyEMSLReader
         /// <param name="dctResults"></param>
         /// <param name="authToken">Output parameter: Authorization token (if available)</param>
         /// <returns></returns>
+        [Obsolete("Deprecated in June 2017")]
         internal List<ArchivedFileInfo> ParseElasticSearchResults(Dictionary<string, object> dctResults, out string authToken)
         {
 
@@ -1670,7 +1672,7 @@ namespace MyEMSLReader
 
                         // Check whether the maximum number of files was returned
                         // If it was, bump up the max file count and try again (within reason)
-                        Int64 fileCountMatched = 0;
+                        long fileCountMatched = 0;
                         string errorMessage;
                         if (ValidSearchResults(dctResults, out errorMessage))
                         {

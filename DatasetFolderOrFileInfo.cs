@@ -5,7 +5,7 @@ namespace MyEMSLReader
     public class DatasetFolderOrFileInfo
     {
         /// <summary>
-        /// The UCT datetime that the info was cached in memory
+        /// The UTC datetime that the info was cached in memory
         /// </summary>
         public DateTime CacheDateUTC
         {
@@ -17,7 +17,7 @@ namespace MyEMSLReader
         /// MyEMSL File ID
         /// </summary>
         /// <remarks>Will be 0 if this is a folder</remarks>
-        public Int64 FileID
+        public long FileID
         {
             get;
         }
@@ -45,7 +45,7 @@ namespace MyEMSLReader
         /// <param name="fileID"></param>
         /// <param name="isFolder"></param>
         /// <param name="fileInfo"></param>
-        public DatasetFolderOrFileInfo(Int64 fileID, bool isFolder, ArchivedFileInfo fileInfo)
+        public DatasetFolderOrFileInfo(long fileID, bool isFolder, ArchivedFileInfo fileInfo)
         {
             CacheDateUTC = DateTime.UtcNow;
             FileID = fileID;

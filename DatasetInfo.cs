@@ -43,7 +43,7 @@ namespace MyEMSLReader
         /// Queue a file to be downloaded
         /// </summary>
         /// <param name="myEMSLFileID">MyEMSL file ID</param>
-        public void AddFileToDownloadQueue(Int64 myEMSLFileID)
+        public void AddFileToDownloadQueue(long myEMSLFileID)
         {
             AddFileToDownloadQueue(myEMSLFileID, false);
         }
@@ -53,10 +53,10 @@ namespace MyEMSLReader
         /// </summary>
         /// <param name="myEMSLFileID">MyEMSL file ID</param>
         /// <param name="unzipRequired">
-        /// True if the file will need to be unzipped after the download 
+        /// True if the file will need to be unzipped after the download
         /// (this DLL will not unzip the file; it will simply include this in event FileDownloadedEventArgs)
         /// </param>
-        public void AddFileToDownloadQueue(Int64 myEMSLFileID, bool unzipRequired)
+        public void AddFileToDownloadQueue(long myEMSLFileID, bool unzipRequired)
         {
             if (mDownloadQueue.FilesToDownload.ContainsKey(myEMSLFileID))
                 return;
@@ -123,7 +123,7 @@ namespace MyEMSLReader
                 {
                     if (mErrorMessages.Count == 0)
                         return true;
-                    
+
                     return false;
                 }
 

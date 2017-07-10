@@ -49,12 +49,18 @@ namespace MyEMSLReader
             set;
         }
 
+        /// <summary>
+        /// Filename
+        /// </summary>
         public string Filename
         {
             get;
         }
 
-        public Int64 FileID
+        /// <summary>
+        /// MyEMSL File ID
+        /// </summary>
+        public long FileID
         {
             get;
             set;
@@ -72,7 +78,10 @@ namespace MyEMSLReader
         /// <remarks>Use UpdateSourceFileTimes to update this value</remarks>
         public DateTime FileLastWriteTime { get; private set; }
 
-        public Int64 FileSizeBytes
+        /// <summary>
+        /// File size, in bytes
+        /// </summary>
+        public long FileSizeBytes
         {
             get;
             set;
@@ -103,6 +112,7 @@ namespace MyEMSLReader
             set;
         }
 
+        [Obsolete("Deprecated in June 2017")]
         public bool IsPublicFile
         {
             get;
@@ -220,12 +230,18 @@ namespace MyEMSLReader
             get;
         }
 
+        /// <summary>
+        /// UTC time that the file was submitted (as a string)
+        /// </summary>
         public string SubmissionTime
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// UTC time that the file was submitted
+        /// </summary>
         public DateTime SubmissionTimeValue
         {
             get
@@ -251,7 +267,7 @@ namespace MyEMSLReader
         /// MyEMSL transaction ID for this specific file
         /// </summary>
         /// <remarks>Incremented for every newly uploaded bundle (.tar file), and thus a good substitute for dates when comparing two files to see which is newer</remarks>
-        public Int64 TransactionID
+        public long TransactionID
         {
             get;
             set;
@@ -276,7 +292,7 @@ namespace MyEMSLReader
         /// <param name="filename">Filename</param>
         /// <param name="subDirPath">Subdirectory below dataset (empty if at the dataset level)</param>
         /// <param name="fileID">MyEMSL File ID</param>
-        public ArchivedFileInfo(string dataset, string filename, string subDirPath, Int64 fileID) :
+        public ArchivedFileInfo(string dataset, string filename, string subDirPath, long fileID) :
             this(dataset, filename, subDirPath, fileID, "", "", new Dictionary<string, object>())
         { }
 
@@ -294,7 +310,7 @@ namespace MyEMSLReader
             string dataset,
             string filename,
             string subDirPath,
-            Int64 fileID,
+            long fileID,
             string instrument,
             string datasetYearQuarter,
             Dictionary<string, object> dctMetadata)
