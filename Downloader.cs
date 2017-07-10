@@ -182,8 +182,6 @@ namespace MyEMSLReader
             DownloadFolderLayout folderLayout = DownloadFolderLayout.SingleDataset,
             int maxMinutesToWait = 1440)
         {
-            var success = false;
-
             ResetStatus();
 
             if (mPacificaConfig.UseTestInstance != UseTestInstance)
@@ -731,7 +729,7 @@ namespace MyEMSLReader
                     var responseStatusCode = HttpStatusCode.OK;
 
                     var webException = ex.InnerException as WebException;
-                    if (webException != null)
+                    if (webException?.Response != null)
                     {
                         responseStatusCode = ((HttpWebResponse)webException.Response).StatusCode;
                     }
@@ -1515,7 +1513,13 @@ namespace MyEMSLReader
         /// <param name="folderLayout"></param>
         /// <param name="reportMessage"></param>
         /// <returns></returns>
-        private bool IsDownloadRequired(Dictionary<long, ArchivedFileInfo> dctFiles, long fileID, string downloadFolderPath, DownloadFolderLayout folderLayout, bool reportMessage)
+        [Obsolete("Unused in July 2017")]
+        private bool IsDownloadRequired(
+            Dictionary<long, ArchivedFileInfo> dctFiles,
+            long fileID,
+            string downloadFolderPath,
+            DownloadFolderLayout folderLayout,
+            bool reportMessage)
         {
             var lstMatches = (from item in dctFiles where item.Value.FileID == fileID select item.Value).ToList();
 
@@ -1546,7 +1550,9 @@ namespace MyEMSLReader
             bool downloadFile;
             string message;
 
-            if (!File.Exists(downloadFilePath))
+            targetFile.Refresh();
+
+            if (!targetFile.Exists)
             {
                 if (reportMessage)
                 {
