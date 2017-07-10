@@ -11,7 +11,10 @@ namespace MyEMSLDownloader
         public void StartTest()
         {
 
-            var datasetListInfo = new DatasetListInfo();
+            var datasetListInfo = new DatasetListInfo {
+                ThrowErrors = false
+            };
+
             datasetListInfo.DebugEvent += OnDebugEvent;
             datasetListInfo.StatusEvent += OnStatusEvent;
             datasetListInfo.ErrorEvent += OnErrorEvent;

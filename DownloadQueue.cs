@@ -46,6 +46,8 @@ namespace MyEMSLReader
             private set;
         }
 
+        public bool ThrowErrors { get; set; }
+
         /// <summary>
         /// When False use https://my.emsl.pnl.gov/myemsl/elasticsearch/simple_items
         /// When True use  https://test0.my.emsl.pnl.gov/myemsl/search/simple/index.shtml
@@ -169,7 +171,7 @@ namespace MyEMSLReader
 
                 downloader.DisableCart = disableCart;
                 downloader.ForceDownloadViaCart = forceDownloadViaCart;
-
+                downloader.ThrowErrors = ThrowErrors;
                 downloader.UseTestInstance = UseTestInstance;
 
                 // Keys are MyEMSL File IDs, values are the full target path for the file to download

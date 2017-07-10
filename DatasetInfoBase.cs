@@ -87,6 +87,8 @@ namespace MyEMSLReader
         /// <remarks>ForceDownloadViaCart takes precedence over DisableCart</remarks>
         public bool ForceDownloadViaCart { get; set; }
 
+        public bool ThrowErrors { get; set; }
+
         /// <summary>
         /// When False use https://my.emsl.pnl.gov/myemsl/elasticsearch/simple_items
         /// When True use  https://test0.my.emsl.pnl.gov/myemsl/search/simple/index.shtml
@@ -119,7 +121,10 @@ namespace MyEMSLReader
 
             mDownloadedFiles = new Dictionary<string, ArchivedFileInfo>(StringComparer.OrdinalIgnoreCase);
 
-            mDownloadQueue = new DownloadQueue();
+            mDownloadQueue = new DownloadQueue {
+                ThrowErrors = ThrowErrors
+            };
+
             RegisterEvents(mDownloadQueue);
 
             // Attach events

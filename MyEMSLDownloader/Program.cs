@@ -94,10 +94,16 @@ namespace MyEMSLDownloader
 
                 }
 
-                mDatasetListInfo = new DatasetListInfo();
+                mDatasetListInfo = new DatasetListInfo()
+                {
+                    ThrowErrors = false
+                };
                 RegisterEvents(mDatasetListInfo);
 
-                mDataPackageListInfo = new DataPackageListInfo();
+                mDataPackageListInfo = new DataPackageListInfo()
+                {
+                    ThrowErrors = false
+                };
                 RegisterEvents(mDataPackageListInfo);
 
                 mDatasetListInfo.UseTestInstance = mUseTestInstance;
