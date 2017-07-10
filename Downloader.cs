@@ -1324,13 +1324,14 @@ namespace MyEMSLReader
             DownloadFolderLayout folderLayout,
             IReadOnlyDictionary<long, string> destFilePathOverride,
             FileInfo fiSourceFile,
-            IEnumerable<KeyValuePair<long, ArchivedFileInfo>> targetArchiveFiles,
+            IReadOnlyDictionary<long, ArchivedFileInfo> filesToDownload,
+            IEnumerable<long> targetFileIDs,
             IDictionary<long, string> filesDownloaded)
         {
 
-            foreach (var targetFileInfo in targetArchiveFiles)
+            foreach (var targetFileID in targetFileIDs)
             {
-                var targetArchiveFile = targetFileInfo.Value;
+                var targetArchiveFile = filesToDownload[targetFileID];
 
                 var fiTargetFile = GetTargetFile(
                         downloadFolderPath, folderLayout,
