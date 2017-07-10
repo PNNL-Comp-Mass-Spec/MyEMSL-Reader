@@ -230,7 +230,6 @@ namespace MyEMSLReader
                     }
                 }
 
-                long bytesDownloaded;
                 var cookieJar = new CookieContainer();
 
                 // Download the files
@@ -372,8 +371,6 @@ namespace MyEMSLReader
 
                     if (!ForceDownloadViaCart)
                     {
-                        throw new NotImplementedException("This code needs to be updated to use the new MyEMSL API");
-
                         // Code deprecated in June 2017
 
                         // Construct the URL, e.g. https://my.emsl.pnl.gov/myemsl/item/foo/bar/824531/2.txt?token=ODUiaSI6WyI4MjQ1MzEiXSwicyI6IjIwMTMtMDgtMjBUMTY6MTI6MjEtMDc6MDAiLCJ1IjoiaHVZTndwdFlFZUd6REFBbXVjZXB6dyIsImQiOiAzNjAwJ9NESG37bQjVDlWCJWdrTVqA0wifgrbemVW+nMLgyx/2OfHGk2kFUsrJoOOTdBVsiPrHaeX6/MiaS/szVJKS1ve9UM8pufEEoNEyMBlq7ZxolLfK0Y3OicRPkiKzXZaXkQ7fxc/ec/Ba3uz9wHEs5e+1xYuO36KkSyGGW/xQ7OFx4SyZUm3PrLDk87YPapwoU/30gSk2082oSBOqHuTHzfOjjtbxAIuMa27AbwwOIjG8/Xq4h7squzFNfh/knAkNQ3+21wuZukpsNslWpYO796AFgI2rITaw7HPGJMZKwi+QlMmx27OHE2Qh47b5VQUJUp2tEorFwMjgECo+xX75vg&locked
@@ -383,10 +380,8 @@ namespace MyEMSLReader
                         var URL = "";
 
                         const int maxAttempts = 2;
-                        Exception mostRecentException;
-                        HttpStatusCode responseStatusCode;
 
-                        var responseHeaders = SendHeadRequestWithRetry(URL, cookieJar, maxAttempts, out responseStatusCode, out mostRecentException);
+                        var responseHeaders = SendHeadRequestWithRetry(URL, cookieJar, maxAttempts, out var responseStatusCode, out var mostRecentException);
 
                         if (responseStatusCode == HttpStatusCode.ServiceUnavailable)
                         {
@@ -409,8 +404,7 @@ namespace MyEMSLReader
                             if (filteredKeys.Count > 0)
                             {
                                 var keyValue = responseHeaders[filteredKeys.First()];
-                                bool isLocked;
-                                if (bool.TryParse(keyValue, out isLocked))
+                                if (bool.TryParse(keyValue, out var isLocked))
                                 {
                                     fileLocked = isLocked;
                                 }
@@ -501,11 +495,9 @@ namespace MyEMSLReader
                 var postData = "";
 
                 const int maxAttempts = 4;
-                string xmlString;
-                Exception mostRecentException;
                 const bool allowEmptyResponseData = false;
 
-                var success = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Post, maxAttempts, allowEmptyResponseData, out xmlString, out mostRecentException);
+                var success = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Post, maxAttempts, allowEmptyResponseData, out var xmlString, out var mostRecentException);
 
                 if (!success || string.IsNullOrEmpty(xmlString))
                 {
@@ -515,8 +507,7 @@ namespace MyEMSLReader
                 // Extract the CartID from the response
                 var dctResults = Utilities.JsonToObject(xmlString);
 
-                string errorMessage;
-                if (!ValidSearchResults(dctResults, out errorMessage))
+                if (!ValidSearchResults(dctResults, out var errorMessage))
                 {
                     ReportError("Error creating download cart: " + errorMessage);
                     return 0;
@@ -614,8 +605,7 @@ namespace MyEMSLReader
                 }
 
                 // Extract the ScrollID from the response
-                string errorMessage;
-                if (!ValidSearchResults(dctResults, out errorMessage))
+                if (!ValidSearchResults(dctResults, out var errorMessage))
                 {
                     ReportError("Error obtaining scroll ID: " + errorMessage);
                     return false;
@@ -644,11 +634,9 @@ namespace MyEMSLReader
                 var postData = scrollID;
 
                 const int maxAttempts = 4;
-                string responseData;
-                Exception mostRecentException;
                 const bool allowEmptyResponseData = false;
 
-                var success = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Post, maxAttempts, allowEmptyResponseData, out responseData, out mostRecentException);
+                var success = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Post, maxAttempts, allowEmptyResponseData, out var responseData, out var mostRecentException);
                 if (!success)
                 {
                     var msg = "Error obtaining an AuthToken for the scroll ID";
@@ -714,8 +702,10 @@ namespace MyEMSLReader
                 try
                 {
                     attempts++;
-                    HttpStatusCode responseStatusCode;
-                    success = EasyHttp.GetFile(mPacificaConfig, URL, cookieJar, out responseStatusCode, downloadFilePath, timeoutSeconds);
+                    success = EasyHttp.GetFile(
+                        mPacificaConfig, URL, cookieJar,
+                        out var responseStatusCode,
+                        downloadFilePath, timeoutSeconds);
 
                     if (!success)
                         break;
@@ -852,7 +842,11 @@ namespace MyEMSLReader
                     {
                         var maxAttempts = DEFAULT_MAX_ATTEMPTS;
 
-                        var retrievalSuccess = DownloadFile(URL, cookieJar, maxAttempts, fiTargetFile.FullName, out var mostRecentException, out fileInUseByOtherProcess);
+                        var retrievalSuccess = DownloadFile(
+                            URL, cookieJar, maxAttempts,
+                            targetFile.FullName,
+                            out var mostRecentException,
+                            out fileInUseByOtherProcess);
 
                         if (retrievalSuccess)
                         {
@@ -1478,11 +1472,14 @@ namespace MyEMSLReader
                 var postData = string.Empty;
 
                 const int maxAttempts = 4;
-                string xmlString;
-                Exception mostRecentException;
                 const bool allowEmptyResponseData = true;
 
-                success = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Post, maxAttempts, allowEmptyResponseData, out xmlString, out mostRecentException);
+                success = SendHTTPRequestWithRetry(
+                    URL, cookieJar, postData, EasyHttp.HttpMethod.Post,
+                    maxAttempts, allowEmptyResponseData,
+                    out var xmlString,
+                    out var mostRecentException);
+
                 if (!success)
                 {
                     var msg = "Error initializing creation of cart " + cartID;
@@ -1623,13 +1620,15 @@ namespace MyEMSLReader
                         attempts++;
 
 
-                        string xmlString;
-                        Exception mostRecentException;
                         const bool allowEmptyResponseData = false;
 
-                        success = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Post, maxAttempts, allowEmptyResponseData, out xmlString, out mostRecentException);
-
-
+                        success = SendHTTPRequestWithRetry(
+                            URL, cookieJar, postData,
+                            EasyHttp.HttpMethod.Post,
+                            maxAttempts,
+                            allowEmptyResponseData,
+                            out var xmlString,
+                            out var mostRecentException);
 
                         if (!success)
                             break;
