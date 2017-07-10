@@ -214,9 +214,9 @@ namespace MyEMSLReader
                     {
                         // Look for conflicts
                         var lstOutputFilePaths = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
-                        foreach (var archivedFile in filesToDownload.Values)
+                        foreach (var archiveFile in filesToDownload.Values)
                         {
-                            if (lstOutputFilePaths.Contains(archivedFile.RelativePathWindows))
+                            if (lstOutputFilePaths.Contains(archiveFile.RelativePathWindows))
                             {
                                 // File conflicts
                                 ReportMessage("Auto-changing folder layout to 'DatasetNameAndSubFolders' since the files to download come from more than one dataset");
@@ -224,7 +224,7 @@ namespace MyEMSLReader
                                 break;
                             }
 
-                            lstOutputFilePaths.Add(archivedFile.RelativePathWindows);
+                            lstOutputFilePaths.Add(archiveFile.RelativePathWindows);
                         }
 
                     }
@@ -237,7 +237,7 @@ namespace MyEMSLReader
                 // Keys in this dictionary are FileIDs, values are relative file paths
                 var filesDownloaded = DownloadFilesDirectly(
                     filesToDownload, cookieJar, destFilePathOverride,
-                    downloadFolderPath, folderLayout, out bytesDownloaded);
+                    downloadFolderPath, folderLayout, out var bytesDownloaded);
 
                 // Create a list of the files that remain (files that could not be downloaded directly)
                 // These files will be downloaded via the cart mechanism
@@ -253,12 +253,12 @@ namespace MyEMSLReader
                         continue;
                     }
 
-                    var fiTargetFile = GetTargetFile(
+                    var targetFile = GetTargetFile(
                        downloadFolderPath, folderLayout,
                        archivefile, destFilePathOverride);
 
                     // Confirm one more time that we need to download the file
-                    var downloadFile = IsDownloadRequired(archivefile, fiTargetFile.FullName, reportMessage: false);
+                    var downloadFile = IsDownloadRequired(archivefile, targetFile, reportMessage: false);
 
                     if (downloadFile)
                     {
@@ -358,7 +358,7 @@ namespace MyEMSLReader
                 }
 
                 var fileNumber = 0;
-                foreach (var archivedFile in lstFiles)
+                foreach (var archiveFile in lstFiles)
                 {
 
                     fileNumber++;
@@ -379,7 +379,7 @@ namespace MyEMSLReader
                         // Construct the URL, e.g. https://my.emsl.pnl.gov/myemsl/item/foo/bar/824531/2.txt?token=ODUiaSI6WyI4MjQ1MzEiXSwicyI6IjIwMTMtMDgtMjBUMTY6MTI6MjEtMDc6MDAiLCJ1IjoiaHVZTndwdFlFZUd6REFBbXVjZXB6dyIsImQiOiAzNjAwJ9NESG37bQjVDlWCJWdrTVqA0wifgrbemVW+nMLgyx/2OfHGk2kFUsrJoOOTdBVsiPrHaeX6/MiaS/szVJKS1ve9UM8pufEEoNEyMBlq7ZxolLfK0Y3OicRPkiKzXZaXkQ7fxc/ec/Ba3uz9wHEs5e+1xYuO36KkSyGGW/xQ7OFx4SyZUm3PrLDk87YPapwoU/30gSk2082oSBOqHuTHzfOjjtbxAIuMa27AbwwOIjG8/Xq4h7squzFNfh/knAkNQ3+21wuZukpsNslWpYO796AFgI2rITaw7HPGJMZKwi+QlMmx27OHE2Qh47b5VQUJUp2tEorFwMjgECo+xX75vg&locked
                         // Note that "2.txt" in this URL is just a dummy filename
                         // Since we're performing a Head request, it doesn't matter what filename we use
-                        // var URL = mPacificaConfig.SearchServerUri + "/myemsl/item/foo/bar/" + archivedFile.FileID + "/2.txt?token=" + authToken + "&locked";
+                        // var URL = mPacificaConfig.SearchServerUri + "/myemsl/item/foo/bar/" + archiveFile.FileID + "/2.txt?token=" + authToken + "&locked";
                         var URL = "";
 
                         const int maxAttempts = 2;
@@ -419,7 +419,7 @@ namespace MyEMSLReader
                         }
                     }
 
-                    dctFiles.Add(archivedFile, fileLocked);
+                    dctFiles.Add(archiveFile, fileLocked);
                 }
             }
             catch (Exception ex)
@@ -437,30 +437,30 @@ namespace MyEMSLReader
 
         private long ComputeTotalBytes(IEnumerable<ArchivedFileInfo> dctFiles)
         {
-            var bytesToDownload = dctFiles.Sum(archivedFile => archivedFile.FileSizeBytes);
+            var bytesToDownload = dctFiles.Sum(archiveFile => archiveFile.FileSizeBytes);
             return bytesToDownload;
         }
 
-        private string ConstructDownloadfilePath(DownloadFolderLayout folderLayout, ArchivedFileInfo archivedFile)
+        private string ConstructDownloadfilePath(DownloadFolderLayout folderLayout, ArchivedFileInfo archiveFile)
         {
             string downloadFilePath;
             switch (folderLayout)
             {
                 case DownloadFolderLayout.FlatNoSubfolders:
-                    downloadFilePath = archivedFile.Filename;
+                    downloadFilePath = archiveFile.Filename;
                     break;
                 case DownloadFolderLayout.SingleDataset:
-                    downloadFilePath = archivedFile.RelativePathWindows;
+                    downloadFilePath = archiveFile.RelativePathWindows;
                     break;
                 case DownloadFolderLayout.DatasetNameAndSubFolders:
-                    downloadFilePath = Path.Combine(archivedFile.Dataset, archivedFile.RelativePathWindows);
+                    downloadFilePath = Path.Combine(archiveFile.Dataset, archiveFile.RelativePathWindows);
                     break;
                 case DownloadFolderLayout.InstrumentYearQuarterDataset:
-                    downloadFilePath = archivedFile.PathWithInstrumentAndDatasetWindows;
+                    downloadFilePath = archiveFile.PathWithInstrumentAndDatasetWindows;
                     break;
                 default:
                     ReportError("Unrecognized DownloadFolderLayout mode: " + folderLayout.ToString());
-                    downloadFilePath = Path.Combine(archivedFile.Dataset, archivedFile.RelativePathWindows);
+                    downloadFilePath = Path.Combine(archiveFile.Dataset, archiveFile.RelativePathWindows);
                     break;
             }
 
@@ -828,14 +828,15 @@ namespace MyEMSLReader
 
                     var firstArchiveFile = filesToDownload[fileIDs.First()];
 
-                    var fiTargetFile = GetTargetFile(
+                    var targetFile = GetTargetFile(
                         downloadFolderPath, folderLayout,
                         firstArchiveFile, destFilePathOverride);
 
                     const int DEFAULT_MAX_ATTEMPTS = 5;
                     var fileInUseByOtherProcess = false;
 
-                    var downloadFile = IsDownloadRequired(firstArchiveFile, fiTargetFile.FullName, reportMessage: true);
+                    var downloadFile = IsDownloadRequired(firstArchiveFile, targetFile, reportMessage: true);
+                    bool fileRetrievedOrExists;
 
                     if (downloadFile)
                     {
@@ -862,9 +863,11 @@ namespace MyEMSLReader
                         {
                             // Show the error at the console but do not throw an exception
                             if (mostRecentException == null)
-                                ReportMessage("Failure downloading " + Path.GetFileName(fiTargetFile.FullName) + ": unknown reason");
+                                ReportMessage("Failure downloading " + Path.GetFileName(targetFile.FullName) + ": unknown reason");
                             else
-                                ReportMessage("Failure downloading " + Path.GetFileName(fiTargetFile.FullName) + ": " + mostRecentException.Message);
+                                ReportMessage("Failure downloading " + Path.GetFileName(targetFile.FullName) + ": " + mostRecentException.Message);
+
+                            fileRetrievedOrExists = targetFile.Exists;
                         }
                     }
 
@@ -875,8 +878,8 @@ namespace MyEMSLReader
                         filesDownloaded.Add(firstArchiveFile.FileID, firstArchiveFile.PathWithInstrumentAndDatasetWindows);
                     }
 
-                    if (!DownloadedFiles.ContainsKey(fiTargetFile.FullName))
-                        DownloadedFiles.Add(fiTargetFile.FullName, firstArchiveFile);
+                    if (!DownloadedFiles.ContainsKey(targetFile.FullName))
+                        DownloadedFiles.Add(targetFile.FullName, firstArchiveFile);
 
                     bytesDownloaded += firstArchiveFile.FileSizeBytes;
                     UpdateProgress(bytesDownloaded, bytesToDownload);
@@ -1137,7 +1140,7 @@ namespace MyEMSLReader
                         // Make sure the path doesn't start with a backslash
                         var downloadFilePath = sourceFile.TrimStart('\\');
                         var originalFileSubmissionTime = DateTime.MinValue;
-                        ArchivedFileInfo archivedFile = null;
+                        ArchivedFileInfo archiveFile = null;
 
                         if (charIndex < 1)
                         {
@@ -1162,9 +1165,9 @@ namespace MyEMSLReader
                         if (fileIdFound)
                         {
                             // Lookup fileID in dctFiles
-                            var archivedFileLookup = GetArchivedFileByID(lstFilesInArchive, fileID);
+                            var archiveFileLookup = GetArchivedFileByID(lstFilesInArchive, fileID);
 
-                            if (archivedFileLookup.Count == 0)
+                            if (archiveFileLookup.Count == 0)
                             {
                                 ReportMessage("Warning, MyEMSL FileID '" + fileID + "' was not recognized; " +
                                               "unable to validate the file or customize the output path: " + sourceFile);
@@ -1176,25 +1179,24 @@ namespace MyEMSLReader
                                 // Names in the tar file will be limited to 255 characters (including any preceding parent folder names) so we should not compare the full name
                                 // Furthermore, the primary filename is limited to 100 characters, so it too could be truncated
 
-                                archivedFile = archivedFileLookup.First();
+                                archiveFile = archiveFileLookup.First();
 
                                 var fiSourceFile = new FileInfo(sourceFile);
-                                if (!archivedFile.Filename.ToLower().StartsWith(fiSourceFile.Name.ToLower()))
+                                if (!archiveFile.Filename.ToLower().StartsWith(fiSourceFile.Name.ToLower()))
                                     ReportMessage("Warning, name conflict; filename in .tar file is " + fiSourceFile.Name +
-                                                  " but expected filename is " + archivedFile.Filename);
+                                                  " but expected filename is " + archiveFile.Filename);
 
                                 // Define the local file path
-                                downloadFilePath = ConstructDownloadfilePath(folderLayout, archivedFile);
+                                downloadFilePath = ConstructDownloadfilePath(folderLayout, archiveFile);
                                 downloadFilePath = Path.Combine(downloadFolderPath, downloadFilePath);
 
-                                string filePathOverride;
-                                if (destFilePathOverride.TryGetValue(archivedFile.FileID, out filePathOverride))
+                                if (destFilePathOverride.TryGetValue(archiveFile.FileID, out var filePathOverride))
                                 {
                                     if (!string.IsNullOrEmpty(filePathOverride))
                                         downloadFilePath = filePathOverride;
                                 }
 
-                                originalFileSubmissionTime = archivedFile.SubmissionTimeValue;
+                                originalFileSubmissionTime = archiveFile.SubmissionTimeValue;
 
                             }
                         }
@@ -1230,17 +1232,17 @@ namespace MyEMSLReader
                             }
 
                             // Look for this file in lstFilesInArchive
-                            var archivedFileLookup = GetArchivedFileByPath(lstFilesInArchive, sourceFile);
+                            var archiveFileLookup = GetArchivedFileByPath(lstFilesInArchive, sourceFile);
 
-                            if (archivedFileLookup.Count == 0)
+                            if (archiveFileLookup.Count == 0)
                             {
                                 ReportMessage("File path not recognized: " + sourceFile);
-                                archivedFile = new ArchivedFileInfo("UnknownDataset", Path.GetFileName(sourceFile), subDirPath);
+                                archiveFile = new ArchivedFileInfo("UnknownDataset", Path.GetFileName(sourceFile), subDirPath);
                             }
                             else
                             {
-                                archivedFile = archivedFileLookup.First();
-                                originalFileSubmissionTime = archivedFile.SubmissionTimeValue;
+                                archiveFile = archiveFileLookup.First();
+                                originalFileSubmissionTime = archiveFile.SubmissionTimeValue;
                             }
 
                         }
@@ -1264,15 +1266,15 @@ namespace MyEMSLReader
                             UpdateFileModificationTime(targetFile, originalFileSubmissionTime);
                         }
 
-                        if (archivedFile.FileSizeBytes == 0 && targetFile.Exists)
+                        if (archiveFile.FileSizeBytes == 0 && targetFile.Exists)
                         {
-                            archivedFile.FileSizeBytes = targetFile.Length;
+                            archiveFile.FileSizeBytes = targetFile.Length;
                         }
 
                         if (!DownloadedFiles.ContainsKey(downloadFilePath))
-                            DownloadedFiles.Add(downloadFilePath, archivedFile);
+                            DownloadedFiles.Add(downloadFilePath, archiveFile);
 
-                        bytesDownloaded += archivedFile.FileSizeBytes;
+                        bytesDownloaded += archiveFile.FileSizeBytes;
                         UpdateProgress(bytesDownloaded, bytesToDownload);
                     }
 
@@ -1364,19 +1366,19 @@ namespace MyEMSLReader
 
         private List<ArchivedFileInfo> GetArchivedFileByID(List<ArchivedFileInfo> lstFilesInArchive, long fileID)
         {
-            var archivedFileLookup = (from item in lstFilesInArchive
+            var archiveFileLookup = (from item in lstFilesInArchive
                                       where item.FileID == fileID
                                       select item).ToList();
-            return archivedFileLookup;
+            return archiveFileLookup;
         }
 
         private List<ArchivedFileInfo> GetArchivedFileByPath(List<ArchivedFileInfo> lstFilesInArchive, string filePath)
         {
-            var archivedFileLookup = (from item in lstFilesInArchive
+            var archiveFileLookup = (from item in lstFilesInArchive
                                       where string.Equals(item.RelativePathWindows, filePath, StringComparison.InvariantCultureIgnoreCase)
                                       select item).ToList();
 
-            return archivedFileLookup;
+            return archiveFileLookup;
         }
 
         [Obsolete("Obsolete in June 2017")]
@@ -1396,6 +1398,7 @@ namespace MyEMSLReader
         {
 
             var downloadFilePathRelative = ConstructDownloadfilePath(folderLayout, archiveFile);
+
             string downloadFilePath;
 
             if (destFilePathOverride.TryGetValue(archiveFile.FileID, out var filePathOverride) &&
@@ -1506,11 +1509,11 @@ namespace MyEMSLReader
             if (lstMatches.Count == 0)
                 return true;
 
-            var archivedFile = lstMatches.First();
-            var downloadFilePathRelatve = ConstructDownloadfilePath(folderLayout, archivedFile);
-            var downloadFilePath = Path.Combine(downloadFolderPath, downloadFilePathRelatve);
+            var archiveFile = lstMatches.First();
+            var downloadFilePathRelatve = ConstructDownloadfilePath(folderLayout, archiveFile);
+            var targetFile = new FileInfo(Path.Combine(downloadFolderPath, downloadFilePathRelatve));
 
-            var downloadFile = IsDownloadRequired(archivedFile, downloadFilePath, reportMessage: reportMessage);
+            var downloadFile = IsDownloadRequired(archiveFile, targetFile, reportMessage: reportMessage);
 
             return downloadFile;
         }
@@ -1518,13 +1521,13 @@ namespace MyEMSLReader
         /// <summary>
         /// Determines whether or not a file should be downloaded
         /// </summary>
-        /// <param name="archivedFile"></param>
-        /// <param name="downloadFilePath"></param>
+        /// <param name="archiveFile"></param>
+        /// <param name="targetFile"></param>
         /// <param name="reportMessage"></param>
         /// <returns></returns>
         private bool IsDownloadRequired(
-            ArchivedFileInfo archivedFile,
-            string downloadFilePath,
+            ArchivedFileInfo archiveFile,
+            FileSystemInfo targetFile,
             bool reportMessage)
         {
             bool downloadFile;
@@ -1546,7 +1549,7 @@ namespace MyEMSLReader
                     downloadFile = true;
                     break;
                 case Overwrite.IfChanged:
-                    if (string.IsNullOrEmpty(archivedFile.Sha1Hash))
+                    if (string.IsNullOrEmpty(archiveFile.Sha1Hash))
                     {
                         message = "Overwriting (Sha1 hash missing) " + downloadFilePath;
                         downloadFile = true;
