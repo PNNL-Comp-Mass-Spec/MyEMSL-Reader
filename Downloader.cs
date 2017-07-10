@@ -364,7 +364,7 @@ namespace MyEMSLReader
                     fileNumber++;
                     if (DateTime.UtcNow.Subtract(dtLastStatusTime).TotalSeconds > 2)
                     {
-                        Console.WriteLine("Checking locked status for files: " + fileNumber + " / " + lstFiles.Count);
+                        OnDebugEvent("Checking locked status for files: " + fileNumber + " / " + lstFiles.Count);
                         dtLastStatusTime = DateTime.UtcNow;
                     }
 
@@ -758,7 +758,7 @@ namespace MyEMSLReader
                     else
                     {
                         // Wait 2 seconds, then retry
-                        Console.WriteLine("Exception in DownloadFile on attempt " + attempts + ": " + ex.Message);
+                        OnWarningEvent("Exception in DownloadFile on attempt " + attempts + ": " + ex.Message);
                         Thread.Sleep(2000);
                         timeoutSeconds = IncreaseTimeout(timeoutSeconds);
                     }
@@ -1039,7 +1039,7 @@ namespace MyEMSLReader
                         else
                         {
                             // Wait 2 seconds, then retry
-                            Console.WriteLine("Exception in DownloadTarFileWithRetry on attempt " + attempts + ": " + ex.Message);
+                            OnWarningEvent("Exception in DownloadTarFileWithRetry on attempt " + attempts + ": " + ex.Message);
                             Thread.Sleep(2000);
                             timeoutSeconds = IncreaseTimeout(timeoutSeconds);
                         }
@@ -1645,7 +1645,7 @@ namespace MyEMSLReader
                         else
                         {
                             // Wait 2 seconds, then retry
-                            Console.WriteLine("Exception in PostCartFile on attempt " + attempts + ": " + ex.Message);
+                            OnWarningEvent("Exception in PostCartFile on attempt " + attempts + ": " + ex.Message);
                             Thread.Sleep(2000);
                             timeoutSeconds = IncreaseTimeout(timeoutSeconds);
                         }
@@ -1718,7 +1718,7 @@ namespace MyEMSLReader
 
                     if (responseHeaders == null || responseHeaders.Count == 0)
                     {
-                        Console.WriteLine("Empty headers in SendHeadRequestWithRetry on attempt " + attempts);
+                        OnWarningEvent("Empty headers in SendHeadRequestWithRetry on attempt " + attempts);
                         timeoutSeconds = IncreaseTimeout(timeoutSeconds);
                     }
                     else
@@ -1735,7 +1735,7 @@ namespace MyEMSLReader
                     if (attempts <= maxAttempts)
                     {
                         // Wait 2 seconds, then retry
-                        Console.WriteLine("Exception in SendHeadRequestWithRetry on attempt " + attempts + ": " + ex.Message);
+                        OnWarningEvent("Exception in SendHeadRequestWithRetry on attempt " + attempts + ": " + ex.Message);
                         Thread.Sleep(2000);
                         timeoutSeconds = IncreaseTimeout(timeoutSeconds);
                     }
@@ -1861,7 +1861,7 @@ namespace MyEMSLReader
 
                             if (dctCartInfo.Count == 0)
                             {
-                                Console.WriteLine("Warning: Carts listing is empty");
+                                OnWarningEvent("Carts listing is empty");
                             }
                             else
                             {
