@@ -150,40 +150,39 @@ namespace MyEMSLReader
         /// <summary>
         /// Download queued files
         /// </summary>
-        /// <param name="lstFileIDs"></param>
-        /// <param name="downloadFolderPath"></param>
-        /// <param name="folderLayout"></param>
-        /// <param name="maxMinutesToWait"></param>
+        /// <param name="filesToDownload">MyEMSL Files to download; keys are MyEMSL File IDs and values are ArchivedFileInfo objects</param>
+        /// <param name="downloadFolderPath">Target folder path (ignored for files defined in destFilePathOverride)</param>
+        /// <param name="folderLayout">Folder Layout (ignored for files defined in destFilePathOverride)</param>
+        /// <param name="maxMinutesToWait">Maximum minutes to wait (default is 1440 minutes = 24 hours)</param>
         /// <returns>True if success, false if an error</returns>
         public bool DownloadFiles(
-            List<Int64> lstFileIDs,
+            Dictionary<long, ArchivedFileInfo> filesToDownload,
             string downloadFolderPath,
             DownloadFolderLayout folderLayout = DownloadFolderLayout.SingleDataset,
             int maxMinutesToWait = 1440)
         {
-            var dctDestFilePathOverride = new Dictionary<Int64, string>();
-            return DownloadFiles(lstFileIDs, dctDestFilePathOverride, downloadFolderPath, folderLayout, maxMinutesToWait);
+            var destFilePathOverride = new Dictionary<long, string>();
+            return DownloadFiles(filesToDownload, destFilePathOverride, downloadFolderPath, folderLayout, maxMinutesToWait);
         }
 
         /// <summary>
         /// Download files in lstFileIDs
         /// </summary>
-        /// <param name="lstFileIDs">List of MyEMSL File IDs to download</param>
-        /// <param name="dctDestFilePathOverride">Dictionary where keys are FileIDs and values are the explicit destination path to use</param>
-        /// <param name="downloadFolderPath">Target folder path (ignored for files defined in dctDestFilePathOverride)</param>
-        /// <param name="folderLayout">Folder Layout (ignored for files defined in dctDestFilePathOverride)</param>
-        /// <param name="maxMinutesToWait">Maximum timeout (minutes)</param>
-        /// <remarks>dctDestFilePathOverride is not required and can be empty; it can also have values for just some of the files in lstFileIDs</remarks>
+        /// <param name="filesToDownload">MyEMSL Files to download; keys are MyEMSL File IDs and values are ArchivedFileInfo objects</param>
+        /// <param name="destFilePathOverride">Dictionary where keys are FileIDs and values are the explicit destination path to use</param>
+        /// <param name="downloadFolderPath">Target folder path (ignored for files defined in destFilePathOverride)</param>
+        /// <param name="folderLayout">Folder Layout (ignored for files defined in destFilePathOverride)</param>
+        /// <param name="maxMinutesToWait">Maximum minutes to wait (default is 1440 minutes = 24 hours)</param>
+        /// <remarks>destFilePathOverride is not required and can be empty; it can also have values for just some of the files in lstFileIDs</remarks>
         /// <returns>True if success, false if an error</returns>
         public bool DownloadFiles(
-            List<Int64> lstFileIDs,
-            Dictionary<Int64, string> dctDestFilePathOverride,
+            Dictionary<long, ArchivedFileInfo> filesToDownload,
+            Dictionary<long, string> destFilePathOverride,
             string downloadFolderPath,
             DownloadFolderLayout folderLayout = DownloadFolderLayout.SingleDataset,
             int maxMinutesToWait = 1440)
         {
             var success = false;
-            CookieContainer cookieJar = null;
 
             ResetStatus();
 
@@ -194,44 +193,28 @@ namespace MyEMSLReader
 
             try
             {
-                if (lstFileIDs == null || lstFileIDs.Count == 0)
+
+                // The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
+                // For more info, see comments in Reader.RunElasticSearchQuery()
+                if (ServicePointManager.ServerCertificateValidationCallback == null)
+                    ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
+
+                if (filesToDownload == null || filesToDownload.Count == 0)
                 {
-                    ReportError("FileID List is empty; nothing to download");
+                    ReportError("File download dictionary is empty; nothing to download");
                     return false;
-                }
-
-                // Scan for Files
-                const Reader.ScanMode scanMode = Reader.ScanMode.ObtainAuthToken;
-
-                var dctResults = ScanForFiles(lstFileIDs, scanMode, ref cookieJar);
-
-                if (dctResults == null || dctResults.Count == 0)
-                {
-                    if (string.IsNullOrWhiteSpace(ErrorMessage))
-                        ReportError("ScanForFiles returned an empty xml result when downloading files");
-                    return false;
-                }
-
-                // Parse the results and determine the Locked status for each file
-                // Keys in this dictionary are ArchivedFileInfo objects, values are True if the file is "locked" (i.e. available for immediate download)
-                string authToken;
-                var dctFiles = CheckLockedStatus(dctResults, cookieJar, out authToken);
-                if (dctFiles.Count == 0)
-                {
-                    if (string.IsNullOrWhiteSpace(ErrorMessage))
-                        ReportError("Query did not return any files");
                 }
 
                 if (folderLayout == DownloadFolderLayout.SingleDataset)
                 {
                     // Assure that the requested files all have the same dataset id
-                    var lstDatasetIDs = GetUniqueDatasetIDList(dctFiles);
+                    var datasetIDs = GetUniqueDatasetIDList(filesToDownload);
 
-                    if (lstDatasetIDs.Count > 1)
+                    if (datasetIDs.Count > 1)
                     {
                         // Look for conflicts
                         var lstOutputFilePaths = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
-                        foreach (var archivedFile in dctFiles.Keys)
+                        foreach (var archivedFile in filesToDownload.Values)
                         {
                             if (lstOutputFilePaths.Contains(archivedFile.RelativePathWindows))
                             {
@@ -248,28 +231,42 @@ namespace MyEMSLReader
                 }
 
                 long bytesDownloaded;
+                var cookieJar = new CookieContainer();
 
-                // Download "Locked" files (those that are still on spinning disks and have not yet been purged)
+                // Download the files
                 // Keys in this dictionary are FileIDs, values are relative file paths
-                var dctFilesDownloaded = DownloadLockedFiles(dctFiles, cookieJar, authToken, dctDestFilePathOverride, downloadFolderPath, folderLayout, out bytesDownloaded);
+                var filesDownloaded = DownloadFilesDirectly(
+                    filesToDownload, cookieJar, destFilePathOverride,
+                    downloadFolderPath, folderLayout, out bytesDownloaded);
 
                 // Create a list of the files that remain (files that could not be downloaded directly)
                 // These files will be downloaded via the cart mechanism
-                var lstFilesRemaining = new List<Int64>();
-                foreach (var fileID in lstFileIDs)
+                var filesToDownloadViaCart = new Dictionary<long, ArchivedFileInfo>();
+
+                foreach (var archivedFileInfo in filesToDownload)
                 {
-                    if (dctFilesDownloaded.ContainsKey(fileID))
+                    var fileID = archivedFileInfo.Key;
+                    var archivefile = archivedFileInfo.Value;
+
+                    if (filesDownloaded.ContainsKey(archivedFileInfo.Key))
                     {
                         continue;
                     }
 
-                    var downloadFile = IsDownloadRequired(dctFiles, fileID, downloadFolderPath, folderLayout, reportMessage: false);
+                    var fiTargetFile = GetTargetFile(
+                       downloadFolderPath, folderLayout,
+                       archivefile, destFilePathOverride);
+
+                    // Confirm one more time that we need to download the file
+                    var downloadFile = IsDownloadRequired(archivefile, fiTargetFile.FullName, reportMessage: false);
 
                     if (downloadFile)
-                        lstFilesRemaining.Add(fileID);
+                    {
+                        filesToDownloadViaCart.Add(fileID, archivefile);
+                    }
                 }
 
-                if (lstFilesRemaining.Count == 0)
+                if (filesToDownloadViaCart.Count == 0)
                 {
                     // All of the files have been downloaded (or already exist and having matching a matching Sha1 hash)
                     return true;
@@ -277,54 +274,19 @@ namespace MyEMSLReader
 
                 if (!ForceDownloadViaCart && DisableCart)
                 {
-                    ReportError(lstFilesRemaining.Count + " purged files(s) could not be downloaded because DisableCart=true");
+                    ReportError(filesToDownloadViaCart.Count + " purged files(s) could not be downloaded because DisableCart=true");
                     return false;
                 }
 
-                // Scan for the remaining files, thereby creating a ScrollID
-                // We will also obtain a new authorization token, which will be associated with the ScrollID
-                success = CreateScrollID(lstFilesRemaining, ref cookieJar, out authToken);
-                if (!success)
-                {
-                    if (string.IsNullOrWhiteSpace(ErrorMessage))
-                        ReportError("Scroll ID is empty; cannot download files");
-                    return false;
-                }
+                var cartSuccess = DownloadFilesViaCart(
+                    filesToDownloadViaCart, cookieJar, destFilePathOverride,
+                    downloadFolderPath, folderLayout, out var bytesDownloadedViaCart);
 
-                // Create a cart
-                var cartID = CreateCart(lstFilesRemaining, cookieJar, authToken);
-                if (cartID <= 0)
-                {
-                    if (string.IsNullOrWhiteSpace(ErrorMessage))
-                        ReportError("Cart ID is 0; cannot download files");
-                    return false;
-                }
+                bytesDownloaded += bytesDownloadedViaCart;
 
-                // Initialize .Tar File Creation
-                success = InitializeCartCreation(cartID, cookieJar);
-                if (!success)
-                {
-                    if (string.IsNullOrWhiteSpace(ErrorMessage))
-                        ReportError("Error initializing cart " + cartID);
-                    return false;
-                }
+                OnDebugEvent(string.Format("Downloaded {0:F1} MB total", bytesDownloaded / 1024.0 / 1024));
 
-
-                // Wait for the .Tar file to be created
-                if (maxMinutesToWait < 2)
-                    maxMinutesToWait = 2;
-
-                string tarFileURL;
-                success = WaitForCartSuccess(cartID, cookieJar, maxMinutesToWait, out tarFileURL);
-                if (!success)
-                {
-                    if (string.IsNullOrWhiteSpace(ErrorMessage))
-                        ReportError("Error waiting for cart " + cartID + " to become available");
-                    return false;
-                }
-
-                // Extract the files from the .tar file
-                success = DownloadTarFileWithRetry(cookieJar, dctFiles.Keys.ToList(), bytesDownloaded, dctDestFilePathOverride, downloadFolderPath, folderLayout, tarFileURL);
+                return cartSuccess;
 
             }
             catch (Exception ex)
@@ -335,12 +297,38 @@ namespace MyEMSLReader
                     throw;
             }
 
-            return success;
+            return false;
         }
 
         #endregion
 
         #region "Private Methods"
+
+        /// <summary>
+        /// Append file metadata to a JSON cart file
+        /// </summary>
+        /// <param name="postData">Data to post to the cart server</param>
+        /// <param name="fileMetadata">File metadata</param>
+        /// <param name="appendComma">True to append a comma</param>
+        private void AppendToCartPostData(
+            StringBuilder postData,
+            IEnumerable<KeyValuePair<string, string>> fileMetadata,
+            bool appendComma)
+        {
+            postData.AppendLine("{");
+
+            var optionalComma = appendComma ? "," : "";
+
+            foreach (var item in fileMetadata)
+            {
+                postData.AppendLine(
+                    string.Format("  \"{0}\":\"{1}\"{2}",
+                    item.Key, item.Value, optionalComma));
+            }
+
+            postData.AppendLine("}");
+
+        }
 
         /// <summary>
         /// Determine the "locked" status of each file
@@ -442,10 +430,9 @@ namespace MyEMSLReader
             return dctFiles;
         }
 
-
-        private Int64 ComputeTotalBytes(Dictionary<ArchivedFileInfo, bool> dctFiles)
+        private long ComputeTotalBytes(IReadOnlyDictionary<long, ArchivedFileInfo> dctFiles)
         {
-            return ComputeTotalBytes(dctFiles.Keys.ToList());
+            return ComputeTotalBytes(dctFiles.Values);
         }
 
         private long ComputeTotalBytes(IEnumerable<ArchivedFileInfo> dctFiles)
@@ -490,10 +477,6 @@ namespace MyEMSLReader
 
             try
             {
-                // The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
-                // For more info, see comments in Reader.RunElasticSearchQuery()
-                if (ServicePointManager.ServerCertificateValidationCallback == null)
-                    ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
 
                 // The Item IDs passed to the cart must be integers stored as strings
                 // If this is not done, the python code validating that we are authorized to view the files will not find a match
@@ -556,6 +539,56 @@ namespace MyEMSLReader
             }
 
             return cartID;
+        }
+
+        /// <summary>
+        /// Create a JSON file with the files to download
+        /// </summary>
+        /// <returns></returns>
+        private StringBuilder CreateCartPostData(Dictionary<long, ArchivedFileInfo> filesToDownload)
+        {
+            // Example cart file contents:
+            //   {
+            //    "fileids": [
+            //      {"id":"SpruceW_P19_15_22Jun17_Pippin_17-04-06_HighAbu_LCMS.png", "path":"DLS201707030948_Auto1468045/SpruceW_P19_15_22Jun17_Pippin_17-04-06_HighAbu_LCMS.png", "hashtype":"sha1", "hashsum":"08a0cffa75b79ac18e4f375a80e6a80d63784888"},
+            //      {"id":"SpruceW_P19_15_22Jun17_Pippin_17-04-06_HighAbu_LCMS_zoom.png", "path":"DLS201707030948_Auto1468045/SpruceW_P19_15_22Jun17_Pippin_17-04-06_HighAbu_LCMS_zoom.png", "hashtype":"sha1", "hashsum":"2c3ea5561186b36291b2a4ddcf5e3f9d9b60fa2f"}
+            //    ]
+            //   }
+
+            try
+            {
+                var postData = new StringBuilder();
+
+                postData.AppendLine("{ \"fileids\": [");
+
+                var fileNumber = 0;
+                foreach (var file in filesToDownload)
+                {
+                    fileNumber++;
+
+                    var fileMetadata = new List<KeyValuePair<string, string>> {
+                        new KeyValuePair<string, string>("id", file.Value.Filename),
+                        new KeyValuePair<string, string>("path", file.Value.RelativePathUnix),
+                        new KeyValuePair<string, string>("hashtype", file.Value.HashType),
+                        new KeyValuePair<string, string>("hashsum", file.Value.Hash)
+                    };
+
+                    var appendComma = fileNumber < filesToDownload.Count;
+                    AppendToCartPostData(postData, fileMetadata, appendComma);
+
+                }
+
+                postData.AppendLine("] }");
+
+
+                return postData;
+            }
+            catch (Exception ex)
+            {
+                ReportError("Exception in CreateCartPostData: " + ex.Message, ex);
+                return new StringBuilder();
+            }
+
         }
 
         [Obsolete("Obsolete in June 2017")]
@@ -660,7 +693,6 @@ namespace MyEMSLReader
             CookieContainer cookieJar,
             int maxAttempts,
             string downloadFilePath,
-            bool fileIsLocked,
             out Exception mostRecentException,
             out bool fileInUseByOtherProcess)
         {
@@ -676,11 +708,6 @@ namespace MyEMSLReader
 
             var success = false;
             var triedGC = false;
-
-            // The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
-            // For more info, see comments in Reader.RunElasticSearchQuery()
-            if (ServicePointManager.ServerCertificateValidationCallback == null)
-                ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
 
             while (!success && attempts <= maxAttempts)
             {
@@ -719,7 +746,7 @@ namespace MyEMSLReader
                         responseStatusCode = ((HttpWebResponse)webException.Response).StatusCode;
                     }
 
-                    if (!fileIsLocked && responseStatusCode == HttpStatusCode.ServiceUnavailable)
+                    if (responseStatusCode == HttpStatusCode.ServiceUnavailable)
                     {
                         success = false;
                         mostRecentException = webException;
@@ -741,96 +768,103 @@ namespace MyEMSLReader
             return success;
         }
 
-        private Dictionary<Int64, string> DownloadLockedFiles(
-            Dictionary<ArchivedFileInfo, bool> dctFiles,
+        private Dictionary<long, string> DownloadFilesDirectly(
+            IReadOnlyDictionary<long, ArchivedFileInfo> filesToDownload,
             CookieContainer cookieJar,
-            string authToken,
-            Dictionary<Int64, string> dctDestFilePathOverride,
+            IReadOnlyDictionary<long, string> destFilePathOverride,
             string downloadFolderPath,
             DownloadFolderLayout folderLayout,
             out long bytesDownloaded)
         {
-            var dctFilesDownloaded = new Dictionary<Int64, string>();
+            var filesDownloaded = new Dictionary<long, string>();
             bytesDownloaded = 0;
+
+            if (ForceDownloadViaCart)
+                return filesDownloaded;
 
             try
             {
                 // Determine total amount of data to be downloaded
-                var bytesToDownload = ComputeTotalBytes(dctFiles);
+                var bytesToDownload = ComputeTotalBytes(filesToDownload);
 
-                // Keys are FileIDs, values are True if the file is locked (available on spinning disk)
-                var lstDirectDownloadFiles = new Dictionary<ArchivedFileInfo, bool>();
+                // Construct a mapping between unique file hash and target MyEMSL File IDs
+                // Typically there will only be on MyEMSL file per file hash, but if downloading a dataset with
+                // lots of similar jobs, or a set of datasets, we can have files with the same hash but different
+                // destination paths
 
-                // Only download "locked" files, i.e. files that are on spinning disk
-                foreach (var item in GetFileListByLockStatus(dctFiles, true))
-                    lstDirectDownloadFiles.Add(item, true);
+                var fileHashToTypeMap = new Dictionary<string, string>();
+                var fileHashToIdMap = new Dictionary<string, SortedSet<long>>();
 
-                if (DisableCart)
+                foreach (var archivedFileInfo in filesToDownload)
                 {
-                    // Directly download the purged files too
-                    foreach (var item in GetFileListByLockStatus(dctFiles, false))
-                        lstDirectDownloadFiles.Add(item, false);
+                    var fileHash = archivedFileInfo.Value.Hash;
+
+                    if (fileHashToIdMap.TryGetValue(fileHash, out var fileIDs))
+                    {
+                        fileIDs.Add(archivedFileInfo.Key);
+                        continue;
+                    }
+
+                    fileIDs = new SortedSet<long> {
+                        archivedFileInfo.Key
+                    };
+
+                    fileHashToIdMap.Add(fileHash, fileIDs);
+
+                    fileHashToTypeMap.Add(fileHash, archivedFileInfo.Value.HashType);
                 }
 
-                throw new NotImplementedException("This code needs to be updated to use the new MyEMSL API");
-
-                // Code deprecated in June 2017
-
-                foreach (var archivedFileInfo in lstDirectDownloadFiles)
+                foreach (var fileHashInfo in fileHashToIdMap)
                 {
-                    var archivedFile = archivedFileInfo.Key;
-                    var fileIsLocked = archivedFileInfo.Value;
+                    var fileHash = fileHashInfo.Key;
+                    var fileIDs = fileHashInfo.Value;
 
-                    // Construct the URL, e.g. https://my.emsl.pnl.gov/myemsl/item/foo/bar/824531/Euplotes_1_HPRP_1_16_22Nov09_Falcon_09-09-14_peaks.dat?token=ODUiaSI6WyI4MjQ1MzEiXSwicyI6IjIwMTMtMDgtMjBUMTY6MTI6MjEtMDc6MDAiLCJ1IjoiaHVZTndwdFlFZUd6REFBbXVjZXB6dyIsImQiOiAzNjAwJ9NESG37bQjVDlWCJWdrTVqA0wifgrbemVW+nMLgyx/2OfHGk2kFUsrJoOOTdBVsiPrHaeX6/MiaS/szVJKS1ve9UM8pufEEoNEyMBlq7ZxolLfK0Y3OicRPkiKzXZaXkQ7fxc/ec/Ba3uz9wHEs5e+1xYuO36KkSyGGW/xQ7OFx4SyZUm3PrLDk87YPapwoU/30gSk2082oSBOqHuTHzfOjjtbxAIuMa27AbwwOIjG8/Xq4h7squzFNfh/knAkNQ3+21wuZukpsNslWpYO796AFgI2rITaw7HPGJMZKwi+QlMmx27OHE2Qh47b5VQUJUp2tEorFwMjgECo+xX75vg&locked
-                    // var URL = mPacificaConfig.SearchServerUri + "/myemsl/item/foo/bar/" + archivedFile.FileID + "/" + archivedFile.Filename + "?token=" + authToken + "&locked";
-                    var URL = "";
+                    // This will typically be sha1, but could be md5
+                    var hashType = fileHashToTypeMap[fileHash];
 
-                    var downloadFilePath = ConstructDownloadfilePath(folderLayout, archivedFile);
-                    downloadFilePath = Path.Combine(downloadFolderPath, downloadFilePath);
+                    // Construct the URL, for example:
+                    // https://files.my.emsl.pnl.gov/files/sha1/08a0cffa75b79ac18e4f375a80e6a80d63784888
+                    var URL = mPacificaConfig.FileServerUri + "/files/" + hashType + "/" + fileHash;
 
-                    string filePathOverride;
-                    if (dctDestFilePathOverride.TryGetValue(archivedFile.FileID, out filePathOverride))
-                    {
-                        if (!string.IsNullOrEmpty(filePathOverride))
-                            downloadFilePath = filePathOverride;
-                    }
+                    var firstArchiveFile = filesToDownload[fileIDs.First()];
 
-                    var fiTargetFile = new FileInfo(downloadFilePath);
-                    Debug.Assert(fiTargetFile.Directory != null, "fiTargetFile.Directory != null");
-                    if (!fiTargetFile.Directory.Exists)
-                    {
-                        ReportMessage("Creating target folder: " + fiTargetFile.Directory.FullName);
-                        fiTargetFile.Directory.Create();
-                    }
+                    var fiTargetFile = GetTargetFile(
+                        downloadFolderPath, folderLayout,
+                        firstArchiveFile, destFilePathOverride);
 
                     const int DEFAULT_MAX_ATTEMPTS = 5;
                     var fileInUseByOtherProcess = false;
 
-                    var downloadFile = IsDownloadRequired(archivedFile, downloadFilePath, fileIsLocked, reportMessage: true);
+                    var downloadFile = IsDownloadRequired(firstArchiveFile, fiTargetFile.FullName, reportMessage: true);
 
                     if (downloadFile)
                     {
                         var maxAttempts = DEFAULT_MAX_ATTEMPTS;
 
-                        if (!fileIsLocked)
-                            maxAttempts = 1;
-
-                        Exception mostRecentException;
-                        var retrievalSuccess = DownloadFile(URL, cookieJar, maxAttempts, downloadFilePath, fileIsLocked, out mostRecentException, out fileInUseByOtherProcess);
+                        var retrievalSuccess = DownloadFile(URL, cookieJar, maxAttempts, fiTargetFile.FullName, out var mostRecentException, out fileInUseByOtherProcess);
 
                         if (retrievalSuccess)
                         {
-                            dctFilesDownloaded.Add(archivedFile.FileID, archivedFile.PathWithInstrumentAndDatasetWindows);
+                            filesDownloaded.Add(firstArchiveFile.FileID, firstArchiveFile.PathWithInstrumentAndDatasetWindows);
 
-                            UpdateFileModificationTime(fiTargetFile, archivedFile.SubmissionTimeValue);
+                            UpdateFileModificationTime(fiTargetFile, firstArchiveFile.SubmissionTimeValue);
+
+                            if (filesToDownload.Count > 1)
+                            {
+                                // Copy the downloaded file to the additional local target file locations
+                                DuplicateFile(
+                                    downloadFolderPath, folderLayout, destFilePathOverride,
+                                    fiTargetFile, filesToDownload.Skip(1), filesDownloaded);
+                            }
+
                         }
                         else
                         {
                             // Show the error at the console but do not throw an exception
                             if (mostRecentException == null)
-                                ReportMessage("Failure downloading " + Path.GetFileName(downloadFilePath) + ": unknown reason");
+                                ReportMessage("Failure downloading " + Path.GetFileName(fiTargetFile.FullName) + ": unknown reason");
                             else
-                                ReportMessage("Failure downloading " + Path.GetFileName(downloadFilePath) + ": " + mostRecentException.Message);
+                                ReportMessage("Failure downloading " + Path.GetFileName(fiTargetFile.FullName) + ": " + mostRecentException.Message);
                         }
                     }
 
@@ -838,23 +872,129 @@ namespace MyEMSLReader
                     {
                         // Download skipped
                         // Need to add to the downloaded files dictionary so that the file doesn't get downloaded via the .tar file mechanism
-                        dctFilesDownloaded.Add(archivedFile.FileID, archivedFile.PathWithInstrumentAndDatasetWindows);
+                        filesDownloaded.Add(firstArchiveFile.FileID, firstArchiveFile.PathWithInstrumentAndDatasetWindows);
                     }
 
-                    if (!DownloadedFiles.ContainsKey(downloadFilePath))
-                        DownloadedFiles.Add(downloadFilePath, archivedFile);
+                    if (!DownloadedFiles.ContainsKey(fiTargetFile.FullName))
+                        DownloadedFiles.Add(fiTargetFile.FullName, firstArchiveFile);
 
-                    bytesDownloaded += archivedFile.FileSizeBytes;
+                    bytesDownloaded += firstArchiveFile.FileSizeBytes;
                     UpdateProgress(bytesDownloaded, bytesToDownload);
                 }
             }
             catch (Exception ex)
             {
-                ReportError("Exception in DownloadLockedFiles: " + ex.Message, ex);
-                return new Dictionary<Int64, string>();
+                ReportError("Exception in DownloadFilesDirectly: " + ex.Message, ex);
+                return new Dictionary<long, string>();
             }
 
-            return dctFilesDownloaded;
+            return filesDownloaded;
+        }
+
+        private bool DownloadFilesViaCart(
+            Dictionary<long, ArchivedFileInfo> filesToDownload,
+            CookieContainer cookieJar,
+            Dictionary<long, string> destFilePathOverride,
+            string downloadFolderPath,
+            DownloadFolderLayout folderLayout,
+            out long bytesDownloaded)
+        {
+
+            bytesDownloaded = 0;
+
+            ReportError(filesToDownload.Count + " purged files(s) could not be downloaded because the Cart Mechanism is not implemented in the Downloader class");
+
+            try
+            {
+
+                // Create a JSON file with the files to download
+
+                var postData = CreateCartPostData(filesToDownload);
+
+                if (postData.Length == 0)
+                    return false;
+
+                // Post the JSON file to the cart server
+                var success = PostCartData(postData.ToString(), cookieJar, out var cartId);
+
+                if (!success)
+                    return false;
+
+
+                // Check cart status periodically
+                // Examine the HEAD of http://cart.my.emsl.pnl.gov/7bf711b3-b736-43b0-9ac4-138d0ccfe8de
+
+                // Retrieve the cart as a .tar file
+                // http://cart.my.emsl.pnl.gov/7bf711b3-b736-43b0-9ac4-138d0ccfe8de?filename=my_cart.tar
+
+                // See DownloadTarFileWithRetry();
+
+                throw new NotImplementedException("Need to finish this code");
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ReportError("Exception in DownloadFilesViaCart: " + ex.Message, ex);
+                return false;
+            }
+
+
+            /*
+             * Old cart code
+             *
+
+            // Scan for the remaining files, thereby creating a ScrollID
+            // We will also obtain a new authorization token, which will be associated with the ScrollID
+            success = CreateScrollID(lstFilesRemaining, ref cookieJar, out authToken);
+            if (!success)
+            {
+                if (string.IsNullOrWhiteSpace(ErrorMessage))
+                    ReportError("Scroll ID is empty; cannot download files");
+                return false;
+            }
+
+            // Create a cart
+            var cartID = CreateCart(lstFilesRemaining, cookieJar, authToken);
+            if (cartID <= 0)
+            {
+                if (string.IsNullOrWhiteSpace(ErrorMessage))
+                    ReportError("Cart ID is 0; cannot download files");
+                return false;
+            }
+
+            // Initialize .Tar File Creation
+            success = InitializeCartCreation(cartID, cookieJar);
+            if (!success)
+            {
+                if (string.IsNullOrWhiteSpace(ErrorMessage))
+                    ReportError("Error initializing cart " + cartID);
+                return false;
+            }
+
+
+            // Wait for the .Tar file to be created
+            if (maxMinutesToWait < 2)
+                maxMinutesToWait = 2;
+
+            string tarFileURL;
+            success = WaitForCartSuccess(cartID, cookieJar, maxMinutesToWait, out tarFileURL);
+            if (!success)
+            {
+                if (string.IsNullOrWhiteSpace(ErrorMessage))
+                    ReportError("Error waiting for cart " + cartID + " to become available");
+                return false;
+            }
+
+            // Extract the files from the .tar file
+            success = DownloadTarFileWithRetry(cookieJar, dctFiles.Keys.ToList(), bytesDownloaded, destFilePathOverride, downloadFolderPath, folderLayout, tarFileURL);
+
+            *
+            *
+            */
+
+            return false;
+
         }
 
         private bool DownloadTarFileWithRetry(
@@ -881,7 +1021,7 @@ namespace MyEMSLReader
                     try
                     {
                         attempts++;
-                        success = DownloadAndExtractTarFile(cookieJar, lstFilesInArchive, bytesDownloaded, dctDestFilePathOverride, downloadFolderPath, folderLayout, tarFileURL, timeoutSeconds);
+                        success = DownloadAndExtractTarFile(cookieJar, lstFilesInArchive, bytesDownloaded, destFilePathOverride, downloadFolderPath, folderLayout, tarFileURL, timeoutSeconds);
 
                         if (!success)
                             break;
@@ -937,10 +1077,6 @@ namespace MyEMSLReader
             string tarFileURL,
             int timeoutSeconds = 100)
         {
-            // The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
-            // For more info, see comments in Reader.RunElasticSearchQuery()
-            if (ServicePointManager.ServerCertificateValidationCallback == null)
-                ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
 
             const double maxTimeoutHours = 24;
             NetworkCredential loginCredentials = null;
@@ -1052,7 +1188,7 @@ namespace MyEMSLReader
                                 downloadFilePath = Path.Combine(downloadFolderPath, downloadFilePath);
 
                                 string filePathOverride;
-                                if (dctDestFilePathOverride.TryGetValue(archivedFile.FileID, out filePathOverride))
+                                if (destFilePathOverride.TryGetValue(archivedFile.FileID, out filePathOverride))
                                 {
                                     if (!string.IsNullOrEmpty(filePathOverride))
                                         downloadFilePath = filePathOverride;
@@ -1172,6 +1308,40 @@ namespace MyEMSLReader
             return true;
         }
 
+        private void DuplicateFile(
+            string downloadFolderPath,
+            DownloadFolderLayout folderLayout,
+            IReadOnlyDictionary<long, string> destFilePathOverride,
+            FileInfo fiSourceFile,
+            IEnumerable<KeyValuePair<long, ArchivedFileInfo>> targetArchiveFiles,
+            IDictionary<long, string> filesDownloaded)
+        {
+
+            foreach (var targetFileInfo in targetArchiveFiles)
+            {
+                var targetArchiveFile = targetFileInfo.Value;
+
+                var fiTargetFile = GetTargetFile(
+                        downloadFolderPath, folderLayout,
+                        targetArchiveFile, destFilePathOverride);
+
+                if (fiTargetFile == null)
+                {
+                    continue;
+                }
+
+                fiSourceFile.CopyTo(fiTargetFile.FullName, true);
+
+                filesDownloaded.Add(targetArchiveFile.FileID, targetArchiveFile.PathWithInstrumentAndDatasetWindows);
+
+                UpdateFileModificationTime(fiTargetFile, targetArchiveFile.SubmissionTimeValue);
+
+                if (!DownloadedFiles.ContainsKey(fiTargetFile.FullName))
+                    DownloadedFiles.Add(fiTargetFile.FullName, targetArchiveFile);
+            }
+
+        }
+
         private bool FileMatchesHash(string localFilePath, string Sha1HashExpected)
         {
             var fileMatchesHash = false;
@@ -1209,6 +1379,7 @@ namespace MyEMSLReader
             return archivedFileLookup;
         }
 
+        [Obsolete("Obsolete in June 2017")]
         private List<ArchivedFileInfo> GetFileListByLockStatus(Dictionary<ArchivedFileInfo, bool> dctFiles, bool locked)
         {
             var lstLockedFiles = (from item in dctFiles
@@ -1217,7 +1388,45 @@ namespace MyEMSLReader
             return lstLockedFiles;
         }
 
-        private List<string> GetMyEmslLockedField(List<string> headerKeys)
+        private FileInfo GetTargetFile(
+            string downloadFolderPath,
+            DownloadFolderLayout folderLayout,
+            ArchivedFileInfo archiveFile,
+            IReadOnlyDictionary<long, string> destFilePathOverride)
+        {
+
+            var downloadFilePathRelative = ConstructDownloadfilePath(folderLayout, archiveFile);
+            string downloadFilePath;
+
+            if (destFilePathOverride.TryGetValue(archiveFile.FileID, out var filePathOverride) &&
+                !string.IsNullOrEmpty(filePathOverride))
+            {
+                downloadFilePath = filePathOverride;
+            }
+            else
+            {
+                downloadFilePath = Path.Combine(downloadFolderPath, downloadFilePathRelative);
+            }
+
+            var fiTargetFile = new FileInfo(downloadFilePath);
+
+            if (fiTargetFile.Directory == null)
+            {
+                OnErrorEvent("Cannot determine the parent directory for the target file; skipping " + fiTargetFile.FullName);
+                return null;
+            }
+
+            if (!fiTargetFile.Directory.Exists)
+            {
+                ReportMessage("Creating target folder: " + fiTargetFile.Directory.FullName);
+                fiTargetFile.Directory.Create();
+            }
+
+            return fiTargetFile;
+        }
+
+        [Obsolete("Obsolete in June 2017")]
+        private List<string> GetMyEmslLockedField(IEnumerable<string> headerKeys)
         {
             var lstFilteredKeys = (from item in headerKeys
                                    where item.Contains("MyEMSL-Locked")
@@ -1225,12 +1434,12 @@ namespace MyEMSLReader
             return lstFilteredKeys;
         }
 
-        private List<int> GetUniqueDatasetIDList(Dictionary<ArchivedFileInfo, bool> dctFiles)
+        private List<int> GetUniqueDatasetIDList(IReadOnlyDictionary<long, ArchivedFileInfo> dctFiles)
         {
-            var lstDatasetIDs = (from item in dctFiles
-                                 group item by item.Key.DatasetID into g
-                                 select g.Key).ToList();
-            return lstDatasetIDs;
+            var datasetIDs = (from item in dctFiles
+                              group item by item.Value.DatasetID into g
+                              select g.Key).ToList();
+            return datasetIDs;
         }
 
         [Obsolete("Obsolete in June 2017")]
@@ -1290,18 +1499,18 @@ namespace MyEMSLReader
         /// <param name="folderLayout"></param>
         /// <param name="reportMessage"></param>
         /// <returns></returns>
-        private bool IsDownloadRequired(Dictionary<ArchivedFileInfo, bool> dctFiles, Int64 fileID, string downloadFolderPath, DownloadFolderLayout folderLayout, bool reportMessage)
+        private bool IsDownloadRequired(Dictionary<long, ArchivedFileInfo> dctFiles, long fileID, string downloadFolderPath, DownloadFolderLayout folderLayout, bool reportMessage)
         {
-            var lstMatches = (from item in dctFiles where item.Key.FileID == fileID select item.Key).ToList();
+            var lstMatches = (from item in dctFiles where item.Value.FileID == fileID select item.Value).ToList();
 
             if (lstMatches.Count == 0)
                 return true;
 
             var archivedFile = lstMatches.First();
-            var downloadFilePath = ConstructDownloadfilePath(folderLayout, archivedFile);
-            downloadFilePath = Path.Combine(downloadFolderPath, downloadFilePath);
+            var downloadFilePathRelatve = ConstructDownloadfilePath(folderLayout, archivedFile);
+            var downloadFilePath = Path.Combine(downloadFolderPath, downloadFilePathRelatve);
 
-            var downloadFile = IsDownloadRequired(archivedFile, downloadFilePath, fileIsLocked: false, reportMessage: reportMessage);
+            var downloadFile = IsDownloadRequired(archivedFile, downloadFilePath, reportMessage: reportMessage);
 
             return downloadFile;
         }
@@ -1311,65 +1520,143 @@ namespace MyEMSLReader
         /// </summary>
         /// <param name="archivedFile"></param>
         /// <param name="downloadFilePath"></param>
-        /// <param name="fileIsLocked">True if the file is available on spinning disk</param>
         /// <param name="reportMessage"></param>
         /// <returns></returns>
-        private bool IsDownloadRequired(ArchivedFileInfo archivedFile, string downloadFilePath, bool fileIsLocked, bool reportMessage)
+        private bool IsDownloadRequired(
+            ArchivedFileInfo archivedFile,
+            string downloadFilePath,
+            bool reportMessage)
         {
             bool downloadFile;
             string message;
 
             if (!File.Exists(downloadFilePath))
             {
-                message = "Downloading " + downloadFilePath;
-                downloadFile = true;
-            }
-            else
-            {
-                switch (OverwriteMode)
+                if (reportMessage)
                 {
-                    case Overwrite.Always:
-                        message = "Overwriting " + downloadFilePath;
+                    ReportMessage("Downloading " + downloadFilePath);
+                }
+                return true;
+            }
+
+            switch (OverwriteMode)
+            {
+                case Overwrite.Always:
+                    message = "Overwriting " + downloadFilePath;
+                    downloadFile = true;
+                    break;
+                case Overwrite.IfChanged:
+                    if (string.IsNullOrEmpty(archivedFile.Sha1Hash))
+                    {
+                        message = "Overwriting (Sha1 hash missing) " + downloadFilePath;
                         downloadFile = true;
                         break;
-                    case Overwrite.IfChanged:
-                        if (string.IsNullOrEmpty(archivedFile.Sha1Hash))
-                        {
-                            message = "Overwriting (Sha1 hash missing) " + downloadFilePath;
-                            downloadFile = true;
-                            break;
-                        }
+                    }
 
-                        if (FileMatchesHash(downloadFilePath, archivedFile.Sha1Hash))
-                        {
-                            message = "Skipping (file unchanged) " + downloadFilePath;
-                            downloadFile = false;
-                        }
-                        else
-                        {
-                            message = "Overwriting changed file " + downloadFilePath;
-                            downloadFile = true;
-                        }
-                        break;
-                    case Overwrite.Never:
-                        message = "Skipping (Overwrite disabled) " + downloadFilePath;
+                    if (FileMatchesHash(downloadFilePath, archivedFile.Sha1Hash))
+                    {
+                        message = "Skipping (file unchanged) " + downloadFilePath;
                         downloadFile = false;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException("Unrecognized OverwriteMode: " + OverwriteMode.ToString());
-                }
+                    }
+                    else
+                    {
+                        message = "Overwriting changed file " + downloadFilePath;
+                        downloadFile = true;
+                    }
+                    break;
+                case Overwrite.Never:
+                    message = "Skipping (Overwrite disabled) " + downloadFilePath;
+                    downloadFile = false;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("Unrecognized OverwriteMode: " + OverwriteMode.ToString());
             }
 
             if (reportMessage)
             {
-                if (!fileIsLocked)
-                {
-                    message += "; file is purged, download may fail";
-                }
                 ReportMessage(message);
             }
 
             return downloadFile;
+        }
+
+        /// <summary>
+        /// Post the JSON data to the cart server
+        /// </summary>
+        /// <param name="postData"></param>
+        /// <param name="cookieJar"></param>
+        /// <param name="cartId"></param>
+        /// <returns>True if success, false if an error</returns>
+        private bool PostCartData(string postData, CookieContainer cookieJar, out Guid cartId)
+        {
+            cartId = new Guid();
+
+            try
+            {
+
+                // Construct the URL to post the cart file to, for example
+                // https://cart.my.emsl.pnl.gov/7bf711b3-b736-43b0-9ac4-138d0ccfe8de
+                var URL = mPacificaConfig.CartServerUri + "/" + cartId;
+
+                const int maxAttempts = 2;
+                var timeoutSeconds = 2;
+                var attempts = 0;
+                var success = false;
+
+                while (!success && attempts <= maxAttempts)
+                {
+                    try
+                    {
+                        attempts++;
+
+
+                        string xmlString;
+                        Exception mostRecentException;
+                        const bool allowEmptyResponseData = false;
+
+                        success = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Post, maxAttempts, allowEmptyResponseData, out xmlString, out mostRecentException);
+
+
+
+                        if (!success)
+                            break;
+                    }
+                    catch (Exception ex)
+                    {
+                        var responseStatusCode = HttpStatusCode.OK;
+
+                        var webException = ex.InnerException as WebException;
+                        if (webException != null)
+                        {
+                            responseStatusCode = ((HttpWebResponse)webException.Response).StatusCode;
+                        }
+
+                        if (responseStatusCode == HttpStatusCode.ServiceUnavailable)
+                        {
+                            success = false;
+                        }
+                        else if (attempts >= maxAttempts)
+                        {
+                            success = false;
+                        }
+                        else
+                        {
+                            // Wait 2 seconds, then retry
+                            Console.WriteLine("Exception in PostCartFile on attempt " + attempts + ": " + ex.Message);
+                            Thread.Sleep(2000);
+                            timeoutSeconds = IncreaseTimeout(timeoutSeconds);
+                        }
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ReportError("Exception in PostCartFile: " + ex.Message, ex);
+                return false;
+            }
+
         }
 
         protected sealed override void ResetStatus()

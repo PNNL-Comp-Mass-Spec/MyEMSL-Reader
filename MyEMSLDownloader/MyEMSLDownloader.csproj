@@ -42,7 +42,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Lib\Jayrock.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Pacifica.Core, Version=2.0.6394.36418, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Pacifica.Core, Version=2.0.6399.35459, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Lib\Pacifica.Core.dll</HintPath>
     </Reference>

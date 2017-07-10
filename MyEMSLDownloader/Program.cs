@@ -193,15 +193,15 @@ namespace MyEMSLDownloader
             var exampleDownloader = new DownloadExample();
             exampleDownloader.StartTest();
 
-            var lstFileIDs = TestReader();
+            var filesToDownload = TestReader();
 
-            if (lstFileIDs.Count == 0)
+            if (filesToDownload.Count == 0)
             {
                 Console.WriteLine("Reader did not find any files");
             }
             else if (!mPreviewMode)
             {
-                TestDownloader(lstFileIDs);
+                TestDownloader(filesToDownload);
             }
             Console.WriteLine();
 
@@ -751,7 +751,7 @@ namespace MyEMSLDownloader
 
         }
 
-        static List<long> TestReader()
+        static Dictionary<long, ArchivedFileInfo> TestReader()
         {
 
             Console.WriteLine("Looking for files for test datasets using the Reader class");
@@ -766,33 +766,33 @@ namespace MyEMSLDownloader
             RegisterEvents(reader);
             reader.UseTestInstance = mUseTestInstance;
 
-            var lstFileIDs1 = TestMultiDataset(reader);
+            var filesToDownload1 = TestMultiDataset(reader);
             Console.WriteLine();
             Console.WriteLine();
 
-            var lstFileIDs2 = TestOneDatasetByID(reader);
+            var filesToDownload2 = TestOneDatasetByID(reader);
             Console.WriteLine();
             Console.WriteLine();
 
-            var lstFileIDs3 = TestMultiDatasetID(reader);
+            var filesToDownload3 = TestMultiDatasetID(reader);
             Console.WriteLine();
             Console.WriteLine();
 
-            var lstFileIDs4 = TestOneDataset(reader);
+            var filesToDownload4 = TestOneDataset(reader);
             Console.WriteLine();
             Console.WriteLine();
 
-            var lstFileIDs5 = TestOneDataPackage(reader);
+            var filesToDownload5 = TestOneDataPackage(reader);
             Console.WriteLine();
             Console.WriteLine();
 
-            return lstFileIDs1;
+            return filesToDownload1;
 
         }
 
-        static List<long> TestOneDataPackage(Reader reader)
+        static Dictionary<long, ArchivedFileInfo> TestOneDataPackage(Reader reader)
         {
-            var lstFileIDs = new List<long>();
+            var filesToDownload = new Dictionary<long, ArchivedFileInfo>();
             const int dataPkgID = 814;
             const string subDir = "";
 
@@ -803,7 +803,7 @@ namespace MyEMSLDownloader
                 foreach (var archivedFile in results)
                 {
                     Console.WriteLine(archivedFile.RelativePathUnix);
-                    lstFileIDs.Add(archivedFile.FileID);
+                    filesToDownload.Add(archivedFile.FileID, archivedFile);
                 }
 
                 var dataPackageInfoCache = new DataPackageListInfo();
@@ -819,12 +819,12 @@ namespace MyEMSLDownloader
                 Console.WriteLine("Exception from reader: " + ex.Message);
             }
 
-            return lstFileIDs;
+            return filesToDownload;
         }
 
-        static List<long> TestOneDataset(Reader reader)
+        static Dictionary<long, ArchivedFileInfo> TestOneDataset(Reader reader)
         {
-            var lstFileIDs = new List<long>();
+            var filesToDownload = new Dictionary<long, ArchivedFileInfo>();
             const string subDir = "";
 
             //datasetName = "Blank_B-2_20Apr12_Draco_12-02-37";
@@ -845,7 +845,7 @@ namespace MyEMSLDownloader
                 foreach (var archivedFile in results)
                 {
                     Console.WriteLine(archivedFile.RelativePathUnix);
-                    lstFileIDs.Add(archivedFile.FileID);
+                    filesToDownload.Add(archivedFile.FileID, archivedFile);
                 }
             }
             catch (Exception ex)
@@ -853,12 +853,12 @@ namespace MyEMSLDownloader
                 Console.WriteLine("Exception from reader: " + ex.Message);
             }
 
-            return lstFileIDs;
+            return filesToDownload;
         }
 
-        static List<long> TestMultiDataset(Reader reader)
+        static Dictionary<long, ArchivedFileInfo> TestMultiDataset(Reader reader)
         {
-            var lstFileIDs = new List<long>();
+            var filesToDownload = new Dictionary<long, ArchivedFileInfo>();
 
             var dctDatasetsAndSubDirs = new Dictionary<string, string>
             {
@@ -874,7 +874,7 @@ namespace MyEMSLDownloader
                 foreach (var archivedFile in results)
                 {
                     Console.WriteLine(archivedFile.RelativePathUnix);
-                    lstFileIDs.Add(archivedFile.FileID);
+                    filesToDownload.Add(archivedFile.FileID, archivedFile);
                 }
             }
             catch (Exception ex)
@@ -882,12 +882,12 @@ namespace MyEMSLDownloader
                 Console.WriteLine("Exception from reader: " + ex.Message);
             }
 
-            return lstFileIDs;
+            return filesToDownload;
         }
 
-        private static List<long> TestDatasetByID(Reader reader, Dictionary<int, string> dctDatasetsAndSubDirs)
+        private static Dictionary<long, ArchivedFileInfo> TestDatasetByID(Reader reader, Dictionary<int, string> dctDatasetsAndSubDirs)
         {
-            var lstFileIDs = new List<long>();
+            var filesToDownload = new Dictionary<long, ArchivedFileInfo>();
 
             try
             {
@@ -896,7 +896,7 @@ namespace MyEMSLDownloader
                 foreach (var archivedFile in results)
                 {
                     Console.WriteLine(archivedFile.RelativePathUnix);
-                    lstFileIDs.Add(archivedFile.FileID);
+                    filesToDownload.Add(archivedFile.FileID, archivedFile);
                 }
             }
             catch (Exception ex)
@@ -904,22 +904,22 @@ namespace MyEMSLDownloader
                 Console.WriteLine("Exception from reader: " + ex.Message);
             }
 
-            return lstFileIDs;
+            return filesToDownload;
         }
 
-        private static List<long> TestOneDatasetByID(Reader reader)
+        private static Dictionary<long, ArchivedFileInfo> TestOneDatasetByID(Reader reader)
         {
             var dctDatasetsAndSubDirs = new Dictionary<int, string>
             {
                 {382287, ""}
             };
 
-            var lstFileIDs = TestDatasetByID(reader, dctDatasetsAndSubDirs);
+            var filesToDownload = TestDatasetByID(reader, dctDatasetsAndSubDirs);
 
-            return lstFileIDs;
+            return filesToDownload;
         }
 
-        static List<long> TestMultiDatasetID(Reader reader)
+        static Dictionary<long, ArchivedFileInfo> TestMultiDatasetID(Reader reader)
         {
             var dctDatasetsAndSubDirs = new Dictionary<int, string>
             {
@@ -928,14 +928,14 @@ namespace MyEMSLDownloader
                 {334455, ""}
             };
 
-            var lstFileIDs = TestDatasetByID(reader, dctDatasetsAndSubDirs);
+            var filesToDownload = TestDatasetByID(reader, dctDatasetsAndSubDirs);
 
-            return lstFileIDs;
+            return filesToDownload;
         }
 
-        static void TestDownloader(List<long> lstFileIDs)
+        static void TestDownloader(Dictionary<long, ArchivedFileInfo> filesToDownload)
         {
-            Console.WriteLine("Downloading " + lstFileIDs.Count + " files");
+            Console.WriteLine("Downloading " + filesToDownload.Count + " files");
             Console.WriteLine();
 
             var downloader = new Downloader();
@@ -952,7 +952,7 @@ namespace MyEMSLDownloader
                 else
                     outputFolder = mOutputFolderPath;
 
-                downloader.DownloadFiles(lstFileIDs, outputFolder, Downloader.DownloadFolderLayout.DatasetNameAndSubFolders);
+                downloader.DownloadFiles(filesToDownload, outputFolder, Downloader.DownloadFolderLayout.DatasetNameAndSubFolders);
             }
             catch (Exception ex)
             {

@@ -143,8 +143,8 @@ namespace MyEMSLReader
         /// <summary>
         /// Retrieve queued files from MyEMSL
         /// </summary>
-        /// <param name="downloadFolderPath">Target folder path (ignored for files defined in dctDestFilePathOverride)</param>
-        /// <param name="folderLayout">Folder Layout (ignored for files defined in dctDestFilePathOverride)</param>
+        /// <param name="downloadFolderPath">Target folder path (ignored for files defined in destFilePathOverride)</param>
+        /// <param name="folderLayout">Folder Layout (ignored for files defined in destFilePathOverride)</param>
         /// <param name="disableCart">When true, will never download files using the cart mechanism</param>
         /// <param name="forceDownloadViaCart">When true, will always download files using the cart mechanism</param>
         /// <returns>True if success, false if an error</returns>
@@ -172,17 +172,32 @@ namespace MyEMSLReader
 
                 downloader.UseTestInstance = UseTestInstance;
 
-                var dctDestFilePathOverride = new Dictionary<Int64, string>();
+                // Keys are MyEMSL File IDs, values are the full target path for the file to download
+                var destFilePathOverride = new Dictionary<long, string>();
+
+                // Keys are MyEMSL File IDs, values are ArchivedFileInfo objects
+                var filesToDownload = new Dictionary<long, ArchivedFileInfo>();
 
                 foreach (var fileToDownload in FilesToDownload)
                 {
+                    var archiveFileInfo = fileToDownload.Value.FileInfo;
+                    if (string.IsNullOrWhiteSpace(archiveFileInfo.Sha1Hash))
+                    {
+                        OnWarningEvent(string.Format(
+                                           "File does not have a sha-1 hash; cannot download {0}, FileID {1}",
+                                           archiveFileInfo.RelativePathWindows, fileToDownload.Key));
+                        continue;
+                    }
+
+                    filesToDownload.Add(fileToDownload.Key, archiveFileInfo);
+
                     if (!string.IsNullOrEmpty(fileToDownload.Value.DestFilePath))
                     {
-                        dctDestFilePathOverride.Add(fileToDownload.Key, fileToDownload.Value.DestFilePath);
+                        destFilePathOverride.Add(fileToDownload.Key, fileToDownload.Value.DestFilePath);
                     }
                 }
 
-                var success = downloader.DownloadFiles(FilesToDownload.Keys.ToList(), dctDestFilePathOverride, downloadFolderPath, folderLayout);
+                var success = downloader.DownloadFiles(filesToDownload, destFilePathOverride, downloadFolderPath, folderLayout);
 
                 if (success)
                 {
