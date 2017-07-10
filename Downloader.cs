@@ -852,16 +852,9 @@ namespace MyEMSLReader
                         {
                             filesDownloaded.Add(firstArchiveFile.FileID, firstArchiveFile.PathWithInstrumentAndDatasetWindows);
 
-                            UpdateFileModificationTime(fiTargetFile, firstArchiveFile.SubmissionTimeValue);
+                            UpdateFileModificationTime(targetFile, firstArchiveFile.SubmissionTimeValue);
 
-                            if (filesToDownload.Count > 1)
-                            {
-                                // Copy the downloaded file to the additional local target file locations
-                                DuplicateFile(
-                                    downloadFolderPath, folderLayout, destFilePathOverride,
-                                    fiTargetFile, filesToDownload.Skip(1), filesDownloaded);
-                            }
-
+                            fileRetrievedOrExists = true;
                         }
                         else
                         {
@@ -873,6 +866,18 @@ namespace MyEMSLReader
 
                             fileRetrievedOrExists = targetFile.Exists;
                         }
+                    }
+                    else
+                    {
+                        fileRetrievedOrExists = true;
+                    }
+
+                    if (fileRetrievedOrExists && fileIDs.Count > 1)
+                    {
+                        // Copy the downloaded file to the additional local target file locations
+                        DuplicateFile(
+                            downloadFolderPath, folderLayout, destFilePathOverride,
+                            targetFile, filesToDownload, fileIDs.Skip(1), filesDownloaded);
                     }
 
                     if (fileInUseByOtherProcess || !downloadFile)
