@@ -768,6 +768,16 @@ namespace MyEMSLReader
             return success;
         }
 
+        /// <summary>
+        /// Download files one at-a-time
+        /// </summary>
+        /// <param name="filesToDownload"></param>
+        /// <param name="cookieJar"></param>
+        /// <param name="destFilePathOverride"></param>
+        /// <param name="downloadFolderPath"></param>
+        /// <param name="folderLayout"></param>
+        /// <param name="bytesDownloaded"></param>
+        /// <returns></returns>
         private Dictionary<long, string> DownloadFilesDirectly(
             IReadOnlyDictionary<long, ArchivedFileInfo> filesToDownload,
             CookieContainer cookieJar,
@@ -788,7 +798,7 @@ namespace MyEMSLReader
                 var bytesToDownload = ComputeTotalBytes(filesToDownload);
 
                 // Construct a mapping between unique file hash and target MyEMSL File IDs
-                // Typically there will only be on MyEMSL file per file hash, but if downloading a dataset with
+                // Typically there will only be one MyEMSL file per file hash, but if downloading a dataset with
                 // lots of similar jobs, or a set of datasets, we can have files with the same hash but different
                 // destination paths
 
@@ -1537,7 +1547,7 @@ namespace MyEMSLReader
             {
                 if (reportMessage)
                 {
-                    ReportMessage("Downloading " + downloadFilePath);
+                    ReportMessage("... downloading " + targetFile.FullName);
                 }
                 return true;
             }
@@ -1545,39 +1555,39 @@ namespace MyEMSLReader
             switch (OverwriteMode)
             {
                 case Overwrite.Always:
-                    message = "Overwriting " + downloadFilePath;
+                    message = "... overwriting " + targetFile.FullName;
                     downloadFile = true;
                     break;
                 case Overwrite.IfChanged:
                     if (string.IsNullOrEmpty(archiveFile.Sha1Hash))
                     {
-                        message = "Overwriting (Sha1 hash missing) " + downloadFilePath;
+                        message = "overwriting (Sha1 hash missing) " + targetFile.FullName;
                         downloadFile = true;
                         break;
                     }
 
-                    if (FileMatchesHash(downloadFilePath, archivedFile.Sha1Hash))
+                    if (FileMatchesHash(targetFile.FullName, archiveFile.Sha1Hash))
                     {
-                        message = "Skipping (file unchanged) " + downloadFilePath;
+                        message = "skipping (file unchanged) " + targetFile.FullName;
                         downloadFile = false;
                     }
                     else
                     {
-                        message = "Overwriting changed file " + downloadFilePath;
+                        message = "overwriting changed file " + targetFile.FullName;
                         downloadFile = true;
                     }
                     break;
                 case Overwrite.Never:
-                    message = "Skipping (Overwrite disabled) " + downloadFilePath;
+                    message = "skipping (Overwrite disabled) " + targetFile.FullName;
                     downloadFile = false;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("Unrecognized OverwriteMode: " + OverwriteMode.ToString());
+                    throw new ArgumentOutOfRangeException("Unrecognized OverwriteMode: " + OverwriteMode);
             }
 
             if (reportMessage)
             {
-                ReportMessage(message);
+                ReportMessage("... " + message);
             }
 
             return downloadFile;
@@ -1688,6 +1698,7 @@ namespace MyEMSLReader
 
         }
 
+        [Obsolete("Obsolete in June 2017")]
         private WebHeaderCollection SendHeadRequestWithRetry(
             string URL,
             CookieContainer cookieJar,
@@ -1714,7 +1725,9 @@ namespace MyEMSLReader
                 try
                 {
                     attempts++;
-                    responseHeaders = EasyHttp.GetHeaders(mPacificaConfig, URL, cookieJar, out responseStatusCode, timeoutSeconds);
+                    responseHeaders = EasyHttp.GetHeaders(
+                        mPacificaConfig, URL, cookieJar,
+                        out responseStatusCode, timeoutSeconds);
 
                     if (responseHeaders == null || responseHeaders.Count == 0)
                     {
