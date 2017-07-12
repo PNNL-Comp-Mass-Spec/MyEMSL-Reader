@@ -95,11 +95,7 @@ namespace MyEMSLReader
         /// </summary>
         public bool UseTestInstance
         {
-            // ReSharper disable once UnusedMember.Global
-            get
-            {
-                return mUseTestInstance;
-            }
+            get => mUseTestInstance;
             set
             {
                 mUseTestInstance = value;
@@ -394,7 +390,7 @@ namespace MyEMSLReader
             }
             else
             {
-                nameParts = new List<string>() { fileName };
+                nameParts = new List<string> { fileName };
             }
 
             foreach (var namePart in nameParts)

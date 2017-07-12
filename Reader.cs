@@ -756,7 +756,7 @@ namespace MyEMSLReader
 
                 var lstFiles = new List<ArchivedFileInfo>();
 
-                // Keys in this file are remote file paths; values are the transaction ID for that file
+                // Keys in this dictionary are DatasetID_RemoteFilePath; values are the transaction ID for that file
                 var remoteFilePaths = new Dictionary<string, ArchivedFileInfo>();
 
                 LastSearchFileCountMatched = 0;
@@ -768,6 +768,7 @@ namespace MyEMSLReader
                 {
 
                     // Run the query against the Item Search service
+                    // Returns a dictionary where keys are relative file paths (Windows style paths) and values are file info details (multiple entries if multiple versions)
                     var lstFilesToAdd = RunItemSearchQuery(searchTerm.Key, searchTerm.Value);
 
                     foreach (var remoteFile in lstFilesToAdd)
@@ -1038,7 +1039,7 @@ namespace MyEMSLReader
         /// </summary>
         /// <param name="searchKey">Key to search on</param>
         /// <param name="searchValue">Value to match</param>
-        /// <returns>Dictionary where keys are relative file paths; values are file info details</returns>
+        /// <returns>Dictionary where keys are relative file paths (Windows style paths); values are file info details</returns>
         /// <remarks>A given remote file could have multiple hash values if multiple versions of the file have been uploaded</remarks>
         internal Dictionary<string, List<ArchivedFileInfo>> RunItemSearchQuery(string searchKey, string searchValue)
         {
@@ -1047,7 +1048,7 @@ namespace MyEMSLReader
             if (TraceMode)
                 OnDebugEvent("Entering RunItemSearchQuery");
 
-            // Keys in this dictionary are relative file paths; values are file info details
+            // Keys in this dictionary are relative file paths (Windows style paths); values are file info details
             // A given remote file could have multiple hash values if multiple versions of the file have been uploaded
             var remoteFiles = new Dictionary<string, List<ArchivedFileInfo>>();
 
@@ -1125,10 +1126,16 @@ namespace MyEMSLReader
 
                 // Example URLs:
                 // https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.dataset_id/403490
+                // https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.dataset_name/QC_pp_MCF-7_17_01_B_25JUN17_Frodo_REP-17-06-02
+                // https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.datapackage_id/2819
+
+                // Note that querying by dataset name only works for datasets ingested after July 1, 2017
+                // For example, QC_pp_MCF-7_17_01_B_25JUN17_Frodo_REP-17-06-02 (shown above) works,
+                // while the following gives no results by name but does give results by Dataset ID
                 // https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.dataset_name/CPTAC_CompRef_P32_TMT11_17_18Jun17_Samwise_REP-17-05-01
+                // vs. https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.dataset_id/595858
 
                 // Future:
-                // https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.datapackage_id/2819
                 // https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.experiment/6Apr15
 
                 var metadataURL = string.Format(mPacificaConfig.MetadataServerUri + "/fileinfo/files_for_keyvalue/{0}/{1}",
@@ -1169,10 +1176,14 @@ namespace MyEMSLReader
                     var fileHash = Utilities.GetDictionaryValue(fileObj, "hashsum");
                     var subFolder = Utilities.GetDictionaryValue(fileObj, "subdir");
 
+                    // Windows style path
                     var relativeFilePath = Path.Combine(subFolder, fileName);
 
                     if (remoteFiles.TryGetValue(relativeFilePath, out var fileVersions))
                     {
+                        // Make sure that fileVersions doesn't already have a version of this file with this specific Sha-1 hash
+                        // This is a rare occurrence and should only happen due to metadata ingest logic issues
+
                         if (FileHashExists(fileVersions, fileHash))
                         {
                             warningCount++;
@@ -1186,6 +1197,7 @@ namespace MyEMSLReader
                     }
                     else
                     {
+                        // Add the file to fileVersions
                         fileVersions = new List<ArchivedFileInfo>();
                         remoteFiles.Add(relativeFilePath, fileVersions);
                     }
@@ -1212,10 +1224,10 @@ namespace MyEMSLReader
                         remoteFileInfo.DataPackageID = 0;
                     }
 
-                    // remoteFileInfo.Metadata = ...;
-
+                    // var createdInMyEMSL = Utilities.GetDictionaryValue(fileObj, "created");
                     // var updatedInMyEMSL = Utilities.GetDictionaryValue(fileObj, "updated");
                     // var deletedInMyEMSL = Utilities.GetDictionaryValue(fileObj, "deleted");
+                    // remoteFileInfo.UpdateRemoteFileTimes(createdInMyEMSL, updatedInMyEMSL, deletedInMyEMSL);
 
                     var creationTime = Utilities.GetDictionaryValue(fileObj, "ctime");
                     var lastWriteTime = Utilities.GetDictionaryValue(fileObj, "mtime");

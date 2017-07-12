@@ -108,10 +108,7 @@ namespace MyEMSLReader
         /// </summary>
         public bool UseTestInstance
         {
-            get
-            {
-                return mUseTestInstance;
-            }
+            get => mUseTestInstance;
             set
             {
                 mUseTestInstance = value;
@@ -266,7 +263,7 @@ namespace MyEMSLReader
 
                 if (filesToDownloadViaCart.Count == 0)
                 {
-                    // All of the files have been downloaded (or already exist and having matching a matching Sha1 hash)
+                    // All of the files have been downloaded (or already exist and having matching a matching Sha-1 hash)
                     return true;
                 }
 
@@ -1157,16 +1154,16 @@ namespace MyEMSLReader
         private List<ArchivedFileInfo> GetArchivedFileByID(List<ArchivedFileInfo> lstFilesInArchive, long fileID)
         {
             var archiveFileLookup = (from item in lstFilesInArchive
-                                      where item.FileID == fileID
-                                      select item).ToList();
+                                     where item.FileID == fileID
+                                     select item).ToList();
             return archiveFileLookup;
         }
 
         private List<ArchivedFileInfo> GetArchivedFileByPath(List<ArchivedFileInfo> lstFilesInArchive, string filePath)
         {
             var archiveFileLookup = (from item in lstFilesInArchive
-                                      where string.Equals(item.RelativePathWindows, filePath, StringComparison.InvariantCultureIgnoreCase)
-                                      select item).ToList();
+                                     where string.Equals(item.RelativePathWindows, filePath, StringComparison.InvariantCultureIgnoreCase)
+                                     select item).ToList();
 
             return archiveFileLookup;
         }

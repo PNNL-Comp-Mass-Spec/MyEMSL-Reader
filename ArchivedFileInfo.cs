@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace MyEMSLReader
@@ -98,7 +97,7 @@ namespace MyEMSLReader
         }
 
         /// <summary>
-        /// Either sha1 or md5
+        /// This will typically be sha1, but could be md5
         /// </summary>
         public string HashType { get; set; }
 
