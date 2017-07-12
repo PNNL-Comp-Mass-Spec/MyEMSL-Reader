@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -128,8 +126,6 @@ namespace MyEMSLReader
 
         #region "Member Variables"
 
-        readonly Reader mReader;
-
         #endregion
 
         #region "Public methods"
@@ -140,9 +136,6 @@ namespace MyEMSLReader
             ThrowErrors = true;
             OverwriteMode = Overwrite.IfChanged;
             DownloadedFiles = new Dictionary<string, ArchivedFileInfo>(StringComparer.OrdinalIgnoreCase);
-
-            mReader = new Reader();
-            RegisterEvents(mReader);
 
             ResetStatus();
         }
@@ -357,101 +350,6 @@ namespace MyEMSLReader
 
         }
 
-        /// <summary>
-        /// Determine the "locked" status of each file
-        /// If a file is "locked" then that means the file is available on spinning disk
-        /// If the file is not locked, the file only resides on tape and will need to be restored by the tape robot
-        /// </summary>
-        /// <param name="dctResults"></param>
-        /// <param name="cookieJar"></param>
-        /// <param name="authToken"></param>
-        /// <returns></returns>
-        [Obsolete("Obsolete in June 2017")]
-        private Dictionary<ArchivedFileInfo, bool> CheckLockedStatus(Dictionary<string, object> dctResults, CookieContainer cookieJar, out string authToken)
-        {
-            var dctFiles = new Dictionary<ArchivedFileInfo, bool>();
-            var dtLastStatusTime = DateTime.UtcNow;
-            authToken = string.Empty;
-
-            try
-            {
-
-                var lstFiles = mReader.ParseElasticSearchResults(dctResults, out authToken);
-
-                if (string.IsNullOrWhiteSpace(authToken))
-                {
-                    ReportError("myemsl_auth_token is empty; cannot download data", null, false);
-                    return dctFiles;
-                }
-
-                var fileNumber = 0;
-                foreach (var archiveFile in lstFiles)
-                {
-
-                    fileNumber++;
-                    if (DateTime.UtcNow.Subtract(dtLastStatusTime).TotalSeconds > 2)
-                    {
-                        OnDebugEvent("Checking locked status for files: " + fileNumber + " / " + lstFiles.Count);
-                        dtLastStatusTime = DateTime.UtcNow;
-                    }
-
-                    var fileLocked = false;
-
-                    if (!ForceDownloadViaCart)
-                    {
-                        // Code deprecated in June 2017
-
-                        // Construct the URL, e.g. https://my.emsl.pnl.gov/myemsl/item/foo/bar/824531/2.txt?token=ODUiaSI6WyI4MjQ1MzEiXSwicyI6IjIwMTMtMDgtMjBUMTY6MTI6MjEtMDc6MDAiLCJ1IjoiaHVZTndwdFlFZUd6REFBbXVjZXB6dyIsImQiOiAzNjAwJ9NESG37bQjVDlWCJWdrTVqA0wifgrbemVW+nMLgyx/2OfHGk2kFUsrJoOOTdBVsiPrHaeX6/MiaS/szVJKS1ve9UM8pufEEoNEyMBlq7ZxolLfK0Y3OicRPkiKzXZaXkQ7fxc/ec/Ba3uz9wHEs5e+1xYuO36KkSyGGW/xQ7OFx4SyZUm3PrLDk87YPapwoU/30gSk2082oSBOqHuTHzfOjjtbxAIuMa27AbwwOIjG8/Xq4h7squzFNfh/knAkNQ3+21wuZukpsNslWpYO796AFgI2rITaw7HPGJMZKwi+QlMmx27OHE2Qh47b5VQUJUp2tEorFwMjgECo+xX75vg&locked
-                        // Note that "2.txt" in this URL is just a dummy filename
-                        // Since we're performing a Head request, it doesn't matter what filename we use
-                        // var URL = mPacificaConfig.SearchServerUri + "/myemsl/item/foo/bar/" + archiveFile.FileID + "/2.txt?token=" + authToken + "&locked";
-                        var URL = "";
-
-                        const int maxAttempts = 2;
-
-                        var responseHeaders = SendHeadRequestWithRetry(URL, cookieJar, maxAttempts, out var responseStatusCode, out var mostRecentException);
-
-                        if (responseStatusCode == HttpStatusCode.ServiceUnavailable)
-                        {
-                            fileLocked = false;
-                        }
-                        else if (responseHeaders == null || responseHeaders.Count == 0)
-                        {
-                            if (mostRecentException == null)
-                                ReportMessage("Error determining if file is available on spinning disk; will assume False");
-                            else
-                                ReportMessage("Error determining if file is available on spinning disk; will assume False. Exception: " + mostRecentException.Message);
-                        }
-                        else
-                        {
-                            // Look for "X-MyEMSL-Locked: true" in the response data
-                            var headerKeys = responseHeaders.AllKeys.ToList();
-
-                            var filteredKeys = GetMyEmslLockedField(headerKeys);
-
-                            if (filteredKeys.Count > 0)
-                            {
-                                var keyValue = responseHeaders[filteredKeys.First()];
-                                if (bool.TryParse(keyValue, out var isLocked))
-                                {
-                                    fileLocked = isLocked;
-                                }
-                            }
-
-                        }
-                    }
-
-                    dctFiles.Add(archiveFile, fileLocked);
-                }
-            }
-            catch (Exception ex)
-            {
-                ReportError("Exception in CheckLockedStatus: " + ex.Message, ex);
-            }
-
-            return dctFiles;
-        }
-
         private long ComputeTotalBytes(IReadOnlyDictionary<long, ArchivedFileInfo> dctFiles)
         {
             return ComputeTotalBytes(dctFiles.Values);
@@ -490,74 +388,6 @@ namespace MyEMSLReader
                 downloadFilePath = downloadFilePath.Replace('/', Path.DirectorySeparatorChar);
 
             return downloadFilePath;
-        }
-
-        [Obsolete("Obsolete in June 2017")]
-        private long CreateCart(List<long> lstFiles, CookieContainer cookieJar, string authToken)
-        {
-            long cartID;
-
-            try
-            {
-
-                // The Item IDs passed to the cart must be integers stored as strings
-                // If this is not done, the python code validating that we are authorized to view the files will not find a match
-                // and will report HTTP Status Code 403: Forbidden
-                //
-                var lstFileIDsAsStrings = lstFiles.Select(fileId => fileId.ToString(CultureInfo.InvariantCulture)).ToList();
-
-                var querySpec = new Dictionary<string, object>
-                {
-                    {"items", lstFileIDsAsStrings},
-                    {"auth_token", authToken}
-                };
-
-                throw new NotImplementedException("This code needs to be updated to use the new MyEMSL API");
-
-                // Code deprecated in June 2017
-
-                // Base Url will be https://my.emsl.pnl.gov/myemsl/api/2/cart
-                //var URL = mPacificaConfig.ApiUri + "2/cart";
-                //var postData = Utilities.ObjectToJson(querySpec);
-                var URL = "";
-                var postData = "";
-
-                const int maxAttempts = 4;
-                const bool allowEmptyResponseData = false;
-
-                var success = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Post, maxAttempts, allowEmptyResponseData, out var xmlString, out var mostRecentException);
-
-                if (!success || string.IsNullOrEmpty(xmlString))
-                {
-                    ReportError("Error creating download cart after " + maxAttempts + " attempts", mostRecentException);
-                }
-
-                // Extract the CartID from the response
-                var dctResults = Utilities.JsonToObject(xmlString);
-
-                if (!ValidSearchResults(dctResults, out var errorMessage))
-                {
-                    ReportError("Error creating download cart: " + errorMessage);
-                    return 0;
-                }
-
-                // Extract the cart_id
-                cartID = ReadDictionaryValue(dctResults, "cart_id", 0);
-                if (cartID <= 0)
-                {
-                    ReportError("Download cart not created: " + xmlString);
-                    return 0;
-                }
-
-                DownloadCartState = CartState.Unsubmitted;
-            }
-            catch (Exception ex)
-            {
-                ReportError("Exception in CreateCart: " + ex.Message, ex);
-                cartID = 0;
-            }
-
-            return cartID;
         }
 
         /// <summary>
@@ -606,100 +436,6 @@ namespace MyEMSLReader
             {
                 ReportError("Exception in CreateCartPostData: " + ex.Message, ex);
                 return new StringBuilder();
-            }
-
-        }
-
-        [Obsolete("Obsolete in June 2017")]
-        private bool CreateScrollID(IReadOnlyCollection<long> lstFileIDs, ref CookieContainer cookieJar, out string authToken)
-        {
-            authToken = string.Empty;
-
-            try
-            {
-                throw new NotImplementedException("This code needs to be updated to use the new MyEMSL API");
-
-                // Code deprecated in June 2017
-
-                // Scan for Files
-                const Reader.ScanMode scanMode = Reader.ScanMode.CreateScrollID;
-
-                var dctResults = ScanForFiles(lstFileIDs, scanMode, ref cookieJar);
-                if (dctResults == null || dctResults.Count == 0)
-                {
-                    if (string.IsNullOrWhiteSpace(ErrorMessage))
-                        ReportError("ScanForFiles returned an empty xml result when obtaiing a scroll ID");
-                    return false;
-                }
-
-                // Extract the ScrollID from the response
-                if (!ValidSearchResults(dctResults, out var errorMessage))
-                {
-                    ReportError("Error obtaining scroll ID: " + errorMessage);
-                    return false;
-                }
-
-                var scrollID = ReadDictionaryValue(dctResults, "_scroll_id", string.Empty);
-                if (string.IsNullOrEmpty(scrollID))
-                {
-                    ReportError("Scroll ID was not created; dctResults does not contain '_scroll_id'");
-                    return false;
-                }
-
-                // The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
-                // For more info, see comments in Reader.RunElasticSearchQuery()
-                if (ServicePointManager.ServerCertificateValidationCallback == null)
-                    ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
-
-                // Obtain a new authorization token by posting to https://my.emsl.pnl.gov/myemsl/elasticsearch/simple_items?search_type=scan&scan&auth
-
-                // This worked until February 2015, but it no longer works
-                //     URL = mPacificaConfig.ElasticSearchUri + "simple_items?search_type=scan&scan&auth";
-
-                // Deprecated in June 2017
-                // var URL = mPacificaConfig.ElasticSearchUri + "simple_items?auth&search_type=scan&scan";
-                var URL = "";
-                var postData = scrollID;
-
-                const int maxAttempts = 4;
-                const bool allowEmptyResponseData = false;
-
-                var success = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Post, maxAttempts, allowEmptyResponseData, out var responseData, out var mostRecentException);
-                if (!success)
-                {
-                    var msg = "Error obtaining an AuthToken for the scroll ID";
-                    if (mostRecentException != null)
-                        msg += ": " + mostRecentException.Message;
-
-                    ReportError(msg);
-                    return false;
-                }
-
-                var lstFiles = mReader.ParseElasticSearchResults(responseData, out authToken);
-                if (string.IsNullOrWhiteSpace(authToken))
-                {
-                    ReportError("myemsl_auth_token is empty; cannot download data using scroll ID", null, false);
-                    return false;
-                }
-
-                // Verify that the files in lstFiles match those in lstFileIDs
-                var lstReturnedIDs = new SortedSet<long>(from item in lstFiles select item.FileID);
-
-                foreach (var lstFileID in lstFileIDs)
-                {
-                    if (!lstReturnedIDs.Contains(lstFileID))
-                    {
-                        ReportError("FileID " + lstFileID + " was not included in the results returned for the scroll ID; downloaded files will be incomplete and the download will thus be aborted");
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                ReportError("Exception in CreateCart: " + ex.Message, ex);
-                return false;
             }
 
         }
@@ -1435,15 +1171,6 @@ namespace MyEMSLReader
             return archiveFileLookup;
         }
 
-        [Obsolete("Obsolete in June 2017")]
-        private List<ArchivedFileInfo> GetFileListByLockStatus(Dictionary<ArchivedFileInfo, bool> dctFiles, bool locked)
-        {
-            var lstLockedFiles = (from item in dctFiles
-                                  where item.Value == locked
-                                  select item.Key).ToList();
-            return lstLockedFiles;
-        }
-
         private FileInfo GetTargetFile(
             DirectoryInfo downloadFolder,
             DownloadFolderLayout folderLayout,
@@ -1501,103 +1228,12 @@ namespace MyEMSLReader
             return fiTargetFile;
         }
 
-        [Obsolete("Obsolete in June 2017")]
-        private List<string> GetMyEmslLockedField(IEnumerable<string> headerKeys)
-        {
-            var lstFilteredKeys = (from item in headerKeys
-                                   where item.Contains("MyEMSL-Locked")
-                                   select item).ToList();
-            return lstFilteredKeys;
-        }
-
         private List<int> GetUniqueDatasetIDList(IReadOnlyDictionary<long, ArchivedFileInfo> dctFiles)
         {
             var datasetIDs = (from item in dctFiles
                               group item by item.Value.DatasetID into g
                               select g.Key).ToList();
             return datasetIDs;
-        }
-
-        [Obsolete("Obsolete in June 2017")]
-        private bool InitializeCartCreation(long cartID, CookieContainer cookieJar)
-        {
-            bool success;
-
-            throw new NotImplementedException("This code needs to be updated to use the new MyEMSL API");
-
-            // Code deprecated in June 2017
-
-            try
-            {
-                // The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
-                // For more info, see comments in Reader.RunElasticSearchQuery()
-                if (ServicePointManager.ServerCertificateValidationCallback == null)
-                    ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
-
-                // Note that even though postData is empty we need to "Post" to https://my.emsl.pnl.gov/myemsl/api/2/cart/11?submit
-                // var URL = mPacificaConfig.ApiUri + "2/cart/" + cartID + "?submit";
-                var URL = "";
-
-                var postData = string.Empty;
-
-                const int maxAttempts = 4;
-                const bool allowEmptyResponseData = true;
-
-                success = SendHTTPRequestWithRetry(
-                    URL, cookieJar, postData, EasyHttp.HttpMethod.Post,
-                    maxAttempts, allowEmptyResponseData,
-                    out var xmlString,
-                    out var mostRecentException);
-
-                if (!success)
-                {
-                    var msg = "Error initializing creation of cart " + cartID;
-                    if (mostRecentException != null)
-                        msg += ": " + mostRecentException.Message;
-
-                    ReportError(msg);
-                }
-                DownloadCartState = CartState.Building;
-
-            }
-            catch (Exception ex)
-            {
-                ReportError("Exception in InitializeCartCreation: " + ex.Message, ex);
-                return false;
-            }
-
-            return success;
-        }
-
-        /// <summary>
-        /// Determines whether or not a file should be downloaded
-        /// </summary>
-        /// <param name="dctFiles"></param>
-        /// <param name="fileID"></param>
-        /// <param name="downloadFolderPath"></param>
-        /// <param name="folderLayout"></param>
-        /// <param name="reportMessage"></param>
-        /// <returns></returns>
-        [Obsolete("Unused in July 2017")]
-        private bool IsDownloadRequired(
-            Dictionary<long, ArchivedFileInfo> dctFiles,
-            long fileID,
-            string downloadFolderPath,
-            DownloadFolderLayout folderLayout,
-            bool reportMessage)
-        {
-            var lstMatches = (from item in dctFiles where item.Value.FileID == fileID select item.Value).ToList();
-
-            if (lstMatches.Count == 0)
-                return true;
-
-            var archiveFile = lstMatches.First();
-            var downloadFilePathRelatve = ConstructDownloadfilePath(folderLayout, archiveFile);
-            var targetFile = new FileInfo(Path.Combine(downloadFolderPath, downloadFilePathRelatve));
-
-            var downloadFile = IsDownloadRequired(archiveFile, targetFile, reportMessage: reportMessage);
-
-            return downloadFile;
         }
 
         /// <summary>
@@ -1757,24 +1393,6 @@ namespace MyEMSLReader
         }
 
         [Obsolete("Obsolete in June 2017")]
-        private Dictionary<string, object> ScanForFiles(IEnumerable<long> lstFileIDs, Reader.ScanMode scanMode, ref CookieContainer cookieJar)
-        {
-            var dctSearchTerms = new List<KeyValuePair<string, string>>();
-
-            foreach (var fileID in lstFileIDs)
-            {
-                dctSearchTerms.Add(new KeyValuePair<string, string>("_id", fileID.ToString(CultureInfo.InvariantCulture)));
-            }
-
-            const SearchOperator logicalOperator = SearchOperator.Or;
-
-            var dctResults = mReader.RunElasticSearchQuery(dctSearchTerms, dctSearchTerms.Count + 1, logicalOperator, scanMode, ref cookieJar);
-
-            return dctResults;
-
-        }
-
-        [Obsolete("Obsolete in June 2017")]
         private WebHeaderCollection SendHeadRequestWithRetry(
             string URL,
             CookieContainer cookieJar,
@@ -1834,50 +1452,6 @@ namespace MyEMSLReader
             return responseHeaders;
         }
 
-        [Obsolete("Obsolete in June 2017")]
-        private string UpdateCartState(Dictionary<string, object> dctCartInfo, string cartState)
-        {
-            var tarFileURL = string.Empty;
-
-            if (string.IsNullOrWhiteSpace(cartState))
-                return string.Empty;
-
-            switch (cartState)
-            {
-                case "unsubmitted":
-                    DownloadCartState = CartState.Unsubmitted;
-                    break;
-                case "building":
-                    DownloadCartState = CartState.Building;
-                    break;
-                case "available":
-                    tarFileURL = ReadDictionaryValue(dctCartInfo, "url", string.Empty);
-                    if (string.IsNullOrWhiteSpace(tarFileURL))
-                    {
-                        ReportMessage("Warning, cart status is " + cartState + " but the download URL was not returned by MyEMSL");
-                    }
-                    else
-                    {
-                        DownloadCartState = CartState.Available;
-                    }
-                    break;
-                case "expired":
-                    DownloadCartState = CartState.Expired;
-                    break;
-                case "admin":
-                    DownloadCartState = CartState.Admin;
-                    break;
-                case "unknown":
-                    DownloadCartState = CartState.Unknown;
-                    break;
-                default:
-                    // Some other unknown state; ignore it
-                    break;
-            }
-
-            return tarFileURL;
-        }
-
         private void UpdateFileModificationTime(FileSystemInfo targetFile, DateTime dtSubmissionTime)
         {
             // Update the file modification time
@@ -1897,123 +1471,6 @@ namespace MyEMSLReader
 
                 OnProgressUpdate("Downloading data", percentComplete);
             }
-        }
-
-        [Obsolete("Obsolete in June 2017")]
-        private bool WaitForCartSuccess(long cartID, CookieContainer cookieJar, int maxMinutesToWait, out string tarFileURL)
-        {
-            var dtStartTime = DateTime.UtcNow;
-            var dtLastUpdateTime = DateTime.UtcNow.Subtract(new TimeSpan(0, 0, 50));
-            var sleepTimeSeconds = 5;
-            var notifyWhenCartAvailable = false;
-
-            tarFileURL = string.Empty;
-
-            throw new NotImplementedException("This code needs to be updated to use the new MyEMSL API");
-
-            // Code deprecated in June 2017
-
-            try
-            {
-                // The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
-                // For more info, see comments in Reader.RunElasticSearchQuery()
-                if (ServicePointManager.ServerCertificateValidationCallback == null)
-                    ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
-
-                // Construct the URL, e.g. http://my.emsl.pnl.gov/myemsl/api/2/cart/15
-                // var URL = mPacificaConfig.ApiUri + "2/cart/" + cartID;
-                var URL = "";
-                var postData = string.Empty;
-
-                const int maxAttempts = 3;
-                const bool allowEmptyResponseData = false;
-
-                while (DownloadCartState != CartState.Available)
-                {
-                    Exception mostRecentException;
-                    string xmlString;
-                    var success = SendHTTPRequestWithRetry(URL, cookieJar, postData, EasyHttp.HttpMethod.Get, maxAttempts, allowEmptyResponseData, out xmlString, out mostRecentException);
-
-                    if (success)
-                    {
-                        // Extract the Cart status from the response
-                        var dctResults = Utilities.JsonToObject(xmlString);
-
-                        string errorMessage;
-                        if (!ValidSearchResults(dctResults, out errorMessage))
-                        {
-                            ReportMessage("Warning, invalid cart status data: " + xmlString);
-                        }
-                        else
-                        {
-                            var dctCartInfo = RetrieveDictionaryListByKey(dctResults, "carts");
-
-                            if (dctCartInfo.Count == 0)
-                            {
-                                OnWarningEvent("Carts listing is empty");
-                            }
-                            else
-                            {
-                                // Extract the cart state
-                                var cartState = ReadDictionaryValue(dctCartInfo[0], "state", string.Empty);
-
-                                tarFileURL = UpdateCartState(dctCartInfo[0], cartState);
-
-                                if (DownloadCartState == CartState.Available)
-                                {
-                                    break;
-                                }
-
-                                if (DownloadCartState == CartState.Expired)
-                                {
-                                    ReportError("Cart " + cartID + " is expired and cannot be downloaded; aborting");
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    var minutesElapsed = DateTime.UtcNow.Subtract(dtStartTime).TotalMinutes;
-
-                    if (minutesElapsed > maxMinutesToWait)
-                    {
-                        ReportError("Over " + maxMinutesToWait + " minutes have elapsed and download cart " + cartID + " is still not ready; aborting");
-                        break;
-                    }
-
-                    if (minutesElapsed > 5 && sleepTimeSeconds < 15)
-                        sleepTimeSeconds = 15;
-
-                    if (minutesElapsed > 15 && sleepTimeSeconds < 30)
-                        sleepTimeSeconds = 30;
-
-                    if (DateTime.UtcNow.Subtract(dtLastUpdateTime).TotalMinutes >= 1)
-                    {
-                        ReportMessage("Waiting for cart " + cartID + " to become available: " + minutesElapsed.ToString("0.0") + " minutes elapsed");
-                        dtLastUpdateTime = DateTime.UtcNow;
-                        notifyWhenCartAvailable = true;
-                    }
-
-                    // Sleep for 5 to 30 seconds (depending on how long we've been waiting)
-                    Thread.Sleep(sleepTimeSeconds * 1000);
-                }
-
-            }
-            catch (Exception ex)
-            {
-                ReportError("Exception in WaitForCartSuccess: " + ex.Message, ex);
-                return false;
-            }
-
-            if (DownloadCartState == CartState.Available)
-            {
-                if (notifyWhenCartAvailable)
-                    ReportMessage("Cart " + cartID + " is now ready for download");
-
-                return true;
-            }
-
-            return false;
         }
 
         #endregion

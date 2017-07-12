@@ -112,23 +112,6 @@ namespace MyEMSLReader
             set;
         }
 
-        [Obsolete("Deprecated in June 2017")]
-        public bool IsPublicFile
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Dictionary object with the detailed information reported by MyEMSL for this file
-        /// Keys are strings while values could be a string, generic list, or even another dictionary (with string keys and object values)
-        /// </summary>
-        public Dictionary<string, object> Metadata
-        {
-            get;
-            private set;
-        }
-
         /// <summary>
         /// Relative path to the file, including the dataset name
         /// </summary>
@@ -293,7 +276,7 @@ namespace MyEMSLReader
         /// <param name="subDirPath">Subdirectory below dataset (empty if at the dataset level)</param>
         /// <param name="fileID">MyEMSL File ID</param>
         public ArchivedFileInfo(string dataset, string filename, string subDirPath, long fileID) :
-            this(dataset, filename, subDirPath, fileID, "", "", new Dictionary<string, object>())
+            this(dataset, filename, subDirPath, fileID, "", "")
         { }
 
         /// <summary>
@@ -305,15 +288,13 @@ namespace MyEMSLReader
         /// <param name="fileID">MyEMSL File ID</param>
         /// <param name="instrument">Instrument name</param>
         /// <param name="datasetYearQuarter">Dataset year quarter, e.g. 2013_3</param>
-        /// <param name="dctMetadata">Metadata dictionary</param>
         public ArchivedFileInfo(
             string dataset,
             string filename,
             string subDirPath,
             long fileID,
             string instrument,
-            string datasetYearQuarter,
-            Dictionary<string, object> dctMetadata)
+            string datasetYearQuarter)
         {
             Dataset = dataset;
             Filename = filename;
@@ -321,7 +302,6 @@ namespace MyEMSLReader
             FileID = fileID;
             Instrument = instrument;
             DatasetYearQuarter = datasetYearQuarter;
-            Metadata = dctMetadata;
         }
 
         /// <summary>

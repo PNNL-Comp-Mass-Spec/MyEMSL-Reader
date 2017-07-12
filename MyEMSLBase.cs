@@ -392,38 +392,6 @@ namespace MyEMSLReader
             return retrievalSuccess;
         }
 
-        [Obsolete("Deprecated in June 2017")]
-        protected bool ValidSearchResults(Dictionary<string, object> dctResults, out string errorMessage)
-        {
-            // Check for an error
-            errorMessage = ReadDictionaryValue(dctResults, "error", "");
-            if (!string.IsNullOrEmpty(errorMessage))
-            {
-                var charIndex = errorMessage.IndexOf('{');
-
-                // Truncate the message after the first curly bracket
-                if (charIndex > 0)
-                    errorMessage = errorMessage.Substring(0, charIndex);
-
-                charIndex = errorMessage.IndexOf("; shardFailures", StringComparison.Ordinal);
-                if (charIndex > 0)
-                    errorMessage = errorMessage.Substring(0, charIndex);
-
-                return false;
-            }
-
-            var timedOut = ReadDictionaryValue(dctResults, "timed_out", false);
-
-            if (timedOut)
-            {
-                errorMessage = "Elastic search reports a timeout error";
-                return false;
-            }
-
-            return true;
-        }
-
-
     }
 
 }
