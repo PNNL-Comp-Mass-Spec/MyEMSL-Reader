@@ -621,8 +621,10 @@ namespace MyEMSLReader
                         {
                             filesDownloaded.Add(firstArchiveFile.FileID, firstArchiveFile.PathWithInstrumentAndDatasetWindows);
 
-
-                            UpdateFileModificationTime(targetFile, firstArchiveFile.SubmissionTimeValue);
+                            if (firstArchiveFile.FileLastWriteTime > DateTime.MinValue)
+                                UpdateFileModificationTime(targetFile, firstArchiveFile.FileLastWriteTime);
+                            else if (firstArchiveFile.SubmissionTimeValue > DateTime.MinValue)
+                                UpdateFileModificationTime(targetFile, firstArchiveFile.SubmissionTimeValue);
 
                             fileRetrievedOrExists = true;
                         }
