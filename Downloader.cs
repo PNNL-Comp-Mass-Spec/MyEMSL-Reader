@@ -538,7 +538,7 @@ namespace MyEMSLReader
             IReadOnlyDictionary<long, ArchivedFileInfo> filesToDownload,
             CookieContainer cookieJar,
             IReadOnlyDictionary<long, string> destFilePathOverride,
-            DirectoryInfo downloadFolder,
+            FileSystemInfo downloadFolder,
             DownloadFolderLayout folderLayout,
             out long bytesDownloaded)
         {
@@ -784,7 +784,7 @@ namespace MyEMSLReader
             List<ArchivedFileInfo> lstFilesInArchive,
             long bytesDownloaded,
             IReadOnlyDictionary<long, string> destFilePathOverride,
-            DirectoryInfo downloadFolder,
+            FileSystemInfo downloadFolder,
             DownloadFolderLayout folderLayout,
             string tarFileURL)
         {
@@ -854,7 +854,7 @@ namespace MyEMSLReader
             List<ArchivedFileInfo> lstFilesInArchive,
             long bytesDownloaded,
             IReadOnlyDictionary<long, string> destFilePathOverride,
-            DirectoryInfo downloadFolder,
+            FileSystemInfo downloadFolder,
             DownloadFolderLayout folderLayout,
             string tarFileURL,
             int timeoutSeconds = 100)
@@ -1099,7 +1099,7 @@ namespace MyEMSLReader
         }
 
         private void DuplicateFile(
-            DirectoryInfo downloadFolder,
+            FileSystemInfo downloadFolder,
             DownloadFolderLayout folderLayout,
             IReadOnlyDictionary<long, string> destFilePathOverride,
             FileInfo fiSourceFile,
@@ -1169,7 +1169,7 @@ namespace MyEMSLReader
         }
 
         private FileInfo GetTargetFile(
-            DirectoryInfo downloadFolder,
+            FileSystemInfo downloadFolder,
             DownloadFolderLayout folderLayout,
             ArchivedFileInfo archiveFile,
             IReadOnlyDictionary<long, string> destFilePathOverride)
@@ -1449,13 +1449,13 @@ namespace MyEMSLReader
             return responseHeaders;
         }
 
-        private void UpdateFileModificationTime(FileSystemInfo targetFile, DateTime dtSubmissionTime)
+        private void UpdateFileModificationTime(FileSystemInfo targetFile, DateTime lastWriteTime)
         {
             // Update the file modification time
             targetFile.Refresh();
             if (targetFile.Exists)
             {
-                targetFile.LastWriteTime = dtSubmissionTime;
+                targetFile.LastWriteTime = lastWriteTime;
             }
         }
 

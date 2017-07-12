@@ -754,7 +754,7 @@ namespace MyEMSLReader
                 // Make sure that dctDatasetsAndSubDirListsCleaned does not contain a mix of datasets, dataset IDs, and data package IDs
                 ValidateDatasetInfoDictionary(dctDatasetsAndSubDirListsCleaned);
 
-                var lstFiles = new List<ArchivedFileInfo>();
+                var lstResults = new List<ArchivedFileInfo>();
 
                 // Keys in this dictionary are DatasetID_RemoteFilePath; values are the transaction ID for that file
                 var remoteFilePaths = new Dictionary<string, ArchivedFileInfo>();
@@ -807,10 +807,10 @@ namespace MyEMSLReader
                 }
 
                 // Filter the results
-                lstFiles = FilterSearchResults(dctDatasetsAndSubDirListsCleaned, recurse, lstFiles, filterOnSubDir);
+                lstResults = FilterSearchResults(dctDatasetsAndSubDirListsCleaned, recurse, lstResults, filterOnSubDir);
 
                 // Return the results, sorted by folder path and file name
-                return (from item in lstFiles orderby item.PathWithInstrumentAndDatasetWindows select item).ToList();
+                return (from item in lstResults orderby item.PathWithInstrumentAndDatasetWindows select item).ToList();
 
             }
             catch (Exception ex)
@@ -827,7 +827,7 @@ namespace MyEMSLReader
         private List<ArchivedFileInfo> FilterSearchResults(
             Dictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists,
             bool recurse,
-            List<ArchivedFileInfo> lstFiles,
+            List<ArchivedFileInfo> lstResults,
             bool filterOnSubDir)
         {
 
@@ -836,7 +836,7 @@ namespace MyEMSLReader
                 if (dctDatasetsAndSubDirLists.First().Key.StartsWith(DATASET_ID_TAG))
                 {
                     // Filter the files to remove any that are not an exact match to the dataset ID
-                    lstFiles = FilterFilesByDatasetID(lstFiles, dctDatasetsAndSubDirLists.Keys);
+                    lstResults = FilterFilesByDatasetID(lstResults, dctDatasetsAndSubDirLists.Keys);
                 }
                 else if (dctDatasetsAndSubDirLists.First().Key.StartsWith(DATA_PKG_ID_TAG))
                 {
@@ -846,23 +846,23 @@ namespace MyEMSLReader
                 else
                 {
                     // Filter the files to remove any that are not an exact match to the dataset names in dctSearchTerms
-                    lstFiles = FilterFilesByDatasetName(lstFiles, dctDatasetsAndSubDirLists.Keys);
+                    lstResults = FilterFilesByDatasetName(lstResults, dctDatasetsAndSubDirLists.Keys);
                 }
             }
 
             if (!recurse)
             {
                 // Filter the files to remove any not in the "root" folder
-                lstFiles = FilterFilesNoRecursion(lstFiles, dctDatasetsAndSubDirLists);
+                lstResults = FilterFilesNoRecursion(lstResults, dctDatasetsAndSubDirLists);
             }
 
             if (filterOnSubDir)
             {
                 // Filter on subDir
-                lstFiles = FilterFilesBySubDir(lstFiles, dctDatasetsAndSubDirLists);
+                lstResults = FilterFilesBySubDir(lstResults, dctDatasetsAndSubDirLists);
             }
 
-            return lstFiles;
+            return lstResults;
         }
 
         private SearchEntity GetEntityType(Dictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists)
@@ -1056,7 +1056,7 @@ namespace MyEMSLReader
             int datasetOrDataPackageId;
             string instrument;
 
-            bool uploadingDataPackage;
+            bool checkingDataPackage;
 
             if (string.Equals(QUERY_SPEC_DATASET_ID, searchKey))
             {
@@ -1070,7 +1070,7 @@ namespace MyEMSLReader
                 // This is a temporary fix until MyEMSL reports Dataset Name
                 datasetName = LookupDatasetNameByID(datasetOrDataPackageId, out instrument);
 
-                uploadingDataPackage = false;
+                checkingDataPackage = false;
 
                 if (TraceMode)
                     OnDebugEvent("Dataset ID " + datasetOrDataPackageId + " is " + datasetName);
@@ -1092,7 +1092,7 @@ namespace MyEMSLReader
 
                 datasetOrDataPackageId = LookupDatasetIDByName(datasetName, out instrument);
 
-                uploadingDataPackage = false;
+                checkingDataPackage = false;
 
                 if (TraceMode)
                     OnDebugEvent("Dataset " + datasetName + " has ID " + datasetOrDataPackageId);
@@ -1111,7 +1111,7 @@ namespace MyEMSLReader
                 datasetName = string.Empty;
                 instrument = string.Empty;
 
-                uploadingDataPackage = true;
+                checkingDataPackage = true;
 
                 if (TraceMode)
                     OnDebugEvent("Obtaining metadata for DataPackage ID " + datasetOrDataPackageId);
@@ -1204,16 +1204,16 @@ namespace MyEMSLReader
 
                     var remoteFileInfo = new ArchivedFileInfo(datasetName, fileName, subFolder, fileId)
                     {
-                        DatasetYearQuarter = "",
+                        DatasetYearQuarter = string.Empty,
                         FileSizeBytes = Utilities.GetDictionaryValue(fileObj, "size", 0),
-                        Instrument = instrument,
                         Hash = fileHash,
                         HashType = Utilities.GetDictionaryValue(fileObj, "hashtype"),
+                        Instrument = instrument,
                         SubmissionTime = Utilities.GetDictionaryValue(fileObj, "created"),
                         TransactionID = Utilities.GetDictionaryValue(fileObj, "transaction_id", 0)
                     };
 
-                    if (uploadingDataPackage)
+                    if (checkingDataPackage)
                     {
                         remoteFileInfo.DatasetID = 0;
                         remoteFileInfo.DataPackageID = datasetOrDataPackageId;
