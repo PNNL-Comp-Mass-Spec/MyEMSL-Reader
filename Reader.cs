@@ -445,6 +445,62 @@ namespace MyEMSLReader
         #region "private Methods"
 
         /// <summary>
+        /// Add a new file to the MyEMSL search results
+        /// </summary>
+        /// <param name="lstResults">MyEMSL search results</param>
+        /// <param name="remoteFilePaths">Dictionary where keys are DatasetID_RemoteFilePath and values are the transaction ID for that file</param>
+        /// <param name="remoteFile">
+        /// Remote file info, where key is relative file path (Windows style paths) and values are file info details
+        /// (multiple entries if multiple versions)</param>
+        /// <param name="versionToAdd">Specific version of the remote file to add to lstResults</param>
+        /// <param name="keepDuplicates">When true, keep duplicate versions of the same file (files with the same relative path, but different hash values)</param>
+        private void AddFileToSearchResults(
+            IList<ArchivedFileInfo> lstResults,
+            IDictionary<string, ArchivedFileInfo> remoteFilePaths,
+            KeyValuePair<string, List<ArchivedFileInfo>> remoteFile,
+            ArchivedFileInfo versionToAdd,
+            bool keepDuplicates)
+        {
+            var remoteFileKey = versionToAdd.DatasetID + "_" + remoteFile.Key;
+
+            if (remoteFilePaths.TryGetValue(remoteFileKey, out var existingArchiveFile))
+            {
+                if (keepDuplicates)
+                {
+                    LastSearchFileCountReturned += 1;
+                }
+                else
+                {
+                    if (versionToAdd.TransactionID < existingArchiveFile.TransactionID)
+                    {
+                        // Duplicate found, and the transaction ID for versionToAdd is older than the transaction ID we're already tracking
+                        return;
+                    }
+
+                    // Remove the current version stored in lstResults
+                    for (var i = 0; i < lstResults.Count; i++)
+                    {
+                        if (lstResults[i].FileID != existingArchiveFile.FileID)
+                            continue;
+
+                        lstResults.RemoveAt(i);
+                        break;
+                    }
+                }
+
+                lstResults.Add(versionToAdd);
+                remoteFilePaths[remoteFileKey] = versionToAdd;
+            }
+            else
+            {
+                lstResults.Add(versionToAdd);
+                remoteFilePaths.Add(remoteFileKey, versionToAdd);
+                LastSearchFileCountReturned += 1;
+            }
+
+        }
+
+        /// <summary>
         /// Convert a dictionary of dataset names and SubDir names to a dictionary of dataset names and SubDir lists (with one item per list for each dataset)
         /// </summary>
         /// <param name="dctDatasetsAndSubDirs"></param>
@@ -783,23 +839,19 @@ namespace MyEMSLReader
                                 continue;
                         }
 
-                        // Select the newest version of the item
-                        var newestVersion = (from item in remoteFile.Value orderby item.TransactionID descending select item).First();
-
-                        if (remoteFilePaths.TryGetValue(remoteFile.Key, out var existingArchiveFile))
+                        if (IncludeAllRevisions)
                         {
-                            if (newestVersion.TransactionID > existingArchiveFile.TransactionID)
+                            foreach (var item in remoteFile.Value)
                             {
-                                lstFiles.Remove(existingArchiveFile);
-                                lstFiles.Add(newestVersion);
-                                remoteFilePaths[remoteFile.Key] = newestVersion;
+                                AddFileToSearchResults(lstResults, remoteFilePaths, remoteFile, item, true);
                             }
                         }
                         else
                         {
-                            lstFiles.Add(newestVersion);
-                            remoteFilePaths.Add(remoteFile.Key, newestVersion);
-                            LastSearchFileCountReturned += 1;
+                            // Select the newest version of the item
+                            var newestVersion = (from item in remoteFile.Value orderby item.TransactionID descending select item).First();
+
+                            AddFileToSearchResults(lstResults, remoteFilePaths, remoteFile, newestVersion, false);
                         }
 
                     }
