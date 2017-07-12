@@ -56,6 +56,11 @@ echo.
 xcopy debug\MyEMSLReader.dll "C:\Users\d3l243\Documents\Projects\DataMining\DMS_Managers\DataPackage_Archive_Manager\Lib" /D /Y
 xcopy debug\MyEMSLReader.dll "C:\Users\d3l243\Documents\Projects\DataMining\DMS_Managers\DataPackage_Archive_Manager\bin\debug" /D /Y
 
+xcopy debug\MyEMSLReader.dll "C:\Users\d3l243\Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\RefLib" /D /Y
+xcopy debug\MyEMSLReader.dll "C:\Users\d3l243\Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\DeployedFiles" /D /Y
+xcopy debug\MyEMSLReader.dll "C:\Users\d3l243\Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\CaptureTaskManager\CaptureTaskManager\bin\Debug" /D /Y
+xcopy debug\MyEMSLReader.dll "C:\Users\d3l243\Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\ArchiveVerifyPlugin\bin\Debug" /D /Y
+
 xcopy debug\MyEMSLReader.dll "C:\Users\d3l243\Documents\Projects\DataMining\DMS_Managers\MyEMSL_MTS_File_Cache_Manager\Lib" /D /Y
 xcopy debug\MyEMSLReader.dll "C:\Users\d3l243\Documents\Projects\DataMining\DMS_Managers\MyEMSL_MTS_File_Cache_Manager\bin\Debug" /D /Y
 
