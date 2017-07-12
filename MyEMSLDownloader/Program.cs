@@ -15,7 +15,7 @@ namespace MyEMSLDownloader
 
     internal static class Program
     {
-        private const string PROGRAM_DATE = "July 7, 2017";
+        private const string PROGRAM_DATE = "July 12, 2017";
 
         static double mPercentComplete;
         static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
@@ -776,9 +776,15 @@ namespace MyEMSLDownloader
             Console.WriteLine();
             Console.WriteLine();
 
-            var filesToDownload2 = TestOneDatasetByID(reader);
+            var filesToDownload2a = TestOneDatasetByID(reader);
             Console.WriteLine();
             Console.WriteLine();
+
+            reader.IncludeAllRevisions = true;
+            var filesToDownload2b = TestOneDatasetByID(reader);
+            Console.WriteLine();
+            Console.WriteLine();
+            reader.IncludeAllRevisions = false;
 
             var filesToDownload3 = TestMultiDatasetID(reader);
             Console.WriteLine();
@@ -806,9 +812,10 @@ namespace MyEMSLDownloader
             {
                 var results = reader.FindFilesByDataPackageID(dataPkgID, subDir);
 
+                Console.WriteLine("{0,-10} {1}", "Hash", "RelativePath");
                 foreach (var archivedFile in results)
                 {
-                    Console.WriteLine(archivedFile.RelativePathUnix);
+                    Console.WriteLine("{0,-10} {1}", archivedFile.Hash.Substring(0, 10), archivedFile.RelativePathUnix);
                     filesToDownload.Add(archivedFile.FileID, archivedFile);
                 }
 
@@ -848,9 +855,12 @@ namespace MyEMSLDownloader
             {
                 var results = reader.FindFilesByDatasetName(datasetName, subDir);
 
+                Console.WriteLine();
+                Console.WriteLine("Files for dataset " + datasetName);
+                Console.WriteLine("{0,-10} {1}", "Hash", "RelativePath");
                 foreach (var archivedFile in results)
                 {
-                    Console.WriteLine(archivedFile.RelativePathUnix);
+                    Console.WriteLine("{0,-10} {1}", archivedFile.Hash.Substring(0, 10), archivedFile.RelativePathUnix);
                     filesToDownload.Add(archivedFile.FileID, archivedFile);
                 }
             }
@@ -869,7 +879,8 @@ namespace MyEMSLDownloader
             var dctDatasetsAndSubDirs = new Dictionary<string, string>
             {
                 // {"SWT_LCQData_300", "SIC201309041722_Auto976603"},
-                {"SysVirol_IFL001_10xA_07_11Sep13_Tiger_13-07-36", "SIC201309112159_Auto977994"},
+                // {"SysVirol_IFL001_10xA_07_11Sep13_Tiger_13-07-36", "SIC201309112159_Auto977994"},
+                {"SysVirol_IFL001_10xA_07_11Sep13_Tiger_13-07-36", ""},
                 {"SysVirol_IFL001_10xA_08_11Sep13_Tiger_13-07-34", ""}
             };
 
@@ -877,9 +888,10 @@ namespace MyEMSLDownloader
             {
                 var results = reader.FindFilesByDatasetName(dctDatasetsAndSubDirs);
 
+                Console.WriteLine("{0,-9} {1,-10} {2}", "DatasetID", "Hash", "RelativePath");
                 foreach (var archivedFile in results)
                 {
-                    Console.WriteLine(archivedFile.RelativePathUnix);
+                    Console.WriteLine("{0,-9} {1,-10} {2}", archivedFile.DatasetID, archivedFile.Hash.Substring(0, 10), archivedFile.RelativePathUnix);
                     filesToDownload.Add(archivedFile.FileID, archivedFile);
                 }
             }
@@ -899,9 +911,10 @@ namespace MyEMSLDownloader
             {
                 var results = reader.FindFilesByDatasetID(dctDatasetsAndSubDirs);
 
+                Console.WriteLine("{0,-9} {1,-10} {2}", "DatasetID", "Hash", "RelativePath");
                 foreach (var archivedFile in results)
                 {
-                    Console.WriteLine(archivedFile.RelativePathUnix);
+                    Console.WriteLine("{0,-9} {1,-10} {2}", archivedFile.DatasetID, archivedFile.Hash.Substring(0, 10), archivedFile.RelativePathUnix);
                     filesToDownload.Add(archivedFile.FileID, archivedFile);
                 }
             }

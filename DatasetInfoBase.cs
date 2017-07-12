@@ -110,7 +110,11 @@ namespace MyEMSLReader
         {
             mErrorMessages = new List<string>();
 
-            mReader = new Reader();
+            mReader = new Reader
+            {
+                IncludeAllRevisions = false
+            };
+
             RegisterEvents(mReader);
 
             mArchivedFiles = new List<ArchivedFileInfo>();
