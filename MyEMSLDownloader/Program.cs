@@ -1017,7 +1017,7 @@ namespace MyEMSLDownloader
 
         private static void OnDebugEvent(string message)
         {
-            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.WriteLine(message);
             Console.ResetColor();
         }
@@ -1033,8 +1033,11 @@ namespace MyEMSLDownloader
 
             if (ex != null)
             {
+                Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.WriteLine(clsStackTraceFormatter.GetExceptionStackTraceMultiLine(ex));
             }
+
+            Console.ResetColor();
         }
 
         private static void OnWarningEvent(string message)
