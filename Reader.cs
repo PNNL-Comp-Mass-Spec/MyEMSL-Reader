@@ -981,7 +981,6 @@ namespace MyEMSLReader
                             FileSizeBytes = fileSizeBytes,
                             TransactionID = transID,
                             SubmissionTime = submissionTime,
-                            IsPublicFile = publicFile,
                             DatasetID = datasetID,
                             DataPackageID = dataPackageID
                         };
@@ -1183,7 +1182,6 @@ namespace MyEMSLReader
                                     FileSizeBytes = fileSizeBytes,
                                     TransactionID = transID,
                                     SubmissionTime = submissionTime,
-                                    IsPublicFile = publicFile,
                                     DatasetID = datasetID,
                                     DataPackageID = dataPackageID
                                 };
@@ -1910,7 +1908,6 @@ namespace MyEMSLReader
                         DatasetYearQuarter = "",
                         FileSizeBytes = Utilities.GetDictionaryValue(fileObj, "size", 0),
                         Instrument = instrument,
-                        IsPublicFile = false,
                         Hash = fileHash,
                         HashType = Utilities.GetDictionaryValue(fileObj, "hashtype"),
                         SubmissionTime = Utilities.GetDictionaryValue(fileObj, "created"),
