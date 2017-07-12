@@ -1866,6 +1866,12 @@ namespace MyEMSLReader
                     return remoteFiles;
                 }
 
+                if (TraceMode)
+                {
+                    var previewLength = Math.Min(fileInfoListJSON.Length, 75);
+                    OnDebugEvent("Response received, convert to a dictionary: " + fileInfoListJSON.Substring(0, previewLength));
+                }
+
                 // Convert the response to a dictionary
                 var jsa = (Jayrock.Json.JsonArray)JsonConvert.Import(fileInfoListJSON);
                 var remoteFileInfoList = Utilities.JsonArrayToDictionaryList(jsa);
