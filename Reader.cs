@@ -1095,7 +1095,7 @@ namespace MyEMSLReader
         /// <remarks>A given remote file could have multiple hash values if multiple versions of the file have been uploaded</remarks>
         internal Dictionary<string, List<ArchivedFileInfo>> RunItemSearchQuery(string searchKey, string searchValue)
         {
-            const int WARNINGS_TO_LOG = 5;
+            const int DUPLICATE_HASH_MESSAGES_TO_LOG = 5;
 
             if (TraceMode)
                 OnDebugEvent("Entering RunItemSearchQuery");
@@ -1216,7 +1216,7 @@ namespace MyEMSLReader
                 var jsa = (Jayrock.Json.JsonArray)JsonConvert.Import(fileInfoListJSON);
                 var remoteFileInfoList = Utilities.JsonArrayToDictionaryList(jsa);
 
-                var warningCount = 0;
+                var duplicateHashCount = 0;
 
                 // Note that two files in the same directory could have the same hash value (but different names),
                 // so we cannot simply compare file hashes
@@ -1238,11 +1238,21 @@ namespace MyEMSLReader
 
                         if (FileHashExists(fileVersions, fileHash))
                         {
-                            warningCount++;
-                            if (warningCount <= WARNINGS_TO_LOG)
+                            if (string.Equals(fileHash, "none", StringComparison.InvariantCultureIgnoreCase))
                             {
-                                OnWarningEvent("Remote file listing reports the same file with the same hash more than once; " +
-                                               "ignoring: " + relativeFilePath + " with hash " + fileHash);
+                                // Do not log a warning; just silently ignore it
+                                // Example of a dataset with hash values of "None" is test dataset SWT_LCQData_300
+                                // https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.dataset_id/54007
+                                continue;
+                            }
+
+                            duplicateHashCount++;
+                            if (duplicateHashCount <= DUPLICATE_HASH_MESSAGES_TO_LOG)
+                            {
+                                // This warning is logged as a debug event since it's not a critical error
+                                OnDebugEvent(string.Format(
+                                    "Remote file listing reports the same file with the same hash more than once;\n" +
+                                    "  ignoring duplicate hash {0} for {1}", fileHash, relativeFilePath));
                             }
                             continue;
                         }
@@ -1290,10 +1300,9 @@ namespace MyEMSLReader
 
                 }
 
-
-                if (warningCount > WARNINGS_TO_LOG)
+                if (duplicateHashCount > DUPLICATE_HASH_MESSAGES_TO_LOG)
                 {
-                    OnWarningEvent(string.Format("Duplicate hash value found for {0} files in MyEMSL", warningCount));
+                    OnDebugEvent(string.Format("Duplicate hash value found for {0} files in MyEMSL", duplicateHashCount));
                 }
 
                 return remoteFiles;
