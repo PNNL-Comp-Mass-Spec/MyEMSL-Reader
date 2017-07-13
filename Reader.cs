@@ -5,7 +5,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using Jayrock.Json.Conversion;
 using Pacifica.Core;
 
@@ -109,10 +108,7 @@ namespace MyEMSLReader
         /// </summary>
         public bool UseTestInstance
         {
-            get
-            {
-                return mUseTestInstance;
-            }
+            get => mUseTestInstance;
             set
             {
                 mUseTestInstance = value;
