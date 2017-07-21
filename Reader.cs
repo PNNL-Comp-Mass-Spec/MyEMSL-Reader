@@ -1169,7 +1169,7 @@ namespace MyEMSLReader
             }
             else
             {
-                throw new NotSupportedException("MyEMSL metadata search currently only supports searching by dataset_id or dataset name");
+                throw new NotSupportedException("MyEMSL metadata search only supports searching by dataset_id, dataset name, or data_package_id");
             }
 
             try
