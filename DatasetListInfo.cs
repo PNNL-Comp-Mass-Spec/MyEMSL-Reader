@@ -63,9 +63,7 @@ namespace MyEMSLReader
             if (string.IsNullOrWhiteSpace(subDir))
                 subDir = string.Empty;
 
-            SortedSet<string> subDirsForDataset;
-
-            if (mDatasetsAndSubDirLists.TryGetValue(datasetName, out subDirsForDataset))
+            if (mDatasetsAndSubDirLists.TryGetValue(datasetName, out var subDirsForDataset))
             {
                 if (!subDirsForDataset.Contains(subDir, StringComparer.OrdinalIgnoreCase))
                 {

@@ -533,9 +533,7 @@ namespace MyEMSLReader
             if (string.IsNullOrWhiteSpace(subDir))
                 subDir = string.Empty;
 
-            SortedSet<string> subDirsForDataset;
-
-            if (dctDatasetsAndSubDirLists.TryGetValue(datasetName, out subDirsForDataset))
+            if (dctDatasetsAndSubDirLists.TryGetValue(datasetName, out var subDirsForDataset))
             {
                 if (!subDirsForDataset.Contains(subDir))
                 {
@@ -621,8 +619,8 @@ namespace MyEMSLReader
             foreach (var item in lstDatasetIDTags)
             {
                 var datasetIDText = item.Replace(DATASET_ID_TAG, string.Empty);
-                int datasetID;
-                if (int.TryParse(datasetIDText, out datasetID))
+
+                if (int.TryParse(datasetIDText, out var datasetID))
                 {
                     lstDatasetIDsSorted.Add(datasetID);
                 }

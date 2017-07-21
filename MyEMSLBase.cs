@@ -14,6 +14,7 @@ namespace MyEMSLReader
     {
 
         #region "Enums"
+
         public enum SearchOperator
         {
             And = 0,
@@ -61,6 +62,10 @@ namespace MyEMSLReader
             GarbageCollectNow(intMaxWaitTimeMSec);
         }
 
+        /// <summary>
+        /// Force the garbage collector to run
+        /// </summary>
+        /// <param name="intMaxWaitTimeMSec"></param>
         public static void GarbageCollectNow(int intMaxWaitTimeMSec)
         {
             const int THREAD_SLEEP_TIME_MSEC = 100;
@@ -196,8 +201,7 @@ namespace MyEMSLReader
 
         protected string ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, string valueIfMissing)
         {
-            object value;
-            if (dctData.TryGetValue(keyName, out value))
+            if (dctData.TryGetValue(keyName, out var value))
             {
                 return value.ToString();
             }
@@ -209,9 +213,8 @@ namespace MyEMSLReader
         protected bool ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, bool valueIfMissing)
         {
             var valueText = ReadDictionaryValue(dctData, keyName, valueIfMissing.ToString());
-            bool value;
 
-            if (bool.TryParse(valueText, out value))
+            if (bool.TryParse(valueText, out var value))
                 return value;
 
             return valueIfMissing;
@@ -220,9 +223,8 @@ namespace MyEMSLReader
         protected long ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, long valueIfMissing)
         {
             var valueText = ReadDictionaryValue(dctData, keyName, valueIfMissing.ToString(CultureInfo.InvariantCulture));
-            long value;
 
-            if (long.TryParse(valueText, out value))
+            if (long.TryParse(valueText, out var value))
                 return value;
 
             return valueIfMissing;
@@ -291,8 +293,7 @@ namespace MyEMSLReader
 
         protected List<Dictionary<string, object>> RetrieveDictionaryListByKey(Dictionary<string, object> dctResults, string keyName)
         {
-            object value;
-            if (!dctResults.TryGetValue(keyName, out value))
+            if (!dctResults.TryGetValue(keyName, out var value))
             {
                 ReportError("MyEMSL elastic search did not have a '" + keyName + "' dictionary list");
                 return new List<Dictionary<string, object>>();
@@ -315,9 +316,7 @@ namespace MyEMSLReader
 
         protected Dictionary<string, object> RetrieveDictionaryObjectByKey(Dictionary<string, object> dctResults, string keyName)
         {
-            object value;
-
-            if (!dctResults.TryGetValue(keyName, out value))
+            if (!dctResults.TryGetValue(keyName, out var value))
             {
                 ReportError("MyEMSL elastic search did not have a '" + keyName + "' section");
                 return new Dictionary<string, object>();

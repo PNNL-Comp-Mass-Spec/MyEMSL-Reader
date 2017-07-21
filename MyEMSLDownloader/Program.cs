@@ -373,9 +373,7 @@ namespace MyEMSLDownloader
                         else
                             fileToFind.SubDir = string.Empty;
 
-                        List<udtFileInfo> datasetFiles;
-
-                        if (!datasetsToSearch.TryGetValue(dataset, out datasetFiles))
+                        if (!datasetsToSearch.TryGetValue(dataset, out var datasetFiles))
                         {
                             datasetFiles = new List<udtFileInfo>();
                             datasetsToSearch.Add(dataset, datasetFiles);
@@ -457,8 +455,7 @@ namespace MyEMSLDownloader
             var fileIDs = fileIdList.Split(',');
             foreach (var fileID in fileIDs)
             {
-                long fileIdValue;
-                if (!long.TryParse(fileID, out fileIdValue))
+                if (!long.TryParse(fileID, out var fileIdValue))
                 {
                     Console.WriteLine("Warning: " + fileID + " is not an integer");
                     continue;
@@ -603,8 +600,7 @@ namespace MyEMSLDownloader
             string description,
             ref string targetVariable)
         {
-            string value;
-            if (objParseCommandLine.RetrieveValueForParameter(parameterName, out value))
+            if (objParseCommandLine.RetrieveValueForParameter(parameterName, out var value))
             {
                 if (string.IsNullOrWhiteSpace(value))
                 {

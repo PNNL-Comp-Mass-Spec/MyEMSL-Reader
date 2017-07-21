@@ -227,8 +227,7 @@ namespace MyEMSLReader
         // ReSharper disable once UnusedMember.Global
         public static long ExtractMyEMSLFileID(string filePath)
         {
-            string newFilePath;
-            return ExtractMyEMSLFileID(filePath, out newFilePath);
+            return ExtractMyEMSLFileID(filePath, out _);
         }
 
         /// <summary>
@@ -248,10 +247,9 @@ namespace MyEMSLReader
             {
                 newFilePath = filePath.Substring(0, charIndex);
 
-                long myEmslFileID;
                 var myEmslFileIdText = filePath.Substring(charIndex + MYEMSL_FILEID_TAG.Length);
 
-                if (long.TryParse(myEmslFileIdText, out myEmslFileID))
+                if (long.TryParse(myEmslFileIdText, out var myEmslFileID))
                 {
                     return myEmslFileID;
                 }
