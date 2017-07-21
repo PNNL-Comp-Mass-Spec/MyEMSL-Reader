@@ -199,6 +199,19 @@ namespace MyEMSLReader
             return filePath + MYEMSL_FILEID_TAG + myEmslFileID.ToString(CultureInfo.InvariantCulture);
         }
 
+        /// <summary>
+        /// Verify that svc-dms.pfx exists either in the same folder as Pacifica.core.dll or at C:\client_certs\
+        /// </summary>
+        /// <param name="errorMessage">Output: error message, indicating the paths that were checked</param>
+        /// <returns>True if the file is found, otherwise false</returns>
+        public bool CertificateFileExists(out string errorMessage)
+        {
+            return mReader.CertificateFileExists(out errorMessage);
+        }
+
+        /// <summary>
+        /// Clear the download queue
+        /// </summary>
         public void ClearDownloadQueue()
         {
             mDownloadQueue.Clear();

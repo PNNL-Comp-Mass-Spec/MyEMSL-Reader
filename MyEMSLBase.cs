@@ -175,6 +175,25 @@ namespace MyEMSLReader
             return timeoutSeconds;
         }
 
+        /// <summary>
+        /// Verify that svc-dms.pfx exists either in the same folder as Pacifica.core.dll or at C:\client_certs\
+        /// </summary>
+        /// <param name="errorMessage">Output: error message, indicating the paths that were checked</param>
+        /// <returns>True if the file is found, otherwise false</returns>
+        public bool CertificateFileExists(out string errorMessage)
+        {
+            var certificateFilePath = EasyHttp.ResolveCertFile(mPacificaConfig, "CertificateFileExists", out _);
+
+            if (string.IsNullOrWhiteSpace(certificateFilePath))
+            {
+                errorMessage = "MyEMSL certificate file not found in the current directory or at " + Configuration.CLIENT_CERT_FILEPATH;
+                return false;
+            }
+
+            errorMessage = string.Empty;
+            return true;
+        }
+
         protected string ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, string valueIfMissing)
         {
             object value;
@@ -336,6 +355,11 @@ namespace MyEMSLReader
             mostRecentException = null;
             responseData = string.Empty;
 
+            if (!ValidateCertFile("SendHTTPRequestWithRetry"))
+            {
+                return false;
+            }
+
             var timeoutSeconds = 25;
             var attempts = 0;
             var retrievalSuccess = false;
@@ -390,6 +414,22 @@ namespace MyEMSLReader
             }
 
             return retrievalSuccess;
+        }
+
+        /// <summary>
+        /// Validate that the MyEMSL certificate file exists
+        /// </summary>
+        /// <param name="callingMethod">Calling method</param>
+        /// <returns>True if the cert file is found, otherwise false</returns>
+        protected bool ValidateCertFile(string callingMethod)
+        {
+            var certificateFilePath = EasyHttp.ResolveCertFile(mPacificaConfig, callingMethod, out var errorMessage);
+
+            if (!string.IsNullOrWhiteSpace(certificateFilePath))
+                return true;
+
+            OnErrorEvent(errorMessage);
+            return false;
         }
 
     }

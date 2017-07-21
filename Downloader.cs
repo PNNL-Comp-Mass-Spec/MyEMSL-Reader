@@ -449,6 +449,11 @@ namespace MyEMSLReader
             mostRecentException = null;
             fileInUseByOtherProcess = false;
 
+            if (!ValidateCertFile("DownloadFile"))
+            {
+                return false;
+            }
+
             var timeoutSeconds = 100;
             var attempts = 1;
 
@@ -863,10 +868,13 @@ namespace MyEMSLReader
         {
 
             const double maxTimeoutHours = 24;
-            NetworkCredential loginCredentials = null;
 
-            // ReSharper disable once ExpressionIsAlwaysNull
-            var request = EasyHttp.InitializeRequest(mPacificaConfig, tarFileURL, ref cookieJar, ref timeoutSeconds, loginCredentials, maxTimeoutHours);
+            if (!ValidateCertFile("DownloadAndExtractTarFile"))
+            {
+                return false;
+            }
+
+            var request = EasyHttp.InitializeRequest(mPacificaConfig, tarFileURL, ref cookieJar, ref timeoutSeconds, null, maxTimeoutHours);
 
             var bytesToDownload = ComputeTotalBytes(lstFilesInArchive);
 
@@ -1401,6 +1409,12 @@ namespace MyEMSLReader
         {
 
             mostRecentException = null;
+
+            if (!ValidateCertFile("SendHeadRequestWithRetry"))
+            {
+                responseStatusCode = HttpStatusCode.Unauthorized;
+                return null;
+            }
 
             // The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
             // For more info, see comments in Reader.RunElasticSearchQuery()

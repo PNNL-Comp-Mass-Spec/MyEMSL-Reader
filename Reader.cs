@@ -1096,6 +1096,11 @@ namespace MyEMSLReader
             if (TraceMode)
                 OnDebugEvent("Entering RunItemSearchQuery");
 
+            if (!ValidateCertFile("RunItemSearchQuery"))
+            {
+                return new Dictionary<string, List<ArchivedFileInfo>>();
+            }
+
             // Keys in this dictionary are relative file paths (Windows style paths); values are file info details
             // A given remote file could have multiple hash values if multiple versions of the file have been uploaded
             var remoteFiles = new Dictionary<string, List<ArchivedFileInfo>>();
