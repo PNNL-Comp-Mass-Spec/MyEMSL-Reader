@@ -395,7 +395,7 @@ namespace MyEMSLMetadataValidator
                 var dbTools = new clsDBTools(ValidatorOptions.DMS_CONNECTION_STRING);
 
                 using (var resultsWriter = new StreamWriter(
-                    new FileStream(outputFile.FullName, FileMode.Append, FileAccess.Write, FileShare.ReadWrite)))
+                    new FileStream(outputFile.FullName, FileMode.Append, FileAccess.Write, FileShare.Read)))
                 {
                     if (writeHeaders)
                     {
