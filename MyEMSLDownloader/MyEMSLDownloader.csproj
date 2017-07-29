@@ -60,15 +60,15 @@
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="PRISM-Library">
-      <Version>1.0.9</Version>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\MyEMSLReader.csproj">
       <Project>{3672e426-ffb5-43c0-a78b-d29e66e0076d}</Project>
       <Name>MyEMSLReader</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="PRISM-Library">
+      <Version>1.0.11</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
