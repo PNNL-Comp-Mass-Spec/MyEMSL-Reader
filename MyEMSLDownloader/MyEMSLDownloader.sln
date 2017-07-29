@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyEMSLDownloader", "MyEMSLDownloader.csproj", "{68135044-3952-4FB5-97DC-8E77621C7113}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyEMSLReader", "..\MyEMSLReader.csproj", "{3672E426-FFB5-43C0-A78B-D29E66E0076D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyEMSLMetadataValidator", "..\MyEMSLMetadataValidator\MyEMSLMetadataValidator.csproj", "{76445FE7-279E-4E94-833E-BEC4937B289C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{3672E426-FFB5-43C0-A78B-D29E66E0076D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3672E426-FFB5-43C0-A78B-D29E66E0076D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3672E426-FFB5-43C0-A78B-D29E66E0076D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76445FE7-279E-4E94-833E-BEC4937B289C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76445FE7-279E-4E94-833E-BEC4937B289C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76445FE7-279E-4E94-833E-BEC4937B289C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76445FE7-279E-4E94-833E-BEC4937B289C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
