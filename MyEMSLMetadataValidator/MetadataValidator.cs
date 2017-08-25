@@ -247,9 +247,9 @@ namespace MyEMSLMetadataValidator
         }
 
         private List<DMSMetadata> GetMyEMSLUploadInfoFromDMS(
-                    clsDBTools dbTools,
-                    int datasetIdStart,
-                    int datasetIdEnd)
+            clsDBTools dbTools,
+            int datasetIdStart,
+            int datasetIdEnd)
         {
             try
             {
@@ -349,13 +349,83 @@ namespace MyEMSLMetadataValidator
             return (from item in datasetFilesInMyEMSL select item.FileSizeBytes).Sum();
         }
 
+
+        /// <summary>
+        /// If Options.DatasetIdFile is defined, load the dataset IDs from that file
+        /// </summary>
+        /// <param name="datasetIdFilePath"></param>
+        /// <returns>
+        /// Dataset ID list if a dataset ID file is defined, otherwise an empty list.
+        /// However, returns null if an error
+        /// </returns>
+        private SortedSet<int> LoadDatasetIDs(string datasetIdFilePath)
+        {
+            var datasetIDs = new SortedSet<int>();
+
+            if (string.IsNullOrWhiteSpace(datasetIdFilePath))
+            {
+                return datasetIDs;
+            }
+
+            try
+            {
+                var datasetIdFile = new FileInfo(datasetIdFilePath);
+                if (!datasetIdFile.Exists)
+                {
+                    OnErrorEvent("Dataset ID File not found: " + datasetIdFile.FullName);
+                    return null;
+                }
+
+                OnStatusEvent("Reading Dataset IDs from " + datasetIdFile.FullName);
+
+                using (var reader = new StreamReader(new FileStream(datasetIdFile.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+                {
+                    var lineNumber = 0;
+                    var warnings = 0;
+
+                    while (!reader.EndOfStream)
+                    {
+                        var dataLine = reader.ReadLine();
+                        lineNumber++;
+
+                        if (!int.TryParse(dataLine, out var datasetID))
+                        {
+                            if (lineNumber > 1)
+                            {
+                                warnings++;
+                                if (warnings < 10)
+                                {
+                                    OnWarningEvent("Ignoring line in datasetID file since not an integer: " + dataLine);
+                                }
+                            }
+                            continue;
+                        }
+
+                        if (datasetIDs.Contains(datasetID))
+                            continue;
+
+                        datasetIDs.Add(datasetID);
+                    }
+                }
+
+                return datasetIDs;
+            }
+            catch (Exception ex)
+            {
+                OnErrorEvent("Error in LoadDatasetIDs: " + ex.Message, ex);
+                return null;
+            }
+
+        }
+
         /// <summary>
         /// Validate metadata in MyEMSL
         /// </summary>
         /// <returns></returns>
         public bool ValidateMyEMSLMetadata()
         {
-            var datasetIdStart = Options.DatasetIdStart;
+
+            var datasetIdStart = 0;
 
             try
             {
@@ -366,6 +436,10 @@ namespace MyEMSLMetadataValidator
                     OnStatusEvent("Creating folder " + outputFolder.FullName);
                     outputFolder.Create();
                 }
+
+                var datasetIDsToCheck = LoadDatasetIDs(Options.DatasetIdFile);
+                if (datasetIDsToCheck == null)
+                    return false;
 
                 var outputFile = new FileInfo(
                     Path.Combine(outputFolder.FullName,
@@ -425,31 +499,56 @@ namespace MyEMSLMetadataValidator
                     var maxDatasetId = GetMaxDatasetIdInMyEMSL(dbTools);
 
                     int finalDatasetId;
+                    int totalDatasetsToProcess;
 
-                    if (Options.DatasetIdEnd == 0)
-                        finalDatasetId = maxDatasetId;
+                    if (datasetIDsToCheck.Count == 0)
+                    {
+                        datasetIdStart = Options.DatasetIdStart;
+
+                        if (Options.DatasetIdEnd == 0)
+                            finalDatasetId = maxDatasetId;
+                        else
+                            finalDatasetId = Math.Min(Options.DatasetIdEnd, maxDatasetId);
+
+                        totalDatasetsToProcess = finalDatasetId - datasetIdStart + 1;
+                        if (totalDatasetsToProcess < 1)
+                            throw new Exception(string.Format(
+                                                    "Total datasets should not be negative; computed {0} using {1} - {2} + 1",
+                                                    totalDatasetsToProcess, finalDatasetId,
+                                                    datasetIdStart));
+                    }
                     else
-                        finalDatasetId = Math.Min(Options.DatasetIdEnd, maxDatasetId);
+                    {
+                        datasetIdStart = datasetIDsToCheck.Min();
+                        finalDatasetId = Math.Min(datasetIDsToCheck.Max(), maxDatasetId);
+                        totalDatasetsToProcess = datasetIDsToCheck.Count();
+                    }
 
-                    var totalDatasetsToProcess = finalDatasetId - datasetIdStart + 1;
-                    if (totalDatasetsToProcess < 1)
-                        throw new Exception(string.Format(
-                            "Total datasets should not be negative; computed {0} using {1} - {2} + 1",
-                            totalDatasetsToProcess, finalDatasetId,
-                            datasetIdStart));
+                    var datasetsProcessed = 0;
 
                     while (datasetIdStart <= finalDatasetId)
                     {
-                        var basePercentComplete = (datasetIdStart - Options.DatasetIdStart) * 100F / totalDatasetsToProcess;
+                        var basePercentComplete = datasetsProcessed * 100F / totalDatasetsToProcess;
 
                         var datasetIdEnd = Math.Min(finalDatasetId, datasetIdStart + Options.DMSLookupBatchSize - 1);
 
-                        var success = ValidateDatasetBatch(dbTools, resultsWriter, datasetIdStart, datasetIdEnd, totalDatasetsToProcess, basePercentComplete);
+                        var success = ValidateDatasetBatch(
+                            dbTools, resultsWriter, datasetIDsToCheck,
+                            datasetIdStart, datasetIdEnd, totalDatasetsToProcess, basePercentComplete);
 
                         if (!success)
                             return false;
 
-                        datasetIdStart += Options.DMSLookupBatchSize;
+                        if (datasetIDsToCheck.Count == 0)
+                        {
+                            datasetsProcessed += Options.DMSLookupBatchSize;
+                            datasetIdStart += Options.DMSLookupBatchSize;
+                        }
+                        else
+                        {
+                            datasetsProcessed += (from item in datasetIDsToCheck where item >= datasetIdStart && item <= datasetIdEnd select item).Count();
+                            datasetIdStart = (from item in datasetIDsToCheck where item > datasetIdEnd select item).Min();
+                        }
 
                         if (DateTime.UtcNow.Subtract(lastResultsFlush).TotalSeconds > 15)
                         {
@@ -478,6 +577,7 @@ namespace MyEMSLMetadataValidator
         private bool ValidateDatasetBatch(
             clsDBTools dbTools,
             TextWriter resultsWriter,
+            ICollection<int> datasetIDsToCheck,
             int datasetIdStart,
             int datasetIdEnd,
             int totalDatasetsToProcess,
@@ -495,26 +595,46 @@ namespace MyEMSLMetadataValidator
                     return true;
                 }
 
+                List<DMSMetadata> filteredDMSMetadata;
+
+                if (datasetIDsToCheck.Count == 0)
+                {
+                    filteredDMSMetadata = dmsMetadata;
+                }
+                else
+                {
+                    filteredDMSMetadata = new List<DMSMetadata>();
+
+                    // File dmsMetadata using datasetIDsToCheck
+                    foreach (var item in dmsMetadata)
+                    {
+                        if (datasetIDsToCheck.Contains(item.DatasetID))
+                        {
+                            filteredDMSMetadata.Add(item);
+                        }
+                    }
+                }
+
                 OnProgressUpdate(string.Format(
                     "Examining {0} uploads for Dataset IDs {1} to {2}",
-                    dmsMetadata.Count, datasetIdStart, datasetIdEnd), basePercentComplete);
+                    filteredDMSMetadata.Count, datasetIdStart, datasetIdEnd), basePercentComplete);
 
                 var datasetListInfo = new DatasetListInfoByID();
                 var lastComparisonTime = DateTime.UtcNow;
                 var lastProgressTime = DateTime.UtcNow;
                 var itemsProcessed = 0;
 
-                foreach (var item in dmsMetadata)
+                foreach (var item in filteredDMSMetadata)
                 {
                     datasetListInfo.AddDataset(item.DatasetID);
+                    itemsProcessed++;
 
-                    if (datasetListInfo.DatasetIDs.Count < Options.MyEMSLReaderBatchSize)
+                    if (itemsProcessed < filteredDMSMetadata.Count && datasetListInfo.DatasetIDs.Count < Options.MyEMSLReaderBatchSize)
                         continue;
 
                     if (Options.Preview)
                     {
                         OnStatusEvent(string.Format("Preview: retrieve MyEMSL metadata for {0} datasets", datasetListInfo.DatasetIDs.Count));
-
                     }
                     else
                     {
@@ -525,18 +645,17 @@ namespace MyEMSLMetadataValidator
                             System.Threading.Thread.Sleep(100);
                         }
 
-                        CompareDMSDataToMyEMSL(resultsWriter, datasetListInfo.DatasetIDs, dmsMetadata, archiveFiles);
+                        CompareDMSDataToMyEMSL(resultsWriter, datasetListInfo.DatasetIDs, filteredDMSMetadata, archiveFiles);
                         lastComparisonTime = DateTime.UtcNow;
                     }
 
                     datasetListInfo.Clear();
 
-                    itemsProcessed++;
                     if (DateTime.UtcNow.Subtract(lastProgressTime).TotalSeconds > 15)
                     {
                         lastProgressTime = DateTime.UtcNow;
 
-                        var subtaskPercentComplete = itemsProcessed * 100F / dmsMetadata.Count;
+                        var subtaskPercentComplete = itemsProcessed * 100F / filteredDMSMetadata.Count;
 
                         var percentComplete = basePercentComplete +
                             subtaskPercentComplete * Options.DMSLookupBatchSize / totalDatasetsToProcess;

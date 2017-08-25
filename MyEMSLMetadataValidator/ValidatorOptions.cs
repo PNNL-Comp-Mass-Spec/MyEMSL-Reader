@@ -7,7 +7,7 @@ namespace MyEMSLMetadataValidator
 {
     public class ValidatorOptions
     {
-        private const string PROGRAM_DATE = "July 28, 2017";
+        private const string PROGRAM_DATE = "July 30, 2017";
 
         public const string DMS_CONNECTION_STRING = "Data Source=gigasax;Initial Catalog=DMS_Capture;Integrated Security=SSPI";
 
@@ -15,6 +15,8 @@ namespace MyEMSLMetadataValidator
         {
             DatasetIdStart = 0;
             DatasetIdEnd = int.MaxValue;
+            DatasetIdFile = string.Empty;
+
             OutputFolderPath = string.Empty;
             AppendToOutput = true;
 
@@ -25,11 +27,14 @@ namespace MyEMSLMetadataValidator
             Preview = false;
         }
 
-        [Option("start", Required = true, ArgPosition = 1, HelpText = "First Dataset ID")]
+        [Option("start", ArgPosition = 1, HelpText = "First Dataset ID")]
         public int DatasetIdStart { get; set; }
 
         [Option("end", ArgPosition = 2, HelpText = "Last Dataset ID to validate", HelpShowsDefault = true)]
         public int DatasetIdEnd { get; set; }
+
+        [Option("IDFile", "IDs", HelpText = "File with dataset IDs to check (one ID per line)", HelpShowsDefault = true)]
+        public string DatasetIdFile { get; set; }
 
         [Option("dmsBatch", HelpText = "Number of Dataset IDs per batch when polling DMS",
             HelpShowsDefault = true, Min = 100, Max = 5000)]
@@ -64,9 +69,16 @@ namespace MyEMSLMetadataValidator
         {
             Console.WriteLine("Using options:");
 
-            Console.WriteLine(" DatasetID start: {0}", DatasetIdStart);
-            if (DatasetIdEnd < int.MaxValue)
-                Console.WriteLine(" DatasetID end: {0}", DatasetIdEnd);
+            if (!string.IsNullOrWhiteSpace(DatasetIdFile))
+            {
+                Console.WriteLine(" Reading Dataset IDs from: {0}", DatasetIdFile);
+            }
+            else
+            {
+                Console.WriteLine(" DatasetID start: {0}", DatasetIdStart);
+                if (DatasetIdEnd < int.MaxValue)
+                    Console.WriteLine(" DatasetID end: {0}", DatasetIdEnd);
+            }
 
             Console.WriteLine(" Output folder path: {0}", OutputFolderPath);
             Console.WriteLine(" Append to output: {0}", AppendToOutput);
@@ -81,6 +93,12 @@ namespace MyEMSLMetadataValidator
             {
                 var currentFolder = new DirectoryInfo(".");
                 OutputFolderPath = currentFolder.FullName;
+            }
+
+            if (DatasetIdStart == 0 && string.IsNullOrWhiteSpace(DatasetIdFile))
+            {
+                Console.WriteLine("You must either provide a starting DatasetID or specify a DatasetIDFile");
+                return false;
             }
 
             return true;
