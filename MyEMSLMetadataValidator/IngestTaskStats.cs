@@ -6,7 +6,7 @@ namespace MyEMSLMetadataValidator
     class IngestTaskStats
     {
         /// <summary>
-        /// Ingest Tasks asssociated with these stats
+        /// Ingest Tasks associated with these stats
         /// </summary>
         public List<DMSMetadata> IngestTasks { get; }
 

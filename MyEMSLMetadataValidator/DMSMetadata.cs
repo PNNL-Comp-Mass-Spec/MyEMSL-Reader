@@ -38,7 +38,7 @@ namespace MyEMSLMetadataValidator
         public override string ToString()
         {
             if (string.IsNullOrWhiteSpace(Subfolder))
-                return string.Format("Entry_ID {0}, DatasetId {1}, no subfolder}", EntryID, DatasetID);
+                return string.Format("Entry_ID {0}, DatasetId {1}, no subfolder", EntryID, DatasetID);
             else
                 return string.Format("Entry_ID {0}, DatasetId {1}, Subfolder {2}", EntryID, DatasetID, Subfolder);
         }
