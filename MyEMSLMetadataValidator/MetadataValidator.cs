@@ -30,7 +30,12 @@ namespace MyEMSLMetadataValidator
         /// <param name="taskStats"></param>
         /// <param name="filesInMyEMSL"></param>
         /// <param name="bytesInMyEMSL"></param>
-        private void AppendResult(TextWriter resultsWriter, DMSMetadata ingestTask, IngestTaskStats taskStats, int filesInMyEMSL, long bytesInMyEMSL)
+        private void AppendResult(
+            TextWriter resultsWriter,
+            DMSMetadata ingestTask,
+            IngestTaskStats taskStats,
+            IReadOnlyCollection<ArchivedFileInfo> filesInMyEMSL,
+            long bytesInMyEMSL)
         {
 
             // StatusDate  EntryID  Job  DatasetID  Subfolder  StatusNum  TransactionID  Entered  Files  FilesInMyEMSL  Bytes  BytesInMyEMSL
@@ -45,62 +50,110 @@ namespace MyEMSLMetadataValidator
                 ingestTask.TransactionID.ToString(),
                 ingestTask.Entered.ToString(DATE_TIME_FORMAT),
                 taskStats.TotalFiles.ToString(),
-                filesInMyEMSL.ToString(),
+                filesInMyEMSL.Count.ToString(),
                 taskStats.TotalBytes.ToString(),
                 bytesInMyEMSL.ToString()
             };
 
             // Append MatchRatio and Comment
-            if (filesInMyEMSL == 0)
+            if (filesInMyEMSL.Count == 0)
             {
                 resultLine.Add("0");
                 resultLine.Add("Missing");
             }
             else
             {
-                if (filesInMyEMSL == taskStats.TotalFiles)
+                string rootFolderWarning;
+                if (string.IsNullOrWhiteSpace(ingestTask.Subfolder))
+                {
+                    // Assure that at least one file in filesInMyEMSL has an empty subdirectory
+                    var myEMSLFilesInDatasetFolder = (from item in filesInMyEMSL where string.IsNullOrWhiteSpace(item.SubDirPath) select item).Count();
+                    if (myEMSLFilesInDatasetFolder == 0)
+                        rootFolderWarning = "Empty dataset folder (found files in subdirs but not in the root folder)";
+                    else
+                        rootFolderWarning = string.Empty;
+                }
+                else
+                {
+                    rootFolderWarning = string.Empty;
+                }
+
+                if (filesInMyEMSL.Count == taskStats.TotalFiles)
                 {
                     if (bytesInMyEMSL == taskStats.TotalBytes)
                     {
                         // Exact match
-                        resultLine.Add("1");
-                        resultLine.Add(string.Empty);
+                        AppendMatchRatio(resultLine, 1, string.Empty, rootFolderWarning);
                     }
                     else if (bytesInMyEMSL < taskStats.TotalBytes)
                     {
                         // Exact match on files, but fewer bytes
                         var matchRatio = bytesInMyEMSL / (double)taskStats.TotalBytes;
-                        resultLine.Add(matchRatio.ToString("0.00"));
-                        resultLine.Add("Files match, but fewer bytes");
+                        AppendMatchRatio(resultLine, matchRatio, "Files match, but fewer bytes", rootFolderWarning);
                     }
                     else if (bytesInMyEMSL > taskStats.TotalBytes)
                     {
                         // Extra bytes
-                        resultLine.Add("1");
-                        resultLine.Add("Files match, but extra bytes");
+                        AppendMatchRatio(resultLine, 1, "Files match, but extra bytes", rootFolderWarning);
                     }
                 }
-                else if (filesInMyEMSL > taskStats.TotalFiles && bytesInMyEMSL == taskStats.TotalBytes)
+                else if (filesInMyEMSL.Count > taskStats.TotalFiles && bytesInMyEMSL == taskStats.TotalBytes)
                 {
                     // Exact match on bytes, but extra files
-                    resultLine.Add("1");
-                    resultLine.Add("Extra files, but bytes match");
+                    AppendMatchRatio(resultLine, 1, "Extra files, but bytes match", rootFolderWarning);
                 }
-                else if (filesInMyEMSL > taskStats.TotalFiles && bytesInMyEMSL > taskStats.TotalBytes)
+                else if (filesInMyEMSL.Count > taskStats.TotalFiles && bytesInMyEMSL > taskStats.TotalBytes)
                 {
                     // Extra bytes and extra files
-                    resultLine.Add("1");
-                    resultLine.Add("Extra files and extra bytes");
+                    if (string.IsNullOrWhiteSpace(ingestTask.Subfolder))
+                    {
+                        // Because of how we compute the expected files in the root folder, this is common (and is not an error)
+                        AppendMatchRatio(resultLine, 1, string.Empty, rootFolderWarning);
+                    }
+                    else
+                    {
+                        // Extra bytes and extra files in a subdirectory
+                        // This is common for DeconTools jobs in fall 2013 where initially weren't creating QC graphics,
+                        // then we started creating QC Graphics files and back-filled the files for existing DeconTools job folders
+                        // For example, dataset ID 336749 in folder
+                        // \\Proto-5\Exact03\2013_3\SysVirol_SM012_dORF6_1d_4_Protein_B_27Sep13_Earth_13-07-39\DLS201310011249_Auto984027
+                        AppendMatchRatio(resultLine, 1, "Extra files and extra bytes", rootFolderWarning);
+                    }
                 }
                 else
                 {
-                    var matchRatio = filesInMyEMSL / (double)taskStats.TotalFiles;
-                    resultLine.Add(matchRatio.ToString("0.00"));
-                    resultLine.Add("Missing files");
+                    var matchRatio = filesInMyEMSL.Count / (double)taskStats.TotalFiles;
+                    AppendMatchRatio(resultLine, matchRatio, "Missing files", rootFolderWarning);
                 }
             }
 
             resultsWriter.WriteLine(string.Join("\t", resultLine));
+        }
+
+        private void AppendMatchRatio(ICollection<string> resultLine, double matchRatio, string warning, string rootFolderWarning)
+        {
+            string warningToWrite;
+            if (string.IsNullOrWhiteSpace(rootFolderWarning))
+                warningToWrite = warning;
+            else
+            {
+                if (string.IsNullOrWhiteSpace(warning))
+                    warningToWrite = rootFolderWarning;
+                else
+                    warningToWrite = rootFolderWarning + "; " + warning;
+            }
+
+            if (Math.Abs(matchRatio - 1) < double.Epsilon && !string.IsNullOrWhiteSpace(rootFolderWarning))
+            {
+                resultLine.Add("-1");
+                resultLine.Add(warningToWrite);
+            }
+            else
+            {
+                resultLine.Add(matchRatio.ToString("0.00"));
+                resultLine.Add(warningToWrite);
+            }
+
         }
 
         private void CompareDMSDataToMyEMSL(
@@ -142,7 +195,6 @@ namespace MyEMSLMetadataValidator
                                                 where item.FileInfo.DatasetID == datasetId && !item.IsFolder
                                                 select item.FileInfo).ToList();
 
-                    var filesTrackedByMyEMSL = datasetFilesInMyEMSL.Count;
                     var bytesTrackedInMyEMSL = GetTotalBytes(datasetFilesInMyEMSL);
 
                     var archiveTask = (from item in datasetUploadTasks
@@ -158,10 +210,10 @@ namespace MyEMSLMetadataValidator
 
                         var taskStats = statsByFolder[string.Empty];
 
-                        AppendResult(resultsWriter, archiveTask, taskStats, filesTrackedByMyEMSL, bytesTrackedInMyEMSL);
+                        AppendResult(resultsWriter, archiveTask, taskStats, datasetFilesInMyEMSL, bytesTrackedInMyEMSL);
                         datasetFoundInMyEMSL = true;
 
-                        if (filesTrackedByMyEMSL == 0)
+                        if (datasetFilesInMyEMSL.Count == 0)
                         {
                             // Dataset was not found in MyEMSL
                             // No point in checking subfolders
@@ -187,14 +239,14 @@ namespace MyEMSLMetadataValidator
                         if (subfolderFilesInMyEMSL.Count == 0)
                         {
                             // Subfolder not found in MyEMSL, it should have been found
-                            AppendResult(resultsWriter, taskStats.IngestTasks.First(), taskStats, 0, 0);
+                            AppendResult(resultsWriter, taskStats.IngestTasks.First(), taskStats, new List<ArchivedFileInfo>(), 0);
                             continue;
                         }
 
                         datasetFoundInMyEMSL = true;
                         var subfolderBytesTrackedInMyEMSL = GetTotalBytes(subfolderFilesInMyEMSL);
 
-                        AppendResult(resultsWriter, taskStats.IngestTasks.First(), taskStats, subfolderFilesInMyEMSL.Count, subfolderBytesTrackedInMyEMSL);
+                        AppendResult(resultsWriter, taskStats.IngestTasks.First(), taskStats, subfolderFilesInMyEMSL, subfolderBytesTrackedInMyEMSL);
                     }
 
                     if (!datasetFoundInMyEMSL)
@@ -202,7 +254,7 @@ namespace MyEMSLMetadataValidator
                         // No record of this dataset in MyEMSL
                         foreach (var item in statsByFolder)
                         {
-                            AppendResult(resultsWriter, item.Value.IngestTasks.First(), item.Value, 0, 0);
+                            AppendResult(resultsWriter, item.Value.IngestTasks.First(), item.Value, new List<ArchivedFileInfo>(), 0);
                         }
 
                     }
@@ -212,9 +264,8 @@ namespace MyEMSLMetadataValidator
             catch (Exception ex)
             {
                 OnErrorEvent("Error in CompareDMSDataToMyEMSL: " + ex.Message, ex);
-
-                return;
             }
+
         }
 
         private int GetMaxDatasetIdInMyEMSL(clsDBTools dbTools, bool limitToOldMyEMSL = true)
