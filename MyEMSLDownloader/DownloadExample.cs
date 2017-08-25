@@ -78,25 +78,16 @@ namespace MyEMSLDownloader
 
         }
 
-        private void ShowErrorMessage(string strMessage)
+        private void ShowErrorMessage(string message, Exception ex = null)
         {
-            const string strSeparator = "------------------------------------------------------------------------------";
-
-            Console.WriteLine();
-            Console.WriteLine(strSeparator);
-            Console.WriteLine(strMessage);
-            Console.WriteLine(strSeparator);
-            Console.WriteLine();
-
+            ConsoleMsgUtils.ShowError(message, ex);
         }
 
         #region "Event Handlers"
 
         private void OnDebugEvent(string message)
         {
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine(message);
-            Console.ResetColor();
+            ConsoleMsgUtils.ShowDebug(message);
         }
 
         private void OnStatusEvent(string message)
@@ -106,19 +97,12 @@ namespace MyEMSLDownloader
 
         private void OnErrorEvent(string message, Exception ex)
         {
-            ShowErrorMessage(message);
-
-            if (ex != null)
-            {
-                Console.WriteLine(clsStackTraceFormatter.GetExceptionStackTraceMultiLine(ex));
-            }
+            ShowErrorMessage(message, ex);
         }
 
         private void OnWarningEvent(string message)
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(message);
-            Console.ResetColor();
+            ConsoleMsgUtils.ShowWarning(message);
         }
 
         #endregion

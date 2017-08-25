@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using MyEMSLReader;
 using PRISM;
 
 namespace MyEMSLMetadataValidator
@@ -42,15 +39,23 @@ namespace MyEMSLMetadataValidator
                     UsageExamples = {
                         exeName + "/Start:200000 /End:201000",
                         exeName + "200000 201000",
-                        exeName + "200000 201000 OutputFolder"
+                        exeName + "200000 201000 OutputFolder",
+                        exeName + "/IDFile:DatasetIDFile.txt"
                     }
                 };
 
                 var parseResults = parser.ParseArgs(args);
                 var options = parseResults.ParsedResults;
 
-                if (!parseResults.Success || !options.ValidateArgs())
+                if (!parseResults.Success)
                 {
+                    System.Threading.Thread.Sleep(1500);
+                    return -1;
+                }
+
+                if (!options.ValidateArgs())
+                {
+                    parser.PrintHelp();
                     System.Threading.Thread.Sleep(1500);
                     return -1;
                 }
@@ -77,41 +82,9 @@ namespace MyEMSLMetadataValidator
 
         }
 
-        private static void ShowErrorMessage(string strMessage, Exception ex = null)
+        private static void ShowErrorMessage(string message, Exception ex = null)
         {
-            const string strSeparator = "------------------------------------------------------------------------------";
-
-            Console.WriteLine();
-            Console.WriteLine(strSeparator);
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(strMessage);
-
-            if (ex != null)
-            {
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine(clsStackTraceFormatter.GetExceptionStackTraceMultiLine(ex));
-            }
-            Console.ResetColor();
-            Console.WriteLine(strSeparator);
-            Console.WriteLine();
-
-            WriteToErrorStream(strMessage);
-        }
-
-        private static void WriteToErrorStream(string strErrorMessage)
-        {
-            try
-            {
-                using (var swErrorStream = new StreamWriter(Console.OpenStandardError()))
-                {
-                    swErrorStream.WriteLine(strErrorMessage);
-                }
-            }
-            // ReSharper disable once EmptyGeneralCatchClause
-            catch
-            {
-                // Ignore errors here
-            }
+            ConsoleMsgUtils.ShowError(message, ex);
         }
 
         #region "Event Handlers"
@@ -127,9 +100,7 @@ namespace MyEMSLMetadataValidator
 
         private static void OnDebugEvent(string message)
         {
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine(message);
-            Console.ResetColor();
+            ConsoleMsgUtils.ShowDebug(message);
         }
 
         private static void OnStatusEvent(string message)
@@ -144,26 +115,24 @@ namespace MyEMSLMetadataValidator
 
         private static void OnWarningEvent(string message)
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(message);
-            Console.ResetColor();
+            ConsoleMsgUtils.ShowWarning(message);
         }
 
         private static void OnProgressUpdate(string progressmessage, float percentcomplete)
         {
-            if (percentcomplete > mPercentComplete || DateTime.UtcNow.Subtract(mLastProgressUpdateTime).TotalSeconds >= 15)
-            {
-                if (DateTime.UtcNow.Subtract(mLastProgressUpdateTime).TotalSeconds >= 1)
-                {
-                    if (progressmessage.Trim().Equals("..."))
-                        Console.WriteLine(progressmessage + percentcomplete.ToString("0.0") + "% complete");
-                    else
-                        Console.WriteLine(progressmessage + ": " + percentcomplete.ToString("0.0") + "% complete");
+            if (!(percentcomplete > mPercentComplete) && !(DateTime.UtcNow.Subtract(mLastProgressUpdateTime).TotalSeconds >= 15))
+                return;
 
-                    mPercentComplete = percentcomplete;
-                    mLastProgressUpdateTime = DateTime.UtcNow;
-                }
-            }
+            if (!(DateTime.UtcNow.Subtract(mLastProgressUpdateTime).TotalSeconds >= 1))
+                return;
+
+            if (progressmessage.Trim().Equals("..."))
+                Console.WriteLine(progressmessage + percentcomplete.ToString("0.0") + "% complete");
+            else
+                Console.WriteLine(progressmessage + ": " + percentcomplete.ToString("0.0") + "% complete");
+
+            mPercentComplete = percentcomplete;
+            mLastProgressUpdateTime = DateTime.UtcNow;
         }
 
 

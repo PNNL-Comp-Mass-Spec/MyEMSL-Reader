@@ -612,44 +612,28 @@ namespace MyEMSLDownloader
             return true;
         }
 
-        private static void ShowErrorMessage(string strMessage)
+        private static void ShowErrorMessage(string message, Exception ex = null)
         {
-            const string strSeparator = "------------------------------------------------------------------------------";
-
-            Console.WriteLine();
-            Console.WriteLine(strSeparator);
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(strMessage);
-            Console.ResetColor();
-            Console.WriteLine(strSeparator);
-            Console.WriteLine();
-
-            WriteToErrorStream(strMessage);
+            ConsoleMsgUtils.ShowError(message, ex);
         }
 
-        private static void ShowErrorMessage(string strTitle, IEnumerable<string> items)
+        private static void ShowErrorMessage(string message, IReadOnlyCollection<string> additionalInfo)
         {
-            const string strSeparator = "------------------------------------------------------------------------------";
-
-            Console.WriteLine();
-            Console.WriteLine(strSeparator);
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(strTitle);
-            var strMessage = strTitle + ":";
-
-            Console.ForegroundColor = ConsoleColor.Magenta;
-            foreach (var item in items)
+            if (additionalInfo == null || additionalInfo.Count == 0)
             {
-                Console.WriteLine("   " + item);
-                strMessage += " " + item;
+                ConsoleMsgUtils.ShowError(message);
+                return;
             }
-            Console.ResetColor();
-            Console.WriteLine(strSeparator);
-            Console.WriteLine();
 
-            WriteToErrorStream(strMessage);
+            var formattedMessage = message + ":";
+
+            foreach (var item in additionalInfo)
+            {
+                formattedMessage += Environment.NewLine + "  " + item;
+            }
+
+            ConsoleMsgUtils.ShowError(formattedMessage, true, false);
         }
-
 
         private static void ShowProgramHelp()
         {
@@ -1013,9 +997,7 @@ namespace MyEMSLDownloader
 
         private static void OnDebugEvent(string message)
         {
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine(message);
-            Console.ResetColor();
+            ConsoleMsgUtils.ShowDebug(message);
         }
 
         private static void OnStatusEvent(string message)
@@ -1025,22 +1007,12 @@ namespace MyEMSLDownloader
 
         private static void OnErrorEvent(string message, Exception ex)
         {
-            ShowErrorMessage(message);
-
-            if (ex != null)
-            {
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine(clsStackTraceFormatter.GetExceptionStackTraceMultiLine(ex));
-            }
-
-            Console.ResetColor();
+            ShowErrorMessage(message, ex);
         }
 
         private static void OnWarningEvent(string message)
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(message);
-            Console.ResetColor();
+            ConsoleMsgUtils.ShowWarning(message);
         }
 
         private static void OnProgressUpdate(string progressmessage, float percentcomplete)
