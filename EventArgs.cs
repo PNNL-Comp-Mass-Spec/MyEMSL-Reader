@@ -16,7 +16,7 @@ namespace MyEMSLReader
         // ReSharper disable once NotAccessedField.Global
         public readonly bool UnzipRequired;
 
-        public FileDownloadedEventArgs(string downloadFolderPath,  ArchivedFileInfo archivedFile, bool unzipRequired)
+        public FileDownloadedEventArgs(string downloadFolderPath, ArchivedFileInfo archivedFile, bool unzipRequired)
         {
             DownloadFolderPath = downloadFolderPath;
             ArchivedFile = archivedFile;

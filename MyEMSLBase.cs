@@ -55,7 +55,6 @@ namespace MyEMSLReader
             mPacificaConfig = new Configuration();
         }
 
-        // ReSharper disable once MemberCanBeProtected.Global
         public static void GarbageCollectNow()
         {
             const int intMaxWaitTimeMSec = 1000;
@@ -92,7 +91,6 @@ namespace MyEMSLReader
                     gcThread.Abort();
 
             }
-            // ReSharper disable once EmptyGeneralCatchClause
             catch
             {
                 // Ignore errors here
@@ -107,7 +105,6 @@ namespace MyEMSLReader
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
             }
-            // ReSharper disable once EmptyGeneralCatchClause
             catch
             {
                 // Ignore errors here

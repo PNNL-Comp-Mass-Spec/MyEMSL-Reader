@@ -1174,7 +1174,7 @@ namespace MyEMSLReader
         private List<ArchivedFileInfo> GetArchivedFileByPath(List<ArchivedFileInfo> lstFilesInArchive, string filePath)
         {
             var archiveFileLookup = (from item in lstFilesInArchive
-                                     where string.Equals(item.RelativePathWindows, filePath, StringComparison.InvariantCultureIgnoreCase)
+                                     where string.Equals(item.RelativePathWindows, filePath, StringComparison.OrdinalIgnoreCase)
                                      select item).ToList();
 
             return archiveFileLookup;
