@@ -134,6 +134,8 @@ namespace MyEMSLReader
             OverwriteMode = Overwrite.IfChanged;
             DownloadedFiles = new Dictionary<string, ArchivedFileInfo>(StringComparer.OrdinalIgnoreCase);
 
+            EasyHttp.MyEMSLOffline += EasyHttp_MyEMSLOffline;
+
             ResetStatus();
         }
 
@@ -1484,6 +1486,15 @@ namespace MyEMSLReader
 
                 OnProgressUpdate("Downloading data", percentComplete);
             }
+        }
+
+        #endregion
+
+        #region "Event Handlers"
+
+        private void EasyHttp_MyEMSLOffline(object sender, MessageEventArgs e)
+        {
+            OnWarningEvent("MyEMSL is offline; unable to retrieve data: " + e.Message);
         }
 
         #endregion
