@@ -7,6 +7,8 @@ using System.Linq;
 using System.Net;
 using Jayrock.Json.Conversion;
 using Pacifica.Core;
+using PRISM;
+using Utilities = Pacifica.Core.Utilities;
 
 namespace MyEMSLReader
 {
@@ -130,6 +132,8 @@ namespace MyEMSLReader
             MaxFileCount = 5000;
             IncludeAllRevisions = false;
             ThrowErrors = true;
+
+            EasyHttp.MyEMSLOffline += EasyHttp_MyEMSLOffline;
 
             ResetStatus();
         }
@@ -1359,6 +1363,7 @@ namespace MyEMSLReader
         }
 
         #endregion
+
     }
 
 }

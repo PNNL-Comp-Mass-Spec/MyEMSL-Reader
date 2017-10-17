@@ -194,6 +194,11 @@ namespace MyEMSLDownloader
             return 0;
         }
 
+        private static void MyEMSLReader_MyEMSLOffline(string message)
+        {
+            OnWarningEvent(message);
+        }
+
         private static void AutoTestModeStart()
         {
             var exampleDownloader = new DownloadExample();
@@ -972,6 +977,18 @@ namespace MyEMSLDownloader
         }
 
         #region "Event Handlers"
+
+        private static void RegisterEvents(MyEMSLBase oProcessingClass)
+        {
+            oProcessingClass.MyEMSLOffline += MyEMSLReader_MyEMSLOffline;
+            RegisterEvents((clsEventNotifier)oProcessingClass);
+        }
+
+        private static void RegisterEvents(DatasetInfoBase oProcessingClass)
+        {
+            oProcessingClass.MyEMSLOffline += MyEMSLReader_MyEMSLOffline;
+            RegisterEvents((clsEventNotifier)oProcessingClass);
+        }
 
         private static void RegisterEvents(clsEventNotifier oProcessingClass)
         {

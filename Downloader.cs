@@ -784,8 +784,6 @@ namespace MyEMSLReader
             *
             */
 
-            return false;
-
         }
 
         private bool DownloadTarFileWithRetry(
@@ -1486,15 +1484,6 @@ namespace MyEMSLReader
 
                 OnProgressUpdate("Downloading data", percentComplete);
             }
-        }
-
-        #endregion
-
-        #region "Event Handlers"
-
-        private void EasyHttp_MyEMSLOffline(object sender, MessageEventArgs e)
-        {
-            OnWarningEvent("MyEMSL is offline; unable to retrieve data: " + e.Message);
         }
 
         #endregion

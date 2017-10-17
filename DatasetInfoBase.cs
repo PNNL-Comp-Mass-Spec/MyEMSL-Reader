@@ -117,6 +117,8 @@ namespace MyEMSLReader
 
             RegisterEvents(mReader);
 
+            mReader.MyEMSLOffline += Reader_MyEMSLOffline;
+
             mArchivedFiles = new List<ArchivedFileInfo>();
 
             mDownloadedFiles = new Dictionary<string, ArchivedFileInfo>(StringComparer.OrdinalIgnoreCase);
@@ -655,12 +657,17 @@ namespace MyEMSLReader
 
         #region "Events"
 
-        // ReSharper disable once EventNeverSubscribedTo.Global
         public event FileDownloadedEventHandler FileDownloadedEvent;
 
-        #endregion
+        public event StatusEventEventHandler MyEMSLOffline;
 
-        #region "Event handlers"
+        private void Reader_MyEMSLOffline(string message)
+        {
+            if (MyEMSLOffline == null)
+                OnWarningEvent(message);
+            else
+                MyEMSLOffline?.Invoke(message);
+        }
 
         private void OnFileDownloadedEvent(object sender, FileDownloadedEventArgs e)
         {

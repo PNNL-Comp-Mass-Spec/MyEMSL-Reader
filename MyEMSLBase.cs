@@ -428,6 +428,20 @@ namespace MyEMSLReader
             return false;
         }
 
+        #region "Events"
+
+        public event StatusEventEventHandler MyEMSLOffline;
+
+        protected void EasyHttp_MyEMSLOffline(object sender, MessageEventArgs e)
+        {
+            if (MyEMSLOffline == null)
+                OnWarningEvent("MyEMSL is offline; unable to retrieve data: " + e.Message);
+            else
+                MyEMSLOffline?.Invoke(e.Message);
+        }
+
+
+        #endregion
     }
 
 }
