@@ -42,7 +42,6 @@ xcopy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\dms_managers\A
 xcopy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\dms_managers\Analysis_Manager\Plugins\AM_XTandem_PlugIn\bin" /D /Y
 
 xcopy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\dms_managers\Analysis_Manager\Test_Plugins\TestAScorePlugIn\bin\Debug" /D /Y
-xcopy debug\MyEMSLReader.dll "F:\My Documents\Projects\DataMining\dms_managers\Analysis_Manager\Test_Plugins\TestMagePlugIn\bin\Debug" /D /Y
 
 @echo off
 echo.
