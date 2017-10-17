@@ -619,20 +619,7 @@ namespace MyEMSLDownloader
 
         private static void ShowErrorMessage(string message, IReadOnlyCollection<string> additionalInfo)
         {
-            if (additionalInfo == null || additionalInfo.Count == 0)
-            {
-                ConsoleMsgUtils.ShowError(message);
-                return;
-            }
-
-            var formattedMessage = message + ":";
-
-            foreach (var item in additionalInfo)
-            {
-                formattedMessage += Environment.NewLine + "  " + item;
-            }
-
-            ConsoleMsgUtils.ShowError(formattedMessage, true, false);
+            ConsoleMsgUtils.ShowErrors(message, additionalInfo);
         }
 
         private static void ShowProgramHelp()
