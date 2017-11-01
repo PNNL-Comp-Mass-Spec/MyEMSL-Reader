@@ -132,14 +132,12 @@ namespace MyEMSLReader
         /// Relative path to the file, including the dataset name
         /// </summary>
         /// <remarks>Uses Unix-style slashes</remarks>
-        // ReSharper disable once UnusedMember.Global
         public string PathWithDatasetUnix => PathWithDataset.Replace(@"\", "/");
 
         /// <summary>
         /// Relative path to the file, including the instrument, year_quarter, and dataset
         /// </summary>
         /// <remarks>Uses Unix-style slashes</remarks>
-        // ReSharper disable once UnusedMember.Global
         public string PathWithInstrumentAndDatasetUnix => PathWithInstrumentAndDatasetWindows.Replace(@"\", "/");
 
         /// <summary>
@@ -239,10 +237,8 @@ namespace MyEMSLReader
             }
         }
 
-        // ReSharper disable once UnusedMember.Global
         public string SubmissionTimeODBC => SubmissionTimeValue.ToString("yyyy-MM-dd HH:mm:ss");
 
-        // ReSharper disable once UnusedMember.Global
         public string SubmissionTimeODBC12hr => SubmissionTimeValue.ToString("yyyy-MM-dd hh:mm:ss tt");
 
         /// <summary>

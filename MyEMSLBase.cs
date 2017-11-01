@@ -21,7 +21,6 @@ namespace MyEMSLReader
             Or = 1
         }
 
-        // ReSharper disable once MemberCanBeProtected.Global
         public bool ThrowErrors
         {
             get;
@@ -38,7 +37,6 @@ namespace MyEMSLReader
 
         #region "Properties"
 
-        // ReSharper disable once MemberCanBeProtected.Global
         public string ErrorMessage
         {
             get;

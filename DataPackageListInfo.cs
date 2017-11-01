@@ -23,13 +23,11 @@ namespace MyEMSLReader
         /// <summary>
         /// Dataset IDs
         /// </summary>
-        // ReSharper disable once UnusedMember.Global
         public List<int> DataPackageIDs => mDataPackagesAndSubDirs.Keys.ToList();
 
         /// <summary>
         /// Keys are data package IDs, values are the optional Subdirectory name to filter on for the given data package
         /// </summary>
-        // ReSharper disable once UnusedMember.Global
         public Dictionary<int, string> DataPackagesAndSubDirs => mDataPackagesAndSubDirs;
 
         #endregion
@@ -70,14 +68,12 @@ namespace MyEMSLReader
             }
         }
 
-        // ReSharper disable once UnusedMember.Global
         public void Clear()
         {
             mDataPackagesAndSubDirs.Clear();
             mCacheIsStale = true;
         }
 
-        // ReSharper disable once UnusedMember.Global
         public bool ContainsDataPackage(int dataPackageID)
         {
             return mDataPackagesAndSubDirs.ContainsKey(dataPackageID);
@@ -91,7 +87,6 @@ namespace MyEMSLReader
         /// <param name="dataPackageID">Data Package ID filter</param>
         /// <returns>List of matching files</returns>
         /// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
-        // ReSharper disable once UnusedMember.Global
         public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, int dataPackageID)
         {
             return FindFiles(fileName, subFolderName, dataPackageID, recurse: true);

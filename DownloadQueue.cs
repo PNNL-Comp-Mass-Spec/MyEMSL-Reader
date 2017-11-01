@@ -69,7 +69,6 @@ namespace MyEMSLReader
         /// Queue a file to be downloaded
         /// </summary>
         /// <param name="fileInfo">Archive File Info</param>
-        // ReSharper disable once UnusedMember.Global
         public void AddFileToDownloadQueue(ArchivedFileInfo fileInfo)
         {
             AddFileToDownloadQueue(fileInfo.FileID, fileInfo, unzipRequired: false, destFilePath: string.Empty);

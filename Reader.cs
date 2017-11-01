@@ -84,7 +84,6 @@ namespace MyEMSLReader
 
         public int LastSearchFileCountReturned
         {
-            // ReSharper disable once UnusedAutoPropertyAccessor.Global
             get;
             private set;
         }
@@ -143,7 +142,6 @@ namespace MyEMSLReader
         /// </summary>
         /// <param name="dataPkgID">Data Package ID</param>
         /// <returns>List of matched files</returns>
-        // ReSharper disable once UnusedMember.Global
         public List<ArchivedFileInfo> FindFilesByDataPackageID(int dataPkgID)
         {
             var subDir = string.Empty;
@@ -188,7 +186,6 @@ namespace MyEMSLReader
         /// </summary>
         /// <param name="dctDataPkgIDsAndSubDirs">Keys are data package ID, values are the optional Subdirectory name to filter on for the given data package</param>
         /// <returns>List of matched files</returns>
-        // ReSharper disable once UnusedMember.Global
         public List<ArchivedFileInfo> FindFilesByDataPackageID(Dictionary<int, string> dctDataPkgIDsAndSubDirs)
         {
             return FindFilesByDataPackageID(dctDataPkgIDsAndSubDirs, recurse: true);
@@ -224,7 +221,6 @@ namespace MyEMSLReader
         /// </summary>
         /// <param name="datasetID">Dataset ID</param>
         /// <returns>List of matched files</returns>
-        // ReSharper disable once UnusedMember.Global
         public List<ArchivedFileInfo> FindFilesByDatasetID(int datasetID)
         {
             return FindFilesByDatasetID(datasetID, subDir: "", recurse: true, instrumentName: "");
@@ -236,7 +232,6 @@ namespace MyEMSLReader
         /// <param name="datasetID">Dataset ID</param>
         /// <param name="subDir">Subdirectory name to filter on</param>
         /// <returns>List of matched files</returns>
-        // ReSharper disable once UnusedMember.Global
         public List<ArchivedFileInfo> FindFilesByDatasetID(int datasetID, string subDir)
         {
             return FindFilesByDatasetID(datasetID, subDir, recurse: true, instrumentName: "");
@@ -249,7 +244,6 @@ namespace MyEMSLReader
         /// <param name="subDir">Subdirectory name to filter on</param>
         /// <param name="recurse">True to recursively search for files</param>
         /// <returns>List of matched files</returns>
-        // ReSharper disable once UnusedMember.Global
         public List<ArchivedFileInfo> FindFilesByDatasetID(int datasetID, string subDir, bool recurse)
         {
             var instrumentName = string.Empty;
