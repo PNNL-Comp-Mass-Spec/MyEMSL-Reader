@@ -71,6 +71,10 @@ namespace MyEMSLReader
             return DatasetsAndSubDirs.ContainsKey(datasetID);
         }
 
+        /// <summary>
+        /// Contact the metadata server to find the files associated with datasets added via AddDataset
+        /// </summary>
+        /// <returns>True if successful, false if an error</returns>
         public override bool RefreshInfo()
         {
 

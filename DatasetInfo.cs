@@ -88,22 +88,19 @@ namespace MyEMSLReader
         }
 
         /// <summary>
-        /// Refresh the cached file info
+        /// Contact the metadata server to find the files associated with this instance's dataset
         /// </summary>
-        /// <returns>True if success, false if an error</returns>
-        /// <remarks></remarks>
+        /// <returns>True if successful, false if an error</returns>
         public override bool RefreshInfo()
         {
             return RefreshInfo(mDatasetName);
         }
 
         /// <summary>
-        /// Refresh the cached file info
+        /// Contact the metadata server to find the files associated with dataset datasetName
         /// </summary>
-        /// <returns>True if success, false if an error</returns>
-        /// <remarks></remarks>
-        public bool RefreshInfo(string strDatasetName)
         /// <param name="datasetName">Dataset name to lookup</param>
+        /// <returns>True if successful, false if an error</returns>
         public bool RefreshInfo(string datasetName)
         {
 
@@ -143,6 +140,11 @@ namespace MyEMSLReader
 
         }
 
+        /// <summary>
+        /// Update the dataset name associated with this instance
+        /// </summary>
+        /// <param name="datasetName"></param>
+        /// <remarks>Use RefreshInfo to find the files tracked by MyEMSL for this dataset</remarks>
         public void UpdateDatasetName(string datasetName)
         {
             if (datasetName != mDatasetName)

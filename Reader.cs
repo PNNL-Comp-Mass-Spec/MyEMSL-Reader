@@ -18,7 +18,7 @@ namespace MyEMSLReader
     ///   Optionally filter on Subdirectory name below the dataset folder to limit the search space
     /// Also supports searching by Data Package ID
     /// </summary>
-    /// <remarks>Written by Matthew Monroe for PNNL in August 2013.  Last updated February 2014</remarks>
+    /// <remarks>Written by Matthew Monroe for PNNL in 2013.</remarks>
     public class Reader : MyEMSLBase
     {
         #region "Constants"

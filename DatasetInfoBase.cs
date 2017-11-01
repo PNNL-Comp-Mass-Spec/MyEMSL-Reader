@@ -84,6 +84,9 @@ namespace MyEMSLReader
         /// <remarks>ForceDownloadViaCart takes precedence over DisableCart</remarks>
         public bool ForceDownloadViaCart { get; set; }
 
+        /// <summary>
+        /// When true, raise a DebugEvent prior to contacting the metadata server
+        /// </summary>
         public bool ThrowErrors { get; set; }
 
         public bool ReportMetadataURLs
@@ -135,7 +138,8 @@ namespace MyEMSLReader
 
             mDownloadedFiles = new Dictionary<string, ArchivedFileInfo>(StringComparer.OrdinalIgnoreCase);
 
-            mDownloadQueue = new DownloadQueue {
+            mDownloadQueue = new DownloadQueue
+            {
                 ThrowErrors = ThrowErrors
             };
 
@@ -566,8 +570,8 @@ namespace MyEMSLReader
                 }
                 else
                 {
-                    // This is a programming bug
-                    throw new ArgumentOutOfRangeException("Forward slash not found in the relative file path; this code should not be reached");
+                    // This shouldn't happen
+                    throw new Exception("Forward slash not found in the relative file path; this code should not be reached");
                 }
 
                 if (lstMatchPaths.Contains(relativeFolderPath))
@@ -641,6 +645,10 @@ namespace MyEMSLReader
 
         }
 
+        /// <summary>
+        /// Contact the metadata server to find the files associated with the datasets or data packages associated with this instance
+        /// </summary>
+        /// <returns>True if successful, false if an error</returns>
         public abstract bool RefreshInfo();
 
         /// <summary>

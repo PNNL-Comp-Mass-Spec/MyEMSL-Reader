@@ -109,6 +109,10 @@ namespace MyEMSLReader
             return FindFiles(fileName, subFolderName, datasetName, dataPackageID, recurse, fileSplit);
         }
 
+        /// <summary>
+        /// Contact the metadata server to find the files associated with the data packages added via AddDataPackage
+        /// </summary>
+        /// <returns>True if successful, false if an error</returns>
         public override bool RefreshInfo()
         {
 
