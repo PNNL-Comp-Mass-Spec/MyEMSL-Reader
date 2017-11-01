@@ -477,7 +477,7 @@ namespace MyEMSLReader
                     attempts++;
                     success = EasyHttp.GetFile(
                         mPacificaConfig, URL, cookieJar,
-                        out var responseStatusCode,
+                        out _,
                         downloadFilePath, timeoutSeconds);
 
                     if (!success)
@@ -706,7 +706,7 @@ namespace MyEMSLReader
                     return false;
 
                 // Post the JSON file to the cart server
-                var success = PostCartData(postData.ToString(), cookieJar, out var cartId);
+                var success = PostCartData(postData.ToString(), cookieJar, out _);
 
                 if (!success)
                     return false;
@@ -1347,8 +1347,8 @@ namespace MyEMSLReader
                             EasyHttp.HttpMethod.Post,
                             maxAttempts,
                             allowEmptyResponseData,
-                            out var xmlString,
-                            out var mostRecentException);
+                            out _,
+                            out _);
 
                         if (!success)
                             break;

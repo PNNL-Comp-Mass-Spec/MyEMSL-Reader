@@ -229,8 +229,7 @@ namespace MyEMSLReader
                 if (string.IsNullOrWhiteSpace(SubmissionTime))
                     return DateTime.Now;
 
-                DateTime dtSubmissionTime;
-                if (DateTime.TryParse(SubmissionTime, out dtSubmissionTime))
+                if (DateTime.TryParse(SubmissionTime, out var dtSubmissionTime))
                     return dtSubmissionTime;
 
                 return DateTime.Now;

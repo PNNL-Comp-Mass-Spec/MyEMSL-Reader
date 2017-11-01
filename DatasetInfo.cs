@@ -100,19 +100,20 @@ namespace MyEMSLReader
         /// <summary>
         /// Refresh the cached file info
         /// </summary>
-        /// <param name="strDatasetName">Dataset name to lookup</param>
         /// <returns>True if success, false if an error</returns>
         /// <remarks></remarks>
         public bool RefreshInfo(string strDatasetName)
+        /// <param name="datasetName">Dataset name to lookup</param>
+        public bool RefreshInfo(string datasetName)
         {
 
             try
             {
                 mErrorMessages.Clear();
 
-                if (strDatasetName != mDatasetName)
+                if (datasetName != mDatasetName)
                 {
-                    UpdateDatasetName(strDatasetName);
+                    UpdateDatasetName(datasetName);
                 }
 
                 mArchivedFiles = mReader.FindFilesByDatasetName(mDatasetName);

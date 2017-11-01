@@ -1194,7 +1194,7 @@ namespace MyEMSLReader
                     OnDebugEvent("Contacting " + metadataURL);
 
                 // Retrieve a list of files already in MyEMSL for this dataset
-                var fileInfoListJSON = EasyHttp.Send(mPacificaConfig, metadataURL, out HttpStatusCode responseStatusCode);
+                var fileInfoListJSON = EasyHttp.Send(mPacificaConfig, metadataURL, out _);
 
                 if (string.IsNullOrEmpty(fileInfoListJSON))
                 {
