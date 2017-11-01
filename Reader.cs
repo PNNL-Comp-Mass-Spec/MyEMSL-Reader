@@ -98,6 +98,14 @@ namespace MyEMSLReader
             set;
         }
 
+        /// <summary>
+        /// When true, raise a DebugEvent prior to contacting the metadata server
+        /// </summary>
+        public bool ReportMetadataURLs { get; set; }
+
+        /// <summary>
+        /// When true, use Debug Events to show additional information
+        /// </summary>
         public bool TraceMode { get; set; }
 
         private bool mUseTestInstance;
@@ -1190,7 +1198,7 @@ namespace MyEMSLReader
                 var metadataURL = string.Format(mPacificaConfig.MetadataServerUri + "/fileinfo/files_for_keyvalue/{0}/{1}",
                     searchKey, searchValue);
 
-                if (TraceMode)
+                if (TraceMode || ReportMetadataURLs)
                     OnDebugEvent("Contacting " + metadataURL);
 
                 // Retrieve a list of files already in MyEMSL for this dataset

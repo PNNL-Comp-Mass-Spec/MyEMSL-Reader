@@ -86,6 +86,21 @@ namespace MyEMSLReader
 
         public bool ThrowErrors { get; set; }
 
+        public bool ReportMetadataURLs
+        {
+            get => mReader.ReportMetadataURLs;
+            set => mReader.ReportMetadataURLs = value;
+        }
+
+        /// <summary>
+        /// When true, use Debug Events to show additional information
+        /// </summary>
+        public bool TraceMode
+        {
+            get => mReader.TraceMode;
+            set => mReader.TraceMode = value;
+        }
+
         /// <summary>
         /// When False use https://my.emsl.pnl.gov/myemsl/elasticsearch/simple_items
         /// When True use  https://test0.my.emsl.pnl.gov/myemsl/search/simple/index.shtml

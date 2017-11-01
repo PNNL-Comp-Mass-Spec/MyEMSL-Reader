@@ -11,8 +11,11 @@ namespace MyEMSLDownloader
         public void StartTest()
         {
 
-            var datasetListInfo = new DatasetListInfo {
-                ThrowErrors = false
+            var datasetListInfo = new DatasetListInfo
+            {
+                ReportMetadataURLs = true,
+                ThrowErrors = false,
+                TraceMode = false
             };
 
             datasetListInfo.DebugEvent += OnDebugEvent;
