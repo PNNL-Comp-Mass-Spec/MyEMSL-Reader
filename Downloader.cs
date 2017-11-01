@@ -722,7 +722,6 @@ namespace MyEMSLReader
 
                 throw new NotImplementedException("Need to finish this code");
 
-                return true;
             }
             catch (Exception ex)
             {
@@ -867,14 +866,12 @@ namespace MyEMSLReader
             int timeoutSeconds = 100)
         {
 
-            const double maxTimeoutHours = 24;
-
             if (!ValidateCertFile("DownloadAndExtractTarFile"))
             {
                 return false;
             }
 
-            var request = EasyHttp.InitializeRequest(mPacificaConfig, tarFileURL, ref cookieJar, ref timeoutSeconds, null, maxTimeoutHours);
+            var request = EasyHttp.InitializeRequest(mPacificaConfig, tarFileURL, ref cookieJar, ref timeoutSeconds, null);
 
             var bytesToDownload = ComputeTotalBytes(lstFilesInArchive);
 
@@ -1357,8 +1354,7 @@ namespace MyEMSLReader
                     {
                         var responseStatusCode = HttpStatusCode.OK;
 
-                        var webException = ex.InnerException as WebException;
-                        if (webException != null)
+                        if (ex.InnerException is WebException webException)
                         {
                             responseStatusCode = ((HttpWebResponse)webException.Response).StatusCode;
                         }
