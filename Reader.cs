@@ -4,10 +4,8 @@ using System.Data.SqlClient;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
 using Jayrock.Json.Conversion;
 using Pacifica.Core;
-using PRISM;
 using Utilities = Pacifica.Core.Utilities;
 
 namespace MyEMSLReader
@@ -1290,11 +1288,6 @@ namespace MyEMSLReader
                         remoteFileInfo.DatasetID = datasetOrDataPackageId;
                         remoteFileInfo.DataPackageID = 0;
                     }
-
-                    // var createdInMyEMSL = Utilities.GetDictionaryValue(fileObj, "created");
-                    // var updatedInMyEMSL = Utilities.GetDictionaryValue(fileObj, "updated");
-                    // var deletedInMyEMSL = Utilities.GetDictionaryValue(fileObj, "deleted");
-                    // remoteFileInfo.UpdateRemoteFileTimes(createdInMyEMSL, updatedInMyEMSL, deletedInMyEMSL);
 
                     var creationTime = Utilities.GetDictionaryValue(fileObj, "ctime");
                     var lastWriteTime = Utilities.GetDictionaryValue(fileObj, "mtime");

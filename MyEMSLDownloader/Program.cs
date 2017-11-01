@@ -960,22 +960,6 @@ namespace MyEMSLDownloader
             DownloadDatasetFiles(archiveFiles, mOutputFolderPath);
         }
 
-        private static void WriteToErrorStream(string strErrorMessage)
-        {
-            try
-            {
-                using (var swErrorStream = new StreamWriter(Console.OpenStandardError()))
-                {
-                    swErrorStream.WriteLine(strErrorMessage);
-                }
-            }
-            // ReSharper disable once EmptyGeneralCatchClause
-            catch
-            {
-                // Ignore errors here
-            }
-        }
-
         #region "Event Handlers"
 
         private static void RegisterEvents(MyEMSLBase oProcessingClass)
