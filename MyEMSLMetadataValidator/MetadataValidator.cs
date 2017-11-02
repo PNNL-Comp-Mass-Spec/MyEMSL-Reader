@@ -670,7 +670,15 @@ namespace MyEMSLMetadataValidator
                     "Examining {0} uploads for Dataset IDs {1} to {2}",
                     filteredDMSMetadata.Count, datasetIdStart, datasetIdEnd), basePercentComplete);
 
-                var datasetListInfo = new DatasetListInfoByID();
+                var datasetListInfo = new DatasetListInfoByID
+                {
+                    ReportMetadataURLs = true,
+                    ThrowErrors = false,
+                    TraceMode = false
+                };
+
+                RegisterEvents(datasetListInfo);
+
                 var lastComparisonTime = DateTime.UtcNow;
                 var lastProgressTime = DateTime.UtcNow;
                 var itemsProcessed = 0;

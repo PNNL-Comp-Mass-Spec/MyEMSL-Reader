@@ -7,7 +7,7 @@ namespace MyEMSLMetadataValidator
 {
     public class ValidatorOptions
     {
-        private const string PROGRAM_DATE = "July 30, 2017";
+        private const string PROGRAM_DATE = "November 1, 2017";
 
         public const string DMS_CONNECTION_STRING = "Data Source=gigasax;Initial Catalog=DMS_Capture;Integrated Security=SSPI";
 
