@@ -1,75 +1,97 @@
-== Overview ==
+# MyEMSL Downloader
 
-This program downloads files from MyEMSL.  
-You use the dataset name to specific the files to download 
-(wildcards are supported).  Optionally specify a subfolder
+This program downloads files from MyEMSL.  It supports retrieving files
+for either Datasets or Data Packages.  Optionally specify a subfolder
 or filename mask to filter the files to retrieve.  Use /Preview
 to preview the files that will be downloaded.
 
-== Details ==
+## Mode 1 Syntax 
 
-Program syntax #1:
+```
 MyEMSLDownloader.exe DatasetName [SubFolderName] [/Files:FileMask] [/FileSplit]
-                     [/O:OutputFolder] [/D] [/Preview] [/V] [/DisableCart] [/ForceCart] [/UseTest]
+                     [/O:OutputFolder] [/D] [/Preview] [/V] 
+                     [/Trace] [/DisableCart] [/ForceCart] [/UseTest]
+```
 
-Program syntax #2:
+## Mode 2 Syntax 
+
+```
 MyEMSLDownloader.exe /Dataset:DatasetName [/SubDir:SubFolderName] [/Files:FileMask] [/FileSplit]
-                     [/O:OutputFolder] [/D] [/Preview] [/V] [/DisableCart] [/ForceCart] [/UseTest]
+                     [/O:OutputFolder] [/D] [/Preview] [/V] 
+                     [/Trace] [/DisableCart] [/ForceCart] [/UseTest]
+```
 
-Program syntax #3:
+## Mode 3 Syntax 
+
+```
 MyEMSLDownloader.exe /DataPkg:DataPackageID [/SubDir:SubFolderName] [/Files:FileMask] [/FileSplit]
-                     [/O:OutputFolder] [/Preview] [/V] [/DisableCart] [/ForceCart] [/UseTest]
+                     [/O:OutputFolder] [/Preview] [/V] 
+                     [/Trace] [/DisableCart] [/ForceCart] [/UseTest]
+```
 
-Program syntax #4:
+## Mode 4 Syntax 
+
+```
 MyEMSLDownloader.exe /FileList:FileInfoFile.txt [/O:OutputFolder]
                      [/Preview] [/V] [/DisableCart] [/ForceCart] [/UseTest]
+```
 
-Program syntax #5:
-MyEMSLDownloader.exe /Test [/Preview] [/V] [/DisableCart] [/ForceCart]
+## Mode 5 Syntax 
+
+```
+MyEMSLDownloader.exe /FileID:1234 [/Preview] [/V] [/Trace]
+```
+
+## Mode 6 Syntax 
+
+```
+MyEMSLDownloader.exe /Test [/Preview] [/V] [/Trace] [/DisableCart] [/ForceCart]
+```
+
+## Command Line Arguments
 
 To download files for a given dataset, enter the dataset name, plus optionally the SubFolder name
-The names can be entered separated by spaces, or using /Dataset plus optionally /SubDir
+The names can be entered separated by spaces, or using `/Dataset` plus optionally `/SubDir`
 
-Use /Files to filter for specific files, for example /Files:*.txt
-Files will be downloaded to the folder with the .exe; override using /O
-Use /FileSplit to indicate that /Files contains a list of filenames and/or file specs, separated by semicolons
-For example, use /Files:analysis.baf;ser /FileSplit
+Use `/Files` to filter for specific files, for example `/Files:*.txt`
+Files will be downloaded to the folder with the .exe; override using `/O`
 
-Use /D to create a folder with the dataset name, then store the files within that folder
+Use `/FileSplit` to indicate that `/Files` contains a list of filenames and/or file specs, separated by semicolons
+For example, use `/Files:analysis.baf;ser /FileSplit`
 
-Use /DataPkg to retrieve files from a specific data package
+Use `/D` to create a folder with the dataset name, then store the files within that folder
 
-Use /FileList to specify a file with a list of datasets and files to retrieve
+Use `/DataPkg` to retrieve files from a specific data package
+
+Use `/FileList` to specify a file with a list of datasets and files to retrieve
 The file must be a tab-delimited text file, with columns Dataset and File, and optionally with column SubDir
 The file names in the File column are allowed to contain wildcards
-When /FileList is used, /D is automatically enabled
+When `/FileList` is used, `/D` is automatically enabled
 
-Alternatively, use /Test to perform automatic tests using predefined dataset names
+Use `/FileId` to specify the MyEMSL ID of a file to download (as seen with `/V`)
+This mode does not use Simple Search to find files and can thus be used to retrieve a file that Simple Search does not find. Provide a comma separated
+ list to retrieve multiple files.
 
-Use /Preview to view files that would be downloaded, but not actually download them
-Use /V to enable verbose preview, showing extended details about each file
+Alternatively, use `/Test` to perform automatic tests using predefined dataset names
 
-Use /DisableCart to disable use of the download cart mechanism for retrieving files that exist on tape but not on spinning disk
-Use /ForceCart to force the use of the download cart; this option overrides /DisableCart
+Use `/Preview` to view files that would be downloaded, but not actually download them
+Use `/V` to enable verbose preview, showing extended details about each file
 
-Use /UseTest to connect to test0.my.emsl.pnl.gov instead of my.emsl.pnl.gov
+Use `/Trace` to display additional debug information
 
--------------------------------------------------------------------------------
-Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2013
+Use `/DisableCart` to disable use of the download cart mechanism for retrieving files that exist on tape but not on spinning disk
+Use `/ForceCart` to force the use of the download cart; this option overrides `/DisableCart`
 
-E-mail: matthew.monroe@pnnl.gov or matt@alchemistmatt.com
-Website: http://panomics.pnnl.gov/ or http://omics.pnl.gov or http://www.sysbio.org/resources/staff/
--------------------------------------------------------------------------------
+Use `/UseTest` to connect to test0.my.emsl.pnl.gov instead of my.emsl.pnl.gov
 
-Licensed under the Apache License, Version 2.0; you may not use this file except 
-in compliance with the License.  You may obtain a copy of the License at 
-http://www.apache.org/licenses/LICENSE-2.0
+## Contacts
 
-Notice: This computer software was prepared by Battelle Memorial Institute, 
-hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the 
-Department of Energy (DOE).  All rights in the computer software are reserved 
-by DOE on behalf of the United States Government and the Contractor as 
-provided in the Contract.  NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY 
-WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS 
-SOFTWARE.  This notice including this sentence must appear on any copies of 
-this computer software.
+Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) \
+E-mail: proteomics@pnnl.gov \
+Website: https://panomics.pnl.gov/ or https://omics.pnl.gov
+
+## License
+
+The MyEMSL Downloader is licensed under the Apache License, Version 2.0; 
+you may not use this file except in compliance with the License.  You may obtain 
+a copy of the License at https://opensource.org/licenses/Apache-2.0
