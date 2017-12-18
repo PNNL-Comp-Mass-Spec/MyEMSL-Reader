@@ -15,7 +15,7 @@ namespace MyEMSLDownloader
 
     internal static class Program
     {
-        private const string PROGRAM_DATE = "November 1, 2017";
+        private const string PROGRAM_DATE = "December 18, 2017";
 
         static double mPercentComplete;
         static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
@@ -519,7 +519,7 @@ namespace MyEMSLDownloader
             var lstValidParameters = new List<string> {
                 "Dataset", "DataPkg", "SubDir", "Files", "FileSplit",
                 "O", "D", "FileList", "FileID", "DisableCart", "ForceCart",
-                "Preview", "V", "Test", "Trace", "UseTest" };
+                "Preview", "V", "Verbose", "Test", "Trace", "UseTest" };
 
             try
             {
@@ -599,7 +599,7 @@ namespace MyEMSLDownloader
                 mAutoTestMode = objParseCommandLine.IsParameterPresent("Test");
                 mTraceMode = objParseCommandLine.IsParameterPresent("Trace");
                 mUseTestInstance = objParseCommandLine.IsParameterPresent("UseTest");
-                mVerbosePreview = objParseCommandLine.IsParameterPresent("V");
+                mVerbosePreview = objParseCommandLine.IsParameterPresent("V") || objParseCommandLine.IsParameterPresent("Verbose");
 
                 return true;
             }

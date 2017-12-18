@@ -1,5 +1,8 @@
 MyEMSLDownloader Revision History
 
+Version 1.2.6561; December 18, 2017
+	- Add synonym /Verbose for the /V switch
+
 Version 1.2.6514; November 1, 2017
 	- Add switch /Trace
 
