@@ -102,4 +102,20 @@ xcopy debug\Pacifica.Core.dll "F:\My Documents\Projects\DataMining\DMS_Managers\
 
 xcopy debug\Pacifica.Core.dll "C:\DMS_Programs\MyEMSLDownloader" /D /Y
 
+xcopy debug\Jayrock.Json.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Common" /D /Y
+xcopy debug\Jayrock.Json.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Program\bin" /D /Y
+xcopy debug\Jayrock.Json.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Space_Manager\DMS_Space_Manager\RefLib" /D /Y
+xcopy debug\Jayrock.Json.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Space_Manager\DMS_Space_Manager\Bin\Debug" /D /Y
+xcopy debug\Jayrock.Json.dll "F:\My Documents\Projects\DataMining\DMS_Managers\Space_Manager\DMS_Space_Manager\Bin\Release" /D /Y
+
+xcopy debug\Jayrock.Json.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\Mage\lib" /D /Y
+xcopy debug\Jayrock.Json.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\Mage\bin\Release" /D /Y
+xcopy debug\Jayrock.Json.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\DeployedFiles\MageFileProcessor" /D /Y
+xcopy debug\Jayrock.Json.dll "F:\My Documents\Projects\DataMining\DMS_Programs\Mage\DeployedFiles\MageExtractor" /D /Y
+
+xcopy debug\Jayrock.Json.dll "F:\My Documents\Projects\DataMining\DMS_Managers\MyEMSL_MTS_File_Cache_Manager\Lib" /D /Y
+xcopy debug\Jayrock.Json.dll "F:\My Documents\Projects\DataMining\DMS_Managers\MyEMSL_MTS_File_Cache_Manager\bin\Debug" /D /Y
+
+xcopy debug\Jayrock.Json.dll "C:\DMS_Programs\MyEMSLDownloader" /D /Y
+
 pause
