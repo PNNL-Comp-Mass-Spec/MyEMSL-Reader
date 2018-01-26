@@ -15,7 +15,7 @@ namespace MyEMSLDownloader
 
     internal static class Program
     {
-        private const string PROGRAM_DATE = "December 18, 2017";
+        private const string PROGRAM_DATE = "January 26, 2018";
 
         static double mPercentComplete;
         static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
@@ -59,7 +59,7 @@ namespace MyEMSLDownloader
 
         static int Main(string[] args)
         {
-            var objParseCommandLine = new clsParseCommandLine();
+            var commandLineParser = new clsParseCommandLine();
 
             mDatasetName = string.Empty;
             mDataPkgID = 0;
@@ -82,15 +82,15 @@ namespace MyEMSLDownloader
             {
                 var success = false;
 
-                if (objParseCommandLine.ParseCommandLine())
+                if (commandLineParser.ParseCommandLine())
                 {
-                    if (SetOptionsUsingCommandLineParameters(objParseCommandLine))
+                    if (SetOptionsUsingCommandLineParameters(commandLineParser))
                         success = true;
                 }
 
                 if (!success ||
-                    objParseCommandLine.NeedToShowHelp ||
-                    objParseCommandLine.ParameterCount + objParseCommandLine.NonSwitchParameterCount == 0)
+                    commandLineParser.NeedToShowHelp ||
+                    commandLineParser.ParameterCount + commandLineParser.NonSwitchParameterCount == 0)
                 {
                     ShowProgramHelp();
                     return -1;
@@ -191,8 +191,7 @@ namespace MyEMSLDownloader
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error occurred in Program->Main: " + Environment.NewLine + ex.Message);
-                Console.WriteLine(ex.StackTrace);
+                ConsoleMsgUtils.ShowError("Error occurred in Program->Main: " + ex.Message, ex);
                 System.Threading.Thread.Sleep(1000);
                 return -1;
             }
@@ -215,7 +214,7 @@ namespace MyEMSLDownloader
 
             if (filesToDownload.Count == 0)
             {
-                Console.WriteLine("Reader did not find any files");
+                ConsoleMsgUtils.ShowWarning("Reader did not find any files");
             }
             else if (!mPreviewMode)
             {
@@ -226,7 +225,7 @@ namespace MyEMSLDownloader
             var archiveFiles = TestDatasetListInfo();
 
             if (archiveFiles.Count == 0)
-                Console.WriteLine("DatasetListInfo did not find any files");
+                ConsoleMsgUtils.ShowWarning("DatasetListInfo did not find any files");
             else
             {
                 ShowFiles(archiveFiles, mVerbosePreview);
@@ -356,7 +355,7 @@ namespace MyEMSLDownloader
 
                         if (dataValues.Count < 2)
                         {
-                            Console.WriteLine("Skipping line since less than 2 columns: " + dataLine);
+                            ConsoleMsgUtils.ShowWarning("Skipping line since less than 2 columns: " + dataLine);
                             continue;
                         }
 
@@ -367,8 +366,8 @@ namespace MyEMSLDownloader
                             if (!headerMap.ContainsKey(DATASET_COLUMN) ||
                                 !headerMap.ContainsKey(FILE_COLUMN))
                             {
-                                Console.WriteLine("Missing columns in " + fiFileListFile.Name);
-                                Console.WriteLine("Header line must contain columns " + DATASET_COLUMN + " and " + FILE_COLUMN + " and optionally " + SUBDIR_COLUMN);
+                                ConsoleMsgUtils.ShowWarning("Missing columns in " + fiFileListFile.Name);
+                                ConsoleMsgUtils.ShowWarning("Header line must contain columns " + DATASET_COLUMN + " and " + FILE_COLUMN + " and optionally " + SUBDIR_COLUMN);
                                 return new List<DatasetFolderOrFileInfo>();
                             }
                             continue;
@@ -393,7 +392,7 @@ namespace MyEMSLDownloader
 
                         if (string.IsNullOrWhiteSpace(fileToFind.FileMask))
                         {
-                            Console.WriteLine("Ignoring line with empty filename: " + dataLine.Replace("\t", "<tab>"));
+                            ConsoleMsgUtils.ShowWarning("Ignoring line with empty filename: " + dataLine.Replace("\t", "<tab>"));
                             continue;
                         }
 
@@ -425,7 +424,7 @@ namespace MyEMSLDownloader
                             }
                             else
                             {
-                                Console.WriteLine("Unexpected dataset name: " + dataset.Key);
+                                ConsoleMsgUtils.ShowWarning("Unexpected dataset name: " + dataset.Key);
                             }
                         }
 
@@ -437,7 +436,7 @@ namespace MyEMSLDownloader
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception in FindFileListFiles: " + ex.Message);
+                ConsoleMsgUtils.ShowError("Exception in FindFileListFiles: " + ex.Message, ex);
                 return new List<DatasetFolderOrFileInfo>();
             }
         }
@@ -469,7 +468,7 @@ namespace MyEMSLDownloader
             {
                 if (!long.TryParse(fileID, out var fileIdValue))
                 {
-                    Console.WriteLine("Warning: " + fileID + " is not an integer");
+                    ConsoleMsgUtils.ShowWarning("Warning: " + fileID + " is not an integer");
                     continue;
                 }
 
@@ -491,13 +490,15 @@ namespace MyEMSLDownloader
                 Console.WriteLine(archiveFile.FileInfo.RelativePathWindows);
                 if (verbosePreview)
                 {
-                    Console.WriteLine("  FileID {0}, TransID {1}, Submitted {2}, Size {3:F1} KB, Hash {4}, HashType {5}",
-                        archiveFile.FileID,
-                        archiveFile.FileInfo.TransactionID,
-                        archiveFile.FileInfo.SubmissionTime,
-                        archiveFile.FileInfo.FileSizeBytes / 1024.0,
-                        archiveFile.FileInfo.Sha1Hash,
-                        archiveFile.FileInfo.HashType);
+                    ConsoleMsgUtils.ShowDebug(
+                        string.Format(
+                            "  FileID {0}, TransID {1}, Submitted {2}, Size {3:F1} KB, Hash {4}, HashType {5}",
+                            archiveFile.FileID,
+                            archiveFile.FileInfo.TransactionID,
+                            archiveFile.FileInfo.SubmissionTime,
+                            archiveFile.FileInfo.FileSizeBytes / 1024.0,
+                            archiveFile.FileInfo.Sha1Hash,
+                            archiveFile.FileInfo.HashType));
                     Console.WriteLine();
                 }
 
@@ -512,9 +513,9 @@ namespace MyEMSLDownloader
         /// <summary>
         /// Set options using command line parameters
         /// </summary>
-        /// <param name="objParseCommandLine"></param>
+        /// <param name="commandLineParser"></param>
         /// <returns>True if no problems; otherwise, false</returns>
-        private static bool SetOptionsUsingCommandLineParameters(clsParseCommandLine objParseCommandLine)
+        private static bool SetOptionsUsingCommandLineParameters(clsParseCommandLine commandLineParser)
         {
             var lstValidParameters = new List<string> {
                 "Dataset", "DataPkg", "SubDir", "Files", "FileSplit",
@@ -524,10 +525,10 @@ namespace MyEMSLDownloader
             try
             {
                 // Make sure no invalid parameters are present
-                if (objParseCommandLine.InvalidParametersPresent(lstValidParameters))
+                if (commandLineParser.InvalidParametersPresent(lstValidParameters))
                 {
                     var badArguments = new List<string>();
-                    foreach (var item in objParseCommandLine.InvalidParameters(lstValidParameters))
+                    foreach (var item in commandLineParser.InvalidParameters(lstValidParameters))
                     {
                         badArguments.Add("/" + item);
                     }
@@ -537,19 +538,19 @@ namespace MyEMSLDownloader
                     return false;
                 }
 
-                // Query objParseCommandLine to see if various parameters are present
+                // Query commandLineParser to see if various parameters are present
 
-                if (objParseCommandLine.NonSwitchParameterCount > 0)
-                    mDatasetName = objParseCommandLine.RetrieveNonSwitchParameter(0);
+                if (commandLineParser.NonSwitchParameterCount > 0)
+                    mDatasetName = commandLineParser.RetrieveNonSwitchParameter(0);
 
-                if (objParseCommandLine.NonSwitchParameterCount > 1)
-                    mSubfolder = objParseCommandLine.RetrieveNonSwitchParameter(1);
+                if (commandLineParser.NonSwitchParameterCount > 1)
+                    mSubfolder = commandLineParser.RetrieveNonSwitchParameter(1);
 
-                if (!ParseParameter(objParseCommandLine, "Dataset", "a dataset name", ref mDatasetName))
+                if (!ParseParameter(commandLineParser, "Dataset", "a dataset name", ref mDatasetName))
                     return false;
 
                 var dataPkgString = "";
-                if (!ParseParameter(objParseCommandLine, "DataPkg", "a data package ID", ref dataPkgString))
+                if (!ParseParameter(commandLineParser, "DataPkg", "a data package ID", ref dataPkgString))
                     return false;
                 if (!string.IsNullOrEmpty(dataPkgString))
                 {
@@ -560,21 +561,21 @@ namespace MyEMSLDownloader
                     }
                 }
 
-                if (!ParseParameter(objParseCommandLine, "SubDir", "a subfolder name", ref mSubfolder))
+                if (!ParseParameter(commandLineParser, "SubDir", "a subfolder name", ref mSubfolder))
                     return false;
-                if (!ParseParameter(objParseCommandLine, "Files", "a file mas", ref mFileMask))
+                if (!ParseParameter(commandLineParser, "Files", "a file mas", ref mFileMask))
                     return false;
 
-                if (objParseCommandLine.IsParameterPresent("FileSplit"))
+                if (commandLineParser.IsParameterPresent("FileSplit"))
                     mFileSplit = true;
 
-                if (!ParseParameter(objParseCommandLine, "O", "an output folder path", ref mOutputFolderPath))
+                if (!ParseParameter(commandLineParser, "O", "an output folder path", ref mOutputFolderPath))
                     return false;
 
-                if (!ParseParameter(objParseCommandLine, "FileList", "a filename", ref mFileListPath))
+                if (!ParseParameter(commandLineParser, "FileList", "a filename", ref mFileListPath))
                     return false;
 
-                if (!ParseParameter(objParseCommandLine, "FileID", "a file ID (or comma-separated list of file IDs)", ref mFileIDList))
+                if (!ParseParameter(commandLineParser, "FileID", "a file ID (or comma-separated list of file IDs)", ref mFileIDList))
                     return false;
 
                 if (!string.IsNullOrWhiteSpace(mFileListPath))
@@ -582,9 +583,9 @@ namespace MyEMSLDownloader
                     mMultiDatasetMode = true;
                 }
 
-                if (objParseCommandLine.IsParameterPresent("D"))
+                if (commandLineParser.IsParameterPresent("D"))
                 {
-                    if (objParseCommandLine.RetrieveValueForParameter("D", out var paramValue) && !string.IsNullOrWhiteSpace(paramValue))
+                    if (commandLineParser.RetrieveValueForParameter("D", out var paramValue) && !string.IsNullOrWhiteSpace(paramValue))
                     {
                         ShowErrorMessage("The /D switch should not have a value; use /Dataset to specify a dataset name");
                         return false;
@@ -592,14 +593,14 @@ namespace MyEMSLDownloader
                     mMultiDatasetMode = true;
                 }
 
-                mDisableCart = objParseCommandLine.IsParameterPresent("DisableCart");
-                mForceDownloadViaCart = objParseCommandLine.IsParameterPresent("ForceCart");
+                mDisableCart = commandLineParser.IsParameterPresent("DisableCart");
+                mForceDownloadViaCart = commandLineParser.IsParameterPresent("ForceCart");
 
-                mPreviewMode = objParseCommandLine.IsParameterPresent("Preview");
-                mAutoTestMode = objParseCommandLine.IsParameterPresent("Test");
-                mTraceMode = objParseCommandLine.IsParameterPresent("Trace");
-                mUseTestInstance = objParseCommandLine.IsParameterPresent("UseTest");
-                mVerbosePreview = objParseCommandLine.IsParameterPresent("V") || objParseCommandLine.IsParameterPresent("Verbose");
+                mPreviewMode = commandLineParser.IsParameterPresent("Preview");
+                mAutoTestMode = commandLineParser.IsParameterPresent("Test");
+                mTraceMode = commandLineParser.IsParameterPresent("Trace");
+                mUseTestInstance = commandLineParser.IsParameterPresent("UseTest");
+                mVerbosePreview = commandLineParser.IsParameterPresent("V") || commandLineParser.IsParameterPresent("Verbose");
 
                 return true;
             }
@@ -612,12 +613,12 @@ namespace MyEMSLDownloader
         }
 
         private static bool ParseParameter(
-            clsParseCommandLine objParseCommandLine,
+            clsParseCommandLine commandLineParser,
             string parameterName,
             string description,
             ref string targetVariable)
         {
-            if (objParseCommandLine.RetrieveValueForParameter(parameterName, out var value))
+            if (commandLineParser.RetrieveValueForParameter(parameterName, out var value))
             {
                 if (string.IsNullOrWhiteSpace(value))
                 {
@@ -725,7 +726,7 @@ namespace MyEMSLDownloader
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error displaying the program syntax: " + ex.Message);
+                ConsoleMsgUtils.ShowError("Error displaying the program syntax: " + ex.Message, ex);
             }
 
         }
@@ -822,7 +823,7 @@ namespace MyEMSLDownloader
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception from reader: " + ex.Message);
+                ConsoleMsgUtils.ShowWarning("Exception from reader: " + ex.Message);
             }
 
             return filesToDownload;
@@ -968,7 +969,7 @@ namespace MyEMSLDownloader
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception from downloader: " + ex.Message);
+                ConsoleMsgUtils.ShowError("Exception from downloader: " + ex.Message, ex);
             }
 
         }
