@@ -1,5 +1,8 @@
 MyEMSLDownloader Revision History
 
+Version 1.2.6603; January 29, 2018
+	- Add array bounds checking when reading a FileList file
+
 Version 1.2.6561; December 18, 2017
 	- Add synonym /Verbose for the /V switch
 

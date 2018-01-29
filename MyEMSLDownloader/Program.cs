@@ -15,7 +15,7 @@ namespace MyEMSLDownloader
 
     internal static class Program
     {
-        private const string PROGRAM_DATE = "January 26, 2018";
+        private const string PROGRAM_DATE = "January 29, 2018";
 
         static double mPercentComplete;
         static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
@@ -359,6 +359,8 @@ namespace MyEMSLDownloader
                             continue;
                         }
 
+                        var lastIndex = dataValues.Count - 1;
+
                         if (headerMap.Count == 0)
                         {
                             MapHeaders(dataValues, headerNames, headerMap);
@@ -373,14 +375,27 @@ namespace MyEMSLDownloader
                             continue;
                         }
 
-                        var dataset = dataValues[headerMap[DATASET_COLUMN]];
+                        if (headerMap[DATASET_COLUMN] > lastIndex || headerMap[FILE_COLUMN] > lastIndex)
+                        {
+                            ConsoleMsgUtils.ShowWarning("Data line has fewer columns than the header line; skipping: " + dataLine);
+                            continue;
+                        }
+
+                        var dataset = dataValues[headerMap[DATASET_COLUMN]].Trim();
                         var fileToFind = new udtFileInfo
                         {
-                            FileMask = dataValues[headerMap[FILE_COLUMN]]
+                            FileMask = dataValues[headerMap[FILE_COLUMN]].Trim()
                         };
 
                         if (headerMap.ContainsKey(SUBDIR_COLUMN))
-                            fileToFind.SubDir = dataValues[headerMap[SUBDIR_COLUMN]];
+                        {
+                            if (headerMap[SUBDIR_COLUMN] > lastIndex)
+                            {
+                                ConsoleMsgUtils.ShowWarning("Data line has fewer columns than the header line; skipping: " + dataLine);
+                                continue;
+                            }
+                            fileToFind.SubDir = dataValues[headerMap[SUBDIR_COLUMN]].Trim();
+                        }
                         else
                             fileToFind.SubDir = string.Empty;
 
