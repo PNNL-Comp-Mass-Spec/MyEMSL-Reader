@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Jayrock.Json.Conversion;
 using Pacifica.Core;
 using Utilities = Pacifica.Core.Utilities;
@@ -1089,9 +1090,13 @@ namespace MyEMSLReader
         /// </summary>
         /// <param name="searchKey">Key to search on</param>
         /// <param name="searchValue">Value to match</param>
+        /// <param name="timeoutSeconds">Max time (in seconds) to wait for the item search query to finish</param>
         /// <returns>Dictionary where keys are relative file paths (Windows style paths); values are file info details</returns>
         /// <remarks>A given remote file could have multiple hash values if multiple versions of the file have been uploaded</remarks>
-        internal Dictionary<string, List<ArchivedFileInfo>> RunItemSearchQuery(string searchKey, string searchValue)
+        internal Dictionary<string, List<ArchivedFileInfo>> RunItemSearchQuery(
+            string searchKey,
+            string searchValue,
+            int timeoutSeconds = 300)
         {
             const int DUPLICATE_HASH_MESSAGES_TO_LOG = 5;
 
@@ -1200,7 +1205,22 @@ namespace MyEMSLReader
                     OnDebugEvent("Contacting " + metadataURL);
 
                 // Retrieve a list of files already in MyEMSL for this dataset
-                var fileInfoListJSON = EasyHttp.Send(mPacificaConfig, metadataURL, out _);
+                // Run the search in a separate thread so that we can abort the search if it takes too long
+
+                var responseData = new WebResponseData();
+
+                var task = Task.Factory.StartNew(() => SendWebRequest(metadataUrl, responseData));
+
+                var success = task.Wait(timeoutSeconds * 1000);
+
+                if (!success)
+                {
+                    var msg = string.Format("MyEMSL item search query timed out after {0} seconds", timeoutSeconds);
+                    ReportError(msg);
+                    return remoteFiles;
+                }
+
+                var fileInfoListJSON = responseData.ResponseText;
 
                 if (string.IsNullOrEmpty(fileInfoListJSON))
                 {
@@ -1312,6 +1332,13 @@ namespace MyEMSLReader
                 return remoteFiles;
             }
 
+        }
+
+        private void SendWebRequest(string metadataUrl, WebResponseData responseData)
+        {
+            var response = EasyHttp.Send(mPacificaConfig, metadataUrl, out var responseStatusCode);
+            responseData.ResponseText = response;
+            responseData.ResponseStatusCode = responseStatusCode;
         }
 
         /// <summary>
