@@ -1198,11 +1198,11 @@ namespace MyEMSLReader
                 // Future:
                 // https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.experiment/6Apr15
 
-                var metadataURL = string.Format(mPacificaConfig.MetadataServerUri + "/fileinfo/files_for_keyvalue/{0}/{1}",
+                var metadataUrl = string.Format(mPacificaConfig.MetadataServerUri + "/fileinfo/files_for_keyvalue/{0}/{1}",
                     searchKey, searchValue);
 
                 if (TraceMode || ReportMetadataURLs)
-                    OnDebugEvent("Contacting " + metadataURL);
+                    OnDebugEvent("Contacting " + metadataUrl);
 
                 // Retrieve a list of files already in MyEMSL for this dataset
                 // Run the search in a separate thread so that we can abort the search if it takes too long
