@@ -4,7 +4,7 @@ using System.Data.SqlClient;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Net;
 using Jayrock.Json.Conversion;
 using Pacifica.Core;
 using Utilities = Pacifica.Core.Utilities;
@@ -1205,22 +1205,17 @@ namespace MyEMSLReader
                     OnDebugEvent("Contacting " + metadataUrl);
 
                 // Retrieve a list of files already in MyEMSL for this dataset
-                // Run the search in a separate thread so that we can abort the search if it takes too long
 
-                var responseData = new WebResponseData();
+                var responseData = EasyHttp.Send(mPacificaConfig, metadataUrl, out var responseStatusCode);
 
-                var task = Task.Factory.StartNew(() => SendWebRequest(metadataUrl, responseData));
-
-                var success = task.Wait(timeoutSeconds * 1000);
-
-                if (!success)
+                if (responseStatusCode == HttpStatusCode.RequestTimeout)
                 {
                     var msg = string.Format("MyEMSL item search query timed out after {0} seconds", timeoutSeconds);
                     ReportError(msg);
                     return remoteFiles;
                 }
 
-                var fileInfoListJSON = responseData.ResponseText;
+                var fileInfoListJSON = responseData;
 
                 if (string.IsNullOrEmpty(fileInfoListJSON))
                 {
@@ -1332,13 +1327,6 @@ namespace MyEMSLReader
                 return remoteFiles;
             }
 
-        }
-
-        private void SendWebRequest(string metadataUrl, WebResponseData responseData)
-        {
-            var response = EasyHttp.Send(mPacificaConfig, metadataUrl, out var responseStatusCode);
-            responseData.ResponseText = response;
-            responseData.ResponseStatusCode = responseStatusCode;
         }
 
         /// <summary>
