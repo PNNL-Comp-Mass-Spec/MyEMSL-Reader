@@ -1206,7 +1206,7 @@ namespace MyEMSLReader
 
                 // Retrieve a list of files already in MyEMSL for this dataset
 
-                var responseData = EasyHttp.Send(mPacificaConfig, metadataUrl, out var responseStatusCode);
+                var responseData = EasyHttp.SendViaThreadStart(mPacificaConfig, metadataUrl, out var responseStatusCode);
 
                 if (responseStatusCode == HttpStatusCode.RequestTimeout)
                 {

@@ -364,7 +364,7 @@ namespace MyEMSLReader
                 try
                 {
                     attempts++;
-                    responseData = EasyHttp.Send(mPacificaConfig, URL, cookieJar, out responseStatusCode, postData, postMethod, timeoutSeconds);
+                    responseData = EasyHttp.SendViaThreadStart(mPacificaConfig, URL, cookieJar, out responseStatusCode, postData, postMethod, timeoutSeconds);
 
                     if (allowEmptyResponseData && responseStatusCode == HttpStatusCode.OK)
                         retrievalSuccess = true;
