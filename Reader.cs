@@ -140,6 +140,7 @@ namespace MyEMSLReader
             ThrowErrors = true;
 
             EasyHttp.MyEMSLOffline += EasyHttp_MyEMSLOffline;
+            EasyHttp.ErrorEvent += OnErrorEvent;
 
             ResetStatus();
         }

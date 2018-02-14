@@ -135,6 +135,7 @@ namespace MyEMSLReader
             DownloadedFiles = new Dictionary<string, ArchivedFileInfo>(StringComparer.OrdinalIgnoreCase);
 
             EasyHttp.MyEMSLOffline += EasyHttp_MyEMSLOffline;
+            EasyHttp.ErrorEvent += OnErrorEvent;
 
             ResetStatus();
         }
