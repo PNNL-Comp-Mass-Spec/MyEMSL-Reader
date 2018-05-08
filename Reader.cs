@@ -1211,8 +1211,8 @@ namespace MyEMSLReader
 
                 if (responseStatusCode == HttpStatusCode.RequestTimeout)
                 {
-                    var msg = string.Format("MyEMSL item search query timed out after {0} seconds", timeoutSeconds);
-                    ReportError(msg);
+                    var errMsg = string.Format("MyEMSL item search query timed out after {0} seconds", timeoutSeconds);
+                    ReportError(errMsg);
                     return remoteFiles;
                 }
 
@@ -1220,8 +1220,8 @@ namespace MyEMSLReader
 
                 if (string.IsNullOrEmpty(fileInfoListJSON))
                 {
-                    var msg = "No results returned from MyEMSL (MyEMSLReader.RunItemSearchQuery)";
-                    ReportError(msg);
+                    var errMsg = "No results returned from MyEMSL (MyEMSLReader.RunItemSearchQuery)";
+                    ReportError(errMsg);
                     return remoteFiles;
                 }
 
@@ -1232,7 +1232,26 @@ namespace MyEMSLReader
                 }
 
                 // Convert the response to a dictionary
-                var jsa = (Jayrock.Json.JsonArray)JsonConvert.Import(fileInfoListJSON);
+                var jsonData = JsonConvert.Import(fileInfoListJSON);
+
+                if (!(jsonData is Jayrock.Json.JsonArray jsa)){
+
+                    var errMsg = "Could not convert the JSON string to a JsonArray (MyEMSLReader.RunItemSearchQuery)";
+
+                    if (jsonData is string conversionError && !string.IsNullOrWhiteSpace(conversionError))
+                    {
+                        if (conversionError.Length > 100)
+                            ReportError(errMsg + ": " + conversionError.Substring(0, 100) + " ...");
+                        else
+                            ReportError(errMsg + ": " + conversionError);
+                    }
+                    else
+                    {
+                        ReportError(errMsg);
+                    }
+
+                    return remoteFiles;
+                }
                 var remoteFileInfoList = Utilities.JsonArrayToDictionaryList(jsa);
 
                 var duplicateHashCount = 0;
