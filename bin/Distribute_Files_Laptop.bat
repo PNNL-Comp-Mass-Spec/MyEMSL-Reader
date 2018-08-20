@@ -25,7 +25,6 @@ xcopy debug\MyEMSLReader.dll "C:\Users\d3l243\Documents\Projects\DataMining\dms_
 xcopy debug\MyEMSLReader.dll "C:\Users\d3l243\Documents\Projects\DataMining\dms_managers\Analysis_Manager\Plugins\AM_MSAlign_Quant_Plugin\bin" /D /Y
 xcopy debug\MyEMSLReader.dll "C:\Users\d3l243\Documents\Projects\DataMining\dms_managers\Analysis_Manager\Plugins\AM_MSDeconv_Plugin\bin" /D /Y
 xcopy debug\MyEMSLReader.dll "C:\Users\d3l243\Documents\Projects\DataMining\dms_managers\Analysis_Manager\Plugins\AM_MSGF_PlugIn\Bin" /D /Y
-rem xcopy debug\MyEMSLReader.dll "C:\Users\d3l243\Documents\Projects\DataMining\dms_managers\Analysis_Manager\Plugins\AM_MSGFDB_IMS_Plugin\bin" /D /Y
 xcopy debug\MyEMSLReader.dll "C:\Users\d3l243\Documents\Projects\DataMining\dms_managers\Analysis_Manager\Plugins\AM_MSGFDB_PlugIn\bin" /D /Y
 rem xcopy debug\MyEMSLReader.dll "C:\Users\d3l243\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_MSGFDB_PlugIn\MSGFPlusIndexFileCopier\bin\Debug" /D /Y
 xcopy debug\MyEMSLReader.dll "C:\Users\d3l243\Documents\Projects\DataMining\dms_managers\Analysis_Manager\Plugins\AM_MSMSSpectrumFilter_PlugIn\bin" /D /Y
