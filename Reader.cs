@@ -789,10 +789,12 @@ namespace MyEMSLReader
 
                     if (dataset.Value != null)
                     {
+                        var includeBaseDirectory = false;
                         foreach (var subDir in dataset.Value)
                         {
                             if (string.IsNullOrWhiteSpace(subDir))
                             {
+                                includeBaseDirectory = true;
                                 continue;
                             }
 
@@ -801,6 +803,11 @@ namespace MyEMSLReader
                                 subDirList.Add(subDirToAdd);
 
                             filterOnSubDir = true;
+                        }
+
+                        if (filterOnSubDir && includeBaseDirectory)
+                        {
+                            subDirList.Add(string.Empty);
                         }
                     }
 
