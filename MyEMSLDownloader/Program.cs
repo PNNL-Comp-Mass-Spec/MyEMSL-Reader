@@ -15,7 +15,7 @@ namespace MyEMSLDownloader
 
     internal static class Program
     {
-        private const string PROGRAM_DATE = "May 8, 2018";
+        private const string PROGRAM_DATE = "August 20, 2018";
 
         static double mPercentComplete;
         static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
