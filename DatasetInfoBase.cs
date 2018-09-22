@@ -12,7 +12,7 @@ namespace MyEMSLReader
     /// <summary>
     /// Tracks the file info for one or more datasets or data packages
     /// </summary>
-    public abstract class DatasetInfoBase : clsEventNotifier
+    public abstract class DatasetInfoBase : EventNotifier
     {
 
         #region "Constants"

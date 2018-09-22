@@ -10,7 +10,7 @@ using Utilities = Pacifica.Core.Utilities;
 
 namespace MyEMSLReader
 {
-    public class MyEMSLBase : clsEventNotifier
+    public class MyEMSLBase : EventNotifier
     {
 
         #region "Enums"

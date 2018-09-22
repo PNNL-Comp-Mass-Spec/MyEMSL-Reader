@@ -89,7 +89,7 @@ namespace MyEMSLMetadataValidator
 
         #region "Event Handlers"
 
-        private static void RegisterEvents(clsEventNotifier oProcessingClass)
+        private static void RegisterEvents(EventNotifier oProcessingClass)
         {
             oProcessingClass.DebugEvent += OnDebugEvent;
             oProcessingClass.StatusEvent += OnStatusEvent;

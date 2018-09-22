@@ -5,7 +5,7 @@ using PRISM;
 
 namespace MyEMSLReader
 {
-    public class DownloadQueue : clsEventNotifier
+    public class DownloadQueue : EventNotifier
     {
         #region "Structures"
         public struct udtFileToDownload

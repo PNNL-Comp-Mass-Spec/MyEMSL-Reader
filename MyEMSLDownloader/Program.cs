@@ -15,7 +15,7 @@ namespace MyEMSLDownloader
 
     internal static class Program
     {
-        private const string PROGRAM_DATE = "August 20, 2018";
+        private const string PROGRAM_DATE = "September 20, 2018";
 
         static double mPercentComplete;
         static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
@@ -548,7 +548,7 @@ namespace MyEMSLDownloader
                         badArguments.Add("/" + item);
                     }
 
-                    ShowErrorMessage("Invalid commmand line parameters", badArguments);
+                    ShowErrorMessage("Invalid command line parameters", badArguments);
 
                     return false;
                 }
@@ -1002,16 +1002,16 @@ namespace MyEMSLDownloader
         private static void RegisterEvents(MyEMSLBase oProcessingClass)
         {
             oProcessingClass.MyEMSLOffline += MyEMSLReader_MyEMSLOffline;
-            RegisterEvents((clsEventNotifier)oProcessingClass);
+            RegisterEvents((EventNotifier)oProcessingClass);
         }
 
         private static void RegisterEvents(DatasetInfoBase oProcessingClass)
         {
             oProcessingClass.MyEMSLOffline += MyEMSLReader_MyEMSLOffline;
-            RegisterEvents((clsEventNotifier)oProcessingClass);
+            RegisterEvents((EventNotifier)oProcessingClass);
         }
 
-        private static void RegisterEvents(clsEventNotifier oProcessingClass)
+        private static void RegisterEvents(EventNotifier oProcessingClass)
         {
             oProcessingClass.DebugEvent += OnDebugEvent;
             oProcessingClass.StatusEvent += OnStatusEvent;

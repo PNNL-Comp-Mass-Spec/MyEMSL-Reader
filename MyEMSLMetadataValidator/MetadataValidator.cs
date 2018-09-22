@@ -7,7 +7,7 @@ using PRISM;
 
 namespace MyEMSLMetadataValidator
 {
-    class MetadataValidator : clsEventNotifier
+    class MetadataValidator : EventNotifier
     {
         private const string DATE_TIME_FORMAT = "yyyy-MM-dd hh:mm:ss tt";
 
@@ -268,7 +268,7 @@ namespace MyEMSLMetadataValidator
 
         }
 
-        private int GetMaxDatasetIdInMyEMSL(clsDBTools dbTools, bool limitToOldMyEMSL = true)
+        private int GetMaxDatasetIdInMyEMSL(DBTools dbTools, bool limitToOldMyEMSL = true)
         {
             try
             {
@@ -298,7 +298,7 @@ namespace MyEMSLMetadataValidator
         }
 
         private List<DMSMetadata> GetMyEMSLUploadInfoFromDMS(
-            clsDBTools dbTools,
+            DBTools dbTools,
             int datasetIdStart,
             int datasetIdEnd)
         {
@@ -517,7 +517,7 @@ namespace MyEMSLMetadataValidator
                     writeHeaders = true;
                 }
 
-                var dbTools = new clsDBTools(ValidatorOptions.DMS_CONNECTION_STRING);
+                var dbTools = new DBTools(ValidatorOptions.DMS_CONNECTION_STRING);
 
                 using (var resultsWriter = new StreamWriter(
                     new FileStream(outputFile.FullName, FileMode.Append, FileAccess.Write, FileShare.Read)))
@@ -626,7 +626,7 @@ namespace MyEMSLMetadataValidator
         }
 
         private bool ValidateDatasetBatch(
-            clsDBTools dbTools,
+            DBTools dbTools,
             TextWriter resultsWriter,
             ICollection<int> datasetIDsToCheck,
             int datasetIdStart,
