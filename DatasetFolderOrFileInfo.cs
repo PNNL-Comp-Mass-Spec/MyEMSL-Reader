@@ -10,7 +10,6 @@ namespace MyEMSLReader
         public DateTime CacheDateUTC
         {
             get;
-            private set;
         }
 
         /// <summary>
@@ -28,7 +27,6 @@ namespace MyEMSLReader
         public bool IsFolder
         {
             get;
-            private set;
         }
 
         /// <summary>
