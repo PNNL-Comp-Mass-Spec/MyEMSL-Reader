@@ -148,7 +148,7 @@ namespace MyEMSLDownloader
                             archiveFiles = ParseExplicitFileIDs(mFileIDList);
                             if (archiveFiles.Count == 0)
                             {
-                                ShowErrorMessage("No File IDs were found with the /FileID paramter");
+                                ShowErrorMessage("No File IDs were found with the /FileID parameter");
                                 System.Threading.Thread.Sleep(1000);
                                 return -1;
                             }

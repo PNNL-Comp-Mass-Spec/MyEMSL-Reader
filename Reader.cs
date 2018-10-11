@@ -1061,7 +1061,7 @@ namespace MyEMSLReader
             {
                 if (!dctDatasetsAndSubDirLists.TryGetValue(DATASET_ID_TAG + file.DatasetID, out subDirs))
                 {
-                    ReportError("File " + file.FileID + " has an unrecognized dateset ID: " + file.DatasetID +
+                    ReportError("File " + file.FileID + " has an unrecognized dataset ID: " + file.DatasetID +
                         "; skipping (MyEMSLReader.LookupSubDirFilterByDataset)");
                     success = false;
                 }
@@ -1079,7 +1079,7 @@ namespace MyEMSLReader
             {
                 if (!dctDatasetsAndSubDirLists.TryGetValue(file.Dataset, out subDirs))
                 {
-                    ReportError("File " + file.FileID + " has an unrecognized dateset name: " + file.Dataset +
+                    ReportError("File " + file.FileID + " has an unrecognized dataset name: " + file.Dataset +
                         "; skipping (MyEMSLReader.LookupSubDirFilterByDataset)");
                     success = false;
                 }

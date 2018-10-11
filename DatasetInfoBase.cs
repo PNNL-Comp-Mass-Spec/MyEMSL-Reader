@@ -392,7 +392,7 @@ namespace MyEMSLReader
                 // Assure that subFolderName has windows-style slashes (if it even has slashes)
                 subFolderName = subFolderName.Replace("/", @"\");
 
-                // If subFolderName does have multiple foldernames, only the final folder can have wildcards
+                // If subFolderName does have multiple folder names, only the final folder can have wildcards
                 subFolderPathParts = subFolderName.Split('\\').ToList();
 
                 reFolder = GetFileSearchRegEx(subFolderPathParts.Last());

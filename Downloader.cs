@@ -891,7 +891,7 @@ namespace MyEMSLReader
                 {
                     // Download the file and extract the files as the file is downloaded
                     // This way, the .tar file is never actually created on a local hard drive
-                    // Code modelled after https://github.com/icsharpcode/SharpZipLib/wiki/GZip-and-Tar-Samples
+                    // Code modeled after https://github.com/icsharpcode/SharpZipLib/wiki/GZip-and-Tar-Samples
 
                     var receiveStream = response.GetResponseStream();
 
