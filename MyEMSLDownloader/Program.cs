@@ -7,7 +7,7 @@ using PRISM;
 
 namespace MyEMSLDownloader
 {
-    internal struct udtFileInfo
+    internal struct TargetFileInfo
     {
         public string FileMask;
         public string SubDir;
@@ -15,7 +15,7 @@ namespace MyEMSLDownloader
 
     internal static class Program
     {
-        private const string PROGRAM_DATE = "September 20, 2018";
+        private const string PROGRAM_DATE = "October 10, 2018";
 
         static double mPercentComplete;
         static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
@@ -331,7 +331,7 @@ namespace MyEMSLDownloader
 
             try
             {
-                var datasetsToSearch = new Dictionary<string, List<udtFileInfo>>();
+                var datasetsToSearch = new Dictionary<string, List<TargetFileInfo>>();
 
                 using (var fileReader = new StreamReader(new FileStream(fiFileListFile.FullName, FileMode.Open, FileAccess.Read, FileShare.Read)))
                 {
@@ -382,7 +382,7 @@ namespace MyEMSLDownloader
                         }
 
                         var dataset = dataValues[headerMap[DATASET_COLUMN]].Trim();
-                        var fileToFind = new udtFileInfo
+                        var fileToFind = new TargetFileInfo
                         {
                             FileMask = dataValues[headerMap[FILE_COLUMN]].Trim()
                         };
@@ -401,7 +401,7 @@ namespace MyEMSLDownloader
 
                         if (!datasetsToSearch.TryGetValue(dataset, out var datasetFiles))
                         {
-                            datasetFiles = new List<udtFileInfo>();
+                            datasetFiles = new List<TargetFileInfo>();
                             datasetsToSearch.Add(dataset, datasetFiles);
                         }
 
@@ -1040,14 +1040,14 @@ namespace MyEMSLDownloader
             ConsoleMsgUtils.ShowWarning(message);
         }
 
-        private static void OnProgressUpdate(string progressmessage, float percentcomplete)
+        private static void OnProgressUpdate(string progressMessage, float percentComplete)
         {
-            if (percentcomplete > mPercentComplete || DateTime.UtcNow.Subtract(mLastProgressUpdateTime).TotalSeconds >= 30)
+            if (percentComplete > mPercentComplete || DateTime.UtcNow.Subtract(mLastProgressUpdateTime).TotalSeconds >= 30)
             {
                 if (DateTime.UtcNow.Subtract(mLastProgressUpdateTime).TotalSeconds >= 1)
                 {
-                    Console.WriteLine("Percent complete: " + percentcomplete.ToString("0.0") + "%");
-                    mPercentComplete = percentcomplete;
+                    Console.WriteLine("Percent complete: " + percentComplete.ToString("0.0") + "%");
+                    mPercentComplete = percentComplete;
                     mLastProgressUpdateTime = DateTime.UtcNow;
                 }
             }

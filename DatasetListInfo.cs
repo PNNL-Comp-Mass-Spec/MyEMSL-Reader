@@ -63,6 +63,7 @@ namespace MyEMSLReader
 
             if (mDatasetsAndSubDirLists.TryGetValue(datasetName, out var subDirsForDataset))
             {
+                // ReSharper disable once PossibleUnintendedLinearSearchInSet
                 if (!subDirsForDataset.Contains(subDir, StringComparer.OrdinalIgnoreCase))
                 {
                     subDirsForDataset.Add(subDir);

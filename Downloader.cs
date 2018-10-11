@@ -241,7 +241,7 @@ namespace MyEMSLReader
                 foreach (var archivedFileInfo in filesToDownload)
                 {
                     var fileID = archivedFileInfo.Key;
-                    var archivefile = archivedFileInfo.Value;
+                    var archiveFile = archivedFileInfo.Value;
 
                     if (filesDownloaded.ContainsKey(archivedFileInfo.Key))
                     {
@@ -250,17 +250,17 @@ namespace MyEMSLReader
 
                     var targetFile = GetTargetFile(
                        downloadFolder, folderLayout,
-                       archivefile, destFilePathOverride);
+                       archiveFile, destFilePathOverride);
 
                     if (targetFile == null)
                         continue;
 
                     // Confirm one more time that we need to download the file
-                    var downloadFile = IsDownloadRequired(archivefile, targetFile, reportMessage: false);
+                    var downloadFile = IsDownloadRequired(archiveFile, targetFile, reportMessage: false);
 
                     if (downloadFile)
                     {
-                        filesToDownloadViaCart.Add(fileID, archivefile);
+                        filesToDownloadViaCart.Add(fileID, archiveFile);
                     }
                 }
 
@@ -290,7 +290,7 @@ namespace MyEMSLReader
             catch (Exception ex)
             {
                 if (string.IsNullOrWhiteSpace(ErrorMessage))
-                    ReportError("Error in MyEMSLReader.Downloader.Downloadfiles: " + ex.Message);
+                    ReportError("Error in MyEMSLReader.Downloader.DownloadFiles: " + ex.Message);
                 else if (ThrowErrors)
                     throw;
             }
@@ -361,7 +361,7 @@ namespace MyEMSLReader
             return bytesToDownload;
         }
 
-        private string ConstructDownloadfilePath(DownloadFolderLayout folderLayout, ArchivedFileInfo archiveFile)
+        private string ConstructDownloadFilePath(DownloadFolderLayout folderLayout, ArchivedFileInfo archiveFile)
         {
             string downloadFilePath;
             switch (folderLayout)
@@ -974,7 +974,7 @@ namespace MyEMSLReader
                                                   " but expected filename is " + archiveFile.Filename);
 
                                 // Define the local file path
-                                downloadFilePath = ConstructDownloadfilePath(folderLayout, archiveFile);
+                                downloadFilePath = ConstructDownloadFilePath(folderLayout, archiveFile);
                                 downloadFilePath = Path.Combine(downloadFolder.FullName, downloadFilePath);
 
                                 if (destFilePathOverride.TryGetValue(archiveFile.FileID, out var filePathOverride))
@@ -1183,7 +1183,7 @@ namespace MyEMSLReader
             IReadOnlyDictionary<long, string> destFilePathOverride)
         {
 
-            var downloadFilePathRelative = ConstructDownloadfilePath(folderLayout, archiveFile);
+            var downloadFilePathRelative = ConstructDownloadFilePath(folderLayout, archiveFile);
 
             string downloadFilePath;
 
