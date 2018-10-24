@@ -52,7 +52,7 @@
   <ItemGroup>
     <Compile Include="ArchivedFileInfo.cs" />
     <Compile Include="DataPackageListInfo.cs" />
-    <Compile Include="DatasetFolderOrFileInfo.cs" />
+    <Compile Include="DatasetDirectoryOrFileInfo.cs" />
     <Compile Include="DatasetListInfoByID.cs" />
     <Compile Include="DatasetInfoBase.cs" />
     <Compile Include="DatasetListInfo.cs" />
