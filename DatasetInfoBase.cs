@@ -606,10 +606,14 @@ namespace MyEMSLReader
 
         private Regex GetFileSearchRegEx(string name)
         {
+            // ReSharper disable CommentTypo
+
             // Look for symbols reserved by RegEx
             // Replace them with escaped versions
             // For example, if name is "K00059_3-oxoacyl-[acyl-carrier_protein]_reductase_[EC_1_1_1_100].html"
             // Update it to be         "K00059_3-oxoacyl-\[acyl-carrier_protein]_reductase_\[EC_1_1_1_100]\.html\"
+
+            // ReSharper restore CommentTypo
 
             var escapedName = mReplaceReservedRegExChars.Replace(name, @"\${Symbol}");
 

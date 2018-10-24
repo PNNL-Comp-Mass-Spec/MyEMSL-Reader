@@ -751,6 +751,7 @@ namespace MyEMSLDownloader
             Console.WriteLine("Looking for files for test datasets using the DatasetListInfo class");
             Console.WriteLine();
 
+            // ReSharper disable once StringLiteralTypo
             mDatasetListInfo.AddDataset("2013_10_01_CMPD04_000005");
 
             var archiveFiles = mDatasetListInfo.FindFiles("*");
@@ -833,6 +834,7 @@ namespace MyEMSLDownloader
 
                 dataPackageInfoCache.AddDataPackage(814);
 
+                // ReSharper disable once StringLiteralTypo
                 var archiveFiles = dataPackageInfoCache.FindFiles("SamplePrepTest_Plasma*", @"misc\final melissa tables");
                 Console.WriteLine("dataPackageInfoCache.FindFiles found {0} items", archiveFiles.Count);
 

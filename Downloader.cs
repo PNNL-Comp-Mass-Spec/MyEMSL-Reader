@@ -405,6 +405,8 @@ namespace MyEMSLReader
         /// <returns></returns>
         private StringBuilder CreateCartPostData(Dictionary<long, ArchivedFileInfo> filesToDownload)
         {
+            // ReSharper disable CommentTypo
+
             // Example cart file contents:
             //   {
             //    "fileids": [
@@ -413,10 +415,13 @@ namespace MyEMSLReader
             //    ]
             //   }
 
+            // ReSharper restore CommentTypo
+
             try
             {
                 var postData = new StringBuilder();
 
+                // ReSharper disable once StringLiteralTypo
                 postData.AppendLine("{ \"fileids\": [");
 
                 var fileNumber = 0;
