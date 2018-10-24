@@ -205,6 +205,7 @@ namespace MyEMSLReader
 
         }
 
+        // ReSharper disable once UnusedMember.Global
         protected bool ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, bool valueIfMissing)
         {
             var valueText = ReadDictionaryValue(dctData, keyName, valueIfMissing.ToString());
@@ -215,6 +216,7 @@ namespace MyEMSLReader
             return valueIfMissing;
         }
 
+        // ReSharper disable once UnusedMember.Global
         protected long ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, long valueIfMissing)
         {
             var valueText = ReadDictionaryValue(dctData, keyName, valueIfMissing.ToString(CultureInfo.InvariantCulture));
@@ -239,6 +241,7 @@ namespace MyEMSLReader
         /// </summary>
         /// <param name="errorMessage">Error Message</param>
         /// <param name="allowThrowErrors">True to throw errors as an exception if ThrowErrors is true</param>
+        // ReSharper disable once UnusedMember.Global
         protected void ReportError(string errorMessage, bool allowThrowErrors)
         {
             ReportError(errorMessage, null, allowThrowErrors);
@@ -286,6 +289,7 @@ namespace MyEMSLReader
             ErrorMessage = string.Empty;
         }
 
+        // ReSharper disable once UnusedMember.Global
         protected List<Dictionary<string, object>> RetrieveDictionaryListByKey(Dictionary<string, object> dctResults, string keyName)
         {
             if (!dctResults.TryGetValue(keyName, out var value))
@@ -309,6 +313,7 @@ namespace MyEMSLReader
             return dctList;
         }
 
+        // ReSharper disable once UnusedMember.Global
         protected Dictionary<string, object> RetrieveDictionaryObjectByKey(Dictionary<string, object> dctResults, string keyName)
         {
             if (!dctResults.TryGetValue(keyName, out var value))

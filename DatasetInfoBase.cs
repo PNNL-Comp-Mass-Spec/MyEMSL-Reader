@@ -60,6 +60,7 @@ namespace MyEMSLReader
         /// <value></value>
         /// <returns></returns>
         /// <remarks>Keys are the full paths to the downloaded file, values are extended file info</remarks>
+        // ReSharper disable once UnusedMember.Global
         public Dictionary<string, ArchivedFileInfo> DownloadedFiles => mDownloadQueue.DownloadedFiles;
 
         /// <summary>
@@ -68,6 +69,7 @@ namespace MyEMSLReader
         /// <value></value>
         /// <returns></returns>
         /// <remarks>The messages are cleared by when these functions are called: ProcessDownloadQueue and RefreshInfo</remarks>
+        /// ReSharper disable once UnusedMember.Global
         public List<string> ErrorMessages => mErrorMessages;
 
         /// <summary>
@@ -76,6 +78,7 @@ namespace MyEMSLReader
         /// <value></value>
         /// <returns></returns>
         /// <remarks>Keys are MyEMSL File IDs, values are struct udtFileToDownload</remarks>
+        /// ReSharper disable once UnusedMember.Global
         public Dictionary<long, DownloadQueue.udtFileToDownload> FilesToDownload => mDownloadQueue.FilesToDownload;
 
         /// <summary>
@@ -196,6 +199,7 @@ namespace MyEMSLReader
         /// <param name="unzipRequired">True if the file will need to be unzipped after the download (this DLL will not unzip the file; it will simply include this in event FileDownloadedEventArgs)</param>
         /// <param name="destFilePath">Explicit destination file path</param>
         /// <remarks>fileInfo can be null if unzipRequired is false</remarks>
+        /// ReSharper disable once UnusedMember.Global
         public void AddFileToDownloadQueue(long myEMSLFileID, ArchivedFileInfo fileInfo, bool unzipRequired, string destFilePath)
         {
             mDownloadQueue.AddFileToDownloadQueue(myEMSLFileID, fileInfo, unzipRequired, destFilePath);
@@ -207,7 +211,7 @@ namespace MyEMSLReader
         /// <param name="filePath">Path to which the MyEMSL FileID should be appended</param>
         /// <param name="myEmslFileID">MyEMSL File ID</param>
         /// <returns>New path, for example QC_Shew_13-04_pt1_1_1_31Jul13_Cheetah_13-07-01.raw@MyEMSLID_84327</returns>
-        /// <remarks></remarks>
+        /// ReSharper disable once UnusedMember.Global
         public static string AppendMyEMSLFileID(string filePath, long myEmslFileID)
         {
             return filePath + MYEMSL_FILE_ID_TAG + myEmslFileID.ToString(CultureInfo.InvariantCulture);
@@ -218,6 +222,7 @@ namespace MyEMSLReader
         /// </summary>
         /// <param name="errorMessage">Output: error message, indicating the paths that were checked</param>
         /// <returns>True if the file is found, otherwise false</returns>
+        /// ReSharper disable once UnusedMember.Global
         public bool CertificateFileExists(out string errorMessage)
         {
             return mReader.CertificateFileExists(out errorMessage);
@@ -238,6 +243,7 @@ namespace MyEMSLReader
         /// <param name="filePath">Path to parse, for example QC_Shew_13-04_pt1_1_1_31Jul13_Cheetah_13-07-01.raw@MyEMSLID_84327</param>
         /// <returns>MyEMSL File ID if successfully parsed, 0 if not present or a problem</returns>
         /// <remarks></remarks>
+        /// ReSharper disable once UnusedMember.Global
         public static long ExtractMyEMSLFileID(string filePath)
         {
             return ExtractMyEMSLFileID(filePath, out _);
@@ -322,6 +328,7 @@ namespace MyEMSLReader
         /// <param name="datasetName">Dataset name filter</param>
         /// <returns>List of matching files</returns>
         /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
+        /// ReSharper disable once UnusedMember.Global
         public List<DatasetDirectoryOrFileInfo> FindFiles(string fileName, string subdirectoryName, string datasetName)
         {
             return FindFiles(fileName, subdirectoryName, datasetName, recurse: true);
@@ -509,6 +516,7 @@ namespace MyEMSLReader
         /// </summary>
         /// <param name="directoryName">Directory name to find; can contain a wildcard, e.g. SIC*</param>
         /// <returns>List of matching directories</returns>
+        /// ReSharper disable once UnusedMember.Global
         public List<DatasetDirectoryOrFileInfo> FindDirectories(string directoryName)
         {
             var datasetName = string.Empty;

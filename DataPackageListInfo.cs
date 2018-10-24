@@ -23,11 +23,13 @@ namespace MyEMSLReader
         /// <summary>
         /// Dataset IDs
         /// </summary>
+        // ReSharper disable once UnusedMember.Global
         public List<int> DataPackageIDs => mDataPackagesAndSubDirs.Keys.ToList();
 
         /// <summary>
         /// Keys are data package IDs, values are the optional Subdirectory name to filter on for the given data package
         /// </summary>
+        // ReSharper disable once UnusedMember.Global
         public Dictionary<int, string> DataPackagesAndSubDirs => mDataPackagesAndSubDirs;
 
         #endregion
@@ -68,12 +70,14 @@ namespace MyEMSLReader
             }
         }
 
+        // ReSharper disable once UnusedMember.Global
         public void Clear()
         {
             mDataPackagesAndSubDirs.Clear();
             mCacheIsStale = true;
         }
 
+        // ReSharper disable once UnusedMember.Global
         public bool ContainsDataPackage(int dataPackageID)
         {
             return mDataPackagesAndSubDirs.ContainsKey(dataPackageID);
