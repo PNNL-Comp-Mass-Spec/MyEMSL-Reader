@@ -7,15 +7,18 @@ namespace MyEMSLReader
 
     public class FileDownloadedEventArgs : EventArgs
     {
-        public readonly string DownloadFolderPath;
+        public readonly string DownloadDirectoryPath;
+
+        [Obsolete("Use DownloadDirectoryPath")]
+        public string DownloadFolderPath => DownloadDirectoryPath;
 
         public readonly ArchivedFileInfo ArchivedFile;
 
         public readonly bool UnzipRequired;
 
-        public FileDownloadedEventArgs(string downloadFolderPath, ArchivedFileInfo archivedFile, bool unzipRequired)
+        public FileDownloadedEventArgs(string downloadDirectoryPath, ArchivedFileInfo archivedFile, bool unzipRequired)
         {
-            DownloadFolderPath = downloadFolderPath;
+            DownloadDirectoryPath = downloadDirectoryPath;
             ArchivedFile = archivedFile;
             UnzipRequired = unzipRequired;
         }

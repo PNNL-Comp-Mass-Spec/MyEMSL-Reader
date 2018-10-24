@@ -30,27 +30,27 @@ namespace MyEMSLDownloader
         private void GetFileStart(DatasetListInfo datasetListInfo)
         {
 
-            var datasetFolderPathFromDMS = @"\\MyEMSL\Exact01\2010_2\SysVirol_SM001_mock-7d_3_B_11May10_Phoenix_10-03-35";
+            var datasetDirectoryPathFromDMS = @"\\MyEMSL\Exact01\2010_2\SysVirol_SM001_mock-7d_3_B_11May10_Phoenix_10-03-35";
 
-            if (datasetFolderPathFromDMS.StartsWith(@"\\MyEMSL"))
+            if (datasetDirectoryPathFromDMS.StartsWith(@"\\MyEMSL"))
             {
                 var datasetName = "SysVirol_SM001_mock-7d_3_B_11May10_Phoenix_10-03-35";
 
-                var outputFolderPath = @"C:\temp";
+                var outputDirectoryPath = @"C:\temp";
 
-                GetRawFile(datasetListInfo, datasetName, outputFolderPath);
+                GetRawFile(datasetListInfo, datasetName, outputDirectoryPath);
             }
 
         }
 
-        private void GetRawFile(DatasetListInfo datasetListInfo, string datasetName, string outputFolderPath)
+        private void GetRawFile(DatasetListInfo datasetListInfo, string datasetName, string outputDirectoryPath)
         {
             datasetListInfo.AddDataset(datasetName);
 
             Console.WriteLine("Searching for " + datasetName + ".raw");
-            var archiveFiles = datasetListInfo.FindFiles(datasetName + ".raw", subFolderName: string.Empty, recurse: false);
+            var archiveFiles = datasetListInfo.FindFiles(datasetName + ".raw", subdirectoryName: string.Empty, recurse: false);
 
-            DownloadFiles(datasetListInfo, archiveFiles, outputFolderPath);
+            DownloadFiles(datasetListInfo, archiveFiles, outputDirectoryPath);
         }
 
         private void DownloadFiles(DatasetInfoBase datasetListInfo, IEnumerable<DatasetFolderOrFileInfo> archiveFiles, string outputFolderPath)
@@ -62,13 +62,13 @@ namespace MyEMSLDownloader
                 datasetListInfo.AddFileToDownloadQueue(archiveFile.FileInfo);
             }
 
-            Downloader.DownloadFolderLayout folderLayout;
-            if (string.IsNullOrEmpty(outputFolderPath))
-                folderLayout = Downloader.DownloadFolderLayout.DatasetNameAndSubFolders;
+            Downloader.DownloadLayout directoryLayout;
+            if (string.IsNullOrEmpty(outputDirectoryPath))
+                directoryLayout = Downloader.DownloadLayout.DatasetNameAndSubdirectories;
             else
-                folderLayout = Downloader.DownloadFolderLayout.SingleDataset;
+                directoryLayout = Downloader.DownloadLayout.SingleDataset;
 
-            var success = datasetListInfo.ProcessDownloadQueue(outputFolderPath, folderLayout);
+            var success = datasetListInfo.ProcessDownloadQueue(outputDirectoryPath, directoryLayout);
 
             if (success)
             {

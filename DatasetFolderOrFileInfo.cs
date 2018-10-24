@@ -15,16 +15,16 @@ namespace MyEMSLReader
         /// <summary>
         /// MyEMSL File ID
         /// </summary>
-        /// <remarks>Will be 0 if this is a folder</remarks>
+        /// <remarks>Will be 0 if this is a directory</remarks>
         public long FileID
         {
             get;
         }
 
         /// <summary>
-        /// True if this entity is a folder in MyEMSL
+        /// True if this entity is a directory in MyEMSL
         /// </summary>
-        public bool IsFolder
+        public bool IsDirectory
         {
             get;
         }
@@ -41,13 +41,13 @@ namespace MyEMSLReader
         /// Constructor
         /// </summary>
         /// <param name="fileID"></param>
-        /// <param name="isFolder"></param>
+        /// <param name="isDirectory"></param>
         /// <param name="fileInfo"></param>
         public DatasetFolderOrFileInfo(long fileID, bool isFolder, ArchivedFileInfo fileInfo)
         {
             CacheDateUTC = DateTime.UtcNow;
             FileID = fileID;
-            IsFolder = isFolder;
+            IsDirectory = isDirectory;
             FileInfo = fileInfo;
         }
 

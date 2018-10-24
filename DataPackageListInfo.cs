@@ -80,33 +80,34 @@ namespace MyEMSLReader
         }
 
         /// <summary>
-        /// Looks for the given file, returning any matches as a list (searches this folder and subfolders)
+        /// Looks for the given file, returning any matches as a list (searches this directory and subdirectories)
         /// </summary>
         /// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
-        /// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
+        /// <param name="subdirectoryName">Subdirectory in which the file must reside; can contain a wildcard, e.g. SIC*</param>
         /// <param name="dataPackageID">Data Package ID filter</param>
         /// <returns>List of matching files</returns>
-        /// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, int dataPackageID)
+        /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
+        // ReSharper disable once UnusedMember.Global
         {
-            return FindFiles(fileName, subFolderName, dataPackageID, recurse: true);
+            return FindFiles(fileName, subdirectoryName, dataPackageID, recurse: true);
         }
 
         /// <summary>
         /// Looks for the given file, returning any matches as a list
         /// </summary>
         /// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
-        /// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
+        /// <param name="subdirectoryName">Subdirectory in which the file must reside; can contain a wildcard, e.g. SIC*</param>
         /// <param name="dataPackageID">Data Package ID filter</param>
-        /// <param name="recurse">True to search all subfolders; false to only search the root folder (or only subFolderName)</param>
+        /// <param name="recurse">True to search all subdirectories; false to only search the root directory (or only subdirectoryName)</param>
         /// <param name="fileSplit">Set to True if fileName contains a list of file names (or file specs) separated by a semicolon</param>
         /// <returns>List of matching files</returns>
-        /// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, int dataPackageID, bool recurse, bool fileSplit = false)
+        /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         {
             var datasetName = string.Empty;
 
-            return FindFiles(fileName, subFolderName, datasetName, dataPackageID, recurse, fileSplit);
+            return FindFiles(fileName, subdirectoryName, datasetName, dataPackageID, recurse, fileSplit);
         }
 
         /// <summary>

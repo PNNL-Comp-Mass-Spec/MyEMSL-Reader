@@ -166,13 +166,13 @@ namespace MyEMSLReader
         }
 
         /// <summary>
-        /// Path to the file, relative to the dataset folder
+        /// Path to the file, relative to the dataset directory
         /// </summary>
         /// <remarks>Uses Unix-style slashes</remarks>
         public string RelativePathUnix => RelativePathWindows.Replace(@"\", "/");
 
         /// <summary>
-        /// Path to the file, relative to the dataset folder
+        /// Path to the file, relative to the dataset directory
         /// </summary>
         /// <remarks>Uses Windows-style slashes</remarks>
         public string RelativePathWindows
@@ -202,9 +202,9 @@ namespace MyEMSLReader
 
         /// <summary>
         /// SubDirectory path of the file, as reported by MyEMSL
-        /// This path will have unix-style slashes ('/') if there are sub-folders
+        /// This path will have unix-style slashes ('/') if there are subdirectories
         /// </summary>
-        /// <remarks>The SubDirPath for Data package files will always start with the data package folder name</remarks>
+        /// <remarks>The SubDirPath for Data package files will always start with the data package directory name</remarks>
         public string SubDirPath
         {
             get;

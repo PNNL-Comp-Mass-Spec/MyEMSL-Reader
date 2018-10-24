@@ -23,9 +23,18 @@ namespace MyEMSLReader
 
         #region "Enums"
 
+        public enum DownloadLayout
+        {
+            FlatNoSubdirectories = 0,
+            SingleDataset = 1,
+            DatasetNameAndSubdirectories = 2,
+            InstrumentYearQuarterDataset = 3
+        }
+
+        [Obsolete("Use DownloadLayout")]
         public enum DownloadFolderLayout
         {
-            FlatNoSubfolders = 0,
+            FlatNoSubdirectories = 0,
             SingleDataset = 1,
             DatasetNameAndSubFolders = 2,
             InstrumentYearQuarterDataset = 3
@@ -144,18 +153,18 @@ namespace MyEMSLReader
         /// Download queued files
         /// </summary>
         /// <param name="filesToDownload">MyEMSL Files to download; keys are MyEMSL File IDs and values are ArchivedFileInfo objects</param>
-        /// <param name="downloadFolderPath">Target folder path (ignored for files defined in destFilePathOverride)</param>
-        /// <param name="folderLayout">Folder Layout (ignored for files defined in destFilePathOverride)</param>
+        /// <param name="downloadDirectoryPath">Target directory path (ignored for files defined in destFilePathOverride)</param>
+        /// <param name="directoryLayout">Directory Layout (ignored for files defined in destFilePathOverride)</param>
         /// <param name="maxMinutesToWait">Maximum minutes to wait (default is 1440 minutes = 24 hours)</param>
         /// <returns>True if success, false if an error</returns>
         public bool DownloadFiles(
             Dictionary<long, ArchivedFileInfo> filesToDownload,
-            string downloadFolderPath,
-            DownloadFolderLayout folderLayout = DownloadFolderLayout.SingleDataset,
+            string downloadDirectoryPath,
+            DownloadLayout directoryLayout = DownloadLayout.SingleDataset,
             int maxMinutesToWait = 1440)
         {
             var destFilePathOverride = new Dictionary<long, string>();
-            return DownloadFiles(filesToDownload, destFilePathOverride, downloadFolderPath, folderLayout, maxMinutesToWait);
+            return DownloadFiles(filesToDownload, destFilePathOverride, downloadDirectoryPath, directoryLayout, maxMinutesToWait);
         }
 
         /// <summary>
@@ -163,16 +172,16 @@ namespace MyEMSLReader
         /// </summary>
         /// <param name="filesToDownload">MyEMSL Files to download; keys are MyEMSL File IDs and values are ArchivedFileInfo objects</param>
         /// <param name="destFilePathOverride">Dictionary where keys are FileIDs and values are the explicit destination path to use</param>
-        /// <param name="downloadFolderPath">Target folder path (ignored for files defined in destFilePathOverride)</param>
-        /// <param name="folderLayout">Folder Layout (ignored for files defined in destFilePathOverride)</param>
+        /// <param name="downloadDirectoryPath">Target directory path (ignored for files defined in destFilePathOverride)</param>
+        /// <param name="directoryLayout">Directory Layout (ignored for files defined in destFilePathOverride)</param>
         /// <param name="maxMinutesToWait">Maximum minutes to wait (default is 1440 minutes = 24 hours)</param>
         /// <remarks>destFilePathOverride is not required and can be empty; it can also have values for just some of the files in lstFileIDs</remarks>
         /// <returns>True if success, false if an error</returns>
         public bool DownloadFiles(
             Dictionary<long, ArchivedFileInfo> filesToDownload,
             Dictionary<long, string> destFilePathOverride,
-            string downloadFolderPath,
-            DownloadFolderLayout folderLayout = DownloadFolderLayout.SingleDataset,
+            string downloadDirectoryPath,
+            DownloadLayout directoryLayout = DownloadLayout.SingleDataset,
             int maxMinutesToWait = 1440)
         {
             ResetStatus();
@@ -196,7 +205,7 @@ namespace MyEMSLReader
                     return false;
                 }
 
-                if (folderLayout == DownloadFolderLayout.SingleDataset)
+                if (directoryLayout == DownloadLayout.SingleDataset)
                 {
                     // Assure that the requested files all have the same dataset id
                     var datasetIDs = GetUniqueDatasetIDList(filesToDownload);
@@ -210,8 +219,8 @@ namespace MyEMSLReader
                             if (lstOutputFilePaths.Contains(archiveFile.RelativePathWindows))
                             {
                                 // File conflicts
-                                ReportMessage("Auto-changing folder layout to 'DatasetNameAndSubFolders' since the files to download come from more than one dataset");
-                                folderLayout = DownloadFolderLayout.DatasetNameAndSubFolders;
+                                ReportMessage("Auto-changing directory layout to 'DatasetNameAndSubdirectories' since the files to download come from more than one dataset");
+                                directoryLayout = DownloadLayout.DatasetNameAndSubdirectories;
                                 break;
                             }
 
@@ -223,16 +232,16 @@ namespace MyEMSLReader
 
                 var cookieJar = new CookieContainer();
 
-                if (string.IsNullOrWhiteSpace(downloadFolderPath))
-                    downloadFolderPath = ".";
+                if (string.IsNullOrWhiteSpace(downloadDirectoryPath))
+                    downloadDirectoryPath = ".";
 
-                var downloadFolder = new DirectoryInfo(downloadFolderPath);
+                var downloadDirectory = new DirectoryInfo(downloadDirectoryPath);
 
                 // Download the files
                 // Keys in this dictionary are FileIDs, values are relative file paths
                 var filesDownloaded = DownloadFilesDirectly(
                     filesToDownload, cookieJar, destFilePathOverride,
-                    downloadFolder, folderLayout, out var bytesDownloaded);
+                    downloadDirectory, directoryLayout, out var bytesDownloaded);
 
                 // Create a list of the files that remain (files that could not be downloaded directly)
                 // These files will be downloaded via the cart mechanism
@@ -249,8 +258,8 @@ namespace MyEMSLReader
                     }
 
                     var targetFile = GetTargetFile(
-                       downloadFolder, folderLayout,
-                       archiveFile, destFilePathOverride);
+                        downloadDirectory, directoryLayout,
+                        archiveFile, destFilePathOverride);
 
                     if (targetFile == null)
                         continue;
@@ -278,7 +287,7 @@ namespace MyEMSLReader
 
                 var cartSuccess = DownloadFilesViaCart(
                     filesToDownloadViaCart, cookieJar, destFilePathOverride,
-                    downloadFolder, folderLayout, out var bytesDownloadedViaCart);
+                    downloadDirectory, directoryLayout, out var bytesDownloadedViaCart);
 
                 bytesDownloaded += bytesDownloadedViaCart;
 
@@ -306,22 +315,22 @@ namespace MyEMSLReader
         /// Possibly add a special prefix to work with files whose paths are more than 255 characters long
         /// See https://msdn.microsoft.com/en-us/library/aa365247(v=vs.85).aspx#maxpath
         /// </summary>
-        /// <param name="fileOrFolderPath"></param>
+        /// <param name="fileOrDirectoryPath"></param>
         /// <returns>Updated path</returns>
         /// <remarks>This only works if the path is rooted</remarks>
-        private string AddLongPathCode(string fileOrFolderPath)
+        private string AddLongPathCode(string fileOrDirectoryPath)
         {
-            if (fileOrFolderPath.Length <= 255 || fileOrFolderPath.StartsWith(@"\\?\"))
-                return fileOrFolderPath;
+            if (fileOrDirectoryPath.Length <= 255 || fileOrDirectoryPath.StartsWith(@"\\?\"))
+                return fileOrDirectoryPath;
 
-            if (!Path.IsPathRooted(fileOrFolderPath))
+            if (!Path.IsPathRooted(fileOrDirectoryPath))
             {
                 throw new PathTooLongException(
                     "Target file path is over 255 characters long and is a relative path; " +
-                    "cannot work with path " + fileOrFolderPath);
+                    "cannot work with path " + fileOrDirectoryPath);
             }
 
-            return @"\\?\" + fileOrFolderPath;
+            return @"\\?\" + fileOrDirectoryPath;
         }
 
         /// <summary>
@@ -361,25 +370,25 @@ namespace MyEMSLReader
             return bytesToDownload;
         }
 
-        private string ConstructDownloadFilePath(DownloadFolderLayout folderLayout, ArchivedFileInfo archiveFile)
+        private string ConstructDownloadFilePath(DownloadLayout directoryLayout, ArchivedFileInfo archiveFile)
         {
             string downloadFilePath;
-            switch (folderLayout)
+            switch (directoryLayout)
             {
-                case DownloadFolderLayout.FlatNoSubfolders:
+                case DownloadLayout.FlatNoSubdirectories:
                     downloadFilePath = archiveFile.Filename;
                     break;
-                case DownloadFolderLayout.SingleDataset:
+                case DownloadLayout.SingleDataset:
                     downloadFilePath = archiveFile.RelativePathWindows;
                     break;
-                case DownloadFolderLayout.DatasetNameAndSubFolders:
+                case DownloadLayout.DatasetNameAndSubdirectories:
                     downloadFilePath = Path.Combine(archiveFile.Dataset, archiveFile.RelativePathWindows);
                     break;
-                case DownloadFolderLayout.InstrumentYearQuarterDataset:
+                case DownloadLayout.InstrumentYearQuarterDataset:
                     downloadFilePath = archiveFile.PathWithInstrumentAndDatasetWindows;
                     break;
                 default:
-                    ReportError("Unrecognized DownloadFolderLayout mode: " + folderLayout.ToString());
+                    ReportError("Unrecognized DownloadLayout mode: " + directoryLayout.ToString());
                     downloadFilePath = Path.Combine(archiveFile.Dataset, archiveFile.RelativePathWindows);
                     break;
             }
@@ -538,16 +547,16 @@ namespace MyEMSLReader
         /// <param name="filesToDownload"></param>
         /// <param name="cookieJar"></param>
         /// <param name="destFilePathOverride"></param>
-        /// <param name="downloadFolder"></param>
-        /// <param name="folderLayout"></param>
+        /// <param name="downloadDirectory"></param>
+        /// <param name="directoryLayout"></param>
         /// <param name="bytesDownloaded"></param>
         /// <returns></returns>
         private Dictionary<long, string> DownloadFilesDirectly(
             IReadOnlyDictionary<long, ArchivedFileInfo> filesToDownload,
             CookieContainer cookieJar,
             IReadOnlyDictionary<long, string> destFilePathOverride,
-            FileSystemInfo downloadFolder,
-            DownloadFolderLayout folderLayout,
+            FileSystemInfo downloadDirectory,
+            DownloadLayout directoryLayout,
             out long bytesDownloaded)
         {
             var filesDownloaded = new Dictionary<long, string>();
@@ -603,7 +612,7 @@ namespace MyEMSLReader
                     var firstArchiveFile = filesToDownload[fileIDs.First()];
 
                     var targetFile = GetTargetFile(
-                        downloadFolder, folderLayout,
+                        downloadDirectory, directoryLayout,
                         firstArchiveFile, destFilePathOverride);
 
                     if (targetFile == null)
@@ -656,7 +665,7 @@ namespace MyEMSLReader
                     {
                         // Copy the downloaded file to the additional local target file locations
                         DuplicateFile(
-                            downloadFolder, folderLayout, destFilePathOverride,
+                            downloadDirectory, directoryLayout, destFilePathOverride,
                             targetFile, filesToDownload, fileIDs.Skip(1), filesDownloaded);
                     }
 
@@ -687,8 +696,8 @@ namespace MyEMSLReader
             Dictionary<long, ArchivedFileInfo> filesToDownload,
             CookieContainer cookieJar,
             Dictionary<long, string> destFilePathOverride,
-            DirectoryInfo downloadFolder,
-            DownloadFolderLayout folderLayout,
+            DirectoryInfo downloadDirectory,
+            DownloadLayout directoryLayout,
             out long bytesDownloaded)
         {
 
@@ -778,7 +787,7 @@ namespace MyEMSLReader
             }
 
             // Extract the files from the .tar file
-            success = DownloadTarFileWithRetry(cookieJar, dctFiles.Keys.ToList(), bytesDownloaded, destFilePathOverride, downloadFolderPath, folderLayout, tarFileURL);
+            success = DownloadTarFileWithRetry(cookieJar, dctFiles.Keys.ToList(), bytesDownloaded, destFilePathOverride, downloadDirectoryPath, directoryLayout, tarFileURL);
 
             *
             *
@@ -791,8 +800,8 @@ namespace MyEMSLReader
             List<ArchivedFileInfo> lstFilesInArchive,
             long bytesDownloaded,
             IReadOnlyDictionary<long, string> destFilePathOverride,
-            FileSystemInfo downloadFolder,
-            DownloadFolderLayout folderLayout,
+            FileSystemInfo downloadDirectory,
+            DownloadLayout directoryLayout,
             string tarFileURL)
         {
             var success = false;
@@ -810,7 +819,7 @@ namespace MyEMSLReader
                     try
                     {
                         attempts++;
-                        success = DownloadAndExtractTarFile(cookieJar, lstFilesInArchive, bytesDownloaded, destFilePathOverride, downloadFolder, folderLayout, tarFileURL, timeoutSeconds);
+                        success = DownloadAndExtractTarFile(cookieJar, lstFilesInArchive, bytesDownloaded, destFilePathOverride, downloadDirectory, directoryLayout, tarFileURL, timeoutSeconds);
 
                         if (!success)
                             break;
@@ -861,8 +870,8 @@ namespace MyEMSLReader
             List<ArchivedFileInfo> lstFilesInArchive,
             long bytesDownloaded,
             IReadOnlyDictionary<long, string> destFilePathOverride,
-            FileSystemInfo downloadFolder,
-            DownloadFolderLayout folderLayout,
+            FileSystemInfo downloadDirectory,
+            DownloadLayout directoryLayout,
             string tarFileURL,
             int timeoutSeconds = 100)
         {
@@ -914,7 +923,7 @@ namespace MyEMSLReader
                         // Convert the unix forward slashes in the filenames to windows backslashes
                         sourceFile = sourceFile.Replace('/', Path.DirectorySeparatorChar);
 
-                        // The Filename of the tar entry used to start with a folder name that is a MyEMSL FileID
+                        // The Filename of the tar entry used to start with a directory name that is a MyEMSL FileID
                         // As of March 2016 that is no longer the case
                         var charIndex = sourceFile.IndexOf(Path.DirectorySeparatorChar);
 
@@ -963,7 +972,7 @@ namespace MyEMSLReader
                             else
                             {
                                 // Confirm that the name of the file in the .Tar file matches the expected file name
-                                // Names in the tar file will be limited to 255 characters (including any preceding parent folder names) so we should not compare the full name
+                                // Names in the tar file will be limited to 255 characters (including any preceding parent directory names) so we should not compare the full name
                                 // Furthermore, the primary filename is limited to 100 characters, so it too could be truncated
 
                                 archiveFile = archiveFileLookup.First();
@@ -974,8 +983,8 @@ namespace MyEMSLReader
                                                   " but expected filename is " + archiveFile.Filename);
 
                                 // Define the local file path
-                                downloadFilePath = ConstructDownloadFilePath(folderLayout, archiveFile);
-                                downloadFilePath = Path.Combine(downloadFolder.FullName, downloadFilePath);
+                                downloadFilePath = ConstructDownloadFilePath(directoryLayout, archiveFile);
+                                downloadFilePath = Path.Combine(downloadDirectory.FullName, downloadFilePath);
 
                                 if (destFilePathOverride.TryGetValue(archiveFile.FileID, out var filePathOverride))
                                 {
@@ -992,23 +1001,23 @@ namespace MyEMSLReader
                         {
                             sourceFile = sourceFile.TrimStart('\\');
 
-                            switch (folderLayout)
+                            switch (directoryLayout)
                             {
-                                case DownloadFolderLayout.FlatNoSubfolders:
+                                case DownloadLayout.FlatNoSubdirectories:
                                     downloadFilePath = Path.GetFileName(sourceFile);
                                     break;
-                                case DownloadFolderLayout.SingleDataset:
+                                case DownloadLayout.SingleDataset:
                                     downloadFilePath = sourceFile;
                                     break;
                                 default:
-                                    // Includes: DownloadFolderLayout.DatasetNameAndSubFolders
-                                    // Includes: DownloadFolderLayout.InstrumentYearQuarterDataset
-                                    ReportMessage("Warning, due to the missing MyEMSL FileID the DownloadFolderLayout cannot be honored");
+                                    // Includes: DownloadLayout.DatasetNameAndSubdirectories
+                                    // Includes: DownloadLayout.InstrumentYearQuarterDataset
+                                    ReportMessage("Warning, due to the missing MyEMSL FileID the DownloadLayout cannot be honored");
                                     downloadFilePath = sourceFile;
                                     break;
                             }
 
-                            downloadFilePath = Path.Combine(downloadFolder.FullName, downloadFilePath);
+                            downloadFilePath = Path.Combine(downloadDirectory.FullName, downloadFilePath);
 
                             var subDirPath = Path.GetDirectoryName(sourceFile);
                             if (string.IsNullOrEmpty(subDirPath))
@@ -1037,7 +1046,7 @@ namespace MyEMSLReader
                         if (downloadFilePath.Length > 255)
                             downloadFilePath = AddLongPathCode(downloadFilePath);
 
-                        // Create the target folder if necessary
+                        // Create the target directory if necessary
                         var targetFile = new FileInfo(downloadFilePath);
 
                         if (targetFile.Directory == null)
@@ -1107,8 +1116,8 @@ namespace MyEMSLReader
         }
 
         private void DuplicateFile(
-            FileSystemInfo downloadFolder,
-            DownloadFolderLayout folderLayout,
+            FileSystemInfo downloadDirectory,
+            DownloadLayout directoryLayout,
             IReadOnlyDictionary<long, string> destFilePathOverride,
             FileInfo fiSourceFile,
             IReadOnlyDictionary<long, ArchivedFileInfo> filesToDownload,
@@ -1121,7 +1130,7 @@ namespace MyEMSLReader
                 var targetArchiveFile = filesToDownload[targetFileID];
 
                 var targetFile = GetTargetFile(
-                        downloadFolder, folderLayout,
+                        downloadDirectory, directoryLayout,
                         targetArchiveFile, destFilePathOverride);
 
                 if (targetFile == null)
@@ -1177,13 +1186,13 @@ namespace MyEMSLReader
         }
 
         private FileInfo GetTargetFile(
-            FileSystemInfo downloadFolder,
-            DownloadFolderLayout folderLayout,
+            FileSystemInfo downloadDirectory,
+            DownloadLayout directoryLayout,
             ArchivedFileInfo archiveFile,
             IReadOnlyDictionary<long, string> destFilePathOverride)
         {
 
-            var downloadFilePathRelative = ConstructDownloadFilePath(folderLayout, archiveFile);
+            var downloadFilePathRelative = ConstructDownloadFilePath(directoryLayout, archiveFile);
 
             string downloadFilePath;
 
@@ -1194,7 +1203,7 @@ namespace MyEMSLReader
             }
             else
             {
-                downloadFilePath = Path.Combine(downloadFolder.FullName, downloadFilePathRelative);
+                downloadFilePath = Path.Combine(downloadDirectory.FullName, downloadFilePathRelative);
             }
 
             FileInfo fiTargetFile;
@@ -1226,7 +1235,7 @@ namespace MyEMSLReader
 
             if (!fiTargetFile.Directory.Exists)
             {
-                ReportMessage("Creating target folder: " + fiTargetFile.Directory.FullName);
+                ReportMessage("Creating target directory: " + fiTargetFile.Directory.FullName);
                 fiTargetFile.Directory.Create();
             }
 

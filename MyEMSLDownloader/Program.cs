@@ -15,14 +15,14 @@ namespace MyEMSLDownloader
 
     internal static class Program
     {
-        private const string PROGRAM_DATE = "October 11, 2018";
+        private const string PROGRAM_DATE = "October 23, 2018";
 
         static double mPercentComplete;
         static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
 
         private static string mDatasetName;
         private static int mDataPkgID;
-        private static string mSubfolder;
+        private static string mSubdirectory;
 
         /// <summary>
         /// File spec for finding files
@@ -41,7 +41,7 @@ namespace MyEMSLDownloader
 
         private static string mFileIDList;
         private static string mFileListPath;
-        private static string mOutputFolderPath;
+        private static string mOutputDirectoryPath;
 
         private static bool mMultiDatasetMode;
         private static bool mDisableCart;
@@ -63,10 +63,10 @@ namespace MyEMSLDownloader
 
             mDatasetName = string.Empty;
             mDataPkgID = 0;
-            mSubfolder = string.Empty;
+            mSubdirectory = string.Empty;
             mFileMask = string.Empty;
             mFileSplit = false;
-            mOutputFolderPath = string.Empty;
+            mOutputDirectoryPath = string.Empty;
 
             mMultiDatasetMode = false;
             mDisableCart = false;
@@ -126,7 +126,7 @@ namespace MyEMSLDownloader
                 List<DatasetFolderOrFileInfo> archiveFiles;
 
                 if (mDataPkgID > 0)
-                    archiveFiles = FindDataPkgFiles(mDataPkgID, mSubfolder, mFileMask, mFileSplit);
+                    archiveFiles = FindDataPkgFiles(mDataPkgID, mSubdirectory, mFileMask, mFileSplit);
                 else
                 {
                     if (!string.IsNullOrWhiteSpace(mFileListPath))
@@ -161,7 +161,7 @@ namespace MyEMSLDownloader
                                 System.Threading.Thread.Sleep(1000);
                                 return -1;
                             }
-                            archiveFiles = FindDatasetFiles(mDatasetName, mSubfolder, mFileMask, mFileSplit);
+                            archiveFiles = FindDatasetFiles(mDatasetName, mSubdirectory, mFileMask, mFileSplit);
                         }
                     }
                 }
@@ -185,9 +185,9 @@ namespace MyEMSLDownloader
 
                 Console.WriteLine();
                 if (mDataPkgID > 0)
-                    DownloadDataPackageFiles(archiveFiles, mOutputFolderPath);
+                    DownloadDataPackageFiles(archiveFiles, mOutputDirectoryPath);
                 else
-                    DownloadDatasetFiles(archiveFiles, mOutputFolderPath);
+                    DownloadDatasetFiles(archiveFiles, mOutputDirectoryPath);
             }
             catch (Exception ex)
             {
@@ -237,18 +237,18 @@ namespace MyEMSLDownloader
 
         private static void DownloadDatasetFiles(IEnumerable<DatasetFolderOrFileInfo> archiveFiles, string outputFolderPath)
         {
-            DownloadFiles(mDatasetListInfo, archiveFiles, outputFolderPath);
+            DownloadFiles(mDatasetListInfo, archiveFiles, outputDirectoryPath);
         }
 
         private static void DownloadDataPackageFiles(IEnumerable<DatasetFolderOrFileInfo> archiveFiles, string outputFolderPath)
         {
-            DownloadFiles(mDataPackageListInfo, archiveFiles, outputFolderPath);
+            DownloadFiles(mDataPackageListInfo, archiveFiles, outputDirectoryPath);
         }
 
         private static void DownloadFiles(
             DatasetInfoBase myEMSLInfoCache,
             IEnumerable<DatasetFolderOrFileInfo> archiveFiles,
-            string outputFolderPath)
+            string outputDirectoryPath)
         {
             myEMSLInfoCache.ClearDownloadQueue();
             myEMSLInfoCache.DisableCart = mDisableCart;
@@ -259,13 +259,13 @@ namespace MyEMSLDownloader
                 myEMSLInfoCache.AddFileToDownloadQueue(archiveFile.FileInfo);
             }
 
-            Downloader.DownloadFolderLayout folderLayout;
+            Downloader.DownloadLayout directoryLayout;
             if (mMultiDatasetMode)
-                folderLayout = Downloader.DownloadFolderLayout.DatasetNameAndSubFolders;
+                directoryLayout = Downloader.DownloadLayout.DatasetNameAndSubdirectories;
             else
-                folderLayout = Downloader.DownloadFolderLayout.SingleDataset;
+                directoryLayout = Downloader.DownloadLayout.SingleDataset;
 
-            var success = myEMSLInfoCache.ProcessDownloadQueue(outputFolderPath, folderLayout);
+            var success = myEMSLInfoCache.ProcessDownloadQueue(outputDirectoryPath, directoryLayout);
 
             if (success)
             {
@@ -282,7 +282,7 @@ namespace MyEMSLDownloader
         /// Find files for the given dataset
         /// </summary>
         /// <param name="datasetName">Dataset name</param>
-        /// <param name="subfolder">Subfolder to filter on (optional)</param>
+        /// <param name="subdirectory">Subdirectory to filter on (optional)</param>
         /// <param name="fileMask">File name or file spec like *.txt to filter on (optional)</param>
         /// <param name="fileSplit"></param>
         /// <returns></returns>
@@ -292,24 +292,24 @@ namespace MyEMSLDownloader
         /// </remarks>
         private static List<DatasetFolderOrFileInfo> FindDatasetFiles(
             string datasetName,
-            string subfolder,
+            string subdirectory,
             string fileMask,
             bool fileSplit)
         {
 
-            mDatasetListInfo.AddDataset(datasetName, subfolder);
+            mDatasetListInfo.AddDataset(datasetName, subdirectory);
 
             if (string.IsNullOrEmpty(fileMask))
                 fileMask = "*";
 
-            var archiveFiles = mDatasetListInfo.FindFiles(fileMask, subfolder, datasetName, true, fileSplit);
+            var archiveFiles = mDatasetListInfo.FindFiles(fileMask, subdirectory, datasetName, true, fileSplit);
 
             return archiveFiles;
         }
 
         private static List<DatasetFolderOrFileInfo> FindDataPkgFiles(
             int dataPkgID,
-            string subfolder,
+            string subdirectory,
             string fileMask,
             bool fileSplit)
         {
@@ -318,7 +318,7 @@ namespace MyEMSLDownloader
             if (string.IsNullOrEmpty(fileMask))
                 fileMask = "*";
 
-            var archiveFiles = mDataPackageListInfo.FindFiles(fileMask, subfolder, true, fileSplit);
+            var archiveFiles = mDataPackageListInfo.FindFiles(fileMask, subdirectory, true, fileSplit);
 
             return archiveFiles;
         }
@@ -559,7 +559,7 @@ namespace MyEMSLDownloader
                     mDatasetName = commandLineParser.RetrieveNonSwitchParameter(0);
 
                 if (commandLineParser.NonSwitchParameterCount > 1)
-                    mSubfolder = commandLineParser.RetrieveNonSwitchParameter(1);
+                    mSubdirectory = commandLineParser.RetrieveNonSwitchParameter(1);
 
                 if (!ParseParameter(commandLineParser, "Dataset", "a dataset name", ref mDatasetName))
                     return false;
@@ -576,7 +576,7 @@ namespace MyEMSLDownloader
                     }
                 }
 
-                if (!ParseParameter(commandLineParser, "SubDir", "a subfolder name", ref mSubfolder))
+                if (!ParseParameter(commandLineParser, "SubDir", "a subdirectory name", ref mSubdirectory))
                     return false;
                 if (!ParseParameter(commandLineParser, "Files", "a file mas", ref mFileMask))
                     return false;
@@ -584,7 +584,7 @@ namespace MyEMSLDownloader
                 if (commandLineParser.IsParameterPresent("FileSplit"))
                     mFileSplit = true;
 
-                if (!ParseParameter(commandLineParser, "O", "an output folder path", ref mOutputFolderPath))
+                if (!ParseParameter(commandLineParser, "O", "an output directory path", ref mOutputDirectoryPath))
                     return false;
 
                 if (!ParseParameter(commandLineParser, "FileList", "a filename", ref mFileListPath))
@@ -666,22 +666,22 @@ namespace MyEMSLDownloader
                 Console.WriteLine();
 
                 Console.Write("Program syntax #1:" + Environment.NewLine + exeName);
-                Console.WriteLine(" DatasetName [SubFolderName] [/Files:FileMask] [/FileSplit]");
-                Console.WriteLine(" [/O:OutputFolder] [/D] [/Preview] [/V] [/Trace] [/DisableCart] [/ForceCart] [/UseTest]");
+                Console.WriteLine(" DatasetName [SubdirectoryName] [/Files:FileMask] [/FileSplit]");
+                Console.WriteLine(" [/O:OutputDirectory] [/D] [/Preview] [/V] [/Trace] [/DisableCart] [/ForceCart] [/UseTest]");
 
                 Console.WriteLine();
                 Console.Write("Program syntax #2:" + Environment.NewLine + exeName);
-                Console.WriteLine(" /Dataset:DatasetName [/SubDir:SubFolderName] [/Files:FileMask] [/FileSplit]");
-                Console.WriteLine(" [/O:OutputFolder] [/D] [/Preview] [/V] [/Trace] [/DisableCart] [/ForceCart] [/UseTest]");
+                Console.WriteLine(" /Dataset:DatasetName [/SubDir:SubdirectoryName] [/Files:FileMask] [/FileSplit]");
+                Console.WriteLine(" [/O:OutputDirectory] [/D] [/Preview] [/V] [/Trace] [/DisableCart] [/ForceCart] [/UseTest]");
 
                 Console.WriteLine();
                 Console.Write("Program syntax #3:" + Environment.NewLine + exeName);
-                Console.WriteLine(" /DataPkg:DataPackageID [/SubDir:SubFolderName] [/Files:FileMask] [/FileSplit]");
-                Console.WriteLine(" [/O:OutputFolder] [/Preview] [/V] [/Trace] [/DisableCart] [/ForceCart] [/UseTest]");
+                Console.WriteLine(" /DataPkg:DataPackageID [/SubDir:SubdirectoryName] [/Files:FileMask] [/FileSplit]");
+                Console.WriteLine(" [/O:OutputDirectory] [/Preview] [/V] [/Trace] [/DisableCart] [/ForceCart] [/UseTest]");
 
                 Console.WriteLine();
                 Console.Write("Program syntax #4:" + Environment.NewLine + exeName);
-                Console.WriteLine(" /FileList:FileInfoFile.txt [/O:OutputFolder]");
+                Console.WriteLine(" /FileList:FileInfoFile.txt [/O:OutputDirectory]");
                 Console.WriteLine(" [/Preview] [/V] [/Trace] [/DisableCart] [/ForceCart] [/UseTest]");
 
                 Console.WriteLine();
@@ -694,15 +694,15 @@ namespace MyEMSLDownloader
                 Console.WriteLine(" /Test [/Preview] [/V] [/Trace] [/DisableCart] [/ForceCart]");
 
                 Console.WriteLine();
-                Console.WriteLine("To download files for a given dataset, enter the dataset name, plus optionally the SubFolder name");
+                Console.WriteLine("To download files for a given dataset, enter the dataset name, plus optionally the subdirectory name");
                 Console.WriteLine("The names can be entered separated by spaces, or using /Dataset plus optionally /SubDir");
                 Console.WriteLine();
                 Console.WriteLine("Use /Files to filter for specific files, for example /Files:*.txt");
-                Console.WriteLine("Files will be downloaded to the folder with the .exe; override using /O");
+                Console.WriteLine("Files will be downloaded to the directory with the .exe; override using /O");
                 Console.WriteLine("Use /FileSplit to indicate that /Files contains a list of filenames and/or file specs, separated by semicolons");
                 Console.WriteLine("For example, use /Files:analysis.baf;ser /FileSplit");
                 Console.WriteLine();
-                Console.WriteLine("Use /D to create a folder with the dataset name, then store the files within that folder");
+                Console.WriteLine("Use /D to create a directory with the dataset name, then store the files within that directory");
                 Console.WriteLine();
                 Console.WriteLine("Use /DataPkg to retrieve files from a specific data package");
                 Console.WriteLine();
@@ -731,8 +731,8 @@ namespace MyEMSLDownloader
                 Console.WriteLine("Version: " + GetAppVersion());
                 Console.WriteLine();
 
-                Console.WriteLine("E-mail: matthew.monroe@pnnl.gov or matt@alchemistmatt.com");
-                Console.WriteLine("Website: http://panomics.pnnl.gov/ or http://omics.pnl.gov or http://www.sysbio.org/resources/staff/");
+                Console.WriteLine("E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov");
+                Console.WriteLine("Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/");
                 Console.WriteLine();
 
                 // Delay for 1 second in case the user double clicked this file from within Windows Explorer (or started the program via a shortcut)
@@ -777,29 +777,29 @@ namespace MyEMSLDownloader
             RegisterEvents(reader);
 
             var filesToDownload1 = TestMultiDataset(reader);
-            Console.WriteLine();
+            Console.WriteLine("TestMultiDataset returned {0} records", filesToDownload1.Count);
             Console.WriteLine();
 
             var filesToDownload2a = TestOneDatasetByID(reader);
-            Console.WriteLine();
+            Console.WriteLine("TestOneDatasetByID returned {0} records", filesToDownload2a.Count);
             Console.WriteLine();
 
             reader.IncludeAllRevisions = true;
             var filesToDownload2b = TestOneDatasetByID(reader);
-            Console.WriteLine();
+            Console.WriteLine("TestOneDatasetByID returned {0} records", filesToDownload2b.Count);
             Console.WriteLine();
             reader.IncludeAllRevisions = false;
 
             var filesToDownload3 = TestMultiDatasetID(reader);
-            Console.WriteLine();
+            Console.WriteLine("TestMultiDatasetID returned {0} records", filesToDownload3.Count);
             Console.WriteLine();
 
             var filesToDownload4 = TestOneDataset(reader);
-            Console.WriteLine();
+            Console.WriteLine("TestOneDataset returned {0} records", filesToDownload4.Count);
             Console.WriteLine();
 
             var filesToDownload5 = TestOneDataPackage(reader);
-            Console.WriteLine();
+            Console.WriteLine("TestOneDataPackage returned {0} records", filesToDownload5.Count);
             Console.WriteLine();
 
             return filesToDownload1;
@@ -834,6 +834,7 @@ namespace MyEMSLDownloader
                 dataPackageInfoCache.AddDataPackage(814);
 
                 var archiveFiles = dataPackageInfoCache.FindFiles("SamplePrepTest_Plasma*", @"misc\final melissa tables");
+                Console.WriteLine("dataPackageInfoCache.FindFiles found {0} items", archiveFiles.Count);
 
             }
             catch (Exception ex)
@@ -851,7 +852,7 @@ namespace MyEMSLDownloader
 
             //datasetName = "Blank_B-2_20Apr12_Draco_12-02-37";
             // datasetName = "QC_Shew_11_06_pt5_d2_11Jun12_Draco_12-04-14";
-            // Dataset where all of the files were purged from spinning disk (but have now been unpurged)
+            // Dataset where all of the files were purged from spinning disk (but have now been un-purged)
             //datasetName = "2013_05_28_U01-B_Wilkins_neg_4M_0p1acc_8x_144_000001";
             //subDir = "";
 
@@ -974,13 +975,13 @@ namespace MyEMSLDownloader
 
             try
             {
-                string outputFolder;
-                if (string.IsNullOrEmpty(mOutputFolderPath))
-                    outputFolder = @"F:\Temp\MyEMSL";
+                string outputDirectory;
+                if (string.IsNullOrEmpty(mOutputDirectoryPath))
+                    outputDirectory = @"F:\Temp\MyEMSL";
                 else
-                    outputFolder = mOutputFolderPath;
+                    outputDirectory = mOutputDirectoryPath;
 
-                downloader.DownloadFiles(filesToDownload, outputFolder, Downloader.DownloadFolderLayout.DatasetNameAndSubFolders);
+                downloader.DownloadFiles(filesToDownload, outputDirectory, Downloader.DownloadLayout.DatasetNameAndSubdirectories);
             }
             catch (Exception ex)
             {
@@ -994,30 +995,30 @@ namespace MyEMSLDownloader
             Console.WriteLine("Downloading " + archiveFiles.Count + " files");
             Console.WriteLine();
 
-            DownloadDatasetFiles(archiveFiles, mOutputFolderPath);
+            DownloadDatasetFiles(archiveFiles, mOutputDirectoryPath);
         }
 
         #region "Event Handlers"
 
-        private static void RegisterEvents(MyEMSLBase oProcessingClass)
+        private static void RegisterEvents(MyEMSLBase processingClass)
         {
-            oProcessingClass.MyEMSLOffline += MyEMSLReader_MyEMSLOffline;
-            RegisterEvents((EventNotifier)oProcessingClass);
+            processingClass.MyEMSLOffline += MyEMSLReader_MyEMSLOffline;
+            RegisterEvents((EventNotifier)processingClass);
         }
 
-        private static void RegisterEvents(DatasetInfoBase oProcessingClass)
+        private static void RegisterEvents(DatasetInfoBase processingClass)
         {
-            oProcessingClass.MyEMSLOffline += MyEMSLReader_MyEMSLOffline;
-            RegisterEvents((EventNotifier)oProcessingClass);
+            processingClass.MyEMSLOffline += MyEMSLReader_MyEMSLOffline;
+            RegisterEvents((EventNotifier)processingClass);
         }
 
-        private static void RegisterEvents(EventNotifier oProcessingClass)
+        private static void RegisterEvents(EventNotifier processingClass)
         {
-            oProcessingClass.DebugEvent += OnDebugEvent;
-            oProcessingClass.StatusEvent += OnStatusEvent;
-            oProcessingClass.ErrorEvent += OnErrorEvent;
-            oProcessingClass.WarningEvent += OnWarningEvent;
-            oProcessingClass.ProgressUpdate += OnProgressUpdate;
+            processingClass.DebugEvent += OnDebugEvent;
+            processingClass.StatusEvent += OnStatusEvent;
+            processingClass.ErrorEvent += OnErrorEvent;
+            processingClass.WarningEvent += OnWarningEvent;
+            processingClass.ProgressUpdate += OnProgressUpdate;
         }
 
         private static void OnDebugEvent(string message)

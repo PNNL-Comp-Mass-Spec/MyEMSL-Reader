@@ -143,15 +143,15 @@ namespace MyEMSLReader
         /// <summary>
         /// Retrieve queued files from MyEMSL
         /// </summary>
-        /// <param name="downloadFolderPath">Target folder path (ignored for files defined in destFilePathOverride)</param>
-        /// <param name="folderLayout">Folder Layout (ignored for files defined in destFilePathOverride)</param>
+        /// <param name="downloadDirectoryPath">Target directory path (ignored for files defined in destFilePathOverride)</param>
+        /// <param name="directoryLayout">Directory Layout (ignored for files defined in destFilePathOverride)</param>
         /// <param name="disableCart">When true, will never download files using the cart mechanism</param>
         /// <param name="forceDownloadViaCart">When true, will always download files using the cart mechanism</param>
         /// <returns>True if success, false if an error</returns>
         /// <remarks>Returns False if the download queue is empty</remarks>
         public bool ProcessDownloadQueue(
-            string downloadFolderPath,
-            Downloader.DownloadFolderLayout folderLayout,
+            string downloadDirectoryPath,
+            Downloader.DownloadLayout directoryLayout,
             bool disableCart = false,
             bool forceDownloadViaCart = false)
         {
@@ -197,7 +197,7 @@ namespace MyEMSLReader
                     }
                 }
 
-                var success = downloader.DownloadFiles(filesToDownload, destFilePathOverride, downloadFolderPath, folderLayout);
+                var success = downloader.DownloadFiles(filesToDownload, destFilePathOverride, downloadDirectoryPath, directoryLayout);
 
                 if (success)
                 {
@@ -205,7 +205,7 @@ namespace MyEMSLReader
 
                     foreach (var file in FilesToDownload)
                     {
-                        FileDownloadedEvent?.Invoke(this, new FileDownloadedEventArgs(downloadFolderPath, file.Value.FileInfo, file.Value.UnzipRequired));
+                        FileDownloadedEvent?.Invoke(this, new FileDownloadedEventArgs(downloadDirectoryPath, file.Value.FileInfo, file.Value.UnzipRequired));
                     }
                     FilesToDownload.Clear();
 

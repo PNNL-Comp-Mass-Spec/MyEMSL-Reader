@@ -14,7 +14,7 @@ namespace MyEMSLReader
     /// <summary>
     /// This class contacts MyEMSL to find all of the files associated with the given dataset (by name or ID)
     ///   Optionally filter on Instrument name to guarantee you are finding the desired files
-    ///   Optionally filter on Subdirectory name below the dataset folder to limit the search space
+    ///   Optionally filter on Subdirectory name below the dataset directory to limit the search space
     /// Also supports searching by Data Package ID
     /// </summary>
     /// <remarks>Written by Matthew Monroe for PNNL in 2013.</remarks>
@@ -868,7 +868,7 @@ namespace MyEMSLReader
                 // Filter the results
                 lstResults = FilterSearchResults(dctDatasetsAndSubDirListsCleaned, recurse, lstResults, filterOnSubDir);
 
-                // Return the results, sorted by folder path and file name
+                // Return the results, sorted by directory path and file name
                 return (from item in lstResults orderby item.PathWithInstrumentAndDatasetWindows select item).ToList();
 
             }
@@ -911,7 +911,7 @@ namespace MyEMSLReader
 
             if (!recurse)
             {
-                // Filter the files to remove any not in the "root" folder
+                // Filter the files to remove any not in the "root" directory
                 lstResults = FilterFilesNoRecursion(lstResults, dctDatasetsAndSubDirLists);
             }
 
@@ -1271,10 +1271,10 @@ namespace MyEMSLReader
                     var fileName = Utilities.GetDictionaryValue(fileObj, "name");
                     var fileId = Utilities.GetDictionaryValue(fileObj, "_id", 0);
                     var fileHash = Utilities.GetDictionaryValue(fileObj, "hashsum");
-                    var subFolder = Utilities.GetDictionaryValue(fileObj, "subdir");
+                    var subdirectory = Utilities.GetDictionaryValue(fileObj, "subdir");
 
                     // Windows style path
-                    var relativeFilePath = Path.Combine(subFolder, fileName);
+                    var relativeFilePath = Path.Combine(subdirectory, fileName);
 
                     if (remoteFiles.TryGetValue(relativeFilePath, out var fileVersions))
                     {
@@ -1309,7 +1309,7 @@ namespace MyEMSLReader
                         remoteFiles.Add(relativeFilePath, fileVersions);
                     }
 
-                    var remoteFileInfo = new ArchivedFileInfo(datasetName, fileName, subFolder, fileId)
+                    var remoteFileInfo = new ArchivedFileInfo(datasetName, fileName, subdirectory, fileId)
                     {
                         DatasetYearQuarter = string.Empty,
                         FileSizeBytes = Utilities.GetDictionaryValue(fileObj, "size", 0),

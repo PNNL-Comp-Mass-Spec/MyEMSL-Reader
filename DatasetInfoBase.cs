@@ -17,7 +17,7 @@ namespace MyEMSLReader
 
         #region "Constants"
 
-        public const string MYEMSL_FILEID_TAG = "@MyEMSLID_";
+        public const string MYEMSL_FILE_ID_TAG = "@MyEMSLID_";
         private const int CACHE_REFRESH_THRESHOLD_MINUTES = 5;
 
         #endregion
@@ -210,11 +210,11 @@ namespace MyEMSLReader
         /// <remarks></remarks>
         public static string AppendMyEMSLFileID(string filePath, long myEmslFileID)
         {
-            return filePath + MYEMSL_FILEID_TAG + myEmslFileID.ToString(CultureInfo.InvariantCulture);
+            return filePath + MYEMSL_FILE_ID_TAG + myEmslFileID.ToString(CultureInfo.InvariantCulture);
         }
 
         /// <summary>
-        /// Verify that svc-dms.pfx exists either in the same folder as Pacifica.core.dll or at C:\client_certs\
+        /// Verify that svc-dms.pfx exists either in the same directory as Pacifica.core.dll or at C:\client_certs\
         /// </summary>
         /// <param name="errorMessage">Output: error message, indicating the paths that were checked</param>
         /// <returns>True if the file is found, otherwise false</returns>
@@ -253,14 +253,14 @@ namespace MyEMSLReader
         public static long ExtractMyEMSLFileID(string filePath, out string newFilePath)
         {
 
-            var charIndex = filePath.LastIndexOf(MYEMSL_FILEID_TAG, StringComparison.Ordinal);
+            var charIndex = filePath.LastIndexOf(MYEMSL_FILE_ID_TAG, StringComparison.Ordinal);
             newFilePath = string.Copy(filePath);
 
             if (charIndex > 0)
             {
                 newFilePath = filePath.Substring(0, charIndex);
 
-                var myEmslFileIdText = filePath.Substring(charIndex + MYEMSL_FILEID_TAG.Length);
+                var myEmslFileIdText = filePath.Substring(charIndex + MYEMSL_FILE_ID_TAG.Length);
 
                 if (long.TryParse(myEmslFileIdText, out var myEmslFileID))
                 {
@@ -281,50 +281,50 @@ namespace MyEMSLReader
         /// <remarks></remarks>
         public List<DatasetFolderOrFileInfo> FindFiles(string fileName)
         {
-            var subFolderName = string.Empty;
+            var subdirectoryName = string.Empty;
             var datasetName = string.Empty;
-            return FindFiles(fileName, subFolderName, datasetName, recurse: true);
+            return FindFiles(fileName, subdirectoryName, datasetName, recurse: true);
         }
 
         /// <summary>
         /// Looks for the given file in all datasets added using AddDataset(), returning any matches as a list
         /// </summary>
         /// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
-        /// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
+        /// <param name="subdirectoryName">Subdirectory in which the file must reside; can contain a wildcard, e.g. SIC*</param>
         /// <returns>List of matching files</returns>
-        /// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName)
+        /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         {
             var datasetName = string.Empty;
-            return FindFiles(fileName, subFolderName, datasetName, recurse: true);
+            return FindFiles(fileName, subdirectoryName, datasetName, recurse: true);
         }
 
         /// <summary>
         /// Looks for the given file, returning any matches as a list
         /// </summary>
         /// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
-        /// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
-        /// <param name="recurse">True to search all subfolders; false to only search the root folder (or only subFolderName)</param>
+        /// <param name="subdirectoryName">Subdirectory in which the file must reside; can contain a wildcard, e.g. SIC*</param>
+        /// <param name="recurse">True to search all subdirectories; false to only search the root directory (or only subdirectoryName)</param>
         /// <param name="fileSplit">Set to True if fileName contains a list of file names (or file specs) separated by a semicolon</param>
         /// <returns>List of matching files</returns>
-        /// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, bool recurse, bool fileSplit = false)
+        /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         {
             var datasetName = string.Empty;
-            return FindFiles(fileName, subFolderName, datasetName, recurse, fileSplit);
+            return FindFiles(fileName, subdirectoryName, datasetName, recurse, fileSplit);
         }
 
         /// <summary>
         /// Looks for the given file, returning any matches as a list
         /// </summary>
         /// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
-        /// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
+        /// <param name="subdirectoryName">Subdirectory in which the file must reside; can contain a wildcard, e.g. SIC*</param>
         /// <param name="datasetName">Dataset name filter</param>
         /// <returns>List of matching files</returns>
-        /// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, string datasetName)
+        /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         {
-            return FindFiles(fileName, subFolderName, datasetName, recurse: true);
+            return FindFiles(fileName, subdirectoryName, datasetName, recurse: true);
         }
 
         /// <summary>
@@ -334,16 +334,16 @@ namespace MyEMSLReader
         /// File name to find; can contain a wildcard, e.g. *.zip
         /// Separate multiple values using a vertical bar, e.g. analysis.baf|ser
         /// </param>
-        /// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
+        /// <param name="subdirectoryName">Subdirectory in which the file must reside; can contain a wildcard, e.g. SIC*</param>
         /// <param name="datasetName">Dataset name filter</param>
-        /// <param name="recurse">True to search all subfolders; false to only search the root folder (or only subFolderName)</param>
+        /// <param name="recurse">True to search all subdirectories; false to only search the root directory (or only subdirectoryName)</param>
         /// <param name="fileSplit">Set to True if fileName contains a list of file names (or file specs) separated by a semicolon</param>
         /// <returns>List of matching files</returns>
-        /// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, string datasetName, bool recurse, bool fileSplit = false)
+        /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         {
             const int dataPackageID = 0;
-            return FindFiles(fileName, subFolderName, datasetName, dataPackageID, recurse, fileSplit);
+            return FindFiles(fileName, subdirectoryName, datasetName, dataPackageID, recurse, fileSplit);
         }
 
         /// <summary>
@@ -353,16 +353,16 @@ namespace MyEMSLReader
         /// File name to find; can contain a wildcard, e.g. *.zip
         /// Separate multiple values using a vertical bar, e.g. analysis.baf|ser
         /// </param>
-        /// <param name="subFolderName">Subfolder in which the file must reside; can contain a wildcard, e.g. SIC*</param>
+        /// <param name="subdirectoryName">Subdirectory in which the file must reside; can contain a wildcard, e.g. SIC*</param>
         /// <param name="datasetName">Dataset name filter (blank to ignore)</param>
         /// <param name="dataPackageID">Data package ID filter (0 to ignore)</param>
-        /// <param name="recurse">True to search all subfolders; false to only search the root folder (or only subFolderName)</param>
+        /// <param name="recurse">True to search all subdirectories; false to only search the root directory (or only subdirectoryName)</param>
         /// <param name="fileSplit">Set to True if fileName contains a list of file names (or file specs) separated by a semicolon</param>
         /// <returns>List of matching files</returns>
-        /// <remarks>subFolderName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         public List<DatasetFolderOrFileInfo> FindFiles(
+        /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
             string fileName,
-            string subFolderName,
+            string subdirectoryName,
             string datasetName,
             int dataPackageID,
             bool recurse,
@@ -384,28 +384,28 @@ namespace MyEMSLReader
                 return lstMatches;
             }
 
-            Regex reFolder;
-            List<string> subFolderPathParts;
+            Regex reDirectory;
+            List<string> subdirectoryPathParts;
 
-            if (!string.IsNullOrEmpty(subFolderName))
+            if (!string.IsNullOrEmpty(subdirectoryName))
             {
-                // Assure that subFolderName has windows-style slashes (if it even has slashes)
-                subFolderName = subFolderName.Replace("/", @"\");
+                // Assure that subdirectoryName has windows-style slashes (if it even has slashes)
+                subdirectoryName = subdirectoryName.Replace("/", @"\");
 
-                // If subFolderName does have multiple folder names, only the final folder can have wildcards
-                subFolderPathParts = subFolderName.Split('\\').ToList();
+                // If subdirectoryName does have multiple directory names, only the final directory can have wildcards
+                subdirectoryPathParts = subdirectoryName.Split('\\').ToList();
 
-                reFolder = GetFileSearchRegEx(subFolderPathParts.Last());
+                reDirectory = GetFileSearchRegEx(subdirectoryPathParts.Last());
 
-                if (subFolderPathParts.Count > 0)
+                if (subdirectoryPathParts.Count > 0)
                 {
-                    subFolderPathParts.RemoveAt(subFolderPathParts.Count - 1);
+                    subdirectoryPathParts.RemoveAt(subdirectoryPathParts.Count - 1);
                 }
             }
             else
             {
-                reFolder = GetFileSearchRegEx("*");
-                subFolderPathParts = new List<string>();
+                reDirectory = GetFileSearchRegEx("*");
+                subdirectoryPathParts = new List<string>();
             }
 
             List<string> nameParts;
@@ -444,9 +444,9 @@ namespace MyEMSLReader
 
                     var isMatch = true;
 
-                    if (string.IsNullOrEmpty(subFolderName))
+                    if (string.IsNullOrEmpty(subdirectoryName))
                     {
-                        // Validate that the file resides in the appropriate folder
+                        // Validate that the file resides in the appropriate directory
                         if (!recurse && archivedFile.RelativePathWindows.Contains("\\"))
                         {
                             // Invalid match
@@ -455,20 +455,20 @@ namespace MyEMSLReader
                     }
                     else
                     {
-                        // Require a subfolder match
+                        // Require a subdirectory match
                         isMatch = false;
                         if (archivedFile.RelativePathWindows.Contains("\\"))
                         {
                             var pathParts = archivedFile.RelativePathWindows.Split('\\').ToList();
                             for (var pathIndex = pathParts.Count - 2; pathIndex >= 0; pathIndex--)
                             {
-                                if (reFolder.IsMatch(pathParts[pathIndex]))
+                                if (reDirectory.IsMatch(pathParts[pathIndex]))
                                 {
                                     isMatch = true;
-                                    if (subFolderPathParts.Count > 0)
+                                    if (subdirectoryPathParts.Count > 0)
                                     {
-                                        // Also require a match to the parent folders
-                                        var comparisonIndex = subFolderPathParts.Count;
+                                        // Also require a match to the parent directories
+                                        var comparisonIndex = subdirectoryPathParts.Count;
 
                                         for (var parentPathIndex = pathIndex - 1; parentPathIndex >= 0; parentPathIndex--)
                                         {
@@ -476,7 +476,7 @@ namespace MyEMSLReader
                                             if (comparisonIndex < 0)
                                                 break;
 
-                                            if (subFolderPathParts[comparisonIndex].ToLower() != pathParts[parentPathIndex].ToLower())
+                                            if (subdirectoryPathParts[comparisonIndex].ToLower() != pathParts[parentPathIndex].ToLower())
                                                 isMatch = false;
                                         }
 
@@ -502,28 +502,25 @@ namespace MyEMSLReader
             }
 
             return lstMatches;
-
         }
 
         /// <summary>
-        /// Looks for the given folder, returning any matches as a list
+        /// Looks for the given directory, returning any matches as a list
         /// </summary>
-        /// <param name="folderName">Folder name to find; can contain a wildcard, e.g. SIC*</param>
-        /// <returns>List of matching folders</returns>
-        /// <remarks></remarks>
-        public List<DatasetFolderOrFileInfo> FindFolders(string folderName)
+        /// <param name="directoryName">Directory name to find; can contain a wildcard, e.g. SIC*</param>
+        /// <returns>List of matching directories</returns>
         {
             var datasetName = string.Empty;
 
-            return FindFolders(folderName, datasetName);
+            return FindDirectories(directoryName, datasetName);
         }
 
         /// <summary>
-        /// Looks for the given folder, returning any matches as a list
+        /// Looks for the given directory, returning any matches as a list
         /// </summary>
-        /// <param name="folderName">Folder name to find; can contain a wildcard, e.g. SIC*</param>
+        /// <param name="directoryName">Directory name to find; can contain a wildcard, e.g. SIC*</param>
         /// <param name="datasetName">Dataset name filter</param>
-        /// <returns>List of matching folders</returns>
+        /// <returns>List of matching directories</returns>
         /// <remarks></remarks>
         public List<DatasetFolderOrFileInfo> FindFolders(string folderName, string datasetName)
         {
@@ -534,12 +531,12 @@ namespace MyEMSLReader
             var lstMatches = new List<DatasetFolderOrFileInfo>();
             var lstMatchPaths = new SortedSet<string>();
 
-            if (string.IsNullOrEmpty(folderName))
+            if (string.IsNullOrEmpty(directoryName))
             {
                 return lstMatches;
             }
 
-            var reFolder = GetFileSearchRegEx(folderName);
+            var reDirectory = GetFileSearchRegEx(directoryName);
 
             foreach (var archivedFile in mArchivedFiles)
             {
@@ -556,17 +553,17 @@ namespace MyEMSLReader
 
                 var fiFile = new FileInfo(archivedFile.RelativePathWindows);
                 Debug.Assert(fiFile.Directory != null, "fiFile.Directory != null");
-                if (!reFolder.IsMatch(fiFile.Directory.Name))
+                if (!reDirectory.IsMatch(fiFile.Directory.Name))
                 {
                     continue;
                 }
 
-                var relativeFolderPath = string.Copy(archivedFile.RelativePathWindows);
-                var charIndex = relativeFolderPath.LastIndexOf("\\", StringComparison.Ordinal);
+                var relativeDirectoryPath = string.Copy(archivedFile.RelativePathWindows);
+                var charIndex = relativeDirectoryPath.LastIndexOf("\\", StringComparison.Ordinal);
 
                 if (charIndex > 0)
                 {
-                    relativeFolderPath = relativeFolderPath.Substring(0, charIndex);
+                    relativeDirectoryPath = relativeDirectoryPath.Substring(0, charIndex);
                 }
                 else
                 {
@@ -574,14 +571,14 @@ namespace MyEMSLReader
                     throw new Exception("Forward slash not found in the relative file path; this code should not be reached");
                 }
 
-                if (lstMatchPaths.Contains(relativeFolderPath))
+                if (lstMatchPaths.Contains(relativeDirectoryPath))
                 {
                     continue;
                 }
 
-                lstMatchPaths.Add(relativeFolderPath);
+                lstMatchPaths.Add(relativeDirectoryPath);
 
-                var pathParts = relativeFolderPath.Split('\\').ToList();
+                var pathParts = relativeDirectoryPath.Split('\\').ToList();
                 var subDirPath = string.Empty;
 
                 if (pathParts.Count > 1)
@@ -591,13 +588,13 @@ namespace MyEMSLReader
                     {
                         subDirPath = subDirPath + "\\" + pathParts[pathIndex];
                     }
-                    relativeFolderPath = pathParts.Last();
+                    relativeDirectoryPath = pathParts.Last();
                     subDirPath = subDirPath.TrimEnd('\\');
                 }
 
                 const long fileID = 0;
-                const bool isFolder = true;
                 var newMatch = new DatasetFolderOrFileInfo(fileID, isFolder, new ArchivedFileInfo(archivedFile.Dataset, relativeFolderPath, subDirPath));
+                const bool isDirectory = true;
 
                 lstMatches.Add(newMatch);
             }
@@ -623,17 +620,17 @@ namespace MyEMSLReader
         /// <summary>
         /// Retrieve queued files from MyEMSL
         /// </summary>
-        /// <param name="downloadFolderPath">Target folder path (ignored for files defined in destFilePathOverride)</param>
-        /// <param name="folderLayout">Folder Layout (ignored for files defined in destFilePathOverride)</param>
+        /// <param name="downloadDirectoryPath">Target directory path (ignored for files defined in destFilePathOverride)</param>
+        /// <param name="directoryLayout">Directory Layout (ignored for files defined in destFilePathOverride)</param>
         /// <returns>True if success, false if an error</returns>
         /// <remarks>Returns False if the download queue is empty</remarks>
-        public bool ProcessDownloadQueue(string downloadFolderPath, Downloader.DownloadFolderLayout folderLayout)
+        public bool ProcessDownloadQueue(string downloadDirectoryPath, Downloader.DownloadLayout directoryLayout)
         {
 
             mErrorMessages.Clear();
             mDownloadedFiles.Clear();
 
-            var success = mDownloadQueue.ProcessDownloadQueue(downloadFolderPath, folderLayout, DisableCart, ForceDownloadViaCart);
+            var success = mDownloadQueue.ProcessDownloadQueue(downloadDirectoryPath, directoryLayout, DisableCart, ForceDownloadViaCart);
 
             if (success)
             {
