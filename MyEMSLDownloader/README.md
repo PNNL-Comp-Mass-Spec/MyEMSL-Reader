@@ -1,38 +1,38 @@
 # MyEMSL Downloader
 
 This program downloads files from MyEMSL.  It supports retrieving files
-for either Datasets or Data Packages.  Optionally specify a subfolder
+for either Datasets or Data Packages.  Optionally specify a subdirectory
 or filename mask to filter the files to retrieve.  Use /Preview
 to preview the files that will be downloaded.
 
 ## Mode 1 Syntax 
 
 ```
-MyEMSLDownloader.exe DatasetName [SubFolderName] [/Files:FileMask] [/FileSplit]
-                     [/O:OutputFolder] [/D] [/Preview] [/V] 
+MyEMSLDownloader.exe DatasetName [SubdirectoryName] [/Files:FileMask] [/FileSplit]
+                     [/O:OutputDirectory] [/D] [/Preview] [/V] 
                      [/Trace] [/DisableCart] [/ForceCart] [/UseTest]
 ```
 
 ## Mode 2 Syntax 
 
 ```
-MyEMSLDownloader.exe /Dataset:DatasetName [/SubDir:SubFolderName] [/Files:FileMask] [/FileSplit]
-                     [/O:OutputFolder] [/D] [/Preview] [/V] 
+MyEMSLDownloader.exe /Dataset:DatasetName [/SubDir:SubdirectoryName] [/Files:FileMask] [/FileSplit]
+                     [/O:OutputDirectory] [/D] [/Preview] [/V] 
                      [/Trace] [/DisableCart] [/ForceCart] [/UseTest]
 ```
 
 ## Mode 3 Syntax 
 
 ```
-MyEMSLDownloader.exe /DataPkg:DataPackageID [/SubDir:SubFolderName] [/Files:FileMask] [/FileSplit]
-                     [/O:OutputFolder] [/Preview] [/V] 
+MyEMSLDownloader.exe /DataPkg:DataPackageID [/SubDir:SubdirectoryName] [/Files:FileMask] [/FileSplit]
+                     [/O:OutputDirectory] [/Preview] [/V] 
                      [/Trace] [/DisableCart] [/ForceCart] [/UseTest]
 ```
 
 ## Mode 4 Syntax 
 
 ```
-MyEMSLDownloader.exe /FileList:FileInfoFile.txt [/O:OutputFolder]
+MyEMSLDownloader.exe /FileList:FileInfoFile.txt [/O:OutputDirectory]
                      [/Preview] [/V] [/DisableCart] [/ForceCart] [/UseTest]
 ```
 
@@ -50,16 +50,16 @@ MyEMSLDownloader.exe /Test [/Preview] [/V] [/Trace] [/DisableCart] [/ForceCart]
 
 ## Command Line Arguments
 
-To download files for a given dataset, enter the dataset name, plus optionally the SubFolder name
+To download files for a given dataset, enter the dataset name, plus optionally the subdirectory name
 The names can be entered separated by spaces, or using `/Dataset` plus optionally `/SubDir`
 
 Use `/Files` to filter for specific files, for example `/Files:*.txt`
-Files will be downloaded to the folder with the .exe; override using `/O`
+Files will be downloaded to the directory with the .exe; override using `/O`
 
 Use `/FileSplit` to indicate that `/Files` contains a list of filenames and/or file specs, separated by semicolons
 For example, use `/Files:analysis.baf;ser /FileSplit`
 
-Use `/D` to create a folder with the dataset name, then store the files within that folder
+Use `/D` to create a directory with the dataset name, then store the files within that directory
 
 Use `/DataPkg` to retrieve files from a specific data package
 
@@ -87,11 +87,13 @@ Use `/UseTest` to connect to test0.my.emsl.pnl.gov instead of my.emsl.pnl.gov
 ## Contacts
 
 Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) \
-E-mail: proteomics@pnnl.gov \
-Website: https://panomics.pnl.gov/ or https://omics.pnl.gov
+E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov \
+Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/
 
 ## License
 
-The MyEMSL Downloader is licensed under the Apache License, Version 2.0; 
+The MyEMSL Downloader is licensed under the 2-Clause BSD License; 
 you may not use this file except in compliance with the License.  You may obtain 
-a copy of the License at https://opensource.org/licenses/Apache-2.0
+a copy of the License at https://opensource.org/licenses/BSD-2-Clause
+
+Copyright 2018 Battelle Memorial Institute
