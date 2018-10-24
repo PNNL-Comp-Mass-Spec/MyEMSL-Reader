@@ -1115,7 +1115,7 @@ namespace MyEMSLReader
             }
             finally
             {
-                ((IDisposable)response)?.Dispose();
+                ((IDisposable)response).Dispose();
             }
 
             return true;
