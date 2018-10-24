@@ -15,6 +15,7 @@ namespace MyEMSLReader
 
         #region "Enums"
 
+        [Obsolete("Unused")]
         public enum SearchOperator
         {
             And = 0,

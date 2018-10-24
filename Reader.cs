@@ -46,6 +46,7 @@ namespace MyEMSLReader
 
         #region "Enums"
 
+        [Obsolete("Unused")]
         internal enum ScanMode
         {
             SimpleSearch = 0,

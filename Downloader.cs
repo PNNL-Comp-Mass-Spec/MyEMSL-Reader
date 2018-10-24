@@ -800,6 +800,7 @@ namespace MyEMSLReader
 
         }
 
+        [Obsolete("Unused")]
         private bool DownloadTarFileWithRetry(
             CookieContainer cookieJar,
             List<ArchivedFileInfo> lstFilesInArchive,
