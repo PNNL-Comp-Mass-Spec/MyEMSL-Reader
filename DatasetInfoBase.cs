@@ -279,7 +279,7 @@ namespace MyEMSLReader
         /// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
         /// <returns>List of matching files</returns>
         /// <remarks></remarks>
-        public List<DatasetFolderOrFileInfo> FindFiles(string fileName)
+        public List<DatasetDirectoryOrFileInfo> FindFiles(string fileName)
         {
             var subdirectoryName = string.Empty;
             var datasetName = string.Empty;
@@ -292,8 +292,8 @@ namespace MyEMSLReader
         /// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
         /// <param name="subdirectoryName">Subdirectory in which the file must reside; can contain a wildcard, e.g. SIC*</param>
         /// <returns>List of matching files</returns>
-        public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName)
         /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
+        public List<DatasetDirectoryOrFileInfo> FindFiles(string fileName, string subdirectoryName)
         {
             var datasetName = string.Empty;
             return FindFiles(fileName, subdirectoryName, datasetName, recurse: true);
@@ -307,8 +307,8 @@ namespace MyEMSLReader
         /// <param name="recurse">True to search all subdirectories; false to only search the root directory (or only subdirectoryName)</param>
         /// <param name="fileSplit">Set to True if fileName contains a list of file names (or file specs) separated by a semicolon</param>
         /// <returns>List of matching files</returns>
-        public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, bool recurse, bool fileSplit = false)
         /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
+        public List<DatasetDirectoryOrFileInfo> FindFiles(string fileName, string subdirectoryName, bool recurse, bool fileSplit = false)
         {
             var datasetName = string.Empty;
             return FindFiles(fileName, subdirectoryName, datasetName, recurse, fileSplit);
@@ -321,8 +321,8 @@ namespace MyEMSLReader
         /// <param name="subdirectoryName">Subdirectory in which the file must reside; can contain a wildcard, e.g. SIC*</param>
         /// <param name="datasetName">Dataset name filter</param>
         /// <returns>List of matching files</returns>
-        public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, string datasetName)
         /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
+        public List<DatasetDirectoryOrFileInfo> FindFiles(string fileName, string subdirectoryName, string datasetName)
         {
             return FindFiles(fileName, subdirectoryName, datasetName, recurse: true);
         }
@@ -339,8 +339,8 @@ namespace MyEMSLReader
         /// <param name="recurse">True to search all subdirectories; false to only search the root directory (or only subdirectoryName)</param>
         /// <param name="fileSplit">Set to True if fileName contains a list of file names (or file specs) separated by a semicolon</param>
         /// <returns>List of matching files</returns>
-        public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, string datasetName, bool recurse, bool fileSplit = false)
         /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
+        public List<DatasetDirectoryOrFileInfo> FindFiles(string fileName, string subdirectoryName, string datasetName, bool recurse, bool fileSplit = false)
         {
             const int dataPackageID = 0;
             return FindFiles(fileName, subdirectoryName, datasetName, dataPackageID, recurse, fileSplit);
@@ -359,8 +359,8 @@ namespace MyEMSLReader
         /// <param name="recurse">True to search all subdirectories; false to only search the root directory (or only subdirectoryName)</param>
         /// <param name="fileSplit">Set to True if fileName contains a list of file names (or file specs) separated by a semicolon</param>
         /// <returns>List of matching files</returns>
-        public List<DatasetFolderOrFileInfo> FindFiles(
         /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
+        public List<DatasetDirectoryOrFileInfo> FindFiles(
             string fileName,
             string subdirectoryName,
             string datasetName,
@@ -372,7 +372,7 @@ namespace MyEMSLReader
             // Re-query the web service if the information is out-of-date
             RefreshInfoIfStale();
 
-            var lstMatches = new List<DatasetFolderOrFileInfo>();
+            var lstMatches = new List<DatasetDirectoryOrFileInfo>();
 
             if (string.IsNullOrEmpty(fileName))
             {
@@ -494,7 +494,7 @@ namespace MyEMSLReader
 
                     if (isMatch)
                     {
-                        var newMatch = new DatasetFolderOrFileInfo(archivedFile.FileID, false, archivedFile);
+                        var newMatch = new DatasetDirectoryOrFileInfo(archivedFile.FileID, false, archivedFile);
                         lstMatches.Add(newMatch);
                     }
                 }
@@ -509,6 +509,7 @@ namespace MyEMSLReader
         /// </summary>
         /// <param name="directoryName">Directory name to find; can contain a wildcard, e.g. SIC*</param>
         /// <returns>List of matching directories</returns>
+        public List<DatasetDirectoryOrFileInfo> FindDirectories(string directoryName)
         {
             var datasetName = string.Empty;
 
@@ -522,13 +523,13 @@ namespace MyEMSLReader
         /// <param name="datasetName">Dataset name filter</param>
         /// <returns>List of matching directories</returns>
         /// <remarks></remarks>
-        public List<DatasetFolderOrFileInfo> FindFolders(string folderName, string datasetName)
+        public List<DatasetDirectoryOrFileInfo> FindDirectories(string directoryName, string datasetName)
         {
 
             // Re-query the web service if the information is out-of-date
             RefreshInfoIfStale();
 
-            var lstMatches = new List<DatasetFolderOrFileInfo>();
+            var lstMatches = new List<DatasetDirectoryOrFileInfo>();
             var lstMatchPaths = new SortedSet<string>();
 
             if (string.IsNullOrEmpty(directoryName))
@@ -593,8 +594,8 @@ namespace MyEMSLReader
                 }
 
                 const long fileID = 0;
-                var newMatch = new DatasetFolderOrFileInfo(fileID, isFolder, new ArchivedFileInfo(archivedFile.Dataset, relativeFolderPath, subDirPath));
                 const bool isDirectory = true;
+                var newMatch = new DatasetDirectoryOrFileInfo(fileID, isDirectory, new ArchivedFileInfo(archivedFile.Dataset, relativeDirectoryPath, subDirPath));
 
                 lstMatches.Add(newMatch);
             }

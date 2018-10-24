@@ -53,7 +53,7 @@ namespace MyEMSLDownloader
             DownloadFiles(datasetListInfo, archiveFiles, outputDirectoryPath);
         }
 
-        private void DownloadFiles(DatasetInfoBase datasetListInfo, IEnumerable<DatasetFolderOrFileInfo> archiveFiles, string outputFolderPath)
+        private void DownloadFiles(DatasetInfoBase datasetListInfo, IEnumerable<DatasetDirectoryOrFileInfo> archiveFiles, string outputDirectoryPath)
         {
             datasetListInfo.ClearDownloadQueue();
             foreach (var archiveFile in archiveFiles)

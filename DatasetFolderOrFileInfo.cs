@@ -2,7 +2,7 @@
 
 namespace MyEMSLReader
 {
-    public class DatasetFolderOrFileInfo
+    public class DatasetDirectoryOrFileInfo
     {
         /// <summary>
         /// The UTC datetime that the info was cached in memory
@@ -43,7 +43,7 @@ namespace MyEMSLReader
         /// <param name="fileID"></param>
         /// <param name="isDirectory"></param>
         /// <param name="fileInfo"></param>
-        public DatasetFolderOrFileInfo(long fileID, bool isFolder, ArchivedFileInfo fileInfo)
+        public DatasetDirectoryOrFileInfo(long fileID, bool isDirectory, ArchivedFileInfo fileInfo)
         {
             CacheDateUTC = DateTime.UtcNow;
             FileID = fileID;
@@ -55,5 +55,21 @@ namespace MyEMSLReader
         {
             return "FileID " + FileID + "; " + FileInfo;
         }
+    }
+
+    [Obsolete("Use DatasetDirectoryOrFileInfo")]
+    public class DatasetFolderOrFileInfo : DatasetDirectoryOrFileInfo
+    {
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="fileID"></param>
+        /// <param name="isFolder"></param>
+        /// <param name="fileInfo"></param>
+        public DatasetFolderOrFileInfo(long fileID, bool isFolder, ArchivedFileInfo fileInfo) : base(fileID, isFolder, fileInfo)
+        {
+        }
+
+        public bool IsFolder => IsDirectory;
     }
 }

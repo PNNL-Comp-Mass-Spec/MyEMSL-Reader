@@ -86,9 +86,9 @@ namespace MyEMSLReader
         /// <param name="subdirectoryName">Subdirectory in which the file must reside; can contain a wildcard, e.g. SIC*</param>
         /// <param name="dataPackageID">Data Package ID filter</param>
         /// <returns>List of matching files</returns>
-        public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, int dataPackageID)
         /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         // ReSharper disable once UnusedMember.Global
+        public List<DatasetDirectoryOrFileInfo> FindFiles(string fileName, string subdirectoryName, int dataPackageID)
         {
             return FindFiles(fileName, subdirectoryName, dataPackageID, recurse: true);
         }
@@ -102,8 +102,8 @@ namespace MyEMSLReader
         /// <param name="recurse">True to search all subdirectories; false to only search the root directory (or only subdirectoryName)</param>
         /// <param name="fileSplit">Set to True if fileName contains a list of file names (or file specs) separated by a semicolon</param>
         /// <returns>List of matching files</returns>
-        public List<DatasetFolderOrFileInfo> FindFiles(string fileName, string subFolderName, int dataPackageID, bool recurse, bool fileSplit = false)
         /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
+        public List<DatasetDirectoryOrFileInfo> FindFiles(string fileName, string subdirectoryName, int dataPackageID, bool recurse, bool fileSplit = false)
         {
             var datasetName = string.Empty;
 

@@ -123,7 +123,7 @@ namespace MyEMSLDownloader
                     return 0;
                 }
 
-                List<DatasetFolderOrFileInfo> archiveFiles;
+                List<DatasetDirectoryOrFileInfo> archiveFiles;
 
                 if (mDataPkgID > 0)
                     archiveFiles = FindDataPkgFiles(mDataPkgID, mSubdirectory, mFileMask, mFileSplit);
@@ -235,19 +235,19 @@ namespace MyEMSLDownloader
             }
         }
 
-        private static void DownloadDatasetFiles(IEnumerable<DatasetFolderOrFileInfo> archiveFiles, string outputFolderPath)
+        private static void DownloadDatasetFiles(IEnumerable<DatasetDirectoryOrFileInfo> archiveFiles, string outputDirectoryPath)
         {
             DownloadFiles(mDatasetListInfo, archiveFiles, outputDirectoryPath);
         }
 
-        private static void DownloadDataPackageFiles(IEnumerable<DatasetFolderOrFileInfo> archiveFiles, string outputFolderPath)
+        private static void DownloadDataPackageFiles(IEnumerable<DatasetDirectoryOrFileInfo> archiveFiles, string outputDirectoryPath)
         {
             DownloadFiles(mDataPackageListInfo, archiveFiles, outputDirectoryPath);
         }
 
         private static void DownloadFiles(
             DatasetInfoBase myEMSLInfoCache,
-            IEnumerable<DatasetFolderOrFileInfo> archiveFiles,
+            IEnumerable<DatasetDirectoryOrFileInfo> archiveFiles,
             string outputDirectoryPath)
         {
             myEMSLInfoCache.ClearDownloadQueue();
@@ -290,7 +290,7 @@ namespace MyEMSLDownloader
         /// For fileMask, specify a list of names and/or specs by separating with a vertical bar
         /// For example: analysis.baf|ser
         /// </remarks>
-        private static List<DatasetFolderOrFileInfo> FindDatasetFiles(
+        private static List<DatasetDirectoryOrFileInfo> FindDatasetFiles(
             string datasetName,
             string subdirectory,
             string fileMask,
@@ -307,7 +307,7 @@ namespace MyEMSLDownloader
             return archiveFiles;
         }
 
-        private static List<DatasetFolderOrFileInfo> FindDataPkgFiles(
+        private static List<DatasetDirectoryOrFileInfo> FindDataPkgFiles(
             int dataPkgID,
             string subdirectory,
             string fileMask,
@@ -323,7 +323,7 @@ namespace MyEMSLDownloader
             return archiveFiles;
         }
 
-        private static List<DatasetFolderOrFileInfo> FindFileListFiles(FileSystemInfo fiFileListFile)
+        private static List<DatasetDirectoryOrFileInfo> FindFileListFiles(FileSystemInfo fiFileListFile)
         {
             const string DATASET_COLUMN = "Dataset";
             const string SUBDIR_COLUMN = "SubDir";
@@ -370,7 +370,7 @@ namespace MyEMSLDownloader
                             {
                                 ConsoleMsgUtils.ShowWarning("Missing columns in " + fiFileListFile.Name);
                                 ConsoleMsgUtils.ShowWarning("Header line must contain columns " + DATASET_COLUMN + " and " + FILE_COLUMN + " and optionally " + SUBDIR_COLUMN);
-                                return new List<DatasetFolderOrFileInfo>();
+                                return new List<DatasetDirectoryOrFileInfo>();
                             }
                             continue;
                         }
@@ -420,7 +420,7 @@ namespace MyEMSLDownloader
                     }
                 }
 
-                var archiveFiles = new List<DatasetFolderOrFileInfo>();
+                var archiveFiles = new List<DatasetDirectoryOrFileInfo>();
 
                 foreach (var dataset in datasetsToSearch)
                 {
@@ -452,7 +452,7 @@ namespace MyEMSLDownloader
             catch (Exception ex)
             {
                 ConsoleMsgUtils.ShowError("Exception in FindFileListFiles: " + ex.Message, ex);
-                return new List<DatasetFolderOrFileInfo>();
+                return new List<DatasetDirectoryOrFileInfo>();
             }
         }
 
@@ -474,9 +474,9 @@ namespace MyEMSLDownloader
             }
         }
 
-        private static List<DatasetFolderOrFileInfo> ParseExplicitFileIDs(string fileIdList)
+        private static List<DatasetDirectoryOrFileInfo> ParseExplicitFileIDs(string fileIdList)
         {
-            var archiveFiles = new List<DatasetFolderOrFileInfo>();
+            var archiveFiles = new List<DatasetDirectoryOrFileInfo>();
 
             var fileIDs = fileIdList.Split(',');
             foreach (var fileID in fileIDs)
@@ -492,13 +492,13 @@ namespace MyEMSLDownloader
                     FileID = fileIdValue
                 };
 
-                archiveFiles.Add(new DatasetFolderOrFileInfo(fileIdValue, false, fileInfo));
+                archiveFiles.Add(new DatasetDirectoryOrFileInfo(fileIdValue, false, fileInfo));
             }
 
             return archiveFiles;
         }
 
-        private static void ShowFiles(IEnumerable<DatasetFolderOrFileInfo> archiveFiles, bool verbosePreview)
+        private static void ShowFiles(IEnumerable<DatasetDirectoryOrFileInfo> archiveFiles, bool verbosePreview)
         {
             foreach (var archiveFile in archiveFiles)
             {
@@ -746,7 +746,7 @@ namespace MyEMSLDownloader
 
         }
 
-        static List<DatasetFolderOrFileInfo> TestDatasetListInfo()
+        static List<DatasetDirectoryOrFileInfo> TestDatasetListInfo()
         {
             Console.WriteLine("Looking for files for test datasets using the DatasetListInfo class");
             Console.WriteLine();
@@ -990,7 +990,7 @@ namespace MyEMSLDownloader
 
         }
 
-        static void TestDownloader(IReadOnlyCollection<DatasetFolderOrFileInfo> archiveFiles)
+        static void TestDownloader(IReadOnlyCollection<DatasetDirectoryOrFileInfo> archiveFiles)
         {
             Console.WriteLine("Downloading " + archiveFiles.Count + " files");
             Console.WriteLine();
