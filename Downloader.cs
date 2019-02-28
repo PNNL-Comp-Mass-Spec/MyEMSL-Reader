@@ -46,6 +46,7 @@ namespace MyEMSLReader
             Always = 1,
             Never = 2
         }
+
         public enum CartState
         {
             NoCart,
@@ -921,10 +922,15 @@ namespace MyEMSLReader
 
                         var sourceFile = tarEntry.Name;
 
+                        /*
+                         * Deprecated with the switch to SharpZipLib v1.1 from NuGet
+                         *
                         // Long filenames (over 100 characters) will have part of their name in tarEntry.Name and part of it in tarEntry.Prefix
                         // Check for this
                         if (!string.IsNullOrEmpty(tarEntry.Prefix))
                             sourceFile = tarEntry.Prefix + '/' + sourceFile;
+                         *
+                         */
 
                         // Convert the unix forward slashes in the filenames to windows backslashes
                         sourceFile = sourceFile.Replace('/', Path.DirectorySeparatorChar);
