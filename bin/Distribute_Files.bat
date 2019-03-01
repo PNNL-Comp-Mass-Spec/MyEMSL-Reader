@@ -87,6 +87,8 @@ xcopy debug\MyEMSLReader.dll "C:\DMS_Programs\MyEMSLDownloader" /D /Y
 
 xcopy debug\Pacifica.Core.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Common" /D /Y
 xcopy debug\Pacifica.Core.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Program\bin" /D /Y
+xcopy debug\Pacifica.Core.dll "F:\Documents\Projects\DataMining\DMS_Managers\DataPackage_Archive_Manager\Lib" /D /Y
+xcopy debug\Pacifica.Core.dll "F:\Documents\Projects\DataMining\DMS_Managers\DataPackage_Archive_Manager\bin\debug" /D /Y
 xcopy debug\Pacifica.Core.dll "F:\Documents\Projects\DataMining\DMS_Managers\Space_Manager\DMS_Space_Manager\RefLib" /D /Y
 xcopy debug\Pacifica.Core.dll "F:\Documents\Projects\DataMining\DMS_Managers\Space_Manager\DMS_Space_Manager\Bin\Debug" /D /Y
 xcopy debug\Pacifica.Core.dll "F:\Documents\Projects\DataMining\DMS_Managers\Space_Manager\DMS_Space_Manager\Bin\Release" /D /Y
@@ -103,9 +105,6 @@ xcopy debug\Pacifica.Core.dll "C:\DMS_Programs\MyEMSLDownloader" /D /Y
 
 xcopy debug\Jayrock.Json.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Common" /D /Y
 xcopy debug\Jayrock.Json.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Program\bin" /D /Y
-xcopy debug\Jayrock.Json.dll "F:\Documents\Projects\DataMining\DMS_Managers\Space_Manager\DMS_Space_Manager\RefLib" /D /Y
-xcopy debug\Jayrock.Json.dll "F:\Documents\Projects\DataMining\DMS_Managers\Space_Manager\DMS_Space_Manager\Bin\Debug" /D /Y
-xcopy debug\Jayrock.Json.dll "F:\Documents\Projects\DataMining\DMS_Managers\Space_Manager\DMS_Space_Manager\Bin\Release" /D /Y
 
 xcopy debug\Jayrock.Json.dll "F:\Documents\Projects\DataMining\DMS_Programs\Mage\Mage\lib" /D /Y
 xcopy debug\Jayrock.Json.dll "F:\Documents\Projects\DataMining\DMS_Programs\Mage\Mage\bin\Release" /D /Y
