@@ -1056,7 +1056,7 @@ namespace MyEMSLReader
         }
 
         private bool LookupSubDirFilterByDataset(
-            IReadOnlyDictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists,
+            IDictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists,
             ArchivedFileInfo file,
             SearchEntity entityType,
             out SortedSet<string> subDirs)

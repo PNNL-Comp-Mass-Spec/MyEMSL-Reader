@@ -360,7 +360,7 @@ namespace MyEMSLReader
 
         }
 
-        private long ComputeTotalBytes(IReadOnlyDictionary<long, ArchivedFileInfo> dctFiles)
+        private long ComputeTotalBytes(IDictionary<long, ArchivedFileInfo> dctFiles)
         {
             return ComputeTotalBytes(dctFiles.Values);
         }
@@ -558,9 +558,9 @@ namespace MyEMSLReader
         /// <param name="bytesDownloaded"></param>
         /// <returns></returns>
         private Dictionary<long, string> DownloadFilesDirectly(
-            IReadOnlyDictionary<long, ArchivedFileInfo> filesToDownload,
+            IDictionary<long, ArchivedFileInfo> filesToDownload,
             CookieContainer cookieJar,
-            IReadOnlyDictionary<long, string> destFilePathOverride,
+            IDictionary<long, string> destFilePathOverride,
             FileSystemInfo downloadDirectory,
             DownloadLayout directoryLayout,
             out long bytesDownloaded)
@@ -806,7 +806,7 @@ namespace MyEMSLReader
             CookieContainer cookieJar,
             List<ArchivedFileInfo> lstFilesInArchive,
             long bytesDownloaded,
-            IReadOnlyDictionary<long, string> destFilePathOverride,
+            IDictionary<long, string> destFilePathOverride,
             FileSystemInfo downloadDirectory,
             DownloadLayout directoryLayout,
             string tarFileURL)
@@ -876,7 +876,7 @@ namespace MyEMSLReader
             CookieContainer cookieJar,
             List<ArchivedFileInfo> lstFilesInArchive,
             long bytesDownloaded,
-            IReadOnlyDictionary<long, string> destFilePathOverride,
+            IDictionary<long, string> destFilePathOverride,
             FileSystemInfo downloadDirectory,
             DownloadLayout directoryLayout,
             string tarFileURL,
@@ -1130,9 +1130,9 @@ namespace MyEMSLReader
         private void DuplicateFile(
             FileSystemInfo downloadDirectory,
             DownloadLayout directoryLayout,
-            IReadOnlyDictionary<long, string> destFilePathOverride,
+            IDictionary<long, string> destFilePathOverride,
             FileInfo fiSourceFile,
-            IReadOnlyDictionary<long, ArchivedFileInfo> filesToDownload,
+            IDictionary<long, ArchivedFileInfo> filesToDownload,
             IEnumerable<long> targetFileIDs,
             IDictionary<long, string> filesDownloaded)
         {
@@ -1201,7 +1201,7 @@ namespace MyEMSLReader
             FileSystemInfo downloadDirectory,
             DownloadLayout directoryLayout,
             ArchivedFileInfo archiveFile,
-            IReadOnlyDictionary<long, string> destFilePathOverride)
+            IDictionary<long, string> destFilePathOverride)
         {
 
             var downloadFilePathRelative = ConstructDownloadFilePath(directoryLayout, archiveFile);
@@ -1254,7 +1254,7 @@ namespace MyEMSLReader
             return fiTargetFile;
         }
 
-        private List<int> GetUniqueDatasetIDList(IReadOnlyDictionary<long, ArchivedFileInfo> dctFiles)
+        private List<int> GetUniqueDatasetIDList(IDictionary<long, ArchivedFileInfo> dctFiles)
         {
             var datasetIDs = (from item in dctFiles
                               group item by item.Value.DatasetID into g

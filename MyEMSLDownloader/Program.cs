@@ -458,7 +458,7 @@ namespace MyEMSLDownloader
 
         private static void MapHeaders(
             IList<string> dataValues,
-            IReadOnlyCollection<string> headerNames,
+            ICollection<string> headerNames,
             IDictionary<string, int> headerMap)
         {
             for (var colIndex = 0; colIndex < dataValues.Count; colIndex++)
@@ -650,7 +650,7 @@ namespace MyEMSLDownloader
             ConsoleMsgUtils.ShowError(message, ex);
         }
 
-        private static void ShowErrorMessage(string message, IReadOnlyCollection<string> additionalInfo)
+        private static void ShowErrorMessage(string message, ICollection<string> additionalInfo)
         {
             ConsoleMsgUtils.ShowErrors(message, additionalInfo);
         }
@@ -992,7 +992,7 @@ namespace MyEMSLDownloader
 
         }
 
-        static void TestDownloader(IReadOnlyCollection<DatasetDirectoryOrFileInfo> archiveFiles)
+        static void TestDownloader(ICollection<DatasetDirectoryOrFileInfo> archiveFiles)
         {
             Console.WriteLine("Downloading " + archiveFiles.Count + " files");
             Console.WriteLine();
