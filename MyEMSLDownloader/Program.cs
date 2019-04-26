@@ -15,7 +15,7 @@ namespace MyEMSLDownloader
 
     internal static class Program
     {
-        private const string PROGRAM_DATE = "March 4, 2019";
+        private const string PROGRAM_DATE = "April 26, 2019";
 
         static double mPercentComplete;
         static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
@@ -395,6 +395,11 @@ namespace MyEMSLDownloader
                                 continue;
                             }
                             fileToFind.SubDir = dataValues[headerMap[SUBDIR_COLUMN]].Trim();
+                            if (fileToFind.SubDir.Equals("."))
+                            {
+                                // Treat a source directory of "." as ""
+                                fileToFind.SubDir = string.Empty;
+                            }
                         }
                         else
                             fileToFind.SubDir = string.Empty;

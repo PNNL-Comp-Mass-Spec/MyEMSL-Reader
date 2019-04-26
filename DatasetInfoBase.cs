@@ -42,7 +42,7 @@ namespace MyEMSLReader
         protected readonly Dictionary<string, ArchivedFileInfo> mDownloadedFiles;
 
         // Do not search for * or ? because we treat those as filename wildcards
-        private readonly Regex mReplaceReservedRegExChars;
+        private readonly Regex mReplaceReservedRegExChars = new Regex(@"(?<Symbol>[\^\$\.\|\+\(\)\[\{\\])", RegexOptions.Compiled);
 
         #endregion
 
@@ -150,8 +150,6 @@ namespace MyEMSLReader
 
             // Attach events
             mDownloadQueue.FileDownloadedEvent += OnFileDownloadedEvent;
-
-            mReplaceReservedRegExChars = new Regex(@"(?<Symbol>[\^\$\.\|\+\(\)\[\{\\])", RegexOptions.Compiled);
         }
 
         /// <summary>
@@ -394,7 +392,8 @@ namespace MyEMSLReader
             Regex reDirectory;
             List<string> subdirectoryPathParts;
 
-            if (!string.IsNullOrEmpty(subdirectoryName))
+            // A source directory of "." is treated as ""
+            if (!string.IsNullOrEmpty(subdirectoryName) && !subdirectoryName.Equals("."))
             {
                 // Assure that subdirectoryName has windows-style slashes (if it even has slashes)
                 subdirectoryName = subdirectoryName.Replace("/", @"\");
