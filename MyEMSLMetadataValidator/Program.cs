@@ -118,20 +118,20 @@ namespace MyEMSLMetadataValidator
             ConsoleMsgUtils.ShowWarning(message);
         }
 
-        private static void OnProgressUpdate(string progressmessage, float percentcomplete)
+        private static void OnProgressUpdate(string progressMessage, float percentComplete)
         {
-            if (!(percentcomplete > mPercentComplete) && !(DateTime.UtcNow.Subtract(mLastProgressUpdateTime).TotalSeconds >= 15))
+            if (!(percentComplete > mPercentComplete) && !(DateTime.UtcNow.Subtract(mLastProgressUpdateTime).TotalSeconds >= 15))
                 return;
 
             if (!(DateTime.UtcNow.Subtract(mLastProgressUpdateTime).TotalSeconds >= 1))
                 return;
 
-            if (progressmessage.Trim().Equals("..."))
-                Console.WriteLine(progressmessage + percentcomplete.ToString("0.0") + "% complete");
+            if (progressMessage.Trim().Equals("..."))
+                Console.WriteLine(progressMessage + percentComplete.ToString("0.0") + "% complete");
             else
-                Console.WriteLine(progressmessage + ": " + percentcomplete.ToString("0.0") + "% complete");
+                Console.WriteLine(progressMessage + ": " + percentComplete.ToString("0.0") + "% complete");
 
-            mPercentComplete = percentcomplete;
+            mPercentComplete = percentComplete;
             mLastProgressUpdateTime = DateTime.UtcNow;
         }
 
