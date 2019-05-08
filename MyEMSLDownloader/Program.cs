@@ -191,7 +191,7 @@ namespace MyEMSLDownloader
             }
             catch (Exception ex)
             {
-                ConsoleMsgUtils.ShowError("Error occurred in Program->Main: " + ex.Message, ex);
+                ConsoleMsgUtils.ShowError("Error occurred in Program->Main", ex);
                 System.Threading.Thread.Sleep(1000);
                 return -1;
             }
@@ -456,7 +456,7 @@ namespace MyEMSLDownloader
             }
             catch (Exception ex)
             {
-                ConsoleMsgUtils.ShowError("Exception in FindFileListFiles: " + ex.Message, ex);
+                ConsoleMsgUtils.ShowError("Exception in FindFileListFiles", ex);
                 return new List<DatasetDirectoryOrFileInfo>();
             }
         }
@@ -746,7 +746,7 @@ namespace MyEMSLDownloader
             }
             catch (Exception ex)
             {
-                ConsoleMsgUtils.ShowError("Error displaying the program syntax: " + ex.Message, ex);
+                ConsoleMsgUtils.ShowError("Error displaying the program syntax", ex);
             }
 
         }
@@ -992,7 +992,7 @@ namespace MyEMSLDownloader
             }
             catch (Exception ex)
             {
-                ConsoleMsgUtils.ShowError("Exception from downloader: " + ex.Message, ex);
+                ConsoleMsgUtils.ShowError("Exception from downloader", ex);
             }
 
         }
