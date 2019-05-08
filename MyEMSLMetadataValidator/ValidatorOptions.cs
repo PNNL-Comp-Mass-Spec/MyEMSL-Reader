@@ -7,7 +7,7 @@ namespace MyEMSLMetadataValidator
 {
     public class ValidatorOptions
     {
-        private const string PROGRAM_DATE = "November 1, 2017";
+        private const string PROGRAM_DATE = "May 8, 2019";
 
         public const string DMS_CONNECTION_STRING = "Data Source=gigasax;Initial Catalog=DMS_Capture;Integrated Security=SSPI";
 
@@ -87,7 +87,7 @@ namespace MyEMSLMetadataValidator
                 Console.WriteLine("Previewing validation actions");
         }
 
-        public bool ValidateArgs()
+        public bool ValidateArgs(out string errorMessage)
         {
             if (string.IsNullOrWhiteSpace(OutputFolderPath))
             {
@@ -97,10 +97,11 @@ namespace MyEMSLMetadataValidator
 
             if (DatasetIdStart == 0 && string.IsNullOrWhiteSpace(DatasetIdFile))
             {
-                Console.WriteLine("You must either provide a starting DatasetID or specify a DatasetIDFile");
+                errorMessage = "You must either provide a starting DatasetID or specify a DatasetIDFile";
                 return false;
             }
 
+            errorMessage = string.Empty;
             return true;
         }
 
