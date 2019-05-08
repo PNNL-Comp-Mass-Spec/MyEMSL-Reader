@@ -9,9 +9,9 @@ namespace MyEMSLMetadataValidator
 
         public int Job { get; set; }
 
-        public int DatasetID { get; private set; }
+        public int DatasetID { get; }
 
-        public string Subfolder { get; set; }
+        public string Subdirectory { get; set; }
 
         public int FileCountNew { get; set; }
 
@@ -37,10 +37,10 @@ namespace MyEMSLMetadataValidator
 
         public override string ToString()
         {
-            if (string.IsNullOrWhiteSpace(Subfolder))
-                return string.Format("Entry_ID {0}, DatasetId {1}, no subfolder", EntryID, DatasetID);
+            if (string.IsNullOrWhiteSpace(Subdirectory))
+                return string.Format("Entry_ID {0}, DatasetId {1}, no subdirectory", EntryID, DatasetID);
             else
-                return string.Format("Entry_ID {0}, DatasetId {1}, Subfolder {2}", EntryID, DatasetID, Subfolder);
+                return string.Format("Entry_ID {0}, DatasetId {1}, Subdirectory {2}", EntryID, DatasetID, Subdirectory);
         }
     }
 }

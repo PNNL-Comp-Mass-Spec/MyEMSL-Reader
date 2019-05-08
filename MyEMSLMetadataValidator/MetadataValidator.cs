@@ -38,14 +38,14 @@ namespace MyEMSLMetadataValidator
             long bytesInMyEMSL)
         {
 
-            // StatusDate  EntryID  Job  DatasetID  Subfolder  StatusNum  TransactionID  Entered  Files  FilesInMyEMSL  Bytes  BytesInMyEMSL
+            // StatusDate  EntryID  Job  DatasetID  Subdirectory  StatusNum  TransactionID  Entered  Files  FilesInMyEMSL  Bytes  BytesInMyEMSL
             var resultLine = new List<string>
             {
                 DateTime.Now.ToString(DATE_TIME_FORMAT),
                 ingestTask.EntryID.ToString(),
                 ingestTask.Job.ToString(),
                 ingestTask.DatasetID.ToString(),
-                ingestTask.Subfolder,
+                ingestTask.Subdirectory,
                 ingestTask.StatusNum.ToString(),
                 ingestTask.TransactionID.ToString(),
                 ingestTask.Entered.ToString(DATE_TIME_FORMAT),
@@ -64,12 +64,12 @@ namespace MyEMSLMetadataValidator
             else
             {
                 string rootFolderWarning;
-                if (string.IsNullOrWhiteSpace(ingestTask.Subfolder))
+                if (string.IsNullOrWhiteSpace(ingestTask.Subdirectory))
                 {
                     // Assure that at least one file in filesInMyEMSL has an empty subdirectory
-                    var myEMSLFilesInDatasetFolder = (from item in filesInMyEMSL where string.IsNullOrWhiteSpace(item.SubDirPath) select item).Count();
-                    if (myEMSLFilesInDatasetFolder == 0)
-                        rootFolderWarning = "Empty dataset folder (found files in subdirs but not in the root folder)";
+                    var myEMSLFilesInDatasetDirectory = (from item in filesInMyEMSL where string.IsNullOrWhiteSpace(item.SubDirPath) select item).Count();
+                    if (myEMSLFilesInDatasetDirectory == 0)
+                        rootFolderWarning = "Empty dataset directory (found files in subdirectories but not in the root directory)";
                     else
                         rootFolderWarning = string.Empty;
                 }
@@ -105,7 +105,7 @@ namespace MyEMSLMetadataValidator
                 else if (filesInMyEMSL.Count > taskStats.TotalFiles && bytesInMyEMSL > taskStats.TotalBytes)
                 {
                     // Extra bytes and extra files
-                    if (string.IsNullOrWhiteSpace(ingestTask.Subfolder))
+                    if (string.IsNullOrWhiteSpace(ingestTask.Subdirectory))
                     {
                         // Because of how we compute the expected files in the root folder, this is common (and is not an error)
                         AppendMatchRatio(resultLine, 1, string.Empty, rootFolderWarning);
@@ -160,7 +160,7 @@ namespace MyEMSLMetadataValidator
             TextWriter resultsWriter,
             IEnumerable<int> datasetIDs,
             IReadOnlyCollection<DMSMetadata> dmsMetadata,
-            IReadOnlyCollection<DatasetFolderOrFileInfo> archiveFiles)
+            IReadOnlyCollection<DatasetDirectoryOrFileInfo> archiveFiles)
         {
             try
             {
@@ -175,7 +175,7 @@ namespace MyEMSLMetadataValidator
                     foreach (var uploadTask in datasetUploadTasks)
                     {
 
-                        if (statsByFolder.TryGetValue(uploadTask.Subfolder, out var taskStats))
+                        if (statsByFolder.TryGetValue(uploadTask.Subdirectory, out var taskStats))
                         {
                             if (taskStats.TotalFiles < uploadTask.FilesAddedOrUpdated)
                                 taskStats.TotalFiles = uploadTask.FilesAddedOrUpdated;
@@ -187,25 +187,25 @@ namespace MyEMSLMetadataValidator
                             continue;
                         }
 
-                        statsByFolder.Add(uploadTask.Subfolder, new IngestTaskStats(uploadTask, uploadTask.FilesAddedOrUpdated, uploadTask.Bytes));
+                        statsByFolder.Add(uploadTask.Subdirectory, new IngestTaskStats(uploadTask, uploadTask.FilesAddedOrUpdated, uploadTask.Bytes));
 
                     }
 
                     var datasetFilesInMyEMSL = (from item in archiveFiles
-                                                where item.FileInfo.DatasetID == datasetId && !item.IsFolder
+                                                where item.FileInfo.DatasetID == datasetId && !item.IsDirectory
                                                 select item.FileInfo).ToList();
 
                     var bytesTrackedInMyEMSL = GetTotalBytes(datasetFilesInMyEMSL);
 
                     var archiveTask = (from item in datasetUploadTasks
-                                       where string.IsNullOrWhiteSpace(item.Subfolder)
+                                       where string.IsNullOrWhiteSpace(item.Subdirectory)
                                        select item).FirstOrDefault();
 
                     var datasetFoundInMyEMSL = false;
 
                     if (archiveTask != null && archiveTask.DatasetID == datasetId)
                     {
-                        // Dataset archive task (empty subfolder)
+                        // Dataset archive task (empty subdirectory)
                         // Save a results entry with the bulk stats
 
                         var taskStats = statsByFolder[string.Empty];
@@ -216,37 +216,37 @@ namespace MyEMSLMetadataValidator
                         if (datasetFilesInMyEMSL.Count == 0)
                         {
                             // Dataset was not found in MyEMSL
-                            // No point in checking subfolders
+                            // No point in checking subdirectories
                             continue;
                         }
                     }
 
-                    foreach (var subfolder in statsByFolder.Keys)
+                    foreach (var subdirectory in statsByFolder.Keys)
                     {
-                        if (string.IsNullOrWhiteSpace(subfolder))
+                        if (string.IsNullOrWhiteSpace(subdirectory))
                         {
                             // Dataset archive task; already logged
                             continue;
                         }
-                        var taskStats = statsByFolder[subfolder];
+                        var taskStats = statsByFolder[subdirectory];
 
-                        var subfolderFilesInMyEMSL = (from item in archiveFiles
-                                                      where item.FileInfo.DatasetID == datasetId && !item.IsFolder &&
-                                                        (item.FileInfo.SubDirPath.Equals(subfolder, StringComparison.OrdinalIgnoreCase) ||
-                                                         item.FileInfo.SubDirPath.StartsWith(subfolder + "/", StringComparison.OrdinalIgnoreCase))
-                                                      select item.FileInfo).ToList();
+                        var subdirectoryFilesInMyEMSL = (from item in archiveFiles
+                                                         where item.FileInfo.DatasetID == datasetId && !item.IsDirectory &&
+                                                           (item.FileInfo.SubDirPath.Equals(subdirectory, StringComparison.OrdinalIgnoreCase) ||
+                                                            item.FileInfo.SubDirPath.StartsWith(subdirectory + "/", StringComparison.OrdinalIgnoreCase))
+                                                         select item.FileInfo).ToList();
 
-                        if (subfolderFilesInMyEMSL.Count == 0)
+                        if (subdirectoryFilesInMyEMSL.Count == 0)
                         {
-                            // Subfolder not found in MyEMSL, it should have been found
+                            // Subdirectory not found in MyEMSL, it should have been found
                             AppendResult(resultsWriter, taskStats.IngestTasks.First(), taskStats, new List<ArchivedFileInfo>(), 0);
                             continue;
                         }
 
                         datasetFoundInMyEMSL = true;
-                        var subfolderBytesTrackedInMyEMSL = GetTotalBytes(subfolderFilesInMyEMSL);
+                        var subdirectoryBytesTrackedInMyEMSL = GetTotalBytes(subdirectoryFilesInMyEMSL);
 
-                        AppendResult(resultsWriter, taskStats.IngestTasks.First(), taskStats, subfolderFilesInMyEMSL, subfolderBytesTrackedInMyEMSL);
+                        AppendResult(resultsWriter, taskStats.IngestTasks.First(), taskStats, subdirectoryFilesInMyEMSL, subdirectoryBytesTrackedInMyEMSL);
                     }
 
                     if (!datasetFoundInMyEMSL)
@@ -311,7 +311,7 @@ namespace MyEMSLMetadataValidator
                     "Entry_ID",
                     "Job",
                     "Dataset_ID",
-                    "Subfolder",
+                    "Subdirectory",
                     "FileCountNew",
                     "FileCountUpdated",
                     "Bytes",
@@ -322,10 +322,10 @@ namespace MyEMSLMetadataValidator
 
                 var query =
                     " SELECT " + string.Join(", ", columns) +
-                    " FROM ( SELECT Entry_ID, Job, Dataset_ID, Subfolder,  " +
+                    " FROM ( SELECT Entry_ID, Job, Dataset_ID, Subfolder As Subdirectory,  " +
                     "              FileCountNew, FileCountUpdated, Bytes, " +
                     "              StatusNum, TransactionID, Entered, " +
-                    "              Row_Number() OVER ( PARTITION BY Dataset_ID, Subfolder  " +
+                    "              Row_Number() OVER ( PARTITION BY Dataset_ID, Subfolder " +
                     "                                  ORDER BY FileCountNew + FileCountUpdated DESC ) AS Ranking " +
                     "       FROM T_MyEMSL_Uploads " +
                     "       WHERE Dataset_ID IN ( SELECT TOP 1000 Dataset_ID " +
@@ -339,7 +339,7 @@ namespace MyEMSLMetadataValidator
                     "             Verified = 1  " +
                     "       ) SortQ " +
                     " WHERE SortQ.Ranking = 1 " +
-                    " ORDER BY Dataset_ID, Subfolder, Entry_ID ";
+                    " ORDER BY Dataset_ID, Subdirectory, Entry_ID ";
 
                 var columnMap = dbTools.GetColumnMapping(columns);
 
@@ -353,7 +353,7 @@ namespace MyEMSLMetadataValidator
                     var entryId = dbTools.GetColumnValue(result, columnMap, "Entry_ID", 0);
                     var job = dbTools.GetColumnValue(result, columnMap, "Job", 0);
                     var datasetId = dbTools.GetColumnValue(result, columnMap, "Dataset_ID", 0);
-                    var subfolder = dbTools.GetColumnValue(result, columnMap, "Subfolder");
+                    var subdirectory = dbTools.GetColumnValue(result, columnMap, "Subdirectory");
                     var fileCountNew = dbTools.GetColumnValue(result, columnMap, "FileCountNew", 0);
                     var fileCountUpdated = dbTools.GetColumnValue(result, columnMap, "FileCountUpdated", 0);
                     var bytesText = dbTools.GetColumnValue(result, columnMap, "Bytes");
@@ -372,7 +372,7 @@ namespace MyEMSLMetadataValidator
                     {
                         EntryID = entryId,
                         Job = job,
-                        Subfolder = subfolder,
+                        Subdirectory = subdirectory,
                         FileCountNew = fileCountNew,
                         FileCountUpdated = fileCountUpdated,
                         Bytes = bytes,
@@ -530,7 +530,7 @@ namespace MyEMSLMetadataValidator
                             "EntryID",
                             "Job",
                             "DatasetID",
-                            "Subfolder",
+                            "Subdirectory",
                             "StatusNum",
                             "TransactionID",
                             "Entered",
@@ -572,7 +572,7 @@ namespace MyEMSLMetadataValidator
                     {
                         datasetIdStart = datasetIDsToCheck.Min();
                         finalDatasetId = Math.Min(datasetIDsToCheck.Max(), maxDatasetId);
-                        totalDatasetsToProcess = datasetIDsToCheck.Count();
+                        totalDatasetsToProcess = datasetIDsToCheck.Count;
                     }
 
                     var datasetsProcessed = 0;
@@ -714,10 +714,10 @@ namespace MyEMSLMetadataValidator
                     {
                         lastProgressTime = DateTime.UtcNow;
 
-                        var subtaskPercentComplete = itemsProcessed * 100F / filteredDMSMetadata.Count;
+                        var subTaskPercentComplete = itemsProcessed * 100F / filteredDMSMetadata.Count;
 
                         var percentComplete = basePercentComplete +
-                            subtaskPercentComplete * Options.DMSLookupBatchSize / totalDatasetsToProcess;
+                                              subTaskPercentComplete * Options.DMSLookupBatchSize / totalDatasetsToProcess;
 
                         OnProgressUpdate(" ... ", percentComplete);
                     }
