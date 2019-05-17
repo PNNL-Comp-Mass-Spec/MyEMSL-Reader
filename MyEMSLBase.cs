@@ -187,7 +187,7 @@ namespace MyEMSLReader
 
             if (string.IsNullOrWhiteSpace(certificateFilePath))
             {
-                errorMessage = "MyEMSL certificate file not found in the current directory or at " + Configuration.CLIENT_CERT_FILEPATH;
+                errorMessage = "MyEMSL certificate file not found in the current directory or in " + Configuration.CLIENT_CERT_DIRECTORY;
                 return false;
             }
 
@@ -203,7 +203,6 @@ namespace MyEMSLReader
             }
 
             return valueIfMissing;
-
         }
 
         // ReSharper disable once UnusedMember.Global
@@ -279,10 +278,8 @@ namespace MyEMSLReader
 
         protected void ReportMessage(string strMessage)
         {
-
             if (!string.IsNullOrEmpty(strMessage))
                 OnStatusEvent(strMessage);
-
         }
 
         protected virtual void ResetStatus()
