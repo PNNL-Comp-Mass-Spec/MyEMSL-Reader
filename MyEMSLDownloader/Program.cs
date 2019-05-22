@@ -709,41 +709,87 @@ namespace MyEMSLDownloader
                 // Query commandLineParser to see if various parameters are present
 
                 if (commandLineParser.NonSwitchParameterCount > 0)
-                    mDatasetName = commandLineParser.RetrieveNonSwitchParameter(0);
-
-                if (commandLineParser.NonSwitchParameterCount > 1)
-                    mSubdirectory = commandLineParser.RetrieveNonSwitchParameter(1);
-
-                if (!ParseParameter(commandLineParser, "Dataset", "a dataset name", ref mDatasetName))
-                    return false;
-
-                var dataPkgString = "";
-                if (!ParseParameter(commandLineParser, "DataPkg", "a data package ID", ref dataPkgString))
-                    return false;
-                if (!string.IsNullOrEmpty(dataPkgString))
                 {
-                    if (!int.TryParse(dataPkgString, out mDataPkgID))
+                    var datasetNameOrID = commandLineParser.RetrieveNonSwitchParameter(0);
+
+                    if (int.TryParse(datasetNameOrID, out var datasetID))
                     {
-                        ShowErrorMessage("Data package ID must be an integer: " + dataPkgString);
-                        return false;
+                        mDatasetID = datasetID;
+                    }
+                    else
+                    {
+                        mDatasetName = datasetNameOrID;
                     }
                 }
 
-                if (!ParseParameter(commandLineParser, "SubDir", "a subdirectory name", ref mSubdirectory))
+                if (commandLineParser.NonSwitchParameterCount > 1)
+                {
+                    mSubdirectory = commandLineParser.RetrieveNonSwitchParameter(1);
+                }
+
+                // Note: Dataset name may have been defined by a non-switch parameter above
+                if (ParseParameter(commandLineParser, "Dataset", "a dataset name", out var datasetName, out var missingValue))
+                {
+                    mDatasetName = datasetName;
+                }
+                else if (missingValue)
+                {
                     return false;
-                if (!ParseParameter(commandLineParser, "Files", "a file mas", ref mFileMask))
+                }
+
+                if (ParseParameter(commandLineParser, "DatasetID", "a dataset ID", out var datasetIdText, out missingValue))
+                {
+                    if (!int.TryParse(datasetIdText, out mDatasetID))
+                    {
+                        ConsoleMsgUtils.ShowWarning("DatasetID should be an integer, not: " + datasetIdText);
+                        return false;
+                    }
+                }
+                else if (missingValue)
+                {
+                    return false;
+                }
+
+                if (ParseParameter(commandLineParser, "DataPkg", "a data package ID", out var dataPkgText, out missingValue))
+                {
+                    if (!int.TryParse(dataPkgText, out mDataPkgID))
+                    {
+                        ConsoleMsgUtils.ShowWarning("DataPkg should be an integer, not: " + dataPkgText);
+                        return false;
+                    }
+                }
+                else if (missingValue)
+                {
+                    return false;
+                }
+
+                // Note: SubDir may have been defined by a non-switch parameter above
+                if (ParseParameter(commandLineParser, "SubDir", "a subdirectory name", out var subDir, out missingValue))
+                {
+                    mSubdirectory = subDir;
+                }
+                else if (missingValue)
+                {
+                    return false;
+                }
+
+                ParseParameter(commandLineParser, "Files", "a file mas", out mFileMask, out missingValue);
+                if (missingValue)
                     return false;
 
                 if (commandLineParser.IsParameterPresent("FileSplit"))
                     mFileSplit = true;
 
-                if (!ParseParameter(commandLineParser, "O", "an output directory path", ref mOutputDirectoryPath))
+                ParseParameter(commandLineParser, "O", "an output directory path", out mOutputDirectoryPath, out missingValue);
+                if (missingValue)
                     return false;
 
-                if (!ParseParameter(commandLineParser, "FileList", "a filename", ref mFileListPath))
+                ParseParameter(commandLineParser, "FileList", "a filename", out mFileListPath, out missingValue);
+                if (missingValue)
                     return false;
 
-                if (!ParseParameter(commandLineParser, "FileID", "a file ID (or comma-separated list of file IDs)", ref mFileIDList))
+                ParseParameter(commandLineParser, "FileID", "a file ID (or comma-separated list of file IDs)", out mFileIDList, out missingValue);
+                if (missingValue)
                     return false;
 
                 if (!string.IsNullOrWhiteSpace(mFileListPath))
@@ -755,7 +801,7 @@ namespace MyEMSLDownloader
                 {
                     if (commandLineParser.RetrieveValueForParameter("D", out var paramValue) && !string.IsNullOrWhiteSpace(paramValue))
                     {
-                        ShowErrorMessage("The /D switch should not have a value; use /Dataset to specify a dataset name");
+                        ShowErrorMessage("The /D switch should not have a value; use /Dataset or /DatasetID to specify a dataset name or ID");
                         return false;
                     }
                     mMultiDatasetMode = true;
@@ -777,22 +823,39 @@ namespace MyEMSLDownloader
             return false;
         }
 
+        /// <summary>
+        /// Check for command line arguments for the given parameter
+        /// If present, update paramValue and return true
+        /// If present, but no value, set missingValue to true and return false
+        /// If not present, return false
+        /// </summary>
+        /// <param name="commandLineParser"></param>
+        /// <param name="parameterName"></param>
+        /// <param name="description"></param>
+        /// <param name="paramValue">Output: the value for the parameter, or an empty string if the parameter is not defined</param>
+        /// <param name="missingValue">Output: true if the parameter is defined but has no value</param>
+        /// <returns></returns>
         private static bool ParseParameter(
             clsParseCommandLine commandLineParser,
             string parameterName,
             string description,
-            ref string targetVariable)
+            out string paramValue,
+            out bool missingValue)
         {
-            if (commandLineParser.RetrieveValueForParameter(parameterName, out var value))
+            missingValue = false;
+
+            if (!commandLineParser.RetrieveValueForParameter(parameterName, out paramValue))
             {
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    ShowErrorMessage("/" + parameterName + " does not have " + description);
-                    return false;
-                }
-                targetVariable = string.Copy(value);
+                // Parameter not present
+                return false;
             }
-            return true;
+
+            if (!string.IsNullOrWhiteSpace(paramValue))
+                return true;
+
+            ShowErrorMessage("/" + parameterName + " does not have " + description);
+            missingValue = true;
+            return false;
         }
 
         private static void ShowErrorMessage(string message, Exception ex = null)
