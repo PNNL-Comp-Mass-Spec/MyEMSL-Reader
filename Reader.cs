@@ -1137,7 +1137,14 @@ namespace MyEMSLReader
 
                 if (!int.TryParse(searchValue, out datasetOrDataPackageId))
                 {
-                    ReportError("Search value is not numeric: " + searchValue + "; expecting a dataset ID");
+                    ReportWarning("Dataset ID should be an integer, not: " + searchValue);
+                    return remoteFiles;
+                }
+
+                if (datasetOrDataPackageId == 0)
+                {
+                    ReportWarning("Dataset ID is 0, not contacting MyEMSL");
+                    return remoteFiles;
                 }
 
                 // Contact DMS to retrieve the dataset name for this dataset ID
@@ -1166,6 +1173,12 @@ namespace MyEMSLReader
 
                 datasetOrDataPackageId = LookupDatasetIDByName(datasetName, out instrument);
 
+                if (datasetOrDataPackageId == 0)
+                {
+                    ReportWarning("Dataset ID is 0, not contacting MyEMSL");
+                    return remoteFiles;
+                }
+
                 checkingDataPackage = false;
 
                 if (TraceMode)
@@ -1178,7 +1191,14 @@ namespace MyEMSLReader
             {
                 if (!int.TryParse(searchValue, out datasetOrDataPackageId))
                 {
-                    ReportError("Search value is not numeric: " + searchValue + "; expecting a DataPackage ID");
+                    ReportWarning("Data Package ID should be an integer, not: " + searchValue);
+                    return remoteFiles;
+                }
+
+                if (datasetOrDataPackageId == 0)
+                {
+                    ReportWarning("Data Package ID is 0, not contacting MyEMSL");
+                    return remoteFiles;
                 }
 
                 // Dataset name and Instrument name are blank for data packages
