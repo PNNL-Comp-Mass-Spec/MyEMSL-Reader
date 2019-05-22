@@ -124,16 +124,14 @@ namespace MyEMSLReader
         /// <param name="filesToDownload">MyEMSL Files to download; keys are MyEMSL File IDs and values are ArchivedFileInfo objects</param>
         /// <param name="downloadDirectoryPath">Target directory path (ignored for files defined in destFilePathOverride)</param>
         /// <param name="directoryLayout">Directory Layout (ignored for files defined in destFilePathOverride)</param>
-        /// <param name="maxMinutesToWait">Maximum minutes to wait (default is 1440 minutes = 24 hours)</param>
         /// <returns>True if success, false if an error</returns>
         public bool DownloadFiles(
             Dictionary<long, ArchivedFileInfo> filesToDownload,
             string downloadDirectoryPath,
-            DownloadLayout directoryLayout = DownloadLayout.SingleDataset,
-            int maxMinutesToWait = 1440)
+            DownloadLayout directoryLayout = DownloadLayout.SingleDataset)
         {
             var destFilePathOverride = new Dictionary<long, string>();
-            return DownloadFiles(filesToDownload, destFilePathOverride, downloadDirectoryPath, directoryLayout, maxMinutesToWait);
+            return DownloadFiles(filesToDownload, destFilePathOverride, downloadDirectoryPath, directoryLayout);
         }
 
         /// <summary>
@@ -143,15 +141,13 @@ namespace MyEMSLReader
         /// <param name="destFilePathOverride">Dictionary where keys are FileIDs and values are the explicit destination path to use</param>
         /// <param name="downloadDirectoryPath">Target directory path (ignored for files defined in destFilePathOverride)</param>
         /// <param name="directoryLayout">Directory Layout (ignored for files defined in destFilePathOverride)</param>
-        /// <param name="maxMinutesToWait">Maximum minutes to wait (default is 1440 minutes = 24 hours)</param>
         /// <remarks>destFilePathOverride is not required and can be empty; it can also have values for just some of the files in lstFileIDs</remarks>
         /// <returns>True if success, false if an error</returns>
         public bool DownloadFiles(
             Dictionary<long, ArchivedFileInfo> filesToDownload,
             Dictionary<long, string> destFilePathOverride,
             string downloadDirectoryPath,
-            DownloadLayout directoryLayout = DownloadLayout.SingleDataset,
-            int maxMinutesToWait = 1440)
+            DownloadLayout directoryLayout = DownloadLayout.SingleDataset)
         {
             ResetStatus();
 
@@ -1292,6 +1288,7 @@ namespace MyEMSLReader
         /// <param name="cookieJar"></param>
         /// <param name="cartId"></param>
         /// <returns>True if success, false if an error</returns>
+        [Obsolete("Old cart mechanism code")]
         private bool PostCartData(string postData, CookieContainer cookieJar, out Guid cartId)
         {
             cartId = new Guid();
