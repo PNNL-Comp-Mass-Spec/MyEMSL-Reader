@@ -714,6 +714,13 @@ namespace MyEMSLDownloader
 
                     if (int.TryParse(datasetNameOrID, out var datasetID))
                     {
+                        if (datasetID <= 0)
+                        {
+                            ShowErrorMessage("Dataset ID should be a positive integer, not " + datasetNameOrID);
+                            System.Threading.Thread.Sleep(1500);
+                            return false;
+                        }
+
                         mDatasetID = datasetID;
                     }
                     else
@@ -739,9 +746,10 @@ namespace MyEMSLDownloader
 
                 if (ParseParameter(commandLineParser, "DatasetID", "a dataset ID", out var datasetIdText, out missingValue))
                 {
-                    if (!int.TryParse(datasetIdText, out mDatasetID))
+                    if (!int.TryParse(datasetIdText, out mDatasetID) || mDatasetID <= 0)
                     {
-                        ConsoleMsgUtils.ShowWarning("DatasetID should be an integer, not: " + datasetIdText);
+                        ShowErrorMessage("Dataset ID should be a positive integer, not " + datasetIdText);
+                        System.Threading.Thread.Sleep(1500);
                         return false;
                     }
                 }
@@ -752,9 +760,10 @@ namespace MyEMSLDownloader
 
                 if (ParseParameter(commandLineParser, "DataPkg", "a data package ID", out var dataPkgText, out missingValue))
                 {
-                    if (!int.TryParse(dataPkgText, out mDataPkgID))
+                    if (!int.TryParse(dataPkgText, out mDataPkgID) || mDataPkgID <= 0)
                     {
-                        ConsoleMsgUtils.ShowWarning("DataPkg should be an integer, not: " + dataPkgText);
+                        ShowErrorMessage("DataPkg should be a positive integer, not: " + dataPkgText);
+                        System.Threading.Thread.Sleep(1500);
                         return false;
                     }
                 }
