@@ -127,15 +127,15 @@ namespace MyEMSLDownloader
                 {
                     if (!string.IsNullOrWhiteSpace(mFileListPath))
                     {
-                        var fiFileListFile = new FileInfo(mFileListPath);
-                        if (!fiFileListFile.Exists)
+                        var fileListFile = new FileInfo(mFileListPath);
+                        if (!fileListFile.Exists)
                         {
-                            ShowErrorMessage("File not found: " + fiFileListFile.FullName);
+                            ShowErrorMessage("File not found: " + fileListFile.FullName);
                             System.Threading.Thread.Sleep(1000);
                             return -1;
                         }
 
-                        archiveFiles = FindFileListFiles(fiFileListFile);
+                        archiveFiles = FindFileListFiles(fileListFile);
                     }
                     else
                     {
@@ -317,7 +317,7 @@ namespace MyEMSLDownloader
             return archiveFiles;
         }
 
-        private static List<DatasetDirectoryOrFileInfo> FindFileListFiles(FileSystemInfo fiFileListFile)
+        private static List<DatasetDirectoryOrFileInfo> FindFileListFiles(FileSystemInfo fileListFile)
         {
             const string DATASET_COLUMN = "Dataset";
             const string SUBDIR_COLUMN = "SubDir";
@@ -325,9 +325,9 @@ namespace MyEMSLDownloader
 
             try
             {
-                var datasetsToSearch = new Dictionary<string, List<TargetFileInfo>>();
+                var datasetsToFind = new Dictionary<string, List<TargetFileInfo>>();
 
-                using (var fileReader = new StreamReader(new FileStream(fiFileListFile.FullName, FileMode.Open, FileAccess.Read, FileShare.Read)))
+                using (var reader = new StreamReader(new FileStream(fileListFile.FullName, FileMode.Open, FileAccess.Read, FileShare.Read)))
                 {
                     var headerMap = new Dictionary<string, int>();
                     var headerNames = new List<string>
@@ -335,9 +335,9 @@ namespace MyEMSLDownloader
                         DATASET_COLUMN, SUBDIR_COLUMN, FILE_COLUMN
                     };
 
-                    while (!fileReader.EndOfStream)
+                    while (!reader.EndOfStream)
                     {
-                        var dataLine = fileReader.ReadLine();
+                        var dataLine = reader.ReadLine();
 
                         if (string.IsNullOrWhiteSpace(dataLine))
                             continue;

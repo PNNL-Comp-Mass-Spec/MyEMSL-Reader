@@ -178,52 +178,52 @@ namespace MyEMSLReader
         /// <returns>List of matched files</returns>
         public List<ArchivedFileInfo> FindFilesByDataPackageID(int dataPkgID, string subDir, bool recurse)
         {
-            var dctSearchTerms = new List<KeyValuePair<string, string>>
+            var searchTerms = new List<KeyValuePair<string, string>>
             {
                 new KeyValuePair<string, string>(QUERY_SPEC_DATA_PACKAGE_ID, dataPkgID.ToString(CultureInfo.InvariantCulture))
             };
 
-            var dctDatasetsAndSubDirLists = GetSingleItemSortedSetDictionary(DATA_PKG_ID_TAG + dataPkgID, subDir);
+            var datasetsAndSubDirLists = GetSingleItemSortedSetDictionary(DATA_PKG_ID_TAG + dataPkgID, subDir);
 
             // Do not filter by instrument name when searching for data packages
             var instrumentName = string.Empty;
-            return FindFilesByDataset(dctDatasetsAndSubDirLists, recurse, instrumentName, dctSearchTerms);
+            return FindFilesByDataset(datasetsAndSubDirLists, recurse, instrumentName, searchTerms);
         }
 
         /// <summary>
         /// Find all files in MyEMSL for a list of data packages (by data package ID)
         /// </summary>
-        /// <param name="dctDataPkgIDsAndSubDirs">Keys are data package ID, values are the optional Subdirectory name to filter on for the given data package</param>
+        /// <param name="dataPkgIDsAndSubDirs">Keys are data package ID, values are the optional Subdirectory name to filter on for the given data package</param>
         /// <returns>List of matched files</returns>
         // ReSharper disable once UnusedMember.Global
-        public List<ArchivedFileInfo> FindFilesByDataPackageID(Dictionary<int, string> dctDataPkgIDsAndSubDirs)
+        public List<ArchivedFileInfo> FindFilesByDataPackageID(Dictionary<int, string> dataPkgIDsAndSubDirs)
         {
-            return FindFilesByDataPackageID(dctDataPkgIDsAndSubDirs, recurse: true);
+            return FindFilesByDataPackageID(dataPkgIDsAndSubDirs, recurse: true);
         }
 
         /// <summary>
         /// Find all files in MyEMSL for a list of data packages (by data package ID)
         /// </summary>
-        /// <param name="dctDataPkgIDsAndSubDirs">Keys are data package ID, values are the optional Subdirectory name to filter on for the given data package</param>
+        /// <param name="dataPkgIDsAndSubDirs">Keys are data package ID, values are the optional Subdirectory name to filter on for the given data package</param>
         /// <param name="recurse">True to recursively search for files</param>
         /// <returns>List of matched files</returns>
-        public List<ArchivedFileInfo> FindFilesByDataPackageID(Dictionary<int, string> dctDataPkgIDsAndSubDirs, bool recurse)
+        public List<ArchivedFileInfo> FindFilesByDataPackageID(Dictionary<int, string> dataPkgIDsAndSubDirs, bool recurse)
         {
 
-            var dctSearchTerms = new List<KeyValuePair<string, string>>();
-            var dctDatasetsAndSubDirs = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            var searchTerms = new List<KeyValuePair<string, string>>();
+            var datasetsAndSubDirs = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (var datasetEntry in dctDataPkgIDsAndSubDirs)
+            foreach (var datasetEntry in dataPkgIDsAndSubDirs)
             {
-                dctSearchTerms.Add(new KeyValuePair<string, string>(QUERY_SPEC_DATA_PACKAGE_ID, datasetEntry.Key.ToString(CultureInfo.InvariantCulture)));
-                dctDatasetsAndSubDirs.Add(DATA_PKG_ID_TAG + datasetEntry.Key, datasetEntry.Value);
+                searchTerms.Add(new KeyValuePair<string, string>(QUERY_SPEC_DATA_PACKAGE_ID, datasetEntry.Key.ToString(CultureInfo.InvariantCulture)));
+                datasetsAndSubDirs.Add(DATA_PKG_ID_TAG + datasetEntry.Key, datasetEntry.Value);
             }
 
-            var dctDatasetsAndSubDirLists = ConvertDatasetSubDirDictToSubDirListDict(dctDatasetsAndSubDirs);
+            var datasetsAndSubDirLists = ConvertDatasetSubDirDictToSubDirListDict(datasetsAndSubDirs);
 
             // Do not filter by instrument name when searching for data packages
             var instrumentName = string.Empty;
-            return FindFilesByDataset(dctDatasetsAndSubDirLists, recurse, instrumentName, dctSearchTerms);
+            return FindFilesByDataset(datasetsAndSubDirLists, recurse, instrumentName, searchTerms);
         }
 
         /// <summary>
@@ -273,48 +273,48 @@ namespace MyEMSLReader
         /// <returns>List of matched files</returns>
         public List<ArchivedFileInfo> FindFilesByDatasetID(int datasetID, string subDir, bool recurse, string instrumentName)
         {
-            var dctSearchTerms = new List<KeyValuePair<string, string>>
+            var searchTerms = new List<KeyValuePair<string, string>>
             {
                 new KeyValuePair<string, string>(QUERY_SPEC_DATASET_ID, datasetID.ToString(CultureInfo.InvariantCulture))
             };
 
-            var dctDatasetsAndSubDirLists = GetSingleItemSortedSetDictionary(DATASET_ID_TAG + datasetID, subDir);
+            var datasetsAndSubDirLists = GetSingleItemSortedSetDictionary(DATASET_ID_TAG + datasetID, subDir);
 
-            return FindFilesByDataset(dctDatasetsAndSubDirLists, recurse, instrumentName, dctSearchTerms);
+            return FindFilesByDataset(datasetsAndSubDirLists, recurse, instrumentName, searchTerms);
         }
 
         /// <summary>
         /// Find all files in MyEMSL for a list of datasets (by dataset ID)
         /// </summary>
-        /// <param name="dctDatasetIDsAndSubDirs">Keys are dataset ID, values are the optional Subdirectory name to filter on for the given dataset</param>
+        /// <param name="datasetIDsAndSubDirs">Keys are dataset ID, values are the optional Subdirectory name to filter on for the given dataset</param>
         /// <returns>List of matched files</returns>
-        public List<ArchivedFileInfo> FindFilesByDatasetID(Dictionary<int, string> dctDatasetIDsAndSubDirs)
+        public List<ArchivedFileInfo> FindFilesByDatasetID(Dictionary<int, string> datasetIDsAndSubDirs)
         {
-            return FindFilesByDatasetID(dctDatasetIDsAndSubDirs, recurse: true);
+            return FindFilesByDatasetID(datasetIDsAndSubDirs, recurse: true);
         }
 
         /// <summary>
         /// Find all files in MyEMSL for a list of datasets (by dataset ID)
         /// </summary>
-        /// <param name="dctDatasetIDsAndSubDirs">Keys are dataset names, values are the optional Subdirectory name to filter on for the given dataset</param>
+        /// <param name="datasetIDsAndSubDirs">Keys are dataset names, values are the optional Subdirectory name to filter on for the given dataset</param>
         /// <param name="recurse">True to recursively search for files</param>
         /// <returns>List of matched files</returns>
-        public List<ArchivedFileInfo> FindFilesByDatasetID(Dictionary<int, string> dctDatasetIDsAndSubDirs, bool recurse)
+        public List<ArchivedFileInfo> FindFilesByDatasetID(Dictionary<int, string> datasetIDsAndSubDirs, bool recurse)
         {
 
-            var dctSearchTerms = new List<KeyValuePair<string, string>>();
-            var dctDatasetsAndSubDirs = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            var searchTerms = new List<KeyValuePair<string, string>>();
+            var datasetsAndSubDirs = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (var datasetEntry in dctDatasetIDsAndSubDirs)
+            foreach (var datasetEntry in datasetIDsAndSubDirs)
             {
-                dctSearchTerms.Add(new KeyValuePair<string, string>(QUERY_SPEC_DATASET_ID, datasetEntry.Key.ToString(CultureInfo.InvariantCulture)));
-                dctDatasetsAndSubDirs.Add(DATASET_ID_TAG + datasetEntry.Key, datasetEntry.Value);
+                searchTerms.Add(new KeyValuePair<string, string>(QUERY_SPEC_DATASET_ID, datasetEntry.Key.ToString(CultureInfo.InvariantCulture)));
+                datasetsAndSubDirs.Add(DATASET_ID_TAG + datasetEntry.Key, datasetEntry.Value);
             }
 
-            var dctDatasetsAndSubDirLists = ConvertDatasetSubDirDictToSubDirListDict(dctDatasetsAndSubDirs);
+            var datasetsAndSubDirLists = ConvertDatasetSubDirDictToSubDirListDict(datasetsAndSubDirs);
 
             var instrumentName = string.Empty;
-            return FindFilesByDataset(dctDatasetsAndSubDirLists, recurse, instrumentName, dctSearchTerms);
+            return FindFilesByDataset(datasetsAndSubDirLists, recurse, instrumentName, searchTerms);
         }
 
         /// <summary>
@@ -365,64 +365,64 @@ namespace MyEMSLReader
             if (TraceMode)
                 OnDebugEvent("Entering FindFilesByDatasetName");
 
-            var dctSearchTerms = new List<KeyValuePair<string, string>>
+            var searchTerms = new List<KeyValuePair<string, string>>
             {
                 new KeyValuePair<string, string>(QUERY_SPEC_DATASET_NAME, datasetName)
             };
 
-            var dctDatasetsAndSubDirLists = GetSingleItemSortedSetDictionary(datasetName, subDir);
+            var datasetsAndSubDirLists = GetSingleItemSortedSetDictionary(datasetName, subDir);
 
-            return FindFilesByDataset(dctDatasetsAndSubDirLists, recurse, instrumentName, dctSearchTerms);
+            return FindFilesByDataset(datasetsAndSubDirLists, recurse, instrumentName, searchTerms);
         }
 
 
         /// <summary>
         /// Find all files in MyEMSL for a list of datasets (by dataset name)
         /// </summary>
-        /// <param name="dctDatasetsAndSubDirs">Keys are dataset name, values are the optional Subdirectory name to filter on for the given dataset (exact match; cannot contain wildcards)</param>
+        /// <param name="datasetsAndSubDirs">Keys are dataset name, values are the optional Subdirectory name to filter on for the given dataset (exact match; cannot contain wildcards)</param>
         /// <returns>List of matched files</returns>
-        public List<ArchivedFileInfo> FindFilesByDatasetName(Dictionary<string, string> dctDatasetsAndSubDirs)
+        public List<ArchivedFileInfo> FindFilesByDatasetName(Dictionary<string, string> datasetsAndSubDirs)
         {
-            return FindFilesByDatasetName(dctDatasetsAndSubDirs, recurse: true);
+            return FindFilesByDatasetName(datasetsAndSubDirs, recurse: true);
         }
 
         /// <summary>
         /// Find all files in MyEMSL for a list of datasets (by dataset name)
         /// </summary>
-        /// <param name="dctDatasetsAndSubDirs">
+        /// <param name="datasetsAndSubDirs">
         /// Keys are dataset names,
         /// values are the optional Subdirectory name to filter on for the given dataset (exact match; cannot contain wildcards)
         /// </param>
         /// <param name="recurse">True to recursively search for files</param>
         /// <returns>List of matched files</returns>
         public List<ArchivedFileInfo> FindFilesByDatasetName(
-            Dictionary<string, string> dctDatasetsAndSubDirs,
+            Dictionary<string, string> datasetsAndSubDirs,
             bool recurse)
         {
-            var dctDatasetsAndSubDirLists = ConvertDatasetSubDirDictToSubDirListDict(dctDatasetsAndSubDirs);
+            var datasetsAndSubDirLists = ConvertDatasetSubDirDictToSubDirListDict(datasetsAndSubDirs);
 
-            return FindFilesByDatasetName(dctDatasetsAndSubDirLists, recurse);
+            return FindFilesByDatasetName(datasetsAndSubDirLists, recurse);
         }
 
         /// <summary>
         /// Find all files in MyEMSL for a list of datasets (by dataset name)
         /// </summary>
-        /// <param name="dctDatasetsAndSubDirLists">
+        /// <param name="datasetsAndSubDirLists">
         /// Keys are dataset names,
         /// Values are a list of subdirectory names to filter on for the given dataset
         /// (exact match; cannot contain wildcards; empty list means do not filter by subdirectory name)
         /// </param>
         /// <returns>List of matched files</returns>
         public List<ArchivedFileInfo> FindFilesByDatasetName(
-            Dictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists)
+            Dictionary<string, SortedSet<string>> datasetsAndSubDirLists)
         {
-            return FindFilesByDatasetName(dctDatasetsAndSubDirLists, recurse: true);
+            return FindFilesByDatasetName(datasetsAndSubDirLists, recurse: true);
         }
 
         /// <summary>
         /// Find all files in MyEMSL for a list of datasets (by dataset name)
         /// </summary>
-        /// <param name="dctDatasetsAndSubDirLists">
+        /// <param name="datasetsAndSubDirLists">
         /// Keys are dataset names,
         /// Values are a list of subdirectory names to filter on for the given dataset
         /// (exact match; cannot contain wildcards; empty list means do not filter by subdirectory name)
@@ -430,22 +430,22 @@ namespace MyEMSLReader
         /// <param name="recurse">True to recursively search for files</param>
         /// <returns>List of matched files</returns>
         public List<ArchivedFileInfo> FindFilesByDatasetName(
-            Dictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists,
+            Dictionary<string, SortedSet<string>> datasetsAndSubDirLists,
             bool recurse)
         {
 
-            var dctSearchTerms = new List<KeyValuePair<string, string>>();
-            foreach (var dataset in dctDatasetsAndSubDirLists)
+            var searchTerms = new List<KeyValuePair<string, string>>();
+            foreach (var dataset in datasetsAndSubDirLists)
             {
                 if (string.IsNullOrWhiteSpace(dataset.Key))
                 {
                     throw new Exception("Dataset name cannot be empty when finding files by dataset name");
                 }
-                dctSearchTerms.Add(new KeyValuePair<string, string>(QUERY_SPEC_DATASET_NAME, dataset.Key));
+                searchTerms.Add(new KeyValuePair<string, string>(QUERY_SPEC_DATASET_NAME, dataset.Key));
             }
 
             var instrumentName = string.Empty;
-            return FindFilesByDataset(dctDatasetsAndSubDirLists, recurse, instrumentName, dctSearchTerms);
+            return FindFilesByDataset(datasetsAndSubDirLists, recurse, instrumentName, searchTerms);
         }
 
         #endregion
@@ -455,15 +455,15 @@ namespace MyEMSLReader
         /// <summary>
         /// Add a new file to the MyEMSL search results
         /// </summary>
-        /// <param name="lstResults">MyEMSL search results</param>
+        /// <param name="searchResults">MyEMSL search results</param>
         /// <param name="remoteFilePaths">Dictionary where keys are DatasetID_RemoteFilePath and values are the transaction ID for that file</param>
         /// <param name="remoteFile">
         /// Remote file info, where key is relative file path (Windows style paths) and values are file info details
         /// (multiple entries if multiple versions)</param>
-        /// <param name="versionToAdd">Specific version of the remote file to add to lstResults</param>
+        /// <param name="versionToAdd">Specific version of the remote file to add to searchResults</param>
         /// <param name="keepDuplicates">When true, keep duplicate versions of the same file (files with the same relative path, but different hash values)</param>
         private void AddFileToSearchResults(
-            IList<ArchivedFileInfo> lstResults,
+            IList<ArchivedFileInfo> searchResults,
             IDictionary<string, ArchivedFileInfo> remoteFilePaths,
             KeyValuePair<string, List<ArchivedFileInfo>> remoteFile,
             ArchivedFileInfo versionToAdd,
@@ -485,23 +485,23 @@ namespace MyEMSLReader
                         return;
                     }
 
-                    // Remove the current version stored in lstResults
-                    for (var i = 0; i < lstResults.Count; i++)
+                    // Remove the current version stored in searchResults
+                    for (var i = 0; i < searchResults.Count; i++)
                     {
-                        if (lstResults[i].FileID != existingArchiveFile.FileID)
+                        if (searchResults[i].FileID != existingArchiveFile.FileID)
                             continue;
 
-                        lstResults.RemoveAt(i);
+                        searchResults.RemoveAt(i);
                         break;
                     }
                 }
 
-                lstResults.Add(versionToAdd);
+                searchResults.Add(versionToAdd);
                 remoteFilePaths[remoteFileKey] = versionToAdd;
             }
             else
             {
-                lstResults.Add(versionToAdd);
+                searchResults.Add(versionToAdd);
                 remoteFilePaths.Add(remoteFileKey, versionToAdd);
                 LastSearchFileCountReturned += 1;
             }
@@ -511,26 +511,26 @@ namespace MyEMSLReader
         /// <summary>
         /// Convert a dictionary of dataset names and SubDir names to a dictionary of dataset names and SubDir lists (with one item per list for each dataset)
         /// </summary>
-        /// <param name="dctDatasetsAndSubDirs"></param>
+        /// <param name="datasetsAndSubDirs"></param>
         /// <returns>Dictionary where Keys are dataset names, and Values are a list of subdirectory names to filter on for the given dataset</returns>
         private Dictionary<string, SortedSet<string>> ConvertDatasetSubDirDictToSubDirListDict(
-            Dictionary<string, string> dctDatasetsAndSubDirs)
+            Dictionary<string, string> datasetsAndSubDirs)
         {
 
-            var dctDatasetsAndSubDirLists = new Dictionary<string, SortedSet<string>>();
-            foreach (var datasetSubDirCombo in dctDatasetsAndSubDirs)
+            var datasetsAndSubDirLists = new Dictionary<string, SortedSet<string>>();
+            foreach (var datasetSubDirCombo in datasetsAndSubDirs)
             {
-                ConvertDatasetSubDirAddToDictionary(dctDatasetsAndSubDirLists, datasetSubDirCombo.Key, datasetSubDirCombo.Value);
+                ConvertDatasetSubDirAddToDictionary(datasetsAndSubDirLists, datasetSubDirCombo.Key, datasetSubDirCombo.Value);
             }
 
-            return dctDatasetsAndSubDirLists;
+            return datasetsAndSubDirLists;
 
         }
 
         /// <summary>
         /// Add a dataset name / subDir combo to the given tracking dictionary
         /// </summary>
-        /// <param name="dctDatasetsAndSubDirLists">
+        /// <param name="datasetsAndSubDirLists">
         /// Keys are dataset names,
         /// Values are a list of subdirectory names to filter on for the given dataset
         /// (exact match; cannot contain wildcards; empty list means do not filter by subdirectory name)
@@ -538,14 +538,14 @@ namespace MyEMSLReader
         /// <param name="datasetName">Dataset Name</param>
         /// <param name="subDir">Subdirectory name to filter on (exact match; cannot contain wildcards)</param>
         private void ConvertDatasetSubDirAddToDictionary(
-            IDictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists,
+            IDictionary<string, SortedSet<string>> datasetsAndSubDirLists,
             string datasetName,
             string subDir)
         {
             if (string.IsNullOrWhiteSpace(subDir))
                 subDir = string.Empty;
 
-            if (dctDatasetsAndSubDirLists.TryGetValue(datasetName, out var subDirsForDataset))
+            if (datasetsAndSubDirLists.TryGetValue(datasetName, out var subDirsForDataset))
             {
                 if (!subDirsForDataset.Contains(subDir))
                 {
@@ -558,7 +558,7 @@ namespace MyEMSLReader
                     subDir
                 };
 
-                dctDatasetsAndSubDirLists.Add(datasetName, subDirsForDataset);
+                datasetsAndSubDirLists.Add(datasetName, subDirsForDataset);
             }
 
         }
@@ -575,20 +575,20 @@ namespace MyEMSLReader
         }
 
         private List<ArchivedFileInfo> FilterFilesNoRecursion(
-            List<ArchivedFileInfo> lstFiles,
-            Dictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists)
+            IEnumerable<ArchivedFileInfo> searchResults,
+            Dictionary<string, SortedSet<string>> datasetsAndSubDirLists)
         {
-            var lstFilesFiltered = new List<ArchivedFileInfo>();
-            var entityType = GetEntityType(dctDatasetsAndSubDirLists);
+            var filteredSearchResults = new List<ArchivedFileInfo>();
+            var entityType = GetEntityType(datasetsAndSubDirLists);
 
             var currentDataset = string.Empty;
-            var currentSubDirList = dctDatasetsAndSubDirLists.First().Value;
+            var currentSubDirList = datasetsAndSubDirLists.First().Value;
 
-            foreach (var file in lstFiles)
+            foreach (var file in searchResults)
             {
-                if (dctDatasetsAndSubDirLists.Count > 1 && file.Dataset != currentDataset)
+                if (datasetsAndSubDirLists.Count > 1 && file.Dataset != currentDataset)
                 {
-                    if (!LookupSubDirFilterByDataset(dctDatasetsAndSubDirLists, file, entityType, out currentSubDirList))
+                    if (!LookupSubDirFilterByDataset(datasetsAndSubDirLists, file, entityType, out currentSubDirList))
                         continue;
                     currentDataset = string.Copy(file.Dataset);
                 }
@@ -599,7 +599,7 @@ namespace MyEMSLReader
                     // Only keep this file if file.SubDirPath is empty
                     if (string.IsNullOrEmpty(file.SubDirPath))
                     {
-                        lstFilesFiltered.Add(file);
+                        filteredSearchResults.Add(file);
                     }
                     continue;
                 }
@@ -611,30 +611,30 @@ namespace MyEMSLReader
                 {
                     if (string.Equals(file.SubDirPath, subDir, StringComparison.OrdinalIgnoreCase))
                     {
-                        lstFilesFiltered.Add(file);
+                        filteredSearchResults.Add(file);
                         break;
                     }
                 }
 
             }
 
-            return lstFilesFiltered;
+            return filteredSearchResults;
         }
 
         private List<ArchivedFileInfo> FilterFilesByDatasetID(
-            IEnumerable<ArchivedFileInfo> lstFiles,
-            IEnumerable<string> lstDatasetIDTags)
+            IEnumerable<ArchivedFileInfo> searchResults,
+            IEnumerable<string> datasetIdTags)
         {
-            var lstFilesFiltered = new List<ArchivedFileInfo>();
-            var lstDatasetIDsSorted = new SortedSet<int>();
+            var filteredSearchResults = new List<ArchivedFileInfo>();
+            var sortedDatasetIDs = new SortedSet<int>();
 
-            foreach (var item in lstDatasetIDTags)
+            foreach (var item in datasetIdTags)
             {
                 var datasetIDText = item.Replace(DATASET_ID_TAG, string.Empty);
 
                 if (int.TryParse(datasetIDText, out var datasetID))
                 {
-                    lstDatasetIDsSorted.Add(datasetID);
+                    sortedDatasetIDs.Add(datasetID);
                 }
                 else
                 {
@@ -644,63 +644,63 @@ namespace MyEMSLReader
             }
 
             // Equivalent Linq expression:
-            // return lstFiles.Where(file => lstDatasetIDsSorted.Contains(file.DatasetID) || file.DatasetID == 0).ToList();
+            // return searchResults.Where(file => sortedDatasetIDs.Contains(file.DatasetID) || file.DatasetID == 0).ToList();
 
-            foreach (var file in lstFiles)
+            foreach (var file in searchResults)
             {
-                if (lstDatasetIDsSorted.Contains(file.DatasetID) || file.DatasetID == 0)
+                if (sortedDatasetIDs.Contains(file.DatasetID) || file.DatasetID == 0)
                 {
-                    lstFilesFiltered.Add(file);
+                    filteredSearchResults.Add(file);
                 }
             }
 
-            return lstFilesFiltered;
+            return filteredSearchResults;
         }
 
         private List<ArchivedFileInfo> FilterFilesByDatasetName(
-            IEnumerable<ArchivedFileInfo> lstFiles,
+            IEnumerable<ArchivedFileInfo> searchResults,
             IEnumerable<string> datasetNames)
         {
-            var lstFilesFiltered = new List<ArchivedFileInfo>();
+            var filteredSearchResults = new List<ArchivedFileInfo>();
             var lstDatasetNamesSorted = new SortedSet<string>(datasetNames, StringComparer.OrdinalIgnoreCase);
 
             // Equivalent Linq expression:
-            // return lstFiles.Where(file => lstDatasetNamesSorted.Contains(file.Dataset)).ToList();
+            // return searchResults.Where(file => lstDatasetNamesSorted.Contains(file.Dataset)).ToList();
 
-            foreach (var file in lstFiles)
+            foreach (var file in searchResults)
             {
                 if (lstDatasetNamesSorted.Contains(file.Dataset))
                 {
-                    lstFilesFiltered.Add(file);
+                    filteredSearchResults.Add(file);
                 }
             }
 
-            return lstFilesFiltered;
+            return filteredSearchResults;
         }
 
         private List<ArchivedFileInfo> FilterFilesBySubDir(
-            List<ArchivedFileInfo> lstFiles,
-            Dictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists)
+            IEnumerable<ArchivedFileInfo> searchResults,
+            Dictionary<string, SortedSet<string>> datasetsAndSubDirs)
         {
-            var lstFilesFiltered = new List<ArchivedFileInfo>();
-            var entityType = GetEntityType(dctDatasetsAndSubDirLists);
+            var filteredSearchResults = new List<ArchivedFileInfo>();
+            var entityType = GetEntityType(datasetsAndSubDirs);
 
             var currentDataset = string.Empty;
-            var currentSubDirList = dctDatasetsAndSubDirLists.First().Value;
+            var currentSubDirList = datasetsAndSubDirs.First().Value;
 
-            foreach (var file in lstFiles)
+            foreach (var file in searchResults)
             {
 
-                if (dctDatasetsAndSubDirLists.Count > 1 && file.Dataset != currentDataset)
+                if (datasetsAndSubDirs.Count > 1 && file.Dataset != currentDataset)
                 {
-                    if (!LookupSubDirFilterByDataset(dctDatasetsAndSubDirLists, file, entityType, out currentSubDirList))
+                    if (!LookupSubDirFilterByDataset(datasetsAndSubDirs, file, entityType, out currentSubDirList))
                         continue;
                     currentDataset = string.Copy(file.Dataset);
                 }
 
                 if (currentSubDirList.Count == 0)
                 {
-                    lstFilesFiltered.Add(file);
+                    filteredSearchResults.Add(file);
                     continue;
                 }
 
@@ -711,7 +711,7 @@ namespace MyEMSLReader
 
                     if (currentSubDirList.Contains(string.Empty))
                     {
-                        lstFilesFiltered.Add(file);
+                        filteredSearchResults.Add(file);
                     }
                     continue;
                 }
@@ -734,7 +734,7 @@ namespace MyEMSLReader
 
                         if (matchCount == lstRequiredSubDirTree.Count)
                         {
-                            lstFilesFiltered.Add(file);
+                            filteredSearchResults.Add(file);
                             break;
                         }
                     }
@@ -742,39 +742,39 @@ namespace MyEMSLReader
 
             }
 
-            return lstFilesFiltered;
+            return filteredSearchResults;
         }
 
         /// <summary>
         /// Searches for files associated with one or more datasets
         /// </summary>
-        /// <param name="dctDatasetsAndSubDirLists">
+        /// <param name="datasetsAndSubDirs">
         /// Keys are dataset names (or DATASET_ID_TAG and DatasetID or DATA_PKG_ID_TAG and DataPkgID),
         /// Values are a list of subdirectory names to filter on for the given dataset
         /// (exact match; cannot contain wildcards; empty list means do not filter by subdirectory name)
         /// </param>
         /// <param name="recurse">True to recursively find files</param>
-        /// <param name="instrumentName">Ignored if dctDatasetsAndSubDirLists has more than one entry</param>
-        /// <param name="dctSearchTerms">
+        /// <param name="instrumentName">Ignored if datasetsAndSubDirLists has more than one entry</param>
+        /// <param name="searchTerms">
         /// Search terms as key/value pairs
         /// Should support the following, but only actually supports "omics.dms.dataset_id" and omics.dms.dataset_name at present
         ///   omics.dms.dataset_id
         ///   omics.dms.dataset_name
         ///   omics.dms.datapackage_id
         ///
-        ///  If dctDatasetsAndSubDirLists only has one entry, the dataset name will be ignored and the value in dctSearchTerms will take precedence
+        ///  If datasetsAndSubDirLists only has one entry, the dataset name will be ignored and the value in searchTerms will take precedence
         ///  (it cannot be blank, but it could be "dummy" or "unknown" or "0", etc.)
         /// </param>
         /// <returns>Files that were found</returns>
         /// <remarks>
-        /// If the keys in dctDatasetsAndSubDirLists start with DATASET_ID_TAG then they are Dataset IDs and not dataset names
-        /// If the keys in dctDatasetsAndSubDirLists start with DATA_PKG_ID_TAG then they are Data Package IDs and not dataset names
+        /// If the keys in datasetsAndSubDirLists start with DATASET_ID_TAG then they are Dataset IDs and not dataset names
+        /// If the keys in datasetsAndSubDirLists start with DATA_PKG_ID_TAG then they are Data Package IDs and not dataset names
         /// </remarks>
         private List<ArchivedFileInfo> FindFilesByDataset(
-            Dictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists,
+            Dictionary<string, SortedSet<string>> datasetsAndSubDirs,
             bool recurse,
             string instrumentName,
-            IEnumerable<KeyValuePair<string, string>> dctSearchTerms)
+            IEnumerable<KeyValuePair<string, string>> searchTerms)
         {
 
             if (TraceMode)
@@ -786,10 +786,10 @@ namespace MyEMSLReader
 
                 var filterOnSubDir = false;
 
-                var dctDatasetsAndSubDirListsCleaned = new Dictionary<string, SortedSet<string>>(StringComparer.OrdinalIgnoreCase);
+                var datasetsAndSubDirsCleaned = new Dictionary<string, SortedSet<string>>(StringComparer.OrdinalIgnoreCase);
 
                 // Make sure subDir entries have unix-style slashes
-                foreach (var dataset in dctDatasetsAndSubDirLists)
+                foreach (var dataset in datasetsAndSubDirs)
                 {
                     var subDirList = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -817,13 +817,13 @@ namespace MyEMSLReader
                         }
                     }
 
-                    dctDatasetsAndSubDirListsCleaned.Add(dataset.Key, subDirList);
+                    datasetsAndSubDirsCleaned.Add(dataset.Key, subDirList);
                 }
 
-                // Make sure that dctDatasetsAndSubDirListsCleaned does not contain a mix of datasets, dataset IDs, and data package IDs
-                ValidateDatasetInfoDictionary(dctDatasetsAndSubDirListsCleaned);
+                // Make sure that datasetsAndSubDirsCleaned does not contain a mix of datasets, dataset IDs, and data package IDs
+                ValidateDatasetInfoDictionary(datasetsAndSubDirsCleaned);
 
-                var lstResults = new List<ArchivedFileInfo>();
+                var searchResults = new List<ArchivedFileInfo>();
 
                 // Keys in this dictionary are DatasetID_RemoteFilePath; values are the transaction ID for that file
                 var remoteFilePaths = new Dictionary<string, ArchivedFileInfo>();
@@ -833,7 +833,7 @@ namespace MyEMSLReader
 
                 var filterOnInstrument = !string.IsNullOrWhiteSpace(instrumentName);
 
-                foreach (var searchTerm in dctSearchTerms)
+                foreach (var searchTerm in searchTerms)
                 {
 
                     // Run the query against the Item Search service
@@ -856,7 +856,7 @@ namespace MyEMSLReader
                         {
                             foreach (var item in remoteFile.Value)
                             {
-                                AddFileToSearchResults(lstResults, remoteFilePaths, remoteFile, item, true);
+                                AddFileToSearchResults(searchResults, remoteFilePaths, remoteFile, item, true);
                             }
                         }
                         else
@@ -864,7 +864,7 @@ namespace MyEMSLReader
                             // Select the newest version of the item
                             var newestVersion = (from item in remoteFile.Value orderby item.TransactionID descending select item).First();
 
-                            AddFileToSearchResults(lstResults, remoteFilePaths, remoteFile, newestVersion, false);
+                            AddFileToSearchResults(searchResults, remoteFilePaths, remoteFile, newestVersion, false);
                         }
 
                     }
@@ -890,53 +890,61 @@ namespace MyEMSLReader
         }
 
         private List<ArchivedFileInfo> FilterSearchResults(
-            Dictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists,
+            Dictionary<string, SortedSet<string>> datasetsAndSubDirs,
             bool recurse,
-            List<ArchivedFileInfo> lstResults,
+            IEnumerable<ArchivedFileInfo> searchResults,
             bool filterOnSubDir)
         {
+            List<ArchivedFileInfo> filteredSearchResults;
 
-            if (dctDatasetsAndSubDirLists.Count > 0)
+            if (datasetsAndSubDirs.Count > 0)
             {
-                if (dctDatasetsAndSubDirLists.First().Key.StartsWith(DATASET_ID_TAG))
+                if (datasetsAndSubDirs.First().Key.StartsWith(DATASET_ID_TAG))
                 {
                     // Filter the files to remove any that are not an exact match to the dataset ID
-                    lstResults = FilterFilesByDatasetID(lstResults, dctDatasetsAndSubDirLists.Keys);
+                    filteredSearchResults = FilterFilesByDatasetID(searchResults, datasetsAndSubDirs.Keys);
                 }
-                else if (dctDatasetsAndSubDirLists.First().Key.StartsWith(DATA_PKG_ID_TAG))
+                else if (datasetsAndSubDirs.First().Key.StartsWith(DATA_PKG_ID_TAG))
                 {
                     // Files stored in MyEMSL for data packages do not have the data package ID associated with them (each file has DatasetID = 0)
                     // Thus, we cannot filter them and will instead need to trust the results returned by MyEMSL
+                    filteredSearchResults = new List<ArchivedFileInfo>();
+                    filteredSearchResults.AddRange(searchResults);
                 }
                 else
                 {
-                    // Filter the files to remove any that are not an exact match to the dataset names in dctSearchTerms
-                    lstResults = FilterFilesByDatasetName(lstResults, dctDatasetsAndSubDirLists.Keys);
+                    // Filter the files to remove any that are not an exact match to the dataset names in searchTerms
+                    filteredSearchResults = FilterFilesByDatasetName(searchResults, datasetsAndSubDirs.Keys);
                 }
+            }
+            else
+            {
+                filteredSearchResults = new List<ArchivedFileInfo>();
+                filteredSearchResults.AddRange(searchResults);
             }
 
             if (!recurse)
             {
                 // Filter the files to remove any not in the "root" directory
-                lstResults = FilterFilesNoRecursion(lstResults, dctDatasetsAndSubDirLists);
+                filteredSearchResults = FilterFilesNoRecursion(filteredSearchResults, datasetsAndSubDirs);
             }
 
             if (filterOnSubDir)
             {
                 // Filter on subDir
-                lstResults = FilterFilesBySubDir(lstResults, dctDatasetsAndSubDirLists);
+                filteredSearchResults = FilterFilesBySubDir(filteredSearchResults, datasetsAndSubDirs);
             }
 
-            return lstResults;
+            return filteredSearchResults;
         }
 
-        private SearchEntity GetEntityType(Dictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists)
+        private SearchEntity GetEntityType(Dictionary<string, SortedSet<string>> datasetsAndSubDirLists)
         {
             var entityType = SearchEntity.DatasetName;
 
-            if (dctDatasetsAndSubDirLists.First().Key.StartsWith(DATASET_ID_TAG))
+            if (datasetsAndSubDirLists.First().Key.StartsWith(DATASET_ID_TAG))
                 entityType = SearchEntity.DatasetID;
-            else if (dctDatasetsAndSubDirLists.First().Key.StartsWith(DATA_PKG_ID_TAG))
+            else if (datasetsAndSubDirLists.First().Key.StartsWith(DATA_PKG_ID_TAG))
                 entityType = SearchEntity.DataPackageID;
 
             return entityType;
@@ -1056,7 +1064,7 @@ namespace MyEMSLReader
         }
 
         private bool LookupSubDirFilterByDataset(
-            IReadOnlyDictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists,
+            IReadOnlyDictionary<string, SortedSet<string>> datasetsAndSubDirLists,
             ArchivedFileInfo file,
             SearchEntity entityType,
             out SortedSet<string> subDirs)
@@ -1065,7 +1073,7 @@ namespace MyEMSLReader
 
             if (entityType == SearchEntity.DatasetID)
             {
-                if (!dctDatasetsAndSubDirLists.TryGetValue(DATASET_ID_TAG + file.DatasetID, out subDirs))
+                if (!datasetsAndSubDirLists.TryGetValue(DATASET_ID_TAG + file.DatasetID, out subDirs))
                 {
                     ReportError("File " + file.FileID + " has an unrecognized dataset ID: " + file.DatasetID +
                         "; skipping (MyEMSLReader.LookupSubDirFilterByDataset)");
@@ -1074,7 +1082,7 @@ namespace MyEMSLReader
             }
             else if (entityType == SearchEntity.DataPackageID)
             {
-                if (!dctDatasetsAndSubDirLists.TryGetValue(DATA_PKG_ID_TAG + file.DataPackageID, out subDirs))
+                if (!datasetsAndSubDirLists.TryGetValue(DATA_PKG_ID_TAG + file.DataPackageID, out subDirs))
                 {
                     ReportError("File " + file.FileID + " has an unrecognized data package ID: " + file.DataPackageID +
                         "; skipping (MyEMSLReader.LookupSubDirFilterByDataset)");
@@ -1083,7 +1091,7 @@ namespace MyEMSLReader
             }
             else
             {
-                if (!dctDatasetsAndSubDirLists.TryGetValue(file.Dataset, out subDirs))
+                if (!datasetsAndSubDirLists.TryGetValue(file.Dataset, out subDirs))
                 {
                     ReportError("File " + file.FileID + " has an unrecognized dataset name: " + file.Dataset +
                         "; skipping (MyEMSLReader.LookupSubDirFilterByDataset)");
@@ -1383,17 +1391,17 @@ namespace MyEMSLReader
         }
 
         /// <summary>
-        /// Examines the keys in dctDatasetsAndSubDirLists to make sure that they are not a mix of datasets, dataset IDs, and data package IDs
+        /// Examines the keys in datasetsAndSubDirLists to make sure that they are not a mix of datasets, dataset IDs, and data package IDs
         /// </summary>
-        /// <param name="dctDatasetsAndSubDirLists">Dictionary to examine</param>
-        private static void ValidateDatasetInfoDictionary(Dictionary<string, SortedSet<string>> dctDatasetsAndSubDirLists)
+        /// <param name="datasetsAndSubDirLists">Dictionary to examine</param>
+        private static void ValidateDatasetInfoDictionary(Dictionary<string, SortedSet<string>> datasetsAndSubDirLists)
         {
 
             var tagCountDatasetID = 0;
             var tagCountDataPkgID = 0;
             var tagCountDatasetName = 0;
 
-            foreach (var item in dctDatasetsAndSubDirLists.Keys)
+            foreach (var item in datasetsAndSubDirLists.Keys)
             {
                 if (item.StartsWith(DATASET_ID_TAG))
                 {
@@ -1411,17 +1419,17 @@ namespace MyEMSLReader
 
             if (tagCountDataPkgID > 0 && tagCountDatasetID > 0)
             {
-                throw new Exception("Coding error: dctDatasetsAndSubDirLists has both data package ID and dataset ID entries");
+                throw new Exception("Coding error: datasetsAndSubDirLists has both data package ID and dataset ID entries");
             }
 
             if (tagCountDataPkgID > 0 && tagCountDatasetName > 0)
             {
-                throw new Exception("Coding error: dctDatasetsAndSubDirLists has both data package ID and dataset name entries");
+                throw new Exception("Coding error: datasetsAndSubDirLists has both data package ID and dataset name entries");
             }
 
             if (tagCountDatasetID > 0 && tagCountDatasetName > 0)
             {
-                throw new Exception("Coding error: dctDatasetsAndSubDirLists has both dataset ID and dataset name entries");
+                throw new Exception("Coding error: datasetsAndSubDirLists has both dataset ID and dataset name entries");
             }
         }
 
