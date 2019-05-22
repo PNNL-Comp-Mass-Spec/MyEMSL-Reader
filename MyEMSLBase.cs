@@ -280,6 +280,10 @@ namespace MyEMSLReader
         {
             if (!string.IsNullOrEmpty(strMessage))
                 OnStatusEvent(strMessage);
+
+        protected void ReportWarning(string message)
+        {
+            OnWarningEvent(message);
         }
 
         protected virtual void ResetStatus()
