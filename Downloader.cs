@@ -42,7 +42,7 @@ namespace MyEMSLReader
 
         public enum Overwrite
         {
-            IfChanged = 0,			// This mode will compute an MD5 hash of the target file and only overwrite the target if the hash values differ
+            IfChanged = 0,			// This mode will compute a SHA-1 hash of the target file and only overwrite the target if the hash values differ
             Always = 1,
             Never = 2
         }
@@ -1253,7 +1253,7 @@ namespace MyEMSLReader
                 case Overwrite.IfChanged:
                     if (string.IsNullOrEmpty(archiveFile.Sha1Hash))
                     {
-                        message = "overwriting (Sha1 hash missing) " + targetFile.FullName;
+                        message = "overwriting (SHA-1 hash missing) " + targetFile.FullName;
                         downloadFile = true;
                         break;
                     }
