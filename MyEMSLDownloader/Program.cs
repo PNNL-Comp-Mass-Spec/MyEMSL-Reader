@@ -194,7 +194,7 @@ namespace MyEMSLDownloader
 
                 if (mPreviewMode)
                 {
-                    System.Threading.Thread.Sleep(1500);
+                    System.Threading.Thread.Sleep(250);
                     return 0;
                 }
 
@@ -702,7 +702,7 @@ namespace MyEMSLDownloader
                     }
 
                     ShowErrorMessage("Invalid command line parameters", badArguments);
-
+                    System.Threading.Thread.Sleep(1500);
                     return false;
                 }
 
@@ -811,6 +811,7 @@ namespace MyEMSLDownloader
                     if (commandLineParser.RetrieveValueForParameter("D", out var paramValue) && !string.IsNullOrWhiteSpace(paramValue))
                     {
                         ShowErrorMessage("The /D switch should not have a value; use /Dataset or /DatasetID to specify a dataset name or ID");
+                        System.Threading.Thread.Sleep(1500);
                         return false;
                     }
                     mMultiDatasetMode = true;
@@ -863,7 +864,9 @@ namespace MyEMSLDownloader
                 return true;
 
             ShowErrorMessage("/" + parameterName + " does not have " + description);
+            System.Threading.Thread.Sleep(1500);
             missingValue = true;
+
             return false;
         }
 
