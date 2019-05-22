@@ -276,10 +276,11 @@ namespace MyEMSLReader
             }
         }
 
-        protected void ReportMessage(string strMessage)
+        protected void ReportMessage(string message)
         {
-            if (!string.IsNullOrEmpty(strMessage))
-                OnStatusEvent(strMessage);
+            if (!string.IsNullOrEmpty(message))
+                OnStatusEvent(message);
+        }
 
         protected void ReportWarning(string message)
         {
