@@ -985,7 +985,7 @@ namespace MyEMSLReader
                         }
                     }
 
-                    OnWarningEvent(string.Format("Dataset {0} not found in DMS; connecting to {1}",
+                    OnWarningEvent(string.Format("Dataset {0} not found in DMS (using {1})",
                         datasetName, DMSConnectionString));
 
                     return 0;
@@ -1156,7 +1156,6 @@ namespace MyEMSLReader
                 }
 
                 // Contact DMS to retrieve the dataset name for this dataset ID
-                // This is a temporary fix until MyEMSL reports Dataset Name
                 datasetName = LookupDatasetNameByID(datasetOrDataPackageId, out instrument);
 
                 checkingDataPackage = false;
@@ -1262,7 +1261,7 @@ namespace MyEMSLReader
                 if (string.IsNullOrEmpty(fileInfoListJSON))
                 {
                     var errMsg = "No results returned from MyEMSL (MyEMSLReader.RunItemSearchQuery)";
-                    ReportError(errMsg);
+                    ReportError(errMsg, false);
                     return remoteFiles;
                 }
 
