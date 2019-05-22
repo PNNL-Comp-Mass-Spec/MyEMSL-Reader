@@ -47,32 +47,9 @@ namespace MyEMSLReader
             Never = 2
         }
 
-        public enum CartState
-        {
-            NoCart,
-            Unsubmitted,
-            Building,
-            Available,
-            Expired,
-            Admin,
-            Unknown
-        }
-
         #endregion
 
         #region "Properties"
-
-        public CartState DownloadCartState
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
-        /// When true, will never download files using the cart mechanism
-        /// </summary>
-        /// <remarks>ForceDownloadViaCart takes precedence over DisableCart</remarks>
-        public bool DisableCart { get; set; }
 
         /// <summary>
         /// The most recently downloaded files.  Keys are the full path to the downloaded file; values are extended file info
@@ -80,15 +57,6 @@ namespace MyEMSLReader
         public Dictionary<string, ArchivedFileInfo> DownloadedFiles
         {
             get;
-        }
-
-        /// <summary>
-        /// When true, will always download files using the cart mechanism, which is likely slower if the file is not purged to tape
-        /// </summary>
-        public bool ForceDownloadViaCart
-        {
-            get;
-            set;
         }
 
         /// <summary>
@@ -245,8 +213,7 @@ namespace MyEMSLReader
                     downloadDirectory, directoryLayout, out var bytesDownloaded);
 
                 // Create a list of the files that remain (files that could not be downloaded directly)
-                // These files will be downloaded via the cart mechanism
-                var filesToDownloadViaCart = new Dictionary<long, ArchivedFileInfo>();
+                var filesNotDownloaded = new Dictionary<long, ArchivedFileInfo>();
 
                 foreach (var archivedFileInfo in filesToDownload)
                 {
@@ -270,31 +237,21 @@ namespace MyEMSLReader
 
                     if (downloadFile)
                     {
-                        filesToDownloadViaCart.Add(fileID, archiveFile);
+                        filesNotDownloaded.Add(fileID, archiveFile);
                     }
                 }
 
-                if (filesToDownloadViaCart.Count == 0)
+                OnDebugEvent(string.Format("Downloaded {0:F1} MB total", bytesDownloaded / 1024.0 / 1024));
+
+                if (filesNotDownloaded.Count == 0)
                 {
-                    // All of the files have been downloaded (or already exist and having matching a matching Sha-1 hash)
+                    // All of the files have been downloaded (or already exist and have matching a matching SHA-1 hash)
                     return true;
                 }
 
-                if (!ForceDownloadViaCart && DisableCart)
-                {
-                    ReportError(filesToDownloadViaCart.Count + " purged files(s) could not be downloaded because DisableCart=true");
-                    return false;
-                }
+                ReportError(filesNotDownloaded.Count + " files(s) could not be downloaded");
 
-                var cartSuccess = DownloadFilesViaCart(
-                    filesToDownloadViaCart, cookieJar, destFilePathOverride,
-                    downloadDirectory, directoryLayout, out var bytesDownloadedViaCart);
-
-                bytesDownloaded += bytesDownloadedViaCart;
-
-                OnDebugEvent(string.Format("Downloaded {0:F1} MB total", bytesDownloaded / 1024.0 / 1024));
-
-                return cartSuccess;
+                return false;
 
             }
             catch (Exception ex)
@@ -404,6 +361,7 @@ namespace MyEMSLReader
         /// Create a JSON file with the files to download
         /// </summary>
         /// <returns></returns>
+        [Obsolete("Old cart mechanism code")]
         private StringBuilder CreateCartPostData(Dictionary<long, ArchivedFileInfo> filesToDownload)
         {
             // ReSharper disable CommentTypo
@@ -568,9 +526,6 @@ namespace MyEMSLReader
             var filesDownloaded = new Dictionary<long, string>();
             bytesDownloaded = 0;
 
-            if (ForceDownloadViaCart)
-                return filesDownloaded;
-
             try
             {
                 // Determine total amount of data to be downloaded
@@ -698,6 +653,7 @@ namespace MyEMSLReader
             return filesDownloaded;
         }
 
+        [Obsolete("Old cart mechanism code")]
         private bool DownloadFilesViaCart(
             Dictionary<long, ArchivedFileInfo> filesToDownload,
             CookieContainer cookieJar,
@@ -1412,7 +1368,6 @@ namespace MyEMSLReader
         protected sealed override void ResetStatus()
         {
             base.ResetStatus();
-            DownloadCartState = CartState.NoCart;
             PercentComplete = 0;
             DownloadedFiles.Clear();
         }

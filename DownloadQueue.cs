@@ -146,15 +146,11 @@ namespace MyEMSLReader
         /// </summary>
         /// <param name="downloadDirectoryPath">Target directory path (ignored for files defined in destFilePathOverride)</param>
         /// <param name="directoryLayout">Directory Layout (ignored for files defined in destFilePathOverride)</param>
-        /// <param name="disableCart">When true, will never download files using the cart mechanism</param>
-        /// <param name="forceDownloadViaCart">When true, will always download files using the cart mechanism</param>
         /// <returns>True if success, false if an error</returns>
         /// <remarks>Returns False if the download queue is empty</remarks>
         public bool ProcessDownloadQueue(
             string downloadDirectoryPath,
-            Downloader.DownloadLayout directoryLayout,
-            bool disableCart = false,
-            bool forceDownloadViaCart = false)
+            Downloader.DownloadLayout directoryLayout)
         {
 
             if (FilesToDownload.Count == 0)
@@ -168,8 +164,6 @@ namespace MyEMSLReader
                 var downloader = new Downloader();
                 RegisterEvents(downloader);
 
-                downloader.DisableCart = disableCart;
-                downloader.ForceDownloadViaCart = forceDownloadViaCart;
                 downloader.ThrowErrors = ThrowErrors;
                 downloader.UseTestInstance = UseTestInstance;
 
