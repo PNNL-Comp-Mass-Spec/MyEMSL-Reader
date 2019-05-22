@@ -652,22 +652,23 @@ namespace MyEMSLDownloader
 
         private static void ShowFiles(IEnumerable<DatasetDirectoryOrFileInfo> archiveFiles, bool verbosePreview)
         {
+
             foreach (var archiveFile in archiveFiles)
             {
                 Console.WriteLine(archiveFile.FileInfo.RelativePathWindows);
-                if (verbosePreview)
-                {
-                    ConsoleMsgUtils.ShowDebug(
-                        string.Format(
-                            "  FileID {0}, TransID {1}, Submitted {2}, Size {3:F1} KB, Hash {4}, HashType {5}",
-                            archiveFile.FileID,
-                            archiveFile.FileInfo.TransactionID,
-                            archiveFile.FileInfo.SubmissionTime,
-                            archiveFile.FileInfo.FileSizeBytes / 1024.0,
-                            archiveFile.FileInfo.Sha1Hash,
-                            archiveFile.FileInfo.HashType));
-                    Console.WriteLine();
-                }
+                if (!verbosePreview)
+                    continue;
+
+                ConsoleMsgUtils.ShowDebug(
+                    string.Format(
+                        "  FileID {0}, TransID {1}, Submitted {2}, Size {3:F1} KB, Hash {4}, HashType {5}",
+                        archiveFile.FileID,
+                        archiveFile.FileInfo.TransactionID,
+                        archiveFile.FileInfo.SubmissionTime,
+                        archiveFile.FileInfo.FileSizeBytes / 1024.0,
+                        archiveFile.FileInfo.Sha1Hash,
+                        archiveFile.FileInfo.HashType));
+                Console.WriteLine();
 
             }
         }
