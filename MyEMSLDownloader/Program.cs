@@ -44,8 +44,6 @@ namespace MyEMSLDownloader
         private static string mOutputDirectoryPath;
 
         private static bool mMultiDatasetMode;
-        private static bool mDisableCart;
-        private static bool mForceDownloadViaCart;
 
         private static bool mPreviewMode;
         private static bool mVerbosePreview;
@@ -69,8 +67,6 @@ namespace MyEMSLDownloader
             mOutputDirectoryPath = string.Empty;
 
             mMultiDatasetMode = false;
-            mDisableCart = false;
-            mForceDownloadViaCart = false;
 
             mPreviewMode = false;
             mVerbosePreview = false;
@@ -251,8 +247,6 @@ namespace MyEMSLDownloader
             string outputDirectoryPath)
         {
             myEMSLInfoCache.ClearDownloadQueue();
-            myEMSLInfoCache.DisableCart = mDisableCart;
-            myEMSLInfoCache.ForceDownloadViaCart = mForceDownloadViaCart;
 
             foreach (var archiveFile in archiveFiles)
             {
@@ -538,8 +532,8 @@ namespace MyEMSLDownloader
         private static bool SetOptionsUsingCommandLineParameters(clsParseCommandLine commandLineParser)
         {
             var lstValidParameters = new List<string> {
-                "Dataset", "DataPkg", "SubDir", "Files", "FileSplit",
-                "O", "D", "FileList", "FileID", "DisableCart", "ForceCart",
+                "Dataset", "DatasetID", "DataPkg", "SubDir", "Files", "FileSplit",
+                "O", "D", "FileList", "FileID",
                 "Preview", "V", "Verbose", "Test", "Trace", "UseTest" };
 
             try
@@ -612,9 +606,6 @@ namespace MyEMSLDownloader
                     }
                     mMultiDatasetMode = true;
                 }
-
-                mDisableCart = commandLineParser.IsParameterPresent("DisableCart");
-                mForceDownloadViaCart = commandLineParser.IsParameterPresent("ForceCart");
 
                 mPreviewMode = commandLineParser.IsParameterPresent("Preview");
                 mAutoTestMode = commandLineParser.IsParameterPresent("Test");

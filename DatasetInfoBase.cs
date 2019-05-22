@@ -49,12 +49,6 @@ namespace MyEMSLReader
         #region "Properties"
 
         /// <summary>
-        /// When true, will never download files using the cart mechanism
-        /// </summary>
-        /// <remarks>ForceDownloadViaCart takes precedence over DisableCart</remarks>
-        public bool DisableCart { get; set; }
-
-        /// <summary>
         /// The most recently downloaded files; keys are the full paths to the downloaded file, values are extended file info
         /// </summary>
         /// <value></value>
@@ -80,12 +74,6 @@ namespace MyEMSLReader
         /// <remarks>Keys are MyEMSL File IDs, values are struct udtFileToDownload</remarks>
         /// ReSharper disable once UnusedMember.Global
         public Dictionary<long, DownloadQueue.udtFileToDownload> FilesToDownload => mDownloadQueue.FilesToDownload;
-
-        /// <summary>
-        /// When true, will always download files using the cart mechanism
-        /// </summary>
-        /// <remarks>ForceDownloadViaCart takes precedence over DisableCart</remarks>
-        public bool ForceDownloadViaCart { get; set; }
 
         /// <summary>
         /// When true, raise a DebugEvent prior to contacting the metadata server
@@ -642,7 +630,7 @@ namespace MyEMSLReader
             mErrorMessages.Clear();
             mDownloadedFiles.Clear();
 
-            var success = mDownloadQueue.ProcessDownloadQueue(downloadDirectoryPath, directoryLayout, DisableCart, ForceDownloadViaCart);
+            var success = mDownloadQueue.ProcessDownloadQueue(downloadDirectoryPath, directoryLayout);
 
             if (success)
             {
