@@ -879,66 +879,81 @@ namespace MyEMSLDownloader
                 Console.WriteLine();
 
                 Console.Write("Program syntax #1:" + Environment.NewLine + exeName);
-                Console.WriteLine(" DatasetName [SubdirectoryName] [/Files:FileMask] [/FileSplit]");
-                Console.WriteLine(" [/O:OutputDirectory] [/D] [/Preview] [/V] [/Trace] [/DisableCart] [/ForceCart] [/UseTest]");
+                Console.WriteLine(" DatasetNameOrID [SubdirectoryName] [/Files:FileMask] [/FileSplit]");
+                Console.WriteLine(" [/O:OutputDirectory] [/D] [/Preview] [/V] [/Trace] [/UseTest]");
 
                 Console.WriteLine();
                 Console.Write("Program syntax #2:" + Environment.NewLine + exeName);
                 Console.WriteLine(" /Dataset:DatasetName [/SubDir:SubdirectoryName] [/Files:FileMask] [/FileSplit]");
-                Console.WriteLine(" [/O:OutputDirectory] [/D] [/Preview] [/V] [/Trace] [/DisableCart] [/ForceCart] [/UseTest]");
+                Console.WriteLine(" [/O:OutputDirectory] [/D] [/Preview] [/V] [/Trace] [/UseTest]");
 
                 Console.WriteLine();
                 Console.Write("Program syntax #3:" + Environment.NewLine + exeName);
-                Console.WriteLine(" /DataPkg:DataPackageID [/SubDir:SubdirectoryName] [/Files:FileMask] [/FileSplit]");
-                Console.WriteLine(" [/O:OutputDirectory] [/Preview] [/V] [/Trace] [/DisableCart] [/ForceCart] [/UseTest]");
+                Console.WriteLine(" /DatasetID:DatasetID [/SubDir:SubdirectoryName] [/Files:FileMask] [/FileSplit]");
+                Console.WriteLine(" [/O:OutputDirectory] [/D] [/Preview] [/V] [/Trace] [/UseTest]");
 
                 Console.WriteLine();
                 Console.Write("Program syntax #4:" + Environment.NewLine + exeName);
-                Console.WriteLine(" /FileList:FileInfoFile.txt [/O:OutputDirectory]");
-                Console.WriteLine(" [/Preview] [/V] [/Trace] [/DisableCart] [/ForceCart] [/UseTest]");
+                Console.WriteLine(" /DataPkg:DataPackageID [/SubDir:SubdirectoryName] [/Files:FileMask] [/FileSplit]");
+                Console.WriteLine(" [/O:OutputDirectory] [/Preview] [/V] [/Trace] [/UseTest]");
 
                 Console.WriteLine();
                 Console.Write("Program syntax #5:" + Environment.NewLine + exeName);
+                Console.WriteLine(" /FileList:FileInfoFile.txt [/O:OutputDirectory]");
+                Console.WriteLine(" [/Preview] [/V] [/Trace] [/UseTest]");
+
+                Console.WriteLine();
+                Console.Write("Program syntax #6:" + Environment.NewLine + exeName);
                 Console.WriteLine(" /FileID:1234 [/Preview] [/V] [/Trace]");
 
 
                 Console.WriteLine();
-                Console.Write("Program syntax #6:" + Environment.NewLine + exeName);
-                Console.WriteLine(" /Test [/Preview] [/V] [/Trace] [/DisableCart] [/ForceCart]");
+                Console.Write("Program syntax #7:" + Environment.NewLine + exeName);
+                Console.WriteLine(" /Test [/Preview] [/V] [/Trace]");
 
                 Console.WriteLine();
-                Console.WriteLine("To download files for a given dataset, enter the dataset name, plus optionally the subdirectory name");
-                Console.WriteLine("The names can be entered separated by spaces, or using /Dataset plus optionally /SubDir");
+                Console.WriteLine(ConsoleMsgUtils.WrapParagraph(
+                                      "To download files for a given dataset, enter the dataset name or dataset ID, plus optionally the subdirectory name. " +
+                                      "Alternatively, use /Dataset or /DatasetID plus optionally /SubDir"));
                 Console.WriteLine();
-                Console.WriteLine("Use /Files to filter for specific files, for example /Files:*.txt");
-                Console.WriteLine("Files will be downloaded to the directory with the .exe; override using /O");
-                Console.WriteLine("Use /FileSplit to indicate that /Files contains a list of filenames and/or file specs, separated by semicolons");
-                Console.WriteLine("For example, use /Files:analysis.baf;ser /FileSplit");
+                Console.WriteLine(ConsoleMsgUtils.WrapParagraph(
+                                      "Use /Files to filter for specific files, for example /Files:*.txt\n" +
+                                      "Files will be downloaded to the directory with the .exe; override using /O"));
                 Console.WriteLine();
-                Console.WriteLine("Use /D to create a directory with the dataset name, then store the files within that directory");
+                Console.WriteLine(ConsoleMsgUtils.WrapParagraph(
+                                      "Use /FileSplit to indicate that /Files contains a list of filenames and/or file specs, " +
+                                      "separated by semicolons. For example, use\n" +
+                                      "/Files:analysis.baf;ser /FileSplit"));
                 Console.WriteLine();
-                Console.WriteLine("Use /DataPkg to retrieve files from a specific data package");
+                Console.WriteLine(ConsoleMsgUtils.WrapParagraph(
+                                      "Use /D to create a directory with the dataset name, then store the files within that directory"));
                 Console.WriteLine();
-                Console.WriteLine("Use /FileList to specify a file with a list of datasets and files to retrieve");
-                Console.WriteLine("The file must be a tab-delimited text file, with columns Dataset and File, and optionally with column SubDir");
-                Console.WriteLine("The file names in the File column are allowed to contain wildcards");
-                Console.WriteLine("When /FileList is used, /D is automatically enabled");
+                Console.WriteLine(ConsoleMsgUtils.WrapParagraph(
+                                      "Use /DataPkg to retrieve files from a specific data package"));
                 Console.WriteLine();
-                Console.WriteLine("Use /FileId to specify the MyEMSL ID of a file to download (as seen with /V)");
-                Console.WriteLine("This mode does not use Simple Search to find files and can thus be used " +
-                                  "to retrieve a file that Simple Search does not find. Provide a comma separated list to retrieve multiple files.");
+                Console.WriteLine(ConsoleMsgUtils.WrapParagraph(
+                                      "Use /FileList to specify a file with a list of datasets and files to retrieve. " +
+                                      "The file must be a tab-delimited text file, with columns Dataset (or DatasetID) and File, " +
+                                      "and optionally with column SubDir. The file names in the File column are allowed " +
+                                      "to contain wildcards. When /FileList is used, /D is automatically enabled"));
                 Console.WriteLine();
-                Console.WriteLine("Alternatively, use /Test to perform automatic tests using predefined dataset names");
+                Console.WriteLine(ConsoleMsgUtils.WrapParagraph(
+                                      "Use /FileId to specify the MyEMSL ID of a file to download (as seen with /V). " +
+                                      "This mode does not use Simple Search to find files and can thus be used " +
+                                      "to retrieve a file that Simple Search does not find. Provide a comma separated list " +
+                                      "to retrieve multiple files."));
                 Console.WriteLine();
-                Console.WriteLine("Use /Preview to view files that would be downloaded, but not actually download them");
-                Console.WriteLine("Use /V to enable verbose preview, showing extended details about each file");
+                Console.WriteLine(ConsoleMsgUtils.WrapParagraph(
+                                      "Use /Test to perform automatic tests using predefined dataset names"));
+                Console.WriteLine();
+                Console.WriteLine(ConsoleMsgUtils.WrapParagraph(
+                                      "Use /Preview to view files that would be downloaded, but not actually download them. " +
+                                      "Use /V to enable verbose preview, showing extended details about each file"));
                 Console.WriteLine();
                 Console.WriteLine("Use /Trace to display additional debug information");
                 Console.WriteLine();
-                Console.WriteLine("Use /DisableCart to disable use of the download cart mechanism for retrieving files that exist on tape but not on spinning disk");
-                Console.WriteLine("Use /ForceCart to force the use of the download cart; this option overrides /DisableCart");
-                Console.WriteLine();
-                Console.WriteLine("Use /UseTest to connect to test0.my.emsl.pnl.gov instead of my.emsl.pnl.gov");
+                Console.WriteLine(ConsoleMsgUtils.WrapParagraph(
+                                      "Use /UseTest to connect to test0.my.emsl.pnl.gov instead of my.emsl.pnl.gov"));
                 Console.WriteLine();
                 Console.WriteLine("Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2013");
                 Console.WriteLine("Version: " + GetAppVersion());
