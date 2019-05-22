@@ -15,12 +15,13 @@ namespace MyEMSLDownloader
 
     internal static class Program
     {
-        private const string PROGRAM_DATE = "May 17, 2019";
+        private const string PROGRAM_DATE = "May 22, 2019";
 
         static double mPercentComplete;
         static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
 
         private static string mDatasetName;
+        private static int mDatasetID;
         private static int mDataPkgID;
         private static string mSubdirectory;
 
@@ -53,6 +54,7 @@ namespace MyEMSLDownloader
         private static bool mUseTestInstance;
 
         private static DatasetListInfo mDatasetListInfo;
+        private static DatasetListInfoByID mDatasetListInfoByID;
         private static DataPackageListInfo mDataPackageListInfo;
 
         static int Main(string[] args)
@@ -60,6 +62,7 @@ namespace MyEMSLDownloader
             var commandLineParser = new clsParseCommandLine();
 
             mDatasetName = string.Empty;
+            mDatasetID = 0;
             mDataPkgID = 0;
             mSubdirectory = string.Empty;
             mFileMask = string.Empty;
@@ -101,6 +104,14 @@ namespace MyEMSLDownloader
                 };
                 RegisterEvents(mDatasetListInfo);
 
+                mDatasetListInfoByID = new DatasetListInfoByID
+                {
+                    ReportMetadataURLs = mPreviewMode || mTraceMode,
+                    ThrowErrors = false,
+                    TraceMode = mTraceMode
+                };
+                RegisterEvents(mDatasetListInfoByID);
+
                 mDataPackageListInfo = new DataPackageListInfo
                 {
                     ReportMetadataURLs = mPreviewMode || mTraceMode,
@@ -110,6 +121,7 @@ namespace MyEMSLDownloader
                 RegisterEvents(mDataPackageListInfo);
 
                 mDatasetListInfo.UseTestInstance = mUseTestInstance;
+                mDatasetListInfoByID.UseTestInstance = mUseTestInstance;
                 mDataPackageListInfo.UseTestInstance = mUseTestInstance;
 
                 if (mAutoTestMode)
@@ -151,13 +163,20 @@ namespace MyEMSLDownloader
                         }
                         else
                         {
-                            if (string.IsNullOrWhiteSpace(mDatasetName))
+                            if (mDatasetID > 0)
                             {
-                                ShowErrorMessage("Dataset or data package name not specified. Use /Dataset or /DataPkg or /FileList or /FileID");
+                                archiveFiles = FindDatasetFilesByID(mDatasetID, mSubdirectory, mFileMask, mFileSplit);
+                            }
+                            else if (!string.IsNullOrWhiteSpace(mDatasetName))
+                            {
+                                archiveFiles = FindDatasetFiles(mDatasetName, mSubdirectory, mFileMask, mFileSplit);
+                            }
+                            else
+                            {
+                                ShowErrorMessage("Dataset Name, Dataset ID, or Data Package ID not specified. Use /Dataset or /DatasetID or /DataPkg or /FileList or /FileID");
                                 System.Threading.Thread.Sleep(1000);
                                 return -1;
                             }
-                            archiveFiles = FindDatasetFiles(mDatasetName, mSubdirectory, mFileMask, mFileSplit);
                         }
                     }
                 }
@@ -196,9 +215,16 @@ namespace MyEMSLDownloader
             return 0;
         }
 
-        private static void MyEMSLReader_MyEMSLOffline(string message)
+        private static void AddFileToFind(ICollection<TargetFileInfo> datasetFiles, TargetFileInfo fileToFind)
         {
-            OnWarningEvent(message);
+            if (datasetFiles.Any(existingFileToFind => existingFileToFind.FileMask.Equals(fileToFind.FileMask) &&
+                                                       existingFileToFind.SubDir.Equals(fileToFind.SubDir)))
+            {
+                // Duplicate file spec; skip it
+                return;
+            }
+
+            datasetFiles.Add(fileToFind);
         }
 
         private static void AutoTestModeStart()
@@ -233,7 +259,18 @@ namespace MyEMSLDownloader
 
         private static void DownloadDatasetFiles(IEnumerable<DatasetDirectoryOrFileInfo> archiveFiles, string outputDirectoryPath)
         {
-            DownloadFiles(mDatasetListInfo, archiveFiles, outputDirectoryPath);
+            if (mDatasetListInfo.Datasets.Count > 0)
+            {
+                DownloadFiles(mDatasetListInfo, archiveFiles, outputDirectoryPath);
+            }
+            else if (mDatasetListInfoByID.DatasetIDs.Count > 0)
+            {
+                DownloadFiles(mDatasetListInfoByID, archiveFiles, outputDirectoryPath);
+            }
+            else
+            {
+                ConsoleMsgUtils.ShowWarning("No dataset names or dataset IDs are defined; nothing to download");
+            }
         }
 
         private static void DownloadDataPackageFiles(IEnumerable<DatasetDirectoryOrFileInfo> archiveFiles, string outputDirectoryPath)
@@ -301,6 +338,23 @@ namespace MyEMSLDownloader
             return archiveFiles;
         }
 
+        private static List<DatasetDirectoryOrFileInfo> FindDatasetFilesByID(
+            int datasetID,
+            string subdirectory,
+            string fileMask,
+            bool fileSplit)
+        {
+
+            mDatasetListInfoByID.AddDataset(datasetID, subdirectory);
+
+            if (string.IsNullOrEmpty(fileMask))
+                fileMask = "*";
+
+            var archiveFiles = mDatasetListInfoByID.FindFiles(fileMask, subdirectory, string.Empty, true, fileSplit);
+
+            return archiveFiles;
+        }
+
         private static List<DatasetDirectoryOrFileInfo> FindDataPkgFiles(
             int dataPkgID,
             string subdirectory,
@@ -320,20 +374,24 @@ namespace MyEMSLDownloader
         private static List<DatasetDirectoryOrFileInfo> FindFileListFiles(FileSystemInfo fileListFile)
         {
             const string DATASET_COLUMN = "Dataset";
+            const string DATASET_ID_COLUMN = "DatasetID";
             const string SUBDIR_COLUMN = "SubDir";
             const string FILE_COLUMN = "File";
 
             try
             {
                 var datasetsToFind = new Dictionary<string, List<TargetFileInfo>>();
+                var datasetIDsToFind = new Dictionary<int, List<TargetFileInfo>>();
 
                 using (var reader = new StreamReader(new FileStream(fileListFile.FullName, FileMode.Open, FileAccess.Read, FileShare.Read)))
                 {
                     var headerMap = new Dictionary<string, int>();
                     var headerNames = new List<string>
                     {
-                        DATASET_COLUMN, SUBDIR_COLUMN, FILE_COLUMN
+                        DATASET_COLUMN, DATASET_ID_COLUMN, SUBDIR_COLUMN, FILE_COLUMN
                     };
+                    var datasetNameOrIdColumnIndex = 0;
+                    var usingDatasetIDs = false;
 
                     while (!reader.EndOfStream)
                     {
@@ -359,23 +417,38 @@ namespace MyEMSLDownloader
                         {
                             MapHeaders(dataValues, headerNames, headerMap);
 
-                            if (!headerMap.ContainsKey(DATASET_COLUMN) ||
+                            if (!(headerMap.ContainsKey(DATASET_COLUMN) || headerMap.ContainsKey(DATASET_ID_COLUMN)) ||
                                 !headerMap.ContainsKey(FILE_COLUMN))
                             {
-                                ConsoleMsgUtils.ShowWarning("Missing columns in " + fiFileListFile.Name);
-                                ConsoleMsgUtils.ShowWarning("Header line must contain columns " + DATASET_COLUMN + " and " + FILE_COLUMN + " and optionally " + SUBDIR_COLUMN);
+                                ConsoleMsgUtils.ShowWarning("Missing columns in " + fileListFile.Name);
+                                ConsoleMsgUtils.ShowWarning(
+                                    "Header line must contain columns {0} or {1} and column {2}, plus optionally {3}",
+                                    DATASET_COLUMN, DATASET_ID_COLUMN, FILE_COLUMN, SUBDIR_COLUMN);
+
                                 return new List<DatasetDirectoryOrFileInfo>();
                             }
+
+                            if (headerMap.ContainsKey(DATASET_COLUMN))
+                            {
+                                datasetNameOrIdColumnIndex = headerMap[DATASET_COLUMN];
+                            }
+                            else
+                            {
+                                datasetNameOrIdColumnIndex = headerMap[DATASET_ID_COLUMN];
+                                usingDatasetIDs = true;
+                            }
+
                             continue;
                         }
 
-                        if (headerMap[DATASET_COLUMN] > lastIndex || headerMap[FILE_COLUMN] > lastIndex)
+                        if (datasetNameOrIdColumnIndex > lastIndex || headerMap[FILE_COLUMN] > lastIndex)
                         {
                             ConsoleMsgUtils.ShowWarning("Data line has fewer columns than the header line; skipping: " + dataLine);
                             continue;
                         }
 
-                        var dataset = dataValues[headerMap[DATASET_COLUMN]].Trim();
+                        var datasetNameOrID = dataValues[datasetNameOrIdColumnIndex].Trim();
+
                         var fileToFind = new TargetFileInfo
                         {
                             FileMask = dataValues[headerMap[FILE_COLUMN]].Trim()
@@ -396,12 +469,8 @@ namespace MyEMSLDownloader
                             }
                         }
                         else
-                            fileToFind.SubDir = string.Empty;
-
-                        if (!datasetsToSearch.TryGetValue(dataset, out var datasetFiles))
                         {
-                            datasetFiles = new List<TargetFileInfo>();
-                            datasetsToSearch.Add(dataset, datasetFiles);
+                            fileToFind.SubDir = string.Empty;
                         }
 
                         if (string.IsNullOrWhiteSpace(fileToFind.FileMask))
@@ -410,41 +479,51 @@ namespace MyEMSLDownloader
                             continue;
                         }
 
-                        datasetFiles.Add(fileToFind);
+                        if (usingDatasetIDs)
+                        {
+                            if (!int.TryParse(datasetNameOrID, out var datasetId))
+                            {
+                                ConsoleMsgUtils.ShowWarning("Dataset ID should be an integer, not: " + datasetNameOrID);
+                                continue;
 
-                        // Add the dataset name so that all of its tracked files will be determined
-                        // when MyEMSL is first queried via RefreshInfoIfStale (which calls RefreshInfo)
-                        mDatasetListInfo.AddDataset(dataset, fileToFind.SubDir);
+                            }
+                            if (!datasetIDsToFind.TryGetValue(datasetId, out var datasetFiles))
+                            {
+                                datasetFiles = new List<TargetFileInfo>();
+                                datasetIDsToFind.Add(datasetId, datasetFiles);
+                            }
+
+                            AddFileToFind(datasetFiles, fileToFind);
+
+                            // Add the dataset ID so that all of its tracked files will be determined
+                            // when MyEMSL is first queried via RefreshInfoIfStale (which calls RefreshInfo)
+                            mDatasetListInfoByID.AddDataset(datasetId, fileToFind.SubDir);
+                        }
+                        else
+                        {
+                            var datasetName = datasetNameOrID;
+                            if (!datasetsToFind.TryGetValue(datasetName, out var datasetFiles))
+                            {
+                                datasetFiles = new List<TargetFileInfo>();
+                                datasetsToFind.Add(datasetName, datasetFiles);
+                            }
+
+                            AddFileToFind(datasetFiles, fileToFind);
+
+                            // Add the dataset name so that all of its tracked files will be determined
+                            // when MyEMSL is first queried via RefreshInfoIfStale (which calls RefreshInfo)
+                            mDatasetListInfo.AddDataset(datasetName, fileToFind.SubDir);
+                        }
+
 
                     }
                 }
 
                 var archiveFiles = new List<DatasetDirectoryOrFileInfo>();
 
-                foreach (var dataset in datasetsToSearch)
-                {
-                    foreach (var fileToFind in dataset.Value)
-                    {
-                        var archiveFilesToAdd = FindDatasetFiles(dataset.Key, fileToFind.SubDir, fileToFind.FileMask, fileSplit: false).ToList();
+                FindFilesForDatasets(datasetsToFind, archiveFiles);
 
-                        foreach (var archiveFile in archiveFilesToAdd)
-                        {
-                            if (string.Equals(archiveFile.FileInfo.Dataset, dataset.Key, StringComparison.OrdinalIgnoreCase))
-                            {
-                                var alreadyAdded = (from item in archiveFiles where item.FileID == archiveFile.FileID select item).ToList().Any();
-
-                                if (!alreadyAdded)
-                                    archiveFiles.Add(archiveFile);
-                            }
-                            else
-                            {
-                                ConsoleMsgUtils.ShowWarning("Unexpected dataset name: " + dataset.Key);
-                            }
-                        }
-
-                    }
-
-                }
+                FindFilesForDatasets(datasetIDsToFind, archiveFiles);
 
                 return archiveFiles;
             }
@@ -453,6 +532,80 @@ namespace MyEMSLDownloader
                 ConsoleMsgUtils.ShowError("Exception in FindFileListFiles", ex);
                 return new List<DatasetDirectoryOrFileInfo>();
             }
+        }
+
+        private static void FindFilesForDatasets(
+            Dictionary<string, List<TargetFileInfo>> datasetsToFind,
+            ICollection<DatasetDirectoryOrFileInfo> archiveFiles)
+        {
+            // This list tracks MyEMSL File IDs that have been added to archiveFiles
+            var archiveFileIDs = new SortedSet<long>();
+
+            // Keys in this dictionary are MyEMSL File IDs, values are file info
+            var archiveFilesAllDatasets = new Dictionary<long, DatasetDirectoryOrFileInfo>();
+
+            foreach (var dataset in datasetsToFind)
+            {
+                foreach (var fileToFind in dataset.Value)
+                {
+                    var archiveFilesToAdd = FindDatasetFiles(dataset.Key, fileToFind.SubDir, fileToFind.FileMask, fileSplit: false).ToList();
+
+                    foreach (var archiveFile in archiveFilesToAdd)
+                    {
+                        if (!archiveFilesAllDatasets.ContainsKey(archiveFile.FileID))
+                        {
+                            archiveFilesAllDatasets.Add(archiveFile.FileID, archiveFile);
+                        }
+
+                        if (string.Equals(archiveFile.FileInfo.Dataset, dataset.Key, StringComparison.OrdinalIgnoreCase) &&
+                            !archiveFileIDs.Contains(archiveFile.FileID))
+                        {
+                            archiveFiles.Add(archiveFile);
+                            archiveFileIDs.Add(archiveFile.FileID);
+                        }
+                    }
+
+                }
+            }
+
+            WarnIfSkippedFiles(archiveFileIDs, archiveFilesAllDatasets);
+        }
+
+        private static void FindFilesForDatasets(
+            Dictionary<int, List<TargetFileInfo>> datasetIDsToFind,
+            ICollection<DatasetDirectoryOrFileInfo> archiveFiles)
+        {
+            // This list tracks MyEMSL File IDs that have been added to archiveFiles
+            var archiveFileIDs = new SortedSet<long>();
+
+            // Keys in this dictionary are MyEMSL File IDs, values are file info
+            var archiveFilesAllDatasets = new Dictionary<long, DatasetDirectoryOrFileInfo>();
+
+            foreach (var dataset in datasetIDsToFind)
+            {
+                foreach (var fileToFind in dataset.Value)
+                {
+                    var archiveFilesToAdd = FindDatasetFilesByID(dataset.Key, fileToFind.SubDir, fileToFind.FileMask, fileSplit: false).ToList();
+
+                    foreach (var archiveFile in archiveFilesToAdd)
+                    {
+                        if (!archiveFilesAllDatasets.ContainsKey(archiveFile.FileID))
+                        {
+                            archiveFilesAllDatasets.Add(archiveFile.FileID, archiveFile);
+                        }
+
+                        if (archiveFile.FileInfo.DatasetID == dataset.Key &&
+                            !archiveFileIDs.Contains(archiveFile.FileID))
+                        {
+                            archiveFiles.Add(archiveFile);
+                            archiveFileIDs.Add(archiveFile.FileID);
+                        }
+                    }
+
+                }
+            }
+
+            WarnIfSkippedFiles(archiveFileIDs, archiveFilesAllDatasets);
         }
 
         private static void MapHeaders(
@@ -482,7 +635,7 @@ namespace MyEMSLDownloader
             {
                 if (!long.TryParse(fileID, out var fileIdValue))
                 {
-                    ConsoleMsgUtils.ShowWarning("Warning: " + fileID + " is not an integer");
+                    ConsoleMsgUtils.ShowWarning("Warning: FileID should be an integer, not: " + fileID);
                     continue;
                 }
 
@@ -996,7 +1149,30 @@ namespace MyEMSLDownloader
             DownloadDatasetFiles(archiveFiles, mOutputDirectoryPath);
         }
 
+        private static void WarnIfSkippedFiles(
+            ICollection<long> archiveFileIDs,
+            IDictionary<long, DatasetDirectoryOrFileInfo> archiveFilesAllDatasets)
+        {
+
+            // Check for any files in archiveFilesAllDatasets that did not get included in archiveFiles
+            foreach (var item in archiveFilesAllDatasets)
+            {
+                if (!archiveFileIDs.Contains(item.Key))
+                {
+                    ConsoleMsgUtils.ShowWarning(
+                        @"MyEMSL search result did not match any of the expected datasets: {0}\{1}",
+                        item.Value.FileInfo.Dataset,
+                        item.Value.FileInfo.RelativePathWindows);
+                }
+            }
+        }
+
         #region "Event Handlers"
+
+        private static void MyEMSLReader_MyEMSLOffline(string message)
+        {
+            OnWarningEvent(message);
+        }
 
         private static void RegisterEvents(MyEMSLBase processingClass)
         {
