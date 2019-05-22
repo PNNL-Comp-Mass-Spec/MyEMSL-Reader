@@ -304,7 +304,7 @@ namespace MyEMSLReader
             }
             catch (Exception ex)
             {
-                ReportError("Error converting the '" + keyName + "' array to a list object: " + ex.Message, ex);
+                ReportError("Error converting the '" + keyName + "' array to a list object", ex);
                 return new List<Dictionary<string, object>>();
             }
 
@@ -327,7 +327,7 @@ namespace MyEMSLReader
             }
             catch (Exception ex)
             {
-                ReportError("Error converting the '" + keyName + "' section to a dictionary object: " + ex.Message, ex);
+                ReportError("Error converting the '" + keyName + "' section to a dictionary object", ex);
                 return new Dictionary<string, object>();
             }
 
