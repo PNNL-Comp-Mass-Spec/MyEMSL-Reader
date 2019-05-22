@@ -881,7 +881,7 @@ namespace MyEMSLReader
             catch (Exception ex)
             {
                 if (string.IsNullOrWhiteSpace(ErrorMessage))
-                    ReportError("Error in MyEMSLReader.FindFilesByDataset: " + ex.Message, ex);
+                    ReportError("Error in MyEMSLReader.FindFilesByDataset", ex);
                 else if (ThrowErrors)
                     throw;
 
@@ -1356,7 +1356,7 @@ namespace MyEMSLReader
             }
             catch (Exception ex)
             {
-                ReportError("Error in MyEMSLReader.RunItemSearchQuery: " + ex.Message, ex);
+                ReportError("Error in MyEMSLReader.RunItemSearchQuery", ex);
                 return remoteFiles;
             }
 

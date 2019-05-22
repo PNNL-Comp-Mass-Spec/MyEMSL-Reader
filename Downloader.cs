@@ -257,7 +257,7 @@ namespace MyEMSLReader
             catch (Exception ex)
             {
                 if (string.IsNullOrWhiteSpace(ErrorMessage))
-                    ReportError("Error in MyEMSLReader.Downloader.DownloadFiles: " + ex.Message);
+                    ReportError("Error in MyEMSLReader.Downloader.DownloadFiles", ex);
                 else if (ThrowErrors)
                     throw;
             }
@@ -407,7 +407,7 @@ namespace MyEMSLReader
             }
             catch (Exception ex)
             {
-                ReportError("Exception in CreateCartPostData: " + ex.Message, ex);
+                ReportError("Exception in CreateCartPostData", ex);
                 return new StringBuilder();
             }
 
@@ -646,7 +646,7 @@ namespace MyEMSLReader
             }
             catch (Exception ex)
             {
-                ReportError("Exception in DownloadFilesDirectly: " + ex.Message, ex);
+                ReportError("Exception in DownloadFilesDirectly", ex);
                 return new Dictionary<long, string>();
             }
 
@@ -697,7 +697,7 @@ namespace MyEMSLReader
             }
             catch (Exception ex)
             {
-                ReportError("Exception in DownloadFilesViaCart: " + ex.Message, ex);
+                ReportError("Exception in DownloadFilesViaCart", ex);
                 return false;
             }
 
@@ -820,7 +820,7 @@ namespace MyEMSLReader
             }
             catch (Exception ex)
             {
-                ReportError("Exception in ExtractTarFile: " + ex.Message, ex);
+                ReportError("Exception in ExtractTarFile", ex);
                 return false;
             }
 
@@ -1129,7 +1129,7 @@ namespace MyEMSLReader
             }
             catch (Exception ex)
             {
-                ReportError("Exception in FileChanged: " + ex.Message, ex);
+                ReportError("Exception in FileChanged", ex);
                 return false;
             }
 
@@ -1359,7 +1359,7 @@ namespace MyEMSLReader
             }
             catch (Exception ex)
             {
-                ReportError("Exception in PostCartFile: " + ex.Message, ex);
+                ReportError("Exception in PostCartFile", ex);
                 return false;
             }
 
