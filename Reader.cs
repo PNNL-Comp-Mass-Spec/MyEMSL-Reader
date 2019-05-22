@@ -872,10 +872,23 @@ namespace MyEMSLReader
                 }
 
                 // Filter the results
-                lstResults = FilterSearchResults(dctDatasetsAndSubDirListsCleaned, recurse, lstResults, filterOnSubDir);
+                var filteredSearchResults = FilterSearchResults(datasetsAndSubDirsCleaned, recurse, searchResults, filterOnSubDir);
 
-                // Return the results, sorted by directory path and file name
-                return (from item in lstResults orderby item.PathWithInstrumentAndDatasetWindows select item).ToList();
+                var sortedResults = new List<ArchivedFileInfo>();
+
+                // Sort the results by directory path and file name, but assure that files in subdirectories are listed second
+                sortedResults.AddRange(from item in filteredSearchResults
+                                       where !item.RelativePathWindows.Contains("\\")
+                                       orderby item.RelativePathWindows
+                                       select item);
+
+                // Then show the files that are in a subdirectory
+                sortedResults.AddRange(from item in filteredSearchResults
+                                       where item.RelativePathWindows.Contains("\\")
+                                       orderby item.RelativePathWindows
+                                       select item);
+
+                return sortedResults;
 
             }
             catch (Exception ex)
