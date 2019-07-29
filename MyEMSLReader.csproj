@@ -34,8 +34,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Pacifica.Core, Version=2.0.7002.31659, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Pacifica.Core">
       <HintPath>Lib\NET_4\Pacifica.Core.dll</HintPath>
     </Reference>
     <Reference Include="PRISM, Version=2.5.17.0, Culture=neutral, processorArchitecture=MSIL">
