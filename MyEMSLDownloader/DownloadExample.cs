@@ -7,10 +7,8 @@ namespace MyEMSLDownloader
 {
     internal class DownloadExample
     {
-
         public void StartTest()
         {
-
             var datasetListInfo = new DatasetListInfo
             {
                 ReportMetadataURLs = true,
@@ -24,12 +22,10 @@ namespace MyEMSLDownloader
             datasetListInfo.WarningEvent += OnWarningEvent;
 
             GetFileStart(datasetListInfo);
-
         }
 
         private void GetFileStart(DatasetListInfo datasetListInfo)
         {
-
             var datasetDirectoryPathFromDMS = @"\\MyEMSL\Exact01\2010_2\SysVirol_SM001_mock-7d_3_B_11May10_Phoenix_10-03-35";
 
             if (datasetDirectoryPathFromDMS.StartsWith(@"\\MyEMSL"))
@@ -40,7 +36,6 @@ namespace MyEMSLDownloader
 
                 GetRawFile(datasetListInfo, datasetName, outputDirectoryPath);
             }
-
         }
 
         private void GetRawFile(DatasetListInfo datasetListInfo, string datasetName, string outputDirectoryPath)
@@ -78,7 +73,6 @@ namespace MyEMSLDownloader
             {
                 ShowErrorMessage("Download failed");
             }
-
         }
 
         private void ShowErrorMessage(string message, Exception ex = null)
@@ -111,5 +105,4 @@ namespace MyEMSLDownloader
         #endregion
 
     }
-
 }

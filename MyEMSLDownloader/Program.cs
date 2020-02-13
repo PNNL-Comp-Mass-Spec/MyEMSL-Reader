@@ -15,116 +15,99 @@ namespace MyEMSLDownloader
 
     internal static class Program
     {
-        private const string PROGRAM_DATE = "May 22, 2019";
+        private const string PROGRAM_DATE = "February 12, 2020";
 
         static double mPercentComplete;
         static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
 
-        private static string mDatasetName;
-        private static int mDatasetID;
-        private static int mDataPkgID;
-        private static string mSubdirectory;
-
-        /// <summary>
-        /// File spec for finding files
-        /// </summary>
-        /// <remarks>
-        /// Single file name or a file spec like *.txt
-        /// Specify a list of names and/or specs by separating with a semicolon and using switch /FileSplit
-        /// For example: analysis.baf|ser
-        /// </remarks>
-        private static string mFileMask;
-
-        /// <summary>
-        /// Set to true to indicate that mFileMask contains a semicolon-separated list of file names and/or file specs
-        /// </summary>
-        private static bool mFileSplit;
-
-        private static string mFileIDList;
-        private static string mFileListPath;
-        private static string mOutputDirectoryPath;
-
-        private static bool mMultiDatasetMode;
-
-        private static bool mPreviewMode;
-        private static bool mVerbosePreview;
-
-        private static bool mAutoTestMode;
-        private static bool mTraceMode;
-        private static bool mUseTestInstance;
-
+        private static CommandLineOptions mOptions;
         private static DatasetListInfo mDatasetListInfo;
         private static DatasetListInfoByID mDatasetListInfoByID;
         private static DataPackageListInfo mDataPackageListInfo;
 
         static int Main(string[] args)
         {
-            var commandLineParser = new clsParseCommandLine();
+            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            var progName = assembly.GetName().Name;
+            var exeName = Path.GetFileName(assembly.Location);
 
-            mDatasetName = string.Empty;
-            mDatasetID = 0;
-            mDataPkgID = 0;
-            mSubdirectory = string.Empty;
-            mFileMask = string.Empty;
-            mFileSplit = false;
-            mOutputDirectoryPath = string.Empty;
+            var cmdLineParser = new CommandLineParser<CommandLineOptions>(progName, PRISM.FileProcessor.ProcessFilesOrDirectoriesBase.GetAppVersion(PROGRAM_DATE));
+            cmdLineParser.ProgramInfo = "This program downloads files from MyEMSL" + Environment.NewLine + Environment.NewLine +
+                                        "To download files for a given dataset, enter the dataset name or dataset ID, plus optionally the subdirectory name. " +
+                                        "Alternatively, use /Dataset or /DatasetID plus optionally /SubDir";
+            cmdLineParser.ContactInfo =
+                "Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2013" +
+                Environment.NewLine +
+                "E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov" + Environment.NewLine +
+                "Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/";
 
-            mMultiDatasetMode = false;
+            cmdLineParser.UsageExamples.Add("Syntax #1:" + Environment.NewLine + exeName +
+                                            " DatasetNameOrID [SubdirectoryName] [/Files:FileMask] [/FileSplit]" +
+                                            " [/O:OutputDirectory] [/D] [/Preview] [/V] [/Trace] [/UseTest]");
 
-            mPreviewMode = false;
-            mVerbosePreview = false;
-            mAutoTestMode = false;
-            mTraceMode = false;
-            mUseTestInstance = false;
+            cmdLineParser.UsageExamples.Add("Syntax #2:" + Environment.NewLine + exeName +
+                                            " /Dataset:DatasetName [/SubDir:SubdirectoryName] [/Files:FileMask] [/FileSplit]" +
+                                            " [/O:OutputDirectory] [/D] [/Preview] [/V] [/Trace] [/UseTest]");
+
+            cmdLineParser.UsageExamples.Add("Syntax #3:" + Environment.NewLine + exeName +
+                                            " /DatasetID:DatasetID [/SubDir:SubdirectoryName] [/Files:FileMask] [/FileSplit]" +
+                                            " [/O:OutputDirectory] [/D] [/Preview] [/V] [/Trace] [/UseTest]");
+
+            cmdLineParser.UsageExamples.Add("Syntax #4:" + Environment.NewLine + exeName +
+                                            " /DataPkg:DataPackageID [/SubDir:SubdirectoryName] [/Files:FileMask] [/FileSplit]" +
+                                            " [/O:OutputDirectory] [/Preview] [/V] [/Trace] [/UseTest]");
+
+            cmdLineParser.UsageExamples.Add("Syntax #5:" + Environment.NewLine + exeName +
+                                            " /FileList:FileInfoFile.txt [/O:OutputDirectory]" +
+                                            " [/Preview] [/V] [/Trace] [/UseTest]");
+
+            cmdLineParser.UsageExamples.Add("Syntax #6:" + Environment.NewLine + exeName +
+                                            " /FileID:1234 [/Preview] [/V] [/Trace]");
+
+
+            cmdLineParser.UsageExamples.Add("Syntax #7:" + Environment.NewLine + exeName +
+                                            " /Test [/Preview] [/V] [/Trace]");
+
+            var results = cmdLineParser.ParseArgs(args);
+            mOptions = results.ParsedResults;
+            if (!results.Success || !mOptions.Validate())
+            {
+                // Delay for 1 second in case the user double clicked this file from within Windows Explorer (or started the program via a shortcut)
+                System.Threading.Thread.Sleep(1000);
+                return -1;
+            }
 
             try
             {
-                var success = false;
-
-                if (commandLineParser.ParseCommandLine())
-                {
-                    if (SetOptionsUsingCommandLineParameters(commandLineParser))
-                        success = true;
-                }
-
-                if (!success ||
-                    commandLineParser.NeedToShowHelp ||
-                    commandLineParser.ParameterCount + commandLineParser.NonSwitchParameterCount == 0)
-                {
-                    ShowProgramHelp();
-                    return -1;
-
-                }
-
                 mDatasetListInfo = new DatasetListInfo
                 {
-                    ReportMetadataURLs = mPreviewMode || mTraceMode,
+                    ReportMetadataURLs = mOptions.PreviewMode || mOptions.TraceMode,
                     ThrowErrors = false,
-                    TraceMode = mTraceMode
+                    TraceMode = mOptions.TraceMode
                 };
                 RegisterEvents(mDatasetListInfo);
 
                 mDatasetListInfoByID = new DatasetListInfoByID
                 {
-                    ReportMetadataURLs = mPreviewMode || mTraceMode,
+                    ReportMetadataURLs = mOptions.PreviewMode || mOptions.TraceMode,
                     ThrowErrors = false,
-                    TraceMode = mTraceMode
+                    TraceMode = mOptions.TraceMode
                 };
                 RegisterEvents(mDatasetListInfoByID);
 
                 mDataPackageListInfo = new DataPackageListInfo
                 {
-                    ReportMetadataURLs = mPreviewMode || mTraceMode,
+                    ReportMetadataURLs = mOptions.PreviewMode || mOptions.TraceMode,
                     ThrowErrors = false,
-                    TraceMode = mTraceMode
+                    TraceMode = mOptions.TraceMode
                 };
                 RegisterEvents(mDataPackageListInfo);
 
-                mDatasetListInfo.UseTestInstance = mUseTestInstance;
-                mDatasetListInfoByID.UseTestInstance = mUseTestInstance;
-                mDataPackageListInfo.UseTestInstance = mUseTestInstance;
+                mDatasetListInfo.UseTestInstance = mOptions.UseTestInstance;
+                mDatasetListInfoByID.UseTestInstance = mOptions.UseTestInstance;
+                mDataPackageListInfo.UseTestInstance = mOptions.UseTestInstance;
 
-                if (mAutoTestMode)
+                if (mOptions.AutoTestMode)
                 {
                     AutoTestModeStart();
                     System.Threading.Thread.Sleep(1000);
@@ -133,13 +116,13 @@ namespace MyEMSLDownloader
 
                 List<DatasetDirectoryOrFileInfo> archiveFiles;
 
-                if (mDataPkgID > 0)
-                    archiveFiles = FindDataPkgFiles(mDataPkgID, mSubdirectory, mFileMask, mFileSplit);
+                if (mOptions.DataPkgID > 0)
+                    archiveFiles = FindDataPkgFiles(mOptions.DataPkgID, mOptions.Subdirectory, mOptions.FileMask, mOptions.FileSplit);
                 else
                 {
-                    if (!string.IsNullOrWhiteSpace(mFileListPath))
+                    if (!string.IsNullOrWhiteSpace(mOptions.FileListPath))
                     {
-                        var fileListFile = new FileInfo(mFileListPath);
+                        var fileListFile = new FileInfo(mOptions.FileListPath);
                         if (!fileListFile.Exists)
                         {
                             ShowErrorMessage("File not found: " + fileListFile.FullName);
@@ -151,9 +134,9 @@ namespace MyEMSLDownloader
                     }
                     else
                     {
-                        if (!string.IsNullOrWhiteSpace(mFileIDList))
+                        if (!string.IsNullOrWhiteSpace(mOptions.FileIDList))
                         {
-                            archiveFiles = ParseExplicitFileIDs(mFileIDList);
+                            archiveFiles = ParseExplicitFileIDs(mOptions.FileIDList);
                             if (archiveFiles.Count == 0)
                             {
                                 ShowErrorMessage("No File IDs were found with the /FileID parameter");
@@ -163,13 +146,13 @@ namespace MyEMSLDownloader
                         }
                         else
                         {
-                            if (mDatasetID > 0)
+                            if (mOptions.DatasetID > 0)
                             {
-                                archiveFiles = FindDatasetFilesByID(mDatasetID, mSubdirectory, mFileMask, mFileSplit);
+                                archiveFiles = FindDatasetFilesByID(mOptions.DatasetID, mOptions.Subdirectory, mOptions.FileMask, mOptions.FileSplit);
                             }
-                            else if (!string.IsNullOrWhiteSpace(mDatasetName))
+                            else if (!string.IsNullOrWhiteSpace(mOptions.DatasetName))
                             {
-                                archiveFiles = FindDatasetFiles(mDatasetName, mSubdirectory, mFileMask, mFileSplit);
+                                archiveFiles = FindDatasetFiles(mOptions.DatasetName, mOptions.Subdirectory, mOptions.FileMask, mOptions.FileSplit);
                             }
                             else
                             {
@@ -183,26 +166,26 @@ namespace MyEMSLDownloader
 
                 Console.WriteLine();
 
-                if (mPreviewMode)
+                if (mOptions.PreviewMode)
                     Console.WriteLine("Previewing files that would be downloaded; count = " + archiveFiles.Count);
                 else
                     Console.WriteLine("Downloading files from MyEMSL; count = " + archiveFiles.Count);
 
                 Console.WriteLine();
 
-                ShowFiles(archiveFiles, mVerbosePreview);
+                ShowFiles(archiveFiles, mOptions.VerbosePreview);
 
-                if (mPreviewMode)
+                if (mOptions.PreviewMode)
                 {
                     System.Threading.Thread.Sleep(250);
                     return 0;
                 }
 
                 Console.WriteLine();
-                if (mDataPkgID > 0)
-                    DownloadDataPackageFiles(archiveFiles, mOutputDirectoryPath);
+                if (mOptions.DataPkgID > 0)
+                    DownloadDataPackageFiles(archiveFiles, mOptions.OutputDirectoryPath);
                 else
-                    DownloadDatasetFiles(archiveFiles, mOutputDirectoryPath);
+                    DownloadDatasetFiles(archiveFiles, mOptions.OutputDirectoryPath);
             }
             catch (Exception ex)
             {
@@ -238,7 +221,7 @@ namespace MyEMSLDownloader
             {
                 ConsoleMsgUtils.ShowWarning("Reader did not find any files");
             }
-            else if (!mPreviewMode)
+            else if (!mOptions.PreviewMode)
             {
                 TestDownloader(filesToDownload);
             }
@@ -250,9 +233,9 @@ namespace MyEMSLDownloader
                 ConsoleMsgUtils.ShowWarning("DatasetListInfo did not find any files");
             else
             {
-                ShowFiles(archiveFiles, mVerbosePreview);
+                ShowFiles(archiveFiles, mOptions.VerbosePreview);
 
-                if (!mPreviewMode)
+                if (!mOptions.PreviewMode)
                     TestDownloader(archiveFiles);
             }
         }
@@ -291,7 +274,7 @@ namespace MyEMSLDownloader
             }
 
             Downloader.DownloadLayout directoryLayout;
-            if (mMultiDatasetMode)
+            if (mOptions.MultiDatasetMode)
                 directoryLayout = Downloader.DownloadLayout.DatasetNameAndSubdirectories;
             else
                 directoryLayout = Downloader.DownloadLayout.SingleDataset;
@@ -673,317 +656,9 @@ namespace MyEMSLDownloader
             }
         }
 
-        private static string GetAppVersion()
-        {
-            return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version + " (" + PROGRAM_DATE + ")";
-        }
-
-        /// <summary>
-        /// Set options using command line parameters
-        /// </summary>
-        /// <param name="commandLineParser"></param>
-        /// <returns>True if no problems; otherwise, false</returns>
-        private static bool SetOptionsUsingCommandLineParameters(clsParseCommandLine commandLineParser)
-        {
-            var lstValidParameters = new List<string> {
-                "Dataset", "DatasetID", "DataPkg", "SubDir", "Files", "FileSplit",
-                "O", "D", "FileList", "FileID",
-                "Preview", "V", "Verbose", "Test", "Trace", "UseTest" };
-
-            try
-            {
-                // Make sure no invalid parameters are present
-                if (commandLineParser.InvalidParametersPresent(lstValidParameters))
-                {
-                    var badArguments = new List<string>();
-                    foreach (var item in commandLineParser.InvalidParameters(lstValidParameters))
-                    {
-                        badArguments.Add("/" + item);
-                    }
-
-                    ShowErrorMessage("Invalid command line parameters", badArguments);
-                    System.Threading.Thread.Sleep(1500);
-                    return false;
-                }
-
-                // Query commandLineParser to see if various parameters are present
-
-                if (commandLineParser.NonSwitchParameterCount > 0)
-                {
-                    var datasetNameOrID = commandLineParser.RetrieveNonSwitchParameter(0);
-
-                    if (int.TryParse(datasetNameOrID, out var datasetID))
-                    {
-                        if (datasetID <= 0)
-                        {
-                            ShowErrorMessage("Dataset ID should be a positive integer, not " + datasetNameOrID);
-                            System.Threading.Thread.Sleep(1500);
-                            return false;
-                        }
-
-                        mDatasetID = datasetID;
-                    }
-                    else
-                    {
-                        mDatasetName = datasetNameOrID;
-                    }
-                }
-
-                if (commandLineParser.NonSwitchParameterCount > 1)
-                {
-                    mSubdirectory = commandLineParser.RetrieveNonSwitchParameter(1);
-                }
-
-                // Note: Dataset name may have been defined by a non-switch parameter above
-                if (ParseParameter(commandLineParser, "Dataset", "a dataset name", out var datasetName, out var missingValue))
-                {
-                    mDatasetName = datasetName;
-                }
-                else if (missingValue)
-                {
-                    return false;
-                }
-
-                if (ParseParameter(commandLineParser, "DatasetID", "a dataset ID", out var datasetIdText, out missingValue))
-                {
-                    if (!int.TryParse(datasetIdText, out mDatasetID) || mDatasetID <= 0)
-                    {
-                        ShowErrorMessage("Dataset ID should be a positive integer, not " + datasetIdText);
-                        System.Threading.Thread.Sleep(1500);
-                        return false;
-                    }
-                }
-                else if (missingValue)
-                {
-                    return false;
-                }
-
-                if (ParseParameter(commandLineParser, "DataPkg", "a data package ID", out var dataPkgText, out missingValue))
-                {
-                    if (!int.TryParse(dataPkgText, out mDataPkgID) || mDataPkgID <= 0)
-                    {
-                        ShowErrorMessage("DataPkg should be a positive integer, not: " + dataPkgText);
-                        System.Threading.Thread.Sleep(1500);
-                        return false;
-                    }
-                }
-                else if (missingValue)
-                {
-                    return false;
-                }
-
-                // Note: SubDir may have been defined by a non-switch parameter above
-                if (ParseParameter(commandLineParser, "SubDir", "a subdirectory name", out var subDir, out missingValue))
-                {
-                    mSubdirectory = subDir;
-                }
-                else if (missingValue)
-                {
-                    return false;
-                }
-
-                ParseParameter(commandLineParser, "Files", "a file mas", out mFileMask, out missingValue);
-                if (missingValue)
-                    return false;
-
-                if (commandLineParser.IsParameterPresent("FileSplit"))
-                    mFileSplit = true;
-
-                ParseParameter(commandLineParser, "O", "an output directory path", out mOutputDirectoryPath, out missingValue);
-                if (missingValue)
-                    return false;
-
-                ParseParameter(commandLineParser, "FileList", "a filename", out mFileListPath, out missingValue);
-                if (missingValue)
-                    return false;
-
-                ParseParameter(commandLineParser, "FileID", "a file ID (or comma-separated list of file IDs)", out mFileIDList, out missingValue);
-                if (missingValue)
-                    return false;
-
-                if (!string.IsNullOrWhiteSpace(mFileListPath))
-                {
-                    mMultiDatasetMode = true;
-                }
-
-                if (commandLineParser.IsParameterPresent("D"))
-                {
-                    if (commandLineParser.RetrieveValueForParameter("D", out var paramValue) && !string.IsNullOrWhiteSpace(paramValue))
-                    {
-                        ShowErrorMessage("The /D switch should not have a value; use /Dataset or /DatasetID to specify a dataset name or ID");
-                        System.Threading.Thread.Sleep(1500);
-                        return false;
-                    }
-                    mMultiDatasetMode = true;
-                }
-
-                mPreviewMode = commandLineParser.IsParameterPresent("Preview");
-                mAutoTestMode = commandLineParser.IsParameterPresent("Test");
-                mTraceMode = commandLineParser.IsParameterPresent("Trace");
-                mUseTestInstance = commandLineParser.IsParameterPresent("UseTest");
-                mVerbosePreview = commandLineParser.IsParameterPresent("V") || commandLineParser.IsParameterPresent("Verbose");
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                ShowErrorMessage("Error parsing the command line parameters: " + Environment.NewLine + ex.Message);
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Check for command line arguments for the given parameter
-        /// If present, update paramValue and return true
-        /// If present, but no value, set missingValue to true and return false
-        /// If not present, return false
-        /// </summary>
-        /// <param name="commandLineParser"></param>
-        /// <param name="parameterName"></param>
-        /// <param name="description"></param>
-        /// <param name="paramValue">Output: the value for the parameter, or an empty string if the parameter is not defined</param>
-        /// <param name="missingValue">Output: true if the parameter is defined but has no value</param>
-        /// <returns></returns>
-        private static bool ParseParameter(
-            clsParseCommandLine commandLineParser,
-            string parameterName,
-            string description,
-            out string paramValue,
-            out bool missingValue)
-        {
-            missingValue = false;
-
-            if (!commandLineParser.RetrieveValueForParameter(parameterName, out paramValue))
-            {
-                // Parameter not present
-                return false;
-            }
-
-            if (!string.IsNullOrWhiteSpace(paramValue))
-                return true;
-
-            ShowErrorMessage("/" + parameterName + " does not have " + description);
-            System.Threading.Thread.Sleep(1500);
-            missingValue = true;
-
-            return false;
-        }
-
         private static void ShowErrorMessage(string message, Exception ex = null)
         {
             ConsoleMsgUtils.ShowError(message, ex);
-        }
-
-        private static void ShowErrorMessage(string message, IReadOnlyCollection<string> additionalInfo)
-        {
-            ConsoleMsgUtils.ShowErrors(message, additionalInfo);
-        }
-
-        private static void ShowProgramHelp()
-        {
-            var exeName = Path.GetFileName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-
-            try
-            {
-                Console.WriteLine();
-                Console.WriteLine("This program downloads files from MyEMSL");
-                Console.WriteLine();
-
-                Console.Write("Program syntax #1:" + Environment.NewLine + exeName);
-                Console.WriteLine(" DatasetNameOrID [SubdirectoryName] [/Files:FileMask] [/FileSplit]");
-                Console.WriteLine(" [/O:OutputDirectory] [/D] [/Preview] [/V] [/Trace] [/UseTest]");
-
-                Console.WriteLine();
-                Console.Write("Program syntax #2:" + Environment.NewLine + exeName);
-                Console.WriteLine(" /Dataset:DatasetName [/SubDir:SubdirectoryName] [/Files:FileMask] [/FileSplit]");
-                Console.WriteLine(" [/O:OutputDirectory] [/D] [/Preview] [/V] [/Trace] [/UseTest]");
-
-                Console.WriteLine();
-                Console.Write("Program syntax #3:" + Environment.NewLine + exeName);
-                Console.WriteLine(" /DatasetID:DatasetID [/SubDir:SubdirectoryName] [/Files:FileMask] [/FileSplit]");
-                Console.WriteLine(" [/O:OutputDirectory] [/D] [/Preview] [/V] [/Trace] [/UseTest]");
-
-                Console.WriteLine();
-                Console.Write("Program syntax #4:" + Environment.NewLine + exeName);
-                Console.WriteLine(" /DataPkg:DataPackageID [/SubDir:SubdirectoryName] [/Files:FileMask] [/FileSplit]");
-                Console.WriteLine(" [/O:OutputDirectory] [/Preview] [/V] [/Trace] [/UseTest]");
-
-                Console.WriteLine();
-                Console.Write("Program syntax #5:" + Environment.NewLine + exeName);
-                Console.WriteLine(" /FileList:FileInfoFile.txt [/O:OutputDirectory]");
-                Console.WriteLine(" [/Preview] [/V] [/Trace] [/UseTest]");
-
-                Console.WriteLine();
-                Console.Write("Program syntax #6:" + Environment.NewLine + exeName);
-                Console.WriteLine(" /FileID:1234 [/Preview] [/V] [/Trace]");
-
-
-                Console.WriteLine();
-                Console.Write("Program syntax #7:" + Environment.NewLine + exeName);
-                Console.WriteLine(" /Test [/Preview] [/V] [/Trace]");
-
-                Console.WriteLine();
-                Console.WriteLine(ConsoleMsgUtils.WrapParagraph(
-                                      "To download files for a given dataset, enter the dataset name or dataset ID, plus optionally the subdirectory name. " +
-                                      "Alternatively, use /Dataset or /DatasetID plus optionally /SubDir"));
-                Console.WriteLine();
-                Console.WriteLine(ConsoleMsgUtils.WrapParagraph(
-                                      "Use /Files to filter for specific files, for example /Files:*.txt\n" +
-                                      "Files will be downloaded to the directory with the .exe; override using /O"));
-                Console.WriteLine();
-                Console.WriteLine(ConsoleMsgUtils.WrapParagraph(
-                                      "Use /FileSplit to indicate that /Files contains a list of filenames and/or file specs, " +
-                                      "separated by semicolons. For example, use\n" +
-                                      "/Files:analysis.baf;ser /FileSplit"));
-                Console.WriteLine();
-                Console.WriteLine(ConsoleMsgUtils.WrapParagraph(
-                                      "Use /D to create a directory with the dataset name, then store the files within that directory"));
-                Console.WriteLine();
-                Console.WriteLine(ConsoleMsgUtils.WrapParagraph(
-                                      "Use /DataPkg to retrieve files from a specific data package"));
-                Console.WriteLine();
-                Console.WriteLine(ConsoleMsgUtils.WrapParagraph(
-                                      "Use /FileList to specify a file with a list of datasets and files to retrieve. " +
-                                      "The file must be a tab-delimited text file, with columns Dataset (or DatasetID) and File, " +
-                                      "and optionally with column SubDir. The file names in the File column are allowed " +
-                                      "to contain wildcards. When /FileList is used, /D is automatically enabled"));
-                Console.WriteLine();
-                Console.WriteLine(ConsoleMsgUtils.WrapParagraph(
-                                      "Use /FileId to specify the MyEMSL ID of a file to download (as seen with /V). " +
-                                      "This mode does not use Simple Search to find files and can thus be used " +
-                                      "to retrieve a file that Simple Search does not find. Provide a comma separated list " +
-                                      "to retrieve multiple files."));
-                Console.WriteLine();
-                Console.WriteLine(ConsoleMsgUtils.WrapParagraph(
-                                      "Use /Test to perform automatic tests using predefined dataset names"));
-                Console.WriteLine();
-                Console.WriteLine(ConsoleMsgUtils.WrapParagraph(
-                                      "Use /Preview to view files that would be downloaded, but not actually download them. " +
-                                      "Use /V to enable verbose preview, showing extended details about each file"));
-                Console.WriteLine();
-                Console.WriteLine("Use /Trace to display additional debug information");
-                Console.WriteLine();
-                Console.WriteLine(ConsoleMsgUtils.WrapParagraph(
-                                      "Use /UseTest to connect to test0.my.emsl.pnl.gov instead of my.emsl.pnl.gov"));
-                Console.WriteLine();
-                Console.WriteLine("Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2013");
-                Console.WriteLine("Version: " + GetAppVersion());
-                Console.WriteLine();
-
-                Console.WriteLine("E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov");
-                Console.WriteLine("Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/");
-                Console.WriteLine();
-
-                // Delay for 1 second in case the user double clicked this file from within Windows Explorer (or started the program via a shortcut)
-                System.Threading.Thread.Sleep(1000);
-
-            }
-            catch (Exception ex)
-            {
-                ConsoleMsgUtils.ShowError("Error displaying the program syntax", ex);
-            }
-
         }
 
         static List<DatasetDirectoryOrFileInfo> TestDatasetListInfo()
@@ -1009,9 +684,9 @@ namespace MyEMSLDownloader
             var reader = new Reader
             {
                 IncludeAllRevisions = false,
-                UseTestInstance = mUseTestInstance,
-                ReportMetadataURLs = mPreviewMode || mTraceMode,
-                TraceMode = mTraceMode
+                UseTestInstance = mOptions.UseTestInstance,
+                ReportMetadataURLs = mOptions.PreviewMode || mOptions.TraceMode,
+                TraceMode = mOptions.TraceMode
             };
 
             // Attach events
@@ -1066,9 +741,9 @@ namespace MyEMSLDownloader
 
                 var dataPackageInfoCache = new DataPackageListInfo
                 {
-                    ReportMetadataURLs = mPreviewMode || mTraceMode,
+                    ReportMetadataURLs = mOptions.PreviewMode || mOptions.TraceMode,
                     ThrowErrors = false,
-                    TraceMode = mTraceMode
+                    TraceMode = mOptions.TraceMode
                 };
                 RegisterEvents(dataPackageInfoCache);
 
@@ -1213,15 +888,15 @@ namespace MyEMSLDownloader
             RegisterEvents(downloader);
 
             downloader.OverwriteMode = Downloader.Overwrite.IfChanged;
-            downloader.UseTestInstance = mUseTestInstance;
+            downloader.UseTestInstance = mOptions.UseTestInstance;
 
             try
             {
                 string outputDirectory;
-                if (string.IsNullOrEmpty(mOutputDirectoryPath))
+                if (string.IsNullOrEmpty(mOptions.OutputDirectoryPath))
                     outputDirectory = @"F:\Temp\MyEMSL";
                 else
-                    outputDirectory = mOutputDirectoryPath;
+                    outputDirectory = mOptions.OutputDirectoryPath;
 
                 downloader.DownloadFiles(filesToDownload, outputDirectory, Downloader.DownloadLayout.DatasetNameAndSubdirectories);
             }
@@ -1237,7 +912,7 @@ namespace MyEMSLDownloader
             Console.WriteLine("Downloading " + archiveFiles.Count + " files");
             Console.WriteLine();
 
-            DownloadDatasetFiles(archiveFiles, mOutputDirectoryPath);
+            DownloadDatasetFiles(archiveFiles, mOptions.OutputDirectoryPath);
         }
 
         private static void WarnIfSkippedFiles(
