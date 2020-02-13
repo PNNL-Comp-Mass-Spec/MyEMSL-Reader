@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
 using Jayrock.Json.Conversion;
 using Pacifica.Core;
+using PRISMDatabaseUtils;
 using Utilities = Pacifica.Core.Utilities;
 
 namespace MyEMSLReader
@@ -974,50 +975,22 @@ namespace MyEMSLReader
 
             instrument = string.Empty;
 
-            while (retryCount >= 0)
+            var dbTools = DbToolsFactory.GetDBTools(DMSConnectionString);
+            dbTools.ErrorEvent += (message, exception) => ReportError(message, exception);
+
+            var success = dbTools.GetQueryResultsDataTable(queryString, out var table, retryCount, 5);
+            if (success)
             {
-                try
+                foreach (DataRow row in table.Rows)
                 {
-                    if (TraceMode)
-                        OnDebugEvent("Running query: " + queryString);
-
-                    using (var connection = new SqlConnection(DMSConnectionString))
-                    {
-                        var command = new SqlCommand(queryString, connection);
-                        connection.Open();
-
-                        using (var reader = command.ExecuteReader())
-                        {
-                            if (reader.HasRows && reader.Read())
-                            {
-                                instrument = GetDbValue(reader, "Instrument", "", out _);
-                                var datasetId = GetDbValue(reader, "ID", 0, out _);
-                                return datasetId;
-                            }
-
-                        }
-                    }
-
-                    OnWarningEvent(string.Format("Dataset {0} not found in DMS (using {1})",
-                        datasetName, DMSConnectionString));
-
-                    return 0;
+                    instrument = row["Instrument"].CastDBVal(string.Empty);
+                    var datasetId = row["ID"].CastDBVal(0);
+                    return datasetId;
                 }
-                catch (Exception ex)
-                {
-                    retryCount -= 1;
-                    var msg = string.Format("Exception looking up dataset name for Dataset {0}: {1}; " +
-                                            "ConnectionString: {2}, RetryCount = {3}",
-                                            datasetName, ex.Message, DMSConnectionString, retryCount);
+            }
 
-                    ReportError(msg);
-
-                    // Delay for 5 seconds before trying again
-                    if (retryCount >= 0)
-                        System.Threading.Thread.Sleep(5000);
-                }
-
-            } // while
+            OnWarningEvent(string.Format("Dataset {0} not found in DMS (using {1})",
+                datasetName, DMSConnectionString));
 
             return 0;
         }
@@ -1033,45 +1006,19 @@ namespace MyEMSLReader
 
             instrument = string.Empty;
 
-            while (retryCount >= 0)
+            var dbTools = DbToolsFactory.GetDBTools(DMSConnectionString);
+            dbTools.ErrorEvent += (message, exception) => ReportError(message, exception);
+
+            var success = dbTools.GetQueryResultsDataTable(queryString, out var table, retryCount, 5);
+            if (success)
             {
-                try
+                foreach (DataRow row in table.Rows)
                 {
-
-                    using (var connection = new SqlConnection(DMSConnectionString))
-                    {
-                        var command = new SqlCommand(queryString, connection);
-                        connection.Open();
-
-                        using (var reader = command.ExecuteReader())
-                        {
-                            if (reader.HasRows && reader.Read())
-                            {
-                                instrument = GetDbValue(reader, "Instrument", "", out _);
-                                var datasetName= GetDbValue(reader, "Dataset", string.Empty, out _);
-                                return datasetName;
-                            }
-
-                        }
-                    }
-
-                    return string.Empty;
+                    instrument = row["Instrument"].CastDBVal(string.Empty);
+                    var datasetName = row["Dataset"].CastDBVal(string.Empty);
+                    return datasetName;
                 }
-                catch (Exception ex)
-                {
-                    retryCount -= 1;
-                    var msg = string.Format("Exception looking up dataset name for Dataset ID {0}: {1}; " +
-                                            "ConnectionString: {2}, RetryCount = {3}",
-                                            datasetID, ex.Message, DMSConnectionString, retryCount);
-
-                    ReportError(msg);
-
-                    // Delay for 5 seconds before trying again
-                    if (retryCount >= 0)
-                        System.Threading.Thread.Sleep(5000);
-                }
-
-            } // while
+            }
 
             return string.Empty;
         }
