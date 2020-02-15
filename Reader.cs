@@ -834,12 +834,15 @@ namespace MyEMSLReader
 
                 var filterOnInstrument = !string.IsNullOrWhiteSpace(instrumentName);
 
+                var dbTools = DbToolsFactory.GetDBTools(DMSConnectionString);
+                RegisterEvents(dbTools);
+
                 foreach (var searchTerm in searchTerms)
                 {
 
                     // Run the query against the Item Search service
                     // Returns a dictionary where keys are relative file paths (Windows style paths) and values are file info details (multiple entries if multiple versions)
-                    var lstFilesToAdd = RunItemSearchQuery(searchTerm.Key, searchTerm.Value);
+                    var lstFilesToAdd = RunItemSearchQuery(dbTools, searchTerm.Key, searchTerm.Value);
 
                     foreach (var remoteFile in lstFilesToAdd)
                     {
@@ -964,7 +967,7 @@ namespace MyEMSLReader
             return entityType;
         }
 
-        private int LookupDatasetIDByName(string datasetName, out string instrument, int retryCount = 2)
+        private int LookupDatasetIDByName(IDBTools dbTools, string datasetName, out string instrument, int retryCount = 2)
         {
 
             var queryString = string.Format(
@@ -975,10 +978,7 @@ namespace MyEMSLReader
 
             instrument = string.Empty;
 
-            var dbTools = DbToolsFactory.GetDBTools(DMSConnectionString);
-            dbTools.ErrorEvent += (message, exception) => ReportError(message, exception);
-
-            var success = dbTools.GetQueryResultsDataTable(queryString, out var table, retryCount, 5);
+            var success = dbTools.GetQueryResultsDataTable(queryString, out var table, retryCount);
             if (success)
             {
                 foreach (DataRow row in table.Rows)
@@ -995,7 +995,7 @@ namespace MyEMSLReader
             return 0;
         }
 
-        private string LookupDatasetNameByID(int datasetID, out string instrument, int retryCount = 2)
+        private string LookupDatasetNameByID(IDBTools dbTools, int datasetID, out string instrument, int retryCount = 2)
         {
 
             var queryString = string.Format(
@@ -1006,10 +1006,7 @@ namespace MyEMSLReader
 
             instrument = string.Empty;
 
-            var dbTools = DbToolsFactory.GetDBTools(DMSConnectionString);
-            dbTools.ErrorEvent += (message, exception) => ReportError(message, exception);
-
-            var success = dbTools.GetQueryResultsDataTable(queryString, out var table, retryCount, 5);
+            var success = dbTools.GetQueryResultsDataTable(queryString, out var table, retryCount);
             if (success)
             {
                 foreach (DataRow row in table.Rows)
@@ -1070,12 +1067,14 @@ namespace MyEMSLReader
         /// <summary>
         /// Call the Item Search service to find the matching items
         /// </summary>
+        /// <param name="dbTools">Key to search on</param>
         /// <param name="searchKey">Key to search on</param>
         /// <param name="searchValue">Value to match</param>
         /// <param name="timeoutSeconds">Max time (in seconds) to wait for the item search query to finish</param>
         /// <returns>Dictionary where keys are relative file paths (Windows style paths); values are file info details</returns>
         /// <remarks>A given remote file could have multiple hash values if multiple versions of the file have been uploaded</remarks>
         internal Dictionary<string, List<ArchivedFileInfo>> RunItemSearchQuery(
+            IDBTools dbTools,
             string searchKey,
             string searchValue,
             int timeoutSeconds = 300)
@@ -1116,7 +1115,7 @@ namespace MyEMSLReader
                 }
 
                 // Contact DMS to retrieve the dataset name for this dataset ID
-                datasetName = LookupDatasetNameByID(datasetOrDataPackageId, out instrument);
+                datasetName = LookupDatasetNameByID(dbTools, datasetOrDataPackageId, out instrument);
 
                 checkingDataPackage = false;
 
@@ -1138,7 +1137,7 @@ namespace MyEMSLReader
                 // No results: https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.dataset_name/QC_pp_MCF-7_17_01_2_16May17_Samwise_REP-17-04-01
                 // Results:    https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.dataset_id/586916
 
-                datasetOrDataPackageId = LookupDatasetIDByName(datasetName, out instrument);
+                datasetOrDataPackageId = LookupDatasetIDByName(dbTools, datasetName, out instrument);
 
                 if (datasetOrDataPackageId == 0)
                 {
