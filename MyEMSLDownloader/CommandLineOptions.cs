@@ -31,7 +31,7 @@ namespace MyEMSLDownloader
         /// <summary>
         /// Set to true to indicate that mFileMask contains a semicolon-separated list of file names and/or file specs
         /// </summary>
-        [Option("FileSplit", HelpShowsDefault = false, HelpText = "Use to indicate that /Files contains a list of filenames and/or file specs, " +
+        [Option("FileSplit", HelpShowsDefault = false, HelpText = "Use to indicate that /Files contains a list of file names and/or file specs, " +
                                                                   "separated by semicolons. For example, use\n" +
                                                                   "/Files:analysis.baf;ser /FileSplit")]
         public bool FileSplit { get; set; }
