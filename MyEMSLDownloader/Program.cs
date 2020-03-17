@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using MyEMSLReader;
 using PRISM;
+using PRISM.Logging;
 
 namespace MyEMSLDownloader
 {
@@ -952,7 +953,7 @@ namespace MyEMSLDownloader
             RegisterEvents((EventNotifier)processingClass);
         }
 
-        private static void RegisterEvents(EventNotifier processingClass)
+        private static void RegisterEvents(IEventNotifier processingClass)
         {
             processingClass.DebugEvent += OnDebugEvent;
             processingClass.StatusEvent += OnStatusEvent;
