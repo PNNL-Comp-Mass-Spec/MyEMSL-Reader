@@ -28,18 +28,20 @@ namespace MyEMSLDownloader
         static int Main(string[] args)
         {
             var assembly = System.Reflection.Assembly.GetExecutingAssembly();
-            var progName = assembly.GetName().Name;
+            var programName = assembly.GetName().Name;
             var exeName = Path.GetFileName(assembly.Location);
 
-            var cmdLineParser = new CommandLineParser<CommandLineOptions>(progName, PRISM.FileProcessor.ProcessFilesOrDirectoriesBase.GetAppVersion(PROGRAM_DATE));
-            cmdLineParser.ProgramInfo = "This program downloads files from MyEMSL" + Environment.NewLine + Environment.NewLine +
-                                        "To download files for a given dataset, enter the dataset name or dataset ID, plus optionally the subdirectory name. " +
-                                        "Alternatively, use /Dataset or /DatasetID plus optionally /SubDir";
-            cmdLineParser.ContactInfo =
-                "Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2013" +
-                Environment.NewLine +
-                "E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov" + Environment.NewLine +
-                "Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/";
+            var cmdLineParser =
+                new CommandLineParser<CommandLineOptions>(programName, PRISM.FileProcessor.ProcessFilesOrDirectoriesBase.GetAppVersion(PROGRAM_DATE))
+                {
+                    ProgramInfo = "This program downloads files from MyEMSL" + Environment.NewLine + Environment.NewLine +
+                                  "To download files for a given dataset, enter the dataset name or dataset ID, plus optionally the subdirectory name. " +
+                                  "Alternatively, use /Dataset or /DatasetID plus optionally /SubDir",
+                    ContactInfo = "Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2013" +
+                                  Environment.NewLine +
+                                  "E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov" + Environment.NewLine +
+                                  "Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/"
+                };
 
             cmdLineParser.UsageExamples.Add("Syntax #1:" + Environment.NewLine + exeName +
                                             " DatasetNameOrID [SubdirectoryName] [/Files:FileMask] [/FileSplit]" +
@@ -358,7 +360,7 @@ namespace MyEMSLDownloader
         {
             const string DATASET_COLUMN = "Dataset";
             const string DATASET_ID_COLUMN = "DatasetID";
-            const string SUBDIR_COLUMN = "SubDir";
+            const string SUB_DIR_COLUMN = "SubDir";
             const string FILE_COLUMN = "File";
 
             try
@@ -371,7 +373,7 @@ namespace MyEMSLDownloader
                     var headerMap = new Dictionary<string, int>();
                     var headerNames = new List<string>
                     {
-                        DATASET_COLUMN, DATASET_ID_COLUMN, SUBDIR_COLUMN, FILE_COLUMN
+                        DATASET_COLUMN, DATASET_ID_COLUMN, SUB_DIR_COLUMN, FILE_COLUMN
                     };
                     var datasetNameOrIdColumnIndex = 0;
                     var usingDatasetIDs = false;
@@ -406,7 +408,7 @@ namespace MyEMSLDownloader
                                 ConsoleMsgUtils.ShowWarning("Missing columns in " + fileListFile.Name);
                                 ConsoleMsgUtils.ShowWarning(
                                     "Header line must contain columns {0} or {1} and column {2}, plus optionally {3}",
-                                    DATASET_COLUMN, DATASET_ID_COLUMN, FILE_COLUMN, SUBDIR_COLUMN);
+                                    DATASET_COLUMN, DATASET_ID_COLUMN, FILE_COLUMN, SUB_DIR_COLUMN);
 
                                 return new List<DatasetDirectoryOrFileInfo>();
                             }
@@ -437,14 +439,14 @@ namespace MyEMSLDownloader
                             FileMask = dataValues[headerMap[FILE_COLUMN]].Trim()
                         };
 
-                        if (headerMap.ContainsKey(SUBDIR_COLUMN))
+                        if (headerMap.ContainsKey(SUB_DIR_COLUMN))
                         {
-                            if (headerMap[SUBDIR_COLUMN] > lastIndex)
+                            if (headerMap[SUB_DIR_COLUMN] > lastIndex)
                             {
                                 ConsoleMsgUtils.ShowWarning("Data line has fewer columns than the header line; skipping: " + dataLine);
                                 continue;
                             }
-                            fileToFind.SubDir = dataValues[headerMap[SUBDIR_COLUMN]].Trim();
+                            fileToFind.SubDir = dataValues[headerMap[SUB_DIR_COLUMN]].Trim();
                             if (fileToFind.SubDir.Equals("."))
                             {
                                 // Treat a source directory of "." as ""
@@ -497,7 +499,6 @@ namespace MyEMSLDownloader
                             // when MyEMSL is first queried via RefreshInfoIfStale (which calls RefreshInfo)
                             mDatasetListInfo.AddDataset(datasetName, fileToFind.SubDir);
                         }
-
 
                     }
                 }
@@ -643,14 +644,13 @@ namespace MyEMSLDownloader
                     continue;
 
                 ConsoleMsgUtils.ShowDebug(
-                    string.Format(
                         "  FileID {0}, TransID {1}, Submitted {2}, Size {3:F1} KB, Hash {4}, HashType {5}",
                         archiveFile.FileID,
                         archiveFile.FileInfo.TransactionID,
                         archiveFile.FileInfo.SubmissionTime,
                         archiveFile.FileInfo.FileSizeBytes / 1024.0,
                         archiveFile.FileInfo.Sha1Hash,
-                        archiveFile.FileInfo.HashType));
+                        archiveFile.FileInfo.HashType);
                 Console.WriteLine();
 
             }
