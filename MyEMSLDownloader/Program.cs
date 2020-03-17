@@ -16,7 +16,7 @@ namespace MyEMSLDownloader
 
     internal static class Program
     {
-        private const string PROGRAM_DATE = "February 24, 2020";
+        private const string PROGRAM_DATE = "March 17, 2020";
 
         static double mPercentComplete;
         static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
@@ -435,9 +435,27 @@ namespace MyEMSLDownloader
 
                         var datasetNameOrID = dataValues[datasetNameOrIdColumnIndex].Trim();
 
+                        var fileSpec = dataValues[headerMap[FILE_COLUMN]].Trim();
+                        var lastSlashIndex = fileSpec.LastIndexOf(Path.DirectorySeparatorChar);
+                        string directoryFromFileSpec;
+                        string fileMask;
+
+                        if (lastSlashIndex >= 1)
+                        {
+                            // The file column has a relative file path, e.g.
+                            // DatasetName_07Feb15_Polaroid.d\AcqData\MSPeak.bin
+                            directoryFromFileSpec = fileSpec.Substring(0, lastSlashIndex);
+                            fileMask = fileSpec.Substring(lastSlashIndex + 1);
+                        }
+                        else
+                        {
+                            directoryFromFileSpec = string.Empty;
+                            fileMask = fileSpec;
+                        }
+
                         var fileToFind = new TargetFileInfo
                         {
-                            FileMask = dataValues[headerMap[FILE_COLUMN]].Trim()
+                            FileMask = fileMask
                         };
 
                         if (headerMap.ContainsKey(SUB_DIR_COLUMN))
@@ -456,7 +474,7 @@ namespace MyEMSLDownloader
                         }
                         else
                         {
-                            fileToFind.SubDir = string.Empty;
+                            fileToFind.SubDir = directoryFromFileSpec;
                         }
 
                         if (string.IsNullOrWhiteSpace(fileToFind.FileMask))
@@ -768,15 +786,17 @@ namespace MyEMSLDownloader
             var filesToDownload = new Dictionary<long, ArchivedFileInfo>();
             const string subDir = "";
 
-            //datasetName = "Blank_B-2_20Apr12_Draco_12-02-37";
+            // datasetName = "Blank_B-2_20Apr12_Draco_12-02-37";
             // datasetName = "QC_Shew_11_06_pt5_d2_11Jun12_Draco_12-04-14";
-            // Dataset where all of the files were purged from spinning disk (but have now been un-purged)
-            //datasetName = "2013_05_28_U01-B_Wilkins_neg_4M_0p1acc_8x_144_000001";
-            //subDir = "";
 
-            //datasetName = "SWT_LCQData_300";
-            //subDir = "SIC201309041722_Auto976603";
+            // Dataset where all of the files were purged from spinning disk (but were later un-purged and now possibly re-purged)
+            // datasetName = "2013_05_28_U01-B_Wilkins_neg_4M_0p1acc_8x_144_000001";
+            // subDir = "";
 
+            // datasetName = "SWT_LCQData_300";
+            // subDir = "SIC201309041722_Auto976603";
+
+            // ReSharper disable once StringLiteralTypo
             const string datasetName = "SysVirol_SM001_MA15_10-4pfu_7d_5_A_11May10_Phoenix_10-03-34";
 
             try
