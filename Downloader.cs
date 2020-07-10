@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using Pacifica.Core;
@@ -162,7 +164,7 @@ namespace MyEMSLReader
                 // The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
                 // For more info, see comments in Reader.RunElasticSearchQuery()
                 if (ServicePointManager.ServerCertificateValidationCallback == null)
-                    ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
+                    ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
 
                 if (filesToDownload == null || filesToDownload.Count == 0)
                 {
@@ -1389,7 +1391,7 @@ namespace MyEMSLReader
             // The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
             // For more info, see comments in Reader.RunElasticSearchQuery()
             if (ServicePointManager.ServerCertificateValidationCallback == null)
-                ServicePointManager.ServerCertificateValidationCallback += Utilities.ValidateRemoteCertificate;
+                ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
             var responseHeaders = new WebHeaderCollection();
 
             var timeoutSeconds = 2;
@@ -1454,6 +1456,16 @@ namespace MyEMSLReader
 
                 OnProgressUpdate("Downloading data", percentComplete);
             }
+        }
+
+        private bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors policyErrors)
+        {
+            var success = Utilities.ValidateRemoteCertificate(sender, cert, chain, policyErrors, out var errorMessage);
+            if (success)
+                return true;
+
+            OnErrorEvent(errorMessage);
+            return false;
         }
 
         #endregion
