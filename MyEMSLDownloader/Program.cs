@@ -16,7 +16,7 @@ namespace MyEMSLDownloader
 
     internal static class Program
     {
-        private const string PROGRAM_DATE = "March 17, 2020";
+        private const string PROGRAM_DATE = "July 9, 2020";
 
         static double mPercentComplete;
         static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
@@ -31,15 +31,18 @@ namespace MyEMSLDownloader
             var assembly = System.Reflection.Assembly.GetExecutingAssembly();
             var programName = assembly.GetName().Name;
             var exeName = Path.GetFileName(assembly.Location);
+            var appVersion = "version " + assembly.GetName().Version;
 
             var cmdLineParser =
-                new CommandLineParser<CommandLineOptions>(programName, PRISM.FileProcessor.ProcessFilesOrDirectoriesBase.GetAppVersion(PROGRAM_DATE))
+                new CommandLineParser<CommandLineOptions>(programName, appVersion)
                 {
                     ProgramInfo = "This program downloads files from MyEMSL" + Environment.NewLine + Environment.NewLine +
                                   "To download files for a given dataset, enter the dataset name or dataset ID, plus optionally the subdirectory name. " +
                                   "Alternatively, use /Dataset or /DatasetID plus optionally /SubDir",
                     ContactInfo = "Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2013" +
-                                  Environment.NewLine +
+                                  Environment.NewLine + Environment.NewLine +
+                                  "Version: " + PRISM.FileProcessor.ProcessFilesOrDirectoriesBase.GetAppVersion(PROGRAM_DATE) +
+                                  Environment.NewLine + Environment.NewLine +
                                   "E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov" + Environment.NewLine +
                                   "Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/"
                 };
