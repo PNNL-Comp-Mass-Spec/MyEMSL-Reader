@@ -438,7 +438,7 @@ namespace MyEMSLReader
 
         private bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors policyErrors)
         {
-            var success = Utilities.ValidateRemoteCertificate(sender, cert, chain, policyErrors, out var errorMessage);
+            var success = Utilities.ValidateRemoteCertificate(cert, out var errorMessage);
             if (success)
                 return true;
 
