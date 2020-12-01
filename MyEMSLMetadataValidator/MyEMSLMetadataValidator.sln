@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.28803.352
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyEMSLMetadataValidator", "MyEMSLMetadataValidator.csproj", "{76445FE7-279E-4E94-833E-BEC4937B289C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyEMSLReader", "..\MyEMSLReader.csproj", "{3672E426-FFB5-43C0-A78B-D29E66E0076D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyEMSLReader", "..\MyEMSLReader\MyEMSLReader.csproj", "{3672E426-FFB5-43C0-A78B-D29E66E0076D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

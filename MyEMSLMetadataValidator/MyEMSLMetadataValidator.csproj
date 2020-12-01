@@ -68,7 +68,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MyEMSLReader.csproj">
+    <ProjectReference Include="..\MyEMSLReader\MyEMSLReader.csproj">
       <Project>{3672e426-ffb5-43c0-a78b-d29e66e0076d}</Project>
       <Name>MyEMSLReader</Name>
     </ProjectReference>
