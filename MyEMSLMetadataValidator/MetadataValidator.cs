@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using MyEMSLReader;
 using PRISM;
+using PRISMDatabaseUtils;
 
 namespace MyEMSLMetadataValidator
 {
@@ -268,7 +269,7 @@ namespace MyEMSLMetadataValidator
 
         }
 
-        private int GetMaxDatasetIdInMyEMSL(DBTools dbTools, bool limitToOldMyEMSL = true)
+        private int GetMaxDatasetIdInMyEMSL(IDBTools dbTools, bool limitToOldMyEMSL = true)
         {
             try
             {
@@ -280,7 +281,7 @@ namespace MyEMSLMetadataValidator
                 if (limitToOldMyEMSL)
                     query += " AND StatusURI_PathID < 265";
 
-                dbTools.GetQueryResults(query, out var queryResults, "LookupHighestDatasetIdInMyEMSL");
+                dbTools.GetQueryResults(query, out var queryResults);
 
                 if (queryResults.Count > 0)
                 {
@@ -298,7 +299,7 @@ namespace MyEMSLMetadataValidator
         }
 
         private List<DMSMetadata> GetMyEMSLUploadInfoFromDMS(
-            DBTools dbTools,
+            IDBTools dbTools,
             int datasetIdStart,
             int datasetIdEnd)
         {
@@ -343,7 +344,7 @@ namespace MyEMSLMetadataValidator
 
                 var columnMap = dbTools.GetColumnMapping(columns);
 
-                dbTools.GetQueryResults(query, out var queryResults, "GetMyEMSLUploadInfoFromDMS");
+                dbTools.GetQueryResults(query, out var queryResults);
 
                 var dmsMetadata = new List<DMSMetadata>();
 
@@ -517,7 +518,7 @@ namespace MyEMSLMetadataValidator
                     writeHeaders = true;
                 }
 
-                var dbTools = new DBTools(ValidatorOptions.DMS_CONNECTION_STRING);
+                var dbTools = DbToolsFactory.GetDBTools(DbServerTypes.MSSQLServer, ValidatorOptions.DMS_CONNECTION_STRING);
 
                 using (var resultsWriter = new StreamWriter(
                     new FileStream(outputFile.FullName, FileMode.Append, FileAccess.Write, FileShare.Read)))
@@ -626,7 +627,7 @@ namespace MyEMSLMetadataValidator
         }
 
         private bool ValidateDatasetBatch(
-            DBTools dbTools,
+            IDBTools dbTools,
             TextWriter resultsWriter,
             ICollection<int> datasetIDsToCheck,
             int datasetIdStart,

@@ -1,14 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProjectGuid>{68135044-3952-4FB5-97DC-8E77621C7113}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{46D080DA-392C-4F7C-B2F7-683695B1C029}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MyEMSLDownloader</RootNamespace>
-    <AssemblyName>MyEMSLDownloader</AssemblyName>
+    <RootNamespace>Pacifica.Core</RootNamespace>
+    <AssemblyName>Pacifica.Core</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -21,6 +22,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <OutputPath>bin\Release\</OutputPath>
@@ -30,32 +32,39 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.WebRequest" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandLineOptions.cs" />
-    <Compile Include="DownloadExample.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="EventArgs.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="MyEMSLStatusCheck.cs" />
+    <Compile Include="Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UrlContactInfo.cs" />
+    <Compile Include="WebResponseData.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <Compile Include="EasyHttp.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MyEMSLReader\MyEMSLReader.csproj">
-      <Project>{3672e426-ffb5-43c0-a78b-d29e66e0076d}</Project>
-      <Name>MyEMSLReader</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Pacifica\Pacifica.Core\Pacifica.Core.csproj">
-      <Project>{46d080da-392c-4f7c-b2f7-683695b1c029}</Project>
-      <Name>Pacifica.Core</Name>
-    </ProjectReference>
+    <Compile Include="Utilities.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ExtensionMethods.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="FileInfoObject.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="README.txt" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="jayrock-json">
@@ -64,9 +73,19 @@
     <PackageReference Include="PRISM-Library">
       <Version>2.6.18</Version>
     </PackageReference>
-    <PackageReference Include="SharpZipLib">
-      <Version>1.2.0</Version>
-    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy "$(TargetPath)" "$(ProjectDir)..\..\DeployedFiles\" /D /Y /I
+xcopy "$(TargetDir)$(TargetName).pdb" "$(ProjectDir)..\..\DeployedFiles\" /Y
+
+xcopy "$(TargetDir)PRISM.dll" "$(ProjectDir)..\..\DeployedFiles\" /D /Y /I</PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
 </Project>

@@ -4,13 +4,14 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{3672E426-FFB5-43C0-A78B-D29E66E0076D}</ProjectGuid>
+    <ProjectGuid>{4E0A4851-EB71-491C-8027-4AF7B6A830BB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MyEMSLReader</RootNamespace>
-    <AssemblyName>MyEMSLReader</AssemblyName>
+    <RootNamespace>Pacifica.Upload</RootNamespace>
+    <AssemblyName>Pacifica.Upload</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <Deterministic>false</Deterministic>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -21,7 +22,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,38 +30,24 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Data.Linq" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ArchivedFileInfo.cs" />
-    <Compile Include="DataPackageListInfo.cs" />
-    <Compile Include="DatasetDirectoryOrFileInfo.cs" />
-    <Compile Include="DatasetListInfoByID.cs" />
-    <Compile Include="DatasetInfoBase.cs" />
-    <Compile Include="DatasetListInfo.cs" />
-    <Compile Include="Downloader.cs" />
-    <Compile Include="DownloadQueue.cs" />
-    <Compile Include="EventArgs.cs" />
-    <Compile Include="MyEMSLBase.cs" />
-    <Compile Include="DatasetInfo.cs" />
-    <Compile Include="Reader.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TarStreamUploader.cs" />
+    <Compile Include="Upload.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="jayrock-json">
-      <Version>0.9.16530.1</Version>
-    </PackageReference>
-    <PackageReference Include="PRISM-DatabaseUtils">
-      <Version>1.1.7</Version>
-    </PackageReference>
     <PackageReference Include="PRISM-Library">
       <Version>2.6.18</Version>
     </PackageReference>
@@ -70,10 +56,15 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Pacifica\Pacifica.Core\Pacifica.Core.csproj">
+    <ProjectReference Include="..\Pacifica.Core\Pacifica.Core.csproj">
       <Project>{46d080da-392c-4f7c-b2f7-683695b1c029}</Project>
       <Name>Pacifica.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy "$(TargetPath)" "$(ProjectDir)..\..\DeployedFiles" /D /Y /I
+xcopy "$(TargetDir)$(TargetName).pdb" "$(ProjectDir)..\..\DeployedFiles" /Y
+</PostBuildEvent>
+  </PropertyGroup>
 </Project>

@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>MyEMSLMetadataValidator</RootNamespace>
     <AssemblyName>MyEMSLMetadataValidator</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
@@ -33,9 +33,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Pacifica.Core">
-      <HintPath>..\Lib\Pacifica.Core.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -60,17 +57,24 @@
     <PackageReference Include="jayrock-json">
       <Version>0.9.16530.1</Version>
     </PackageReference>
+    <PackageReference Include="PRISM-DatabaseUtils">
+      <Version>1.1.7</Version>
+    </PackageReference>
     <PackageReference Include="PRISM-Library">
-      <Version>2.6.7</Version>
+      <Version>2.6.18</Version>
     </PackageReference>
     <PackageReference Include="SharpZipLib">
-      <Version>1.1.0</Version>
+      <Version>1.2.0</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MyEMSLReader\MyEMSLReader.csproj">
       <Project>{3672e426-ffb5-43c0-a78b-d29e66e0076d}</Project>
       <Name>MyEMSLReader</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Pacifica\Pacifica.Core\Pacifica.Core.csproj">
+      <Project>{46d080da-392c-4f7c-b2f7-683695b1c029}</Project>
+      <Name>Pacifica.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

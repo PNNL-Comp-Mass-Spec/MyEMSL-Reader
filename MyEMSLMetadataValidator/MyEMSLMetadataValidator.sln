@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyEMSLMetadataValidator", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyEMSLReader", "..\MyEMSLReader\MyEMSLReader.csproj", "{3672E426-FFB5-43C0-A78B-D29E66E0076D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pacifica.Core", "..\Pacifica\Pacifica.Core\Pacifica.Core.csproj", "{46D080DA-392C-4F7C-B2F7-683695B1C029}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{3672E426-FFB5-43C0-A78B-D29E66E0076D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3672E426-FFB5-43C0-A78B-D29E66E0076D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3672E426-FFB5-43C0-A78B-D29E66E0076D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46D080DA-392C-4F7C-B2F7-683695B1C029}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46D080DA-392C-4F7C-B2F7-683695B1C029}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46D080DA-392C-4F7C-B2F7-683695B1C029}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46D080DA-392C-4F7C-B2F7-683695B1C029}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
