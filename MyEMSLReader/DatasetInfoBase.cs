@@ -553,9 +553,12 @@ namespace MyEMSLReader
                     continue;
                 }
 
-                Debug.Assert(fiFile.Directory != null, "fiFile.Directory != null");
-                if (!reDirectory.IsMatch(fiFile.Directory.Name))
                 var fileInfo = new FileInfo(archivedFile.RelativePathWindows);
+                if (fileInfo.Directory == null)
+                {
+                    OnWarningEvent("Could not determine the directory of file " + archivedFile.RelativePathWindows);
+                    continue;
+                }
 
                 if (!directoryMatcher.IsMatch(fileInfo.Directory.Name))
                 {
