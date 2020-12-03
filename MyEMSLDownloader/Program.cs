@@ -18,15 +18,15 @@ namespace MyEMSLDownloader
     {
         private const string PROGRAM_DATE = "November 17, 2020";
 
-        static double mPercentComplete;
-        static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
+        private static double mPercentComplete;
+        private static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
 
         private static CommandLineOptions mOptions;
         private static DatasetListInfo mDatasetListInfo;
         private static DatasetListInfoByID mDatasetListInfoByID;
         private static DataPackageListInfo mDataPackageListInfo;
 
-        static int Main(string[] args)
+        private static int Main(string[] args)
         {
             var assembly = System.Reflection.Assembly.GetExecutingAssembly();
             var programName = assembly.GetName().Name;
@@ -673,7 +673,7 @@ namespace MyEMSLDownloader
             ConsoleMsgUtils.ShowError(message, ex);
         }
 
-        static List<DatasetDirectoryOrFileInfo> TestDatasetListInfo()
+        private static List<DatasetDirectoryOrFileInfo> TestDatasetListInfo()
         {
             Console.WriteLine("Looking for files for test datasets using the DatasetListInfo class");
             Console.WriteLine();
@@ -686,7 +686,7 @@ namespace MyEMSLDownloader
             return archiveFiles;
         }
 
-        static Dictionary<long, ArchivedFileInfo> TestReader()
+        private static Dictionary<long, ArchivedFileInfo> TestReader()
         {
             Console.WriteLine("Looking for files for test datasets using the Reader class");
             Console.WriteLine();
@@ -731,7 +731,7 @@ namespace MyEMSLDownloader
             return filesToDownload1;
         }
 
-        static Dictionary<long, ArchivedFileInfo> TestOneDataPackage(Reader reader)
+        private static Dictionary<long, ArchivedFileInfo> TestOneDataPackage(Reader reader)
         {
             var filesToDownload = new Dictionary<long, ArchivedFileInfo>();
             const int dataPkgID = 814;
@@ -770,7 +770,7 @@ namespace MyEMSLDownloader
             return filesToDownload;
         }
 
-        static Dictionary<long, ArchivedFileInfo> TestOneDataset(Reader reader)
+        private static Dictionary<long, ArchivedFileInfo> TestOneDataset(Reader reader)
         {
             var filesToDownload = new Dictionary<long, ArchivedFileInfo>();
             const string subDir = "";
@@ -809,7 +809,7 @@ namespace MyEMSLDownloader
             return filesToDownload;
         }
 
-        static Dictionary<long, ArchivedFileInfo> TestMultiDataset(Reader reader)
+        private static Dictionary<long, ArchivedFileInfo> TestMultiDataset(Reader reader)
         {
             var filesToDownload = new Dictionary<long, ArchivedFileInfo>();
 
@@ -875,7 +875,7 @@ namespace MyEMSLDownloader
             return filesToDownload;
         }
 
-        static Dictionary<long, ArchivedFileInfo> TestMultiDatasetID(Reader reader)
+        private static Dictionary<long, ArchivedFileInfo> TestMultiDatasetID(Reader reader)
         {
             var dctDatasetsAndSubDirs = new Dictionary<int, string>
             {
@@ -889,7 +889,7 @@ namespace MyEMSLDownloader
             return filesToDownload;
         }
 
-        static void TestDownloader(Dictionary<long, ArchivedFileInfo> filesToDownload)
+        private static void TestDownloader(Dictionary<long, ArchivedFileInfo> filesToDownload)
         {
             Console.WriteLine("Downloading " + filesToDownload.Count + " files");
             Console.WriteLine();
@@ -916,7 +916,7 @@ namespace MyEMSLDownloader
             }
         }
 
-        static void TestDownloader(IReadOnlyCollection<DatasetDirectoryOrFileInfo> archiveFiles)
+        private static void TestDownloader(IReadOnlyCollection<DatasetDirectoryOrFileInfo> archiveFiles)
         {
             Console.WriteLine("Downloading " + archiveFiles.Count + " files");
             Console.WriteLine();
