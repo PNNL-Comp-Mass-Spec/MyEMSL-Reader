@@ -24,7 +24,7 @@ namespace MyEMSLReader
 
         #region "Events"
 
-        public event FileDownloadedEventHandler FileDownloadedEvent;
+        public event EventHandler<FileDownloadedEventArgs> FileDownloadedEvent;
 
         #endregion
 

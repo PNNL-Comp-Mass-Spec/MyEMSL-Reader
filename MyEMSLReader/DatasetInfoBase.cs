@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Collections.Generic;
@@ -676,7 +675,7 @@ namespace MyEMSLReader
 
         #region "Events"
 
-        public event FileDownloadedEventHandler FileDownloadedEvent;
+        public event EventHandler<FileDownloadedEventArgs> FileDownloadedEvent;
 
         public event StatusEventEventHandler MyEMSLOffline;
 
