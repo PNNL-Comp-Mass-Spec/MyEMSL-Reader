@@ -122,7 +122,9 @@ namespace MyEMSLReader
                 var fullPath = string.Empty;
 
                 if (!string.IsNullOrWhiteSpace(Dataset))
+                {
                     fullPath = Path.Combine(fullPath, Dataset);
+                }
 
                 return Path.Combine(fullPath, RelativePathWindows).Replace("/", @"\");
             }
@@ -155,13 +157,19 @@ namespace MyEMSLReader
             {
                 var fullPath = string.Empty;
                 if (!string.IsNullOrWhiteSpace(Instrument))
+                {
                     fullPath = Path.Combine(fullPath, Instrument);
+                }
 
                 if (!string.IsNullOrWhiteSpace(DatasetYearQuarter))
+                {
                     fullPath = Path.Combine(fullPath, DatasetYearQuarter);
+                }
 
                 if (!string.IsNullOrWhiteSpace(Dataset))
+                {
                     fullPath = Path.Combine(fullPath, Dataset);
+                }
 
                 return Path.Combine(fullPath, RelativePathWindows).Replace("/", @"\");
             }
@@ -182,7 +190,9 @@ namespace MyEMSLReader
             get
             {
                 if (string.IsNullOrWhiteSpace(SubDirPath))
+                {
                     return Filename;
+                }
 
                 return Path.Combine(SubDirPath, Filename).Replace("/", @"\");
             }
@@ -196,7 +206,9 @@ namespace MyEMSLReader
             get
             {
                 if (string.IsNullOrEmpty(HashType) || HashType.Equals(SHA1))
+                {
                     return Hash;
+                }
 
                 return string.Empty;
             }
@@ -229,10 +241,14 @@ namespace MyEMSLReader
             get
             {
                 if (string.IsNullOrWhiteSpace(SubmissionTime))
+                {
                     return DateTime.Now;
+                }
 
                 if (DateTime.TryParse(SubmissionTime, out var dtSubmissionTime))
+                {
                     return dtSubmissionTime;
+                }
 
                 return DateTime.Now;
             }
@@ -318,13 +334,17 @@ namespace MyEMSLReader
             if (!string.IsNullOrWhiteSpace(creationTime))
             {
                 if (DateTime.TryParse(creationTime, out var dtCreationTime))
+                {
                     FileCreationTime = dtCreationTime;
+                }
             }
 
             if (!string.IsNullOrWhiteSpace(lastWriteTime))
             {
                 if (DateTime.TryParse(lastWriteTime, out var dtLastWriteTime))
+                {
                     FileLastWriteTime = dtLastWriteTime;
+                }
             }
         }
 

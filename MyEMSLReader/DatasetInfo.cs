@@ -57,7 +57,9 @@ namespace MyEMSLReader
         public void AddFileToDownloadQueue(long myEMSLFileID, bool unzipRequired)
         {
             if (mDownloadQueue.FilesToDownload.ContainsKey(myEMSLFileID))
+            {
                 return;
+            }
 
             var qArchivedFile = (from item in mDownloadedFiles where item.Value.FileID == myEMSLFileID select item.Value).ToList();
 
@@ -116,7 +118,9 @@ namespace MyEMSLReader
                 if (mArchivedFiles.Count == 0)
                 {
                     if (mErrorMessages.Count == 0)
+                    {
                         return true;
+                    }
 
                     return false;
                 }

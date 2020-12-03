@@ -48,10 +48,14 @@ namespace MyEMSLReader
         public void AddDataset(int datasetID, string subDir)
         {
             if (string.IsNullOrWhiteSpace(subDir))
+            {
                 subDir = string.Empty;
+            }
 
             if (DatasetsAndSubDirs.Keys.Contains(datasetID))
+            {
                 DatasetsAndSubDirs[datasetID] = subDir;
+            }
             else
             {
                 DatasetsAndSubDirs.Add(datasetID, subDir);
@@ -87,7 +91,9 @@ namespace MyEMSLReader
                 if (mArchivedFiles.Count == 0)
                 {
                     if (mErrorMessages.Count == 0)
+                    {
                         return true;
+                    }
 
                     return false;
                 }

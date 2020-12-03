@@ -417,13 +417,17 @@ namespace MyEMSLReader
                     if (!string.IsNullOrWhiteSpace(datasetName))
                     {
                         if (!string.Equals(datasetName, archivedFile.Dataset, StringComparison.OrdinalIgnoreCase))
+                        {
                             continue;
+                        }
                     }
 
                     if (dataPackageID > 0)
                     {
                         if (archivedFile.DataPackageID != dataPackageID)
+                        {
                             continue;
+                        }
                     }
 
                     if (!reFile.IsMatch(archivedFile.Filename))
@@ -463,19 +467,27 @@ namespace MyEMSLReader
                                         {
                                             comparisonIndex--;
                                             if (comparisonIndex < 0)
+                                            {
                                                 break;
+                                            }
 
                                             if (subdirectoryPathParts[comparisonIndex].ToLower() != pathParts[parentPathIndex].ToLower())
+                                            {
                                                 isMatch = false;
+                                            }
                                         }
                                     }
 
                                     if (isMatch)
+                                    {
                                         break;
+                                    }
                                 }
 
                                 if (!recurse)
+                                {
                                     break;
+                                }
                             }
                         }
                     }
@@ -531,7 +543,9 @@ namespace MyEMSLReader
                 if (!string.IsNullOrWhiteSpace(datasetName))
                 {
                     if (!string.Equals(datasetName, archivedFile.Dataset, StringComparison.OrdinalIgnoreCase))
+                    {
                         continue;
+                    }
                 }
 
                 if (archivedFile.RelativePathWindows.IndexOf("\\", StringComparison.Ordinal) <= 0)
@@ -625,7 +639,9 @@ namespace MyEMSLReader
             if (success)
             {
                 foreach (var downloadedFile in mDownloadQueue.DownloadedFiles)
+                {
                     mDownloadedFiles.Add(downloadedFile.Key, downloadedFile.Value);
+                }
             }
 
             return success;
@@ -646,7 +662,9 @@ namespace MyEMSLReader
         private bool RefreshInfoIfStale()
         {
             if (mCacheIsStale || DateTime.UtcNow.Subtract(mCacheDate).TotalMinutes >= CACHE_REFRESH_THRESHOLD_MINUTES)
+            {
                 return RefreshInfo();
+            }
 
             return true;
         }
@@ -660,9 +678,13 @@ namespace MyEMSLReader
         private void Reader_MyEMSLOffline(string message)
         {
             if (MyEMSLOffline == null)
+            {
                 OnWarningEvent(message);
+            }
             else
+            {
                 MyEMSLOffline?.Invoke(message);
+            }
         }
 
         private void OnFileDownloadedEvent(object sender, FileDownloadedEventArgs e)

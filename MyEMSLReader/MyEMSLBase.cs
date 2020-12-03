@@ -373,7 +373,9 @@ namespace MyEMSLReader
                     responseData = EasyHttp.SendViaThreadStart(mPacificaConfig, URL, cookieJar, out responseStatusCode, postData, postMethod, timeoutSeconds);
 
                     if (allowEmptyResponseData && responseStatusCode == HttpStatusCode.OK)
+                    {
                         retrievalSuccess = true;
+                    }
                     else
                     {
                         if (string.IsNullOrEmpty(responseData))
@@ -382,7 +384,9 @@ namespace MyEMSLReader
                             timeoutSeconds = IncreaseTimeout(timeoutSeconds);
                         }
                         else
+                        {
                             retrievalSuccess = true;
+                        }
                     }
                 }
                 catch (Exception ex)

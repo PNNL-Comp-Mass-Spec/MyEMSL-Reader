@@ -59,10 +59,14 @@ namespace MyEMSLReader
         public void AddDataPackage(int dataPackageID, string subDir)
         {
             if (string.IsNullOrWhiteSpace(subDir))
+            {
                 subDir = string.Empty;
+            }
 
             if (mDataPackagesAndSubDirs.Keys.Contains(dataPackageID))
+            {
                 mDataPackagesAndSubDirs[dataPackageID] = subDir;
+            }
             else
             {
                 mDataPackagesAndSubDirs.Add(dataPackageID, subDir);
@@ -131,7 +135,9 @@ namespace MyEMSLReader
                 if (mArchivedFiles.Count == 0)
                 {
                     if (mErrorMessages.Count == 0)
+                    {
                         return true;
+                    }
 
                     return false;
                 }

@@ -163,7 +163,9 @@ namespace MyEMSLReader
                 // The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
                 // For more info, see comments in Reader.RunElasticSearchQuery()
                 if (ServicePointManager.ServerCertificateValidationCallback == null)
+                {
                     ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
+                }
 
                 if (filesToDownload == null || filesToDownload.Count == 0)
                 {
@@ -198,7 +200,9 @@ namespace MyEMSLReader
                 var cookieJar = new CookieContainer();
 
                 if (string.IsNullOrWhiteSpace(downloadDirectoryPath))
+                {
                     downloadDirectoryPath = ".";
+                }
 
                 var downloadDirectory = new DirectoryInfo(downloadDirectoryPath);
 
@@ -226,7 +230,9 @@ namespace MyEMSLReader
                         archiveFile, destFilePathOverride);
 
                     if (targetFile == null)
+                    {
                         continue;
+                    }
 
                     // Confirm one more time that we need to download the file
                     var downloadFile = IsDownloadRequired(archiveFile, targetFile, reportMessage: false);
@@ -252,9 +258,13 @@ namespace MyEMSLReader
             catch (Exception ex)
             {
                 if (string.IsNullOrWhiteSpace(ErrorMessage))
+                {
                     ReportError("Error in MyEMSLReader.Downloader.DownloadFiles", ex);
+                }
                 else if (ThrowErrors)
+                {
                     throw;
+                }
             }
 
             return false;
@@ -274,7 +284,9 @@ namespace MyEMSLReader
         private string AddLongPathCode(string fileOrDirectoryPath)
         {
             if (fileOrDirectoryPath.Length <= 255 || fileOrDirectoryPath.StartsWith(@"\\?\"))
+            {
                 return fileOrDirectoryPath;
+            }
 
             if (!Path.IsPathRooted(fileOrDirectoryPath))
             {
@@ -346,7 +358,9 @@ namespace MyEMSLReader
             }
 
             if (downloadFilePath.IndexOf("/", StringComparison.Ordinal) > 0)
+            {
                 downloadFilePath = downloadFilePath.Replace('/', Path.DirectorySeparatorChar);
+            }
 
             return downloadFilePath;
         }
@@ -424,7 +438,9 @@ namespace MyEMSLReader
             var attempts = 1;
 
             if (maxAttempts < 1)
+            {
                 maxAttempts = 1;
+            }
 
             var success = false;
             var triedGC = false;
@@ -432,7 +448,9 @@ namespace MyEMSLReader
             // Use a special prefix to work with files whose paths are more than 255 characters long
             // See https://msdn.microsoft.com/en-us/library/aa365247(v=vs.85).aspx#maxpath
             if (downloadFilePath.Length > 255 && !downloadFilePath.StartsWith(@"\\?\"))
+            {
                 downloadFilePath = @"\\?\" + downloadFilePath;
+            }
 
             while (!success && attempts <= maxAttempts)
             {
@@ -445,7 +463,9 @@ namespace MyEMSLReader
                         downloadFilePath, timeoutSeconds);
 
                     if (!success)
+                    {
                         break;
+                    }
                 }
                 catch (IOException ex)
                 {
@@ -567,7 +587,9 @@ namespace MyEMSLReader
                         firstArchiveFile, destFilePathOverride);
 
                     if (targetFile == null)
+                    {
                         continue;
+                    }
 
                     const int DEFAULT_MAX_ATTEMPTS = 5;
                     var fileInUseByOtherProcess = false;
@@ -590,9 +612,13 @@ namespace MyEMSLReader
                             filesDownloaded.Add(firstArchiveFile.FileID, firstArchiveFile.PathWithInstrumentAndDatasetWindows);
 
                             if (firstArchiveFile.FileLastWriteTime > DateTime.MinValue)
+                            {
                                 UpdateFileModificationTime(targetFile, firstArchiveFile.FileLastWriteTime);
+                            }
                             else if (firstArchiveFile.SubmissionTimeValue > DateTime.MinValue)
+                            {
                                 UpdateFileModificationTime(targetFile, firstArchiveFile.SubmissionTimeValue);
+                            }
 
                             fileRetrievedOrExists = true;
                         }
@@ -600,9 +626,13 @@ namespace MyEMSLReader
                         {
                             // Show the error at the console but do not throw an exception
                             if (mostRecentException == null)
+                            {
                                 ReportMessage("Failure downloading " + Path.GetFileName(targetFile.FullName) + ": unknown reason");
+                            }
                             else
+                            {
                                 ReportMessage("Failure downloading " + Path.GetFileName(targetFile.FullName) + ": " + mostRecentException.Message);
+                            }
 
                             fileRetrievedOrExists = targetFile.Exists;
                         }
@@ -628,7 +658,9 @@ namespace MyEMSLReader
                     }
 
                     if (!DownloadedFiles.ContainsKey(targetFile.FullName))
+                    {
                         DownloadedFiles.Add(targetFile.FullName, firstArchiveFile);
+                    }
 
                     bytesDownloaded += firstArchiveFile.FileSizeBytes;
                     UpdateProgress(bytesDownloaded, bytesToDownload);
@@ -663,13 +695,17 @@ namespace MyEMSLReader
                 var postData = CreateCartPostData(filesToDownload);
 
                 if (postData.Length == 0)
+                {
                     return false;
+                }
 
                 // Post the JSON file to the cart server
                 var success = PostCartData(postData.ToString(), cookieJar, out _);
 
                 if (!success)
+                {
                     return false;
+                }
 
                 // Check cart status periodically
                 // Examine the HEAD of http://cart.my.emsl.pnl.gov/7bf711b3-b736-43b0-9ac4-138d0ccfe8de
@@ -770,7 +806,9 @@ namespace MyEMSLReader
                         success = DownloadAndExtractTarFile(cookieJar, lstFilesInArchive, bytesDownloaded, destFilePathOverride, downloadDirectory, directoryLayout, tarFileURL, timeoutSeconds);
 
                         if (!success)
+                        {
                             break;
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -792,9 +830,13 @@ namespace MyEMSLReader
                 if (!success)
                 {
                     if (mostRecentException == null)
+                    {
                         ReportMessage("Failed to extract files from .tar file: unknown reason");
+                    }
                     else
+                    {
                         ReportMessage("Failed to extract files from .tar file: unknown reason: " + mostRecentException.Message);
+                    }
 
                     return false;
                 }
@@ -929,8 +971,10 @@ namespace MyEMSLReader
 
                                 var fiSourceFile = new FileInfo(sourceFile);
                                 if (!archiveFile.Filename.ToLower().StartsWith(fiSourceFile.Name.ToLower()))
+                                {
                                     ReportMessage("Warning, name conflict; filename in .tar file is " + fiSourceFile.Name +
                                                   " but expected filename is " + archiveFile.Filename);
+                                }
 
                                 // Define the local file path
                                 downloadFilePath = ConstructDownloadFilePath(directoryLayout, archiveFile);
@@ -939,7 +983,9 @@ namespace MyEMSLReader
                                 if (destFilePathOverride.TryGetValue(archiveFile.FileID, out var filePathOverride))
                                 {
                                     if (!string.IsNullOrEmpty(filePathOverride))
+                                    {
                                         downloadFilePath = filePathOverride;
+                                    }
                                 }
 
                                 originalFileSubmissionTime = archiveFile.SubmissionTimeValue;
@@ -970,7 +1016,9 @@ namespace MyEMSLReader
 
                             var subDirPath = Path.GetDirectoryName(sourceFile);
                             if (string.IsNullOrEmpty(subDirPath))
+                            {
                                 subDirPath = string.Empty;
+                            }
                             else
                             {
                                 subDirPath = subDirPath.Replace(@"\", "/");
@@ -992,7 +1040,9 @@ namespace MyEMSLReader
                         }
 
                         if (downloadFilePath.Length > 255)
+                        {
                             downloadFilePath = AddLongPathCode(downloadFilePath);
+                        }
 
                         // Create the target directory if necessary
                         var targetFile = new FileInfo(downloadFilePath);
@@ -1004,7 +1054,9 @@ namespace MyEMSLReader
                         }
 
                         if (!targetFile.Directory.Exists)
+                        {
                             targetFile.Directory.Create();
+                        }
 
                         // Extract the file from the stream
                         using (var outStr = new FileStream(targetFile.FullName, FileMode.Create, FileAccess.Write, FileShare.Read))
@@ -1025,7 +1077,9 @@ namespace MyEMSLReader
                         }
 
                         if (!DownloadedFiles.ContainsKey(downloadFilePath))
+                        {
                             DownloadedFiles.Add(downloadFilePath, archiveFile);
+                        }
 
                         bytesDownloaded += archiveFile.FileSizeBytes;
                         UpdateProgress(bytesDownloaded, bytesToDownload);
@@ -1080,7 +1134,9 @@ namespace MyEMSLReader
                         targetArchiveFile, destFilePathOverride);
 
                 if (targetFile == null)
+                {
                     continue;
+                }
 
                 fiSourceFile.CopyTo(targetFile.FullName, true);
 
@@ -1089,7 +1145,9 @@ namespace MyEMSLReader
                 UpdateFileModificationTime(targetFile, targetArchiveFile.SubmissionTimeValue);
 
                 if (!DownloadedFiles.ContainsKey(targetFile.FullName))
+                {
                     DownloadedFiles.Add(targetFile.FullName, targetArchiveFile);
+                }
             }
         }
 
@@ -1102,7 +1160,9 @@ namespace MyEMSLReader
                 var actualSha1Hash = Utilities.GenerateSha1Hash(localFilePath);
 
                 if (actualSha1Hash == Sha1HashExpected)
+                {
                     fileMatchesHash = true;
+                }
             }
             catch (Exception ex)
             {
@@ -1301,7 +1361,9 @@ namespace MyEMSLReader
                             out _);
 
                         if (!success)
+                        {
                             break;
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -1365,7 +1427,10 @@ namespace MyEMSLReader
             // The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
             // For more info, see comments in Reader.RunElasticSearchQuery()
             if (ServicePointManager.ServerCertificateValidationCallback == null)
+            {
                 ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
+            }
+
             var responseHeaders = new WebHeaderCollection();
 
             var timeoutSeconds = 2;
@@ -1388,15 +1453,19 @@ namespace MyEMSLReader
                         timeoutSeconds = IncreaseTimeout(timeoutSeconds);
                     }
                     else
+                    {
                         success = true;
+                    }
                 }
                 catch (Exception ex)
                 {
                     mostRecentException = ex;
 
                     if (responseStatusCode == HttpStatusCode.ServiceUnavailable)
+                    {
                         // File is not locked; no point in retrying the head request.
                         break;
+                    }
 
                     if (attempts <= maxAttempts)
                     {
@@ -1436,7 +1505,9 @@ namespace MyEMSLReader
         {
             var success = Utilities.ValidateRemoteCertificate(cert, out var errorMessage);
             if (success)
+            {
                 return true;
+            }
 
             OnErrorEvent(errorMessage);
             return false;

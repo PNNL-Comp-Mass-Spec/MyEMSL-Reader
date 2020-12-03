@@ -361,7 +361,9 @@ namespace MyEMSLReader
         public List<ArchivedFileInfo> FindFilesByDatasetName(string datasetName, string subDir, bool recurse, string instrumentName)
         {
             if (TraceMode)
+            {
                 OnDebugEvent("Entering FindFilesByDatasetName");
+            }
 
             var searchTerms = new List<KeyValuePair<string, string>>
             {
@@ -485,7 +487,9 @@ namespace MyEMSLReader
                     for (var i = 0; i < searchResults.Count; i++)
                     {
                         if (searchResults[i].FileID != existingArchiveFile.FileID)
+                        {
                             continue;
+                        }
 
                         searchResults.RemoveAt(i);
                         break;
@@ -536,7 +540,9 @@ namespace MyEMSLReader
             string subDir)
         {
             if (string.IsNullOrWhiteSpace(subDir))
+            {
                 subDir = string.Empty;
+            }
 
             if (datasetsAndSubDirLists.TryGetValue(datasetName, out var subDirsForDataset))
             {
@@ -581,7 +587,10 @@ namespace MyEMSLReader
                 if (datasetsAndSubDirLists.Count > 1 && file.Dataset != currentDataset)
                 {
                     if (!LookupSubDirFilterByDataset(datasetsAndSubDirLists, file, entityType, out currentSubDirList))
+                    {
                         continue;
+                    }
+
                     currentDataset = string.Copy(file.Dataset);
                 }
 
@@ -683,7 +692,10 @@ namespace MyEMSLReader
                 if (datasetsAndSubDirs.Count > 1 && file.Dataset != currentDataset)
                 {
                     if (!LookupSubDirFilterByDataset(datasetsAndSubDirs, file, entityType, out currentSubDirList))
+                    {
                         continue;
+                    }
+
                     currentDataset = string.Copy(file.Dataset);
                 }
 
@@ -717,7 +729,9 @@ namespace MyEMSLReader
                         for (var i = 0; i < lstRequiredSubDirTree.Count; i++)
                         {
                             if (string.Equals(lstFileSubDirTree[i], lstRequiredSubDirTree[i], StringComparison.OrdinalIgnoreCase))
+                            {
                                 matchCount++;
+                            }
                         }
 
                         if (matchCount == lstRequiredSubDirTree.Count)
@@ -764,7 +778,9 @@ namespace MyEMSLReader
             IEnumerable<KeyValuePair<string, string>> searchTerms)
         {
             if (TraceMode)
+            {
                 OnDebugEvent("Entering FindFilesByDataset");
+            }
 
             try
             {
@@ -792,7 +808,9 @@ namespace MyEMSLReader
 
                             var subDirToAdd = subDir.Replace(@"\", "/");
                             if (!subDirList.Contains(subDirToAdd))
+                            {
                                 subDirList.Add(subDirToAdd);
+                            }
 
                             filterOnSubDir = true;
                         }
@@ -836,7 +854,9 @@ namespace MyEMSLReader
                             var fileInstrument = remoteFile.Value.First().Instrument;
 
                             if (!string.IsNullOrEmpty(fileInstrument) && !string.Equals(fileInstrument, instrumentName, StringComparison.OrdinalIgnoreCase))
+                            {
                                 continue;
+                            }
                         }
 
                         if (IncludeAllRevisions)
@@ -878,9 +898,13 @@ namespace MyEMSLReader
             catch (Exception ex)
             {
                 if (string.IsNullOrWhiteSpace(ErrorMessage))
+                {
                     ReportError("Error in MyEMSLReader.FindFilesByDataset", ex);
+                }
                 else if (ThrowErrors)
+                {
                     throw;
+                }
 
                 return new List<ArchivedFileInfo>();
             }
@@ -940,9 +964,13 @@ namespace MyEMSLReader
             var entityType = SearchEntity.DatasetName;
 
             if (datasetsAndSubDirLists.First().Key.StartsWith(DATASET_ID_TAG))
+            {
                 entityType = SearchEntity.DatasetID;
+            }
             else if (datasetsAndSubDirLists.First().Key.StartsWith(DATA_PKG_ID_TAG))
+            {
                 entityType = SearchEntity.DataPackageID;
+            }
 
             return entityType;
         }
@@ -1060,7 +1088,9 @@ namespace MyEMSLReader
             const int DUPLICATE_HASH_MESSAGES_TO_LOG = 5;
 
             if (TraceMode)
+            {
                 OnDebugEvent("Entering RunItemSearchQuery");
+            }
 
             if (!ValidateCertFile("RunItemSearchQuery"))
             {
@@ -1097,7 +1127,9 @@ namespace MyEMSLReader
                 checkingDataPackage = false;
 
                 if (TraceMode)
+                {
                     OnDebugEvent("Dataset ID " + datasetOrDataPackageId + " is " + datasetName);
+                }
             }
             else if (string.Equals(QUERY_SPEC_DATASET_NAME, searchKey))
             {
@@ -1124,7 +1156,9 @@ namespace MyEMSLReader
                 checkingDataPackage = false;
 
                 if (TraceMode)
+                {
                     OnDebugEvent("Dataset " + datasetName + " has ID " + datasetOrDataPackageId);
+                }
 
                 searchKey = QUERY_SPEC_DATASET_ID;
                 searchValue = datasetOrDataPackageId.ToString();
@@ -1150,7 +1184,9 @@ namespace MyEMSLReader
                 checkingDataPackage = true;
 
                 if (TraceMode)
+                {
                     OnDebugEvent("Obtaining metadata for DataPackage ID " + datasetOrDataPackageId);
+                }
             }
             else
             {
@@ -1177,7 +1213,9 @@ namespace MyEMSLReader
                     searchKey, searchValue);
 
                 if (TraceMode || ReportMetadataURLs)
+                {
                     OnDebugEvent("Contacting " + metadataUrl);
+                }
 
                 // Retrieve a list of files already in MyEMSL for this dataset
 
@@ -1214,9 +1252,13 @@ namespace MyEMSLReader
                     if (jsonData is string conversionError && !string.IsNullOrWhiteSpace(conversionError))
                     {
                         if (conversionError.Length > 100)
+                        {
                             ReportError(errMsg + ": " + conversionError.Substring(0, 100) + " ...");
+                        }
                         else
+                        {
                             ReportError(errMsg + ": " + conversionError);
+                        }
                     }
                     else
                     {

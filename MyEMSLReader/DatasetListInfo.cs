@@ -59,7 +59,9 @@ namespace MyEMSLReader
         public void AddDataset(string datasetName, string subDir)
         {
             if (string.IsNullOrWhiteSpace(subDir))
+            {
                 subDir = string.Empty;
+            }
 
             if (mDatasetsAndSubDirLists.TryGetValue(datasetName, out var subDirsForDataset))
             {
@@ -110,7 +112,9 @@ namespace MyEMSLReader
                 if (mArchivedFiles.Count == 0)
                 {
                     if (mErrorMessages.Count == 0)
+                    {
                         return true;
+                    }
 
                     return false;
                 }
