@@ -102,12 +102,7 @@ namespace MyEMSLReader
 
                 if (mArchivedFiles.Count == 0)
                 {
-                    if (mErrorMessages.Count == 0)
-                    {
-                        return true;
-                    }
-
-                    return false;
+                    return mErrorMessages.Count == 0;
                 }
 
                 return true;

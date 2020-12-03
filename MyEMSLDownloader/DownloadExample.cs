@@ -26,13 +26,13 @@ namespace MyEMSLDownloader
 
         private void GetFileStart(DatasetListInfo datasetListInfo)
         {
-            var datasetDirectoryPathFromDMS = @"\\MyEMSL\Exact01\2010_2\SysVirol_SM001_mock-7d_3_B_11May10_Phoenix_10-03-35";
+            const string datasetDirectoryPathFromDMS = @"\\MyEMSL\Exact01\2010_2\SysVirol_SM001_mock-7d_3_B_11May10_Phoenix_10-03-35";
 
             if (datasetDirectoryPathFromDMS.StartsWith(@"\\MyEMSL"))
             {
-                var datasetName = "SysVirol_SM001_mock-7d_3_B_11May10_Phoenix_10-03-35";
+                const string datasetName = "SysVirol_SM001_mock-7d_3_B_11May10_Phoenix_10-03-35";
 
-                var outputDirectoryPath = @"C:\temp";
+                const string outputDirectoryPath = @"C:\temp";
 
                 GetRawFile(datasetListInfo, datasetName, outputDirectoryPath);
             }

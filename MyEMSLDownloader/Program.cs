@@ -122,7 +122,9 @@ namespace MyEMSLDownloader
                 List<DatasetDirectoryOrFileInfo> archiveFiles;
 
                 if (mOptions.DataPkgID > 0)
+                {
                     archiveFiles = FindDataPkgFiles(mOptions.DataPkgID, mOptions.Subdirectory, mOptions.FileMask, mOptions.FileSplit);
+                }
                 else
                 {
                     if (!string.IsNullOrWhiteSpace(mOptions.FileListPath))
@@ -235,7 +237,9 @@ namespace MyEMSLDownloader
             var archiveFiles = TestDatasetListInfo();
 
             if (archiveFiles.Count == 0)
+            {
                 ConsoleMsgUtils.ShowWarning("DatasetListInfo did not find any files");
+            }
             else
             {
                 ShowFiles(archiveFiles, mOptions.VerbosePreview);

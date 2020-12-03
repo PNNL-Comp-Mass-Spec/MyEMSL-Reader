@@ -315,9 +315,8 @@ namespace MyEMSLReader
 
             foreach (var item in fileMetadata)
             {
-                postData.AppendLine(
-                    string.Format("  \"{0}\":\"{1}\"{2}",
-                    item.Key, item.Value, optionalComma));
+                postData.AppendFormat("  \"{0}\":\"{1}\"{2}",
+                    item.Key, item.Value, optionalComma).AppendLine();
             }
 
             postData.AppendLine("}");
@@ -599,7 +598,7 @@ namespace MyEMSLReader
 
                     if (downloadFile)
                     {
-                        var maxAttempts = DEFAULT_MAX_ATTEMPTS;
+                        const int maxAttempts = DEFAULT_MAX_ATTEMPTS;
 
                         var retrievalSuccess = DownloadFile(
                             URL, cookieJar, maxAttempts,
@@ -1097,12 +1096,10 @@ namespace MyEMSLReader
                 {
                     using (var reader = new StreamReader(ex.Response.GetResponseStream()))
                     {
-                        const int maxLines = 20;
-                        var linesRead = 0;
-                        while (!reader.EndOfStream && linesRead < maxLines)
+                        const int MAX_LINES = 20;
+                        for (var linesRead = 0; !reader.EndOfStream && linesRead < MAX_LINES; linesRead++)
                         {
                             responseData += reader.ReadLine() + Environment.NewLine;
-                            linesRead++;
                         }
                     }
                 }

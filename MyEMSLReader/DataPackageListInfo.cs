@@ -36,7 +36,7 @@ namespace MyEMSLReader
         /// <summary>
         /// Add a data package ID to search for in MyEMSL
         /// </summary>
-        /// <param name="dataPackageID">Data Package ID ID</param>
+        /// <param name="dataPackageID">Data Package ID</param>
         public void AddDataPackage(int dataPackageID)
         {
             AddDataPackage(dataPackageID, string.Empty);
@@ -125,12 +125,7 @@ namespace MyEMSLReader
 
                 if (mArchivedFiles.Count == 0)
                 {
-                    if (mErrorMessages.Count == 0)
-                    {
-                        return true;
-                    }
-
-                    return false;
+                    return mErrorMessages.Count == 0;
                 }
 
                 return true;

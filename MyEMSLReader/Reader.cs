@@ -473,7 +473,7 @@ namespace MyEMSLReader
             {
                 if (keepDuplicates)
                 {
-                    LastSearchFileCountReturned += 1;
+                    LastSearchFileCountReturned++;
                 }
                 else
                 {
@@ -503,7 +503,7 @@ namespace MyEMSLReader
             {
                 searchResults.Add(versionToAdd);
                 remoteFilePaths.Add(remoteFileKey, versionToAdd);
-                LastSearchFileCountReturned += 1;
+                LastSearchFileCountReturned++;
             }
         }
 
@@ -961,18 +961,17 @@ namespace MyEMSLReader
 
         private SearchEntity GetEntityType(Dictionary<string, SortedSet<string>> datasetsAndSubDirLists)
         {
-            var entityType = SearchEntity.DatasetName;
-
             if (datasetsAndSubDirLists.First().Key.StartsWith(DATASET_ID_TAG))
             {
-                entityType = SearchEntity.DatasetID;
-            }
-            else if (datasetsAndSubDirLists.First().Key.StartsWith(DATA_PKG_ID_TAG))
-            {
-                entityType = SearchEntity.DataPackageID;
+                return SearchEntity.DatasetID;
             }
 
-            return entityType;
+            if (datasetsAndSubDirLists.First().Key.StartsWith(DATA_PKG_ID_TAG))
+            {
+                return SearchEntity.DataPackageID;
+            }
+
+            return SearchEntity.DatasetName;
         }
 
         private int LookupDatasetIDByName(IDBTools dbTools, string datasetName, out string instrument, int retryCount = 2)
@@ -1232,7 +1231,7 @@ namespace MyEMSLReader
 
                 if (string.IsNullOrEmpty(fileInfoListJSON))
                 {
-                    var errMsg = "No results returned from MyEMSL (MyEMSLReader.RunItemSearchQuery)";
+                    const string errMsg = "No results returned from MyEMSL (MyEMSLReader.RunItemSearchQuery)";
                     ReportError(errMsg, false);
                     return remoteFiles;
                 }
@@ -1247,7 +1246,7 @@ namespace MyEMSLReader
                 var jsonData = JsonConvert.Import(fileInfoListJSON);
 
                 if (!(jsonData is Jayrock.Json.JsonArray jsa)){
-                    var errMsg = "Could not convert the JSON string to a JsonArray (MyEMSLReader.RunItemSearchQuery)";
+                    const string errMsg = "Could not convert the JSON string to a JsonArray (MyEMSLReader.RunItemSearchQuery)";
 
                     if (jsonData is string conversionError && !string.IsNullOrWhiteSpace(conversionError))
                     {
