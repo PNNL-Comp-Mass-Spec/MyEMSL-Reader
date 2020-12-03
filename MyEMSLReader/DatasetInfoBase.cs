@@ -471,7 +471,7 @@ namespace MyEMSLReader
                                                 break;
                                             }
 
-                                            if (subdirectoryPathParts[comparisonIndex].ToLower() != pathParts[parentPathIndex].ToLower())
+                                            if (!string.Equals(subdirectoryPathParts[comparisonIndex], pathParts[parentPathIndex], StringComparison.OrdinalIgnoreCase))
                                             {
                                                 isMatch = false;
                                             }

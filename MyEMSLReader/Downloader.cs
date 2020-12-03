@@ -969,8 +969,8 @@ namespace MyEMSLReader
 
                                 archiveFile = archiveFileLookup.First();
 
-                                if (!archiveFile.Filename.ToLower().StartsWith(fiSourceFile.Name.ToLower()))
                                 var sourceFile = new FileInfo(sourceFileName);
+                                if (!archiveFile.Filename.StartsWith(sourceFile.Name, StringComparison.OrdinalIgnoreCase))
                                 {
                                     ReportMessage("Warning, name conflict; filename in .tar file is " + sourceFile.Name +
                                                   " but expected filename is " + archiveFile.Filename);
