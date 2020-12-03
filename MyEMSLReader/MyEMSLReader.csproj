@@ -50,6 +50,7 @@
     <Compile Include="Downloader.cs" />
     <Compile Include="DownloadQueue.cs" />
     <Compile Include="EventArgs.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="MyEMSLBase.cs" />
     <Compile Include="DatasetInfo.cs" />
     <Compile Include="Reader.cs" />
