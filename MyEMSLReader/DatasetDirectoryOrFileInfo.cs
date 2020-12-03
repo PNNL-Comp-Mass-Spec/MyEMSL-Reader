@@ -56,20 +56,4 @@ namespace MyEMSLReader
             return "FileID " + FileID + "; " + FileInfo;
         }
     }
-
-    [Obsolete("Use DatasetDirectoryOrFileInfo")]
-    public class DatasetFolderOrFileInfo : DatasetDirectoryOrFileInfo
-    {
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="fileID"></param>
-        /// <param name="isFolder"></param>
-        /// <param name="fileInfo"></param>
-        public DatasetFolderOrFileInfo(long fileID, bool isFolder, ArchivedFileInfo fileInfo) : base(fileID, isFolder, fileInfo)
-        {
-        }
-
-        public bool IsFolder => IsDirectory;
-    }
 }

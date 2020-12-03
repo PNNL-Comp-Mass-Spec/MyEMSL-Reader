@@ -150,20 +150,6 @@ namespace Pacifica.Core
         /// </summary>
         public DateTime LastWriteTime => File.LastWriteTime;
 
-        [Obsolete("Unused")]
-        // ReSharper disable once UnusedMember.Global
-        public Dictionary<string, string> SerializeToDictionaryObject()
-        {
-            var d = new Dictionary<string, string>
-            {
-                {"sha1Hash", Sha1HashHex},
-                {"destinationDirectory", RelativeDestinationDirectory},     // Reported as "subDir" by the MyEMSL Elastic Search
-                {"fileName", FileName}
-            };
-
-            return d;
-        }
-
         #endregion
 
         #region Methods

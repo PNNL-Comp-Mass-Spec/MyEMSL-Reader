@@ -454,26 +454,6 @@ namespace Pacifica.Core
         /// <summary>
         /// Callback used to validate the certificate in an SSL conversation
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="cert"></param>
-        /// <param name="chain"></param>
-        /// <param name="policyErrors"></param>
-        /// <param name="errorMessage"></param>
-        /// <returns>True if the server is trusted</returns>
-        [Obsolete("Use the version with two arguments")]
-        public static bool ValidateRemoteCertificate(
-            object sender,
-            X509Certificate cert,
-            X509Chain chain,
-            SslPolicyErrors policyErrors,
-            out string errorMessage)
-        {
-            return ValidateRemoteCertificate(cert, out errorMessage);
-        }
-
-        /// <summary>
-        /// Callback used to validate the certificate in an SSL conversation
-        /// </summary>
         /// <param name="cert"></param>
         /// <param name="errorMessage"></param>
         /// <returns>True if the server is trusted</returns>

@@ -33,15 +33,6 @@ namespace MyEMSLReader
             InstrumentYearQuarterDataset = 3
         }
 
-        [Obsolete("Use DownloadLayout")]
-        public enum DownloadFolderLayout
-        {
-            FlatNoSubdirectories = 0,
-            SingleDataset = 1,
-            DatasetNameAndSubFolders = 2,
-            InstrumentYearQuarterDataset = 3
-        }
-
         public enum Overwrite
         {
             IfChanged = 0,			// This mode will compute a SHA-1 hash of the target file and only overwrite the target if the hash values differ
@@ -777,7 +768,7 @@ namespace MyEMSLReader
 
         }
 
-        [Obsolete("Unused")]
+        [Obsolete("Old cart mechanism code")]
         private bool DownloadTarFileWithRetry(
             CookieContainer cookieJar,
             List<ArchivedFileInfo> lstFilesInArchive,
@@ -1403,78 +1394,6 @@ namespace MyEMSLReader
             base.ResetStatus();
             PercentComplete = 0;
             DownloadedFiles.Clear();
-        }
-
-        [Obsolete("Obsolete in June 2017")]
-        private WebHeaderCollection SendHeadRequestWithRetry(
-            string URL,
-            CookieContainer cookieJar,
-            int maxAttempts,
-            out HttpStatusCode responseStatusCode,
-            out Exception mostRecentException)
-        {
-            mostRecentException = null;
-
-            if (!ValidateCertFile("SendHeadRequestWithRetry"))
-            {
-                responseStatusCode = HttpStatusCode.Unauthorized;
-                return null;
-            }
-
-            // The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
-            // For more info, see comments in Reader.RunElasticSearchQuery()
-            if (ServicePointManager.ServerCertificateValidationCallback == null)
-            {
-                ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
-            }
-
-            var responseHeaders = new WebHeaderCollection();
-
-            var timeoutSeconds = 2;
-            var attempts = 0;
-            var success = false;
-            responseStatusCode = HttpStatusCode.NotFound;
-
-            while (!success && attempts <= maxAttempts)
-            {
-                try
-                {
-                    attempts++;
-                    responseHeaders = EasyHttp.GetHeaders(
-                        mPacificaConfig, URL, cookieJar,
-                        out responseStatusCode, timeoutSeconds);
-
-                    if (responseHeaders == null || responseHeaders.Count == 0)
-                    {
-                        OnWarningEvent("Empty headers in SendHeadRequestWithRetry on attempt " + attempts);
-                        timeoutSeconds = IncreaseTimeout(timeoutSeconds);
-                    }
-                    else
-                    {
-                        success = true;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    mostRecentException = ex;
-
-                    if (responseStatusCode == HttpStatusCode.ServiceUnavailable)
-                    {
-                        // File is not locked; no point in retrying the head request.
-                        break;
-                    }
-
-                    if (attempts <= maxAttempts)
-                    {
-                        // Wait 2 seconds, then retry
-                        OnWarningEvent("Exception in SendHeadRequestWithRetry on attempt " + attempts + ": " + ex.Message);
-                        Thread.Sleep(2000);
-                        timeoutSeconds = IncreaseTimeout(timeoutSeconds);
-                    }
-                }
-            }
-
-            return responseHeaders;
         }
 
         private void UpdateFileModificationTime(FileSystemInfo targetFile, DateTime lastWriteTime)

@@ -59,12 +59,6 @@ namespace Pacifica.Core
         /// </summary>
         public const string CLIENT_CERT_DIRECTORY = @"C:\client_certs\";
 
-        [Obsolete("Use property ClientCertFilePath which finds the newest certificate file")]
-        internal const string CLIENT_CERT_FILENAME = "svc-dms-cert_2018.pfx";
-
-        [Obsolete("Use property ClientCertFilePath which finds the newest certificate file")]
-        public const string CLIENT_CERT_FILEPATH = @"C:\client_certs\" + CLIENT_CERT_FILENAME;
-
         public const string CLIENT_CERT_PASSWORD = "";
 
         /// <summary>
@@ -179,17 +173,6 @@ namespace Pacifica.Core
             HttpProxyUrl = string.Empty;
 
             ClientCertFilePath = FindNewestClientCertFile();
-        }
-
-        /// <summary>
-        /// Look for the client certificate file (svc-dms.pfx)
-        /// </summary>
-        /// <returns>Path to the file if found, otherwise an empty string</returns>
-        /// <remarks>First checks the directory with the executing assembly, then checks C:\client_certs\</remarks>
-        [Obsolete("Use property ClientCertFilePath")]
-        public string ResolveClientCertFile()
-        {
-            return ClientCertFilePath;
         }
 
         /// <summary>

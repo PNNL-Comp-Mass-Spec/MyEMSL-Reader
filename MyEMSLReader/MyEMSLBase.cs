@@ -16,13 +16,6 @@ namespace MyEMSLReader
     {
         #region "Enums"
 
-        [Obsolete("Unused")]
-        public enum SearchOperator
-        {
-            And = 0,
-            Or = 1
-        }
-
         public bool ThrowErrors
         {
             get;

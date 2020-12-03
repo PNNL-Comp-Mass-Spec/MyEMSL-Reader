@@ -8,28 +8,6 @@ namespace Pacifica.Core
     public static class ExtensionMethods
     {
         /// <summary>
-        /// Convert a DateTime type to a UNIX timestamp.
-        /// </summary>
-        /// <param name="dt">A DateTime to be converted.</param>
-        /// <returns>Seconds since January 1st, 1970 00:00:00 UTC.</returns>
-        /// <remarks>
-        /// Providing a DateTime with Kind set to anything other than DateTimeKind.Utc
-        /// will convert the structure to UTC before adjusting to the UNIX epoch.
-        /// </remarks>
-        [Obsolete("Unused")]
-        // ReSharper disable once UnusedMember.Global
-        public static ulong ToUnixTime(this DateTime dt)
-        {
-            if (dt.Kind != DateTimeKind.Utc)
-            {
-                dt = dt.ToUniversalTime();
-            }
-
-            var t = dt - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            return (ulong)Math.Round(t.TotalSeconds);
-        }
-
-        /// <summary>
         /// Determine the Description attribute of a given enum value
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -58,19 +36,6 @@ namespace Pacifica.Core
             }
             // If we have no description attribute, just return the ToString of the enum
             return enumerationValue.ToString();
-        }
-
-        [Obsolete("Unused")]
-        // ReSharper disable once UnusedMember.Global
-        public static T DeepClone<T>(this T a)
-        {
-            using (var stream = new MemoryStream())
-            {
-                var formatter = new BinaryFormatter();
-                formatter.Serialize(stream, a);
-                stream.Position = 0;
-                return (T)formatter.Deserialize(stream);
-            }
         }
     }
 }

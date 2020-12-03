@@ -6,9 +6,6 @@ namespace MyEMSLReader
     {
         public readonly string DownloadDirectoryPath;
 
-        [Obsolete("Use DownloadDirectoryPath")]
-        public string DownloadFolderPath => DownloadDirectoryPath;
-
         public readonly ArchivedFileInfo ArchivedFile;
 
         public readonly bool UnzipRequired;

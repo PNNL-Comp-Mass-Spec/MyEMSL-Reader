@@ -23,20 +23,11 @@ namespace MyEMSLReader
     {
         #region "Constants"
 
-        // Obsolete: private const string QUERY_SPEC_INSTRUMENT = "omics.dms.instrument";
-
         private const string QUERY_SPEC_DATASET_ID = "omics.dms.dataset_id";
 
         private const string QUERY_SPEC_DATASET_NAME = "omics.dms.dataset_name";
 
         private const string QUERY_SPEC_DATA_PACKAGE_ID = "omics.dms.datapackage_id";
-
-        // Unused: private const string QUERY_SPEC_DATA_PACKAGE_ID_ALT = "extended_metadata.gov_pnnl_emsl_dms_datapackage.id";
-
-        // Unused: private const string QUERY_SPEC_FILENAME = "filename";
-        // Unused: private const string QUERY_SPEC_EUS_PROPOSAL = "proposals";
-        // Unused: private const string QUERY_SPEC_ANALYSIS_TOOL = "extended_metadata.gov_pnnl_emsl_dms_analysisjob.tool.name.untouched";
-        // Unused: private const string QUERY_SPEC_DATASET_NAME_ALT = "extended_metadata.gov_pnnl_emsl_dms_dataset.name.untouched";
 
         private const string DATASET_ID_TAG = "#*#*#_DATASET_ID_";
         private const string DATA_PKG_ID_TAG = "#*#*#_DATA_PKG_ID_";
@@ -46,14 +37,6 @@ namespace MyEMSLReader
         #endregion
 
         #region "Enums"
-
-        [Obsolete("Unused")]
-        internal enum ScanMode
-        {
-            SimpleSearch = 0,
-            ObtainAuthToken = 1,		// Perform a scan, but also obtain an authorization token
-            CreateScrollID = 2			// Create a scroll ID
-        }
 
         private enum SearchEntity
         {
