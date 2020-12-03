@@ -6,4 +6,4 @@
 using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Usage", "RCS1246:Use element access.", Justification = "Prefer to use .First()", Scope = "module")]
-[assembly: SuppressMessage("General", "RCS1079:Throwing of new NotImplementedException.", Justification = "Might implement this in the future", Scope = "member", Target = "~M:MyEMSLReader.Downloader.DownloadFilesViaCart(System.Collections.Generic.Dictionary{System.Int64,MyEMSLReader.ArchivedFileInfo},System.Net.CookieContainer,System.Collections.Generic.Dictionary{System.Int64,System.String},System.IO.DirectoryInfo,MyEMSLReader.Downloader.DownloadLayout,System.Int64@)~System.Boolean")]
+[assembly: SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Keep for reference", Scope = "member", Target = "~M:MyEMSLReader.Downloader.DownloadAndExtractTarFile(System.Net.CookieContainer,System.Collections.Generic.List{MyEMSLReader.ArchivedFileInfo},System.Int64,System.Collections.Generic.IReadOnlyDictionary{System.Int64,System.String},System.IO.FileSystemInfo,MyEMSLReader.Downloader.DownloadLayout,System.String,System.Int32)~System.Boolean")]
