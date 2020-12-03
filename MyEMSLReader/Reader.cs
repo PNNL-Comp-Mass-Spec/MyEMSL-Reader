@@ -773,7 +773,7 @@ namespace MyEMSLReader
 
                 var datasetsAndSubDirsCleaned = new Dictionary<string, SortedSet<string>>(StringComparer.OrdinalIgnoreCase);
 
-                // Make sure subDir entries have unix-style slashes
+                // Make sure subDir entries have Linux-style slashes
                 foreach (var dataset in datasetsAndSubDirs)
                 {
                     var subDirList = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
