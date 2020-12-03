@@ -900,7 +900,7 @@ namespace MyEMSLReader
                             continue;
                         }
 
-                        var sourceFile = tarEntry.Name;
+                        var sourceFileName = tarEntry.Name;
 
                         /*
                          * Deprecated with the switch to SharpZipLib v1.1 from NuGet
@@ -908,16 +908,16 @@ namespace MyEMSLReader
                         // Long filenames (over 100 characters) will have part of their name in tarEntry.Name and part of it in tarEntry.Prefix
                         // Check for this
                         if (!string.IsNullOrEmpty(tarEntry.Prefix))
-                            sourceFile = tarEntry.Prefix + '/' + sourceFile;
+                            sourceFileName = tarEntry.Prefix + '/' + sourceFileName;
                          *
                          */
 
-                        // Convert the unix forward slashes in the filenames to windows backslashes
-                        sourceFile = sourceFile.Replace('/', Path.DirectorySeparatorChar);
+                        // Convert the Linux forward slashes in the filenames to windows backslashes
+                        sourceFileName = sourceFileName.Replace('/', Path.DirectorySeparatorChar);
 
                         // The Filename of the tar entry used to start with a directory name that is a MyEMSL FileID
                         // As of March 2016 that is no longer the case
-                        var charIndex = sourceFile.IndexOf(Path.DirectorySeparatorChar);
+                        var charIndex = sourceFileName.IndexOf(Path.DirectorySeparatorChar);
 
                         long fileID = 0;
                         var fileIdFound = true;
@@ -926,7 +926,7 @@ namespace MyEMSLReader
                         // This will get changed below once the MyEMSL FileID is known
 
                         // Make sure the path doesn't start with a backslash
-                        var downloadFilePath = sourceFile.TrimStart('\\');
+                        var downloadFilePath = sourceFileName.TrimStart('\\');
                         var originalFileSubmissionTime = DateTime.MinValue;
                         ArchivedFileInfo archiveFile = null;
 
@@ -941,11 +941,11 @@ namespace MyEMSLReader
 
                         if (fileIdFound)
                         {
-                            var fileIDText = sourceFile.Substring(0, charIndex);
+                            var fileIDText = sourceFileName.Substring(0, charIndex);
                             if (!long.TryParse(fileIDText, out fileID))
                             {
                                 ReportMessage("Warning, .tar file entry does not contain a MyEMSL FileID value; " +
-                                              "unable to validate the file or customize the output path: " + sourceFile);
+                                              "unable to validate the file or customize the output path: " + sourceFileName);
                                 fileIdFound = false;
                             }
                         }
@@ -958,7 +958,7 @@ namespace MyEMSLReader
                             if (archiveFileLookup.Count == 0)
                             {
                                 ReportMessage("Warning, MyEMSL FileID '" + fileID + "' was not recognized; " +
-                                              "unable to validate the file or customize the output path: " + sourceFile);
+                                              "unable to validate the file or customize the output path: " + sourceFileName);
                                 fileIdFound = false;
                             }
                             else
@@ -969,10 +969,10 @@ namespace MyEMSLReader
 
                                 archiveFile = archiveFileLookup.First();
 
-                                var fiSourceFile = new FileInfo(sourceFile);
                                 if (!archiveFile.Filename.ToLower().StartsWith(fiSourceFile.Name.ToLower()))
+                                var sourceFile = new FileInfo(sourceFileName);
                                 {
-                                    ReportMessage("Warning, name conflict; filename in .tar file is " + fiSourceFile.Name +
+                                    ReportMessage("Warning, name conflict; filename in .tar file is " + sourceFile.Name +
                                                   " but expected filename is " + archiveFile.Filename);
                                 }
 
@@ -994,27 +994,27 @@ namespace MyEMSLReader
 
                         if (!fileIdFound)
                         {
-                            sourceFile = sourceFile.TrimStart('\\');
+                            sourceFileName = sourceFileName.TrimStart('\\');
 
                             switch (directoryLayout)
                             {
                                 case DownloadLayout.FlatNoSubdirectories:
-                                    downloadFilePath = Path.GetFileName(sourceFile);
+                                    downloadFilePath = Path.GetFileName(sourceFileName);
                                     break;
                                 case DownloadLayout.SingleDataset:
-                                    downloadFilePath = sourceFile;
+                                    downloadFilePath = sourceFileName;
                                     break;
                                 default:
                                     // Includes: DownloadLayout.DatasetNameAndSubdirectories
                                     // Includes: DownloadLayout.InstrumentYearQuarterDataset
                                     ReportMessage("Warning, due to the missing MyEMSL FileID the DownloadLayout cannot be honored");
-                                    downloadFilePath = sourceFile;
+                                    downloadFilePath = sourceFileName;
                                     break;
                             }
 
                             downloadFilePath = Path.Combine(downloadDirectory.FullName, downloadFilePath);
 
-                            var subDirPath = Path.GetDirectoryName(sourceFile);
+                            var subDirPath = Path.GetDirectoryName(sourceFileName);
                             if (string.IsNullOrEmpty(subDirPath))
                             {
                                 subDirPath = string.Empty;
@@ -1025,12 +1025,12 @@ namespace MyEMSLReader
                             }
 
                             // Look for this file in lstFilesInArchive
-                            var archiveFileLookup = GetArchivedFileByPath(lstFilesInArchive, sourceFile);
+                            var archiveFileLookup = GetArchivedFileByPath(lstFilesInArchive, sourceFileName);
 
                             if (archiveFileLookup.Count == 0)
                             {
-                                ReportMessage("File path not recognized: " + sourceFile);
-                                archiveFile = new ArchivedFileInfo("UnknownDataset", Path.GetFileName(sourceFile), subDirPath);
+                                ReportMessage("File path not recognized: " + sourceFileName);
+                                archiveFile = new ArchivedFileInfo("UnknownDataset", Path.GetFileName(sourceFileName), subDirPath);
                             }
                             else
                             {
@@ -1095,13 +1095,13 @@ namespace MyEMSLReader
                 var responseData = string.Empty;
                 if (ex.Response != null)
                 {
-                    using (var sr = new StreamReader(ex.Response.GetResponseStream()))
+                    using (var reader = new StreamReader(ex.Response.GetResponseStream()))
                     {
                         const int maxLines = 20;
                         var linesRead = 0;
-                        while (sr.Peek() > -1 && linesRead < maxLines)
+                        while (!reader.EndOfStream && linesRead < maxLines)
                         {
-                            responseData += sr.ReadLine() + Environment.NewLine;
+                            responseData += reader.ReadLine() + Environment.NewLine;
                             linesRead++;
                         }
                     }

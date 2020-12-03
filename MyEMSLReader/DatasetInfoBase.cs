@@ -410,7 +410,7 @@ namespace MyEMSLReader
 
             foreach (var namePart in nameParts)
             {
-                var reFile = GetFileSearchRegEx(namePart);
+                var fileMatcher = GetFileSearchRegEx(namePart);
 
                 foreach (var archivedFile in mArchivedFiles)
                 {
@@ -430,7 +430,7 @@ namespace MyEMSLReader
                         }
                     }
 
-                    if (!reFile.IsMatch(archivedFile.Filename))
+                    if (!fileMatcher.IsMatch(archivedFile.Filename))
                     {
                         continue;
                     }
@@ -536,7 +536,7 @@ namespace MyEMSLReader
                 return lstMatches;
             }
 
-            var reDirectory = GetFileSearchRegEx(directoryName);
+            var directoryMatcher = GetFileSearchRegEx(directoryName);
 
             foreach (var archivedFile in mArchivedFiles)
             {
@@ -553,9 +553,11 @@ namespace MyEMSLReader
                     continue;
                 }
 
-                var fiFile = new FileInfo(archivedFile.RelativePathWindows);
                 Debug.Assert(fiFile.Directory != null, "fiFile.Directory != null");
                 if (!reDirectory.IsMatch(fiFile.Directory.Name))
+                var fileInfo = new FileInfo(archivedFile.RelativePathWindows);
+
+                if (!directoryMatcher.IsMatch(fileInfo.Directory.Name))
                 {
                     continue;
                 }

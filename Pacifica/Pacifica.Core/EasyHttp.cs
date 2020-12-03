@@ -829,9 +829,9 @@ namespace Pacifica.Core
             // Write POST data, if POST
             if (urlContactInfo.Method == HttpMethod.Post)
             {
-                using (var sw = new StreamWriter(request.GetRequestStream()))
+                using (var writer = new StreamWriter(request.GetRequestStream()))
                 {
-                    sw.Write(urlContactInfo.PostData);
+                    writer.Write(urlContactInfo.PostData);
                 }
             }
 
@@ -847,9 +847,9 @@ namespace Pacifica.Core
 
                 if (responseStream != null)
                 {
-                    using (var sr = new StreamReader(responseStream))
+                    using (var reader = new StreamReader(responseStream))
                     {
-                        urlContactInfo.ResponseData.ResponseText = sr.ReadToEnd();
+                        urlContactInfo.ResponseData.ResponseText = reader.ReadToEnd();
                     }
                 }
             }
