@@ -8,12 +8,14 @@ namespace MyEMSLReader
     public class DownloadQueue : EventNotifier
     {
         #region "Structures"
-        public struct udtFileToDownload
+
+        public struct FileDownloadInfo
         {
             public ArchivedFileInfo FileInfo;
             public bool UnzipRequired;
             public string DestFilePath;
         }
+
         #endregion
 
         #region "Module variables"
@@ -29,9 +31,9 @@ namespace MyEMSLReader
         #region "Properties"
 
         /// <summary>
-        /// Keys are MyEMSL File IDs, values are struct udtFileToDownload
+        /// Keys are MyEMSL File IDs, values are struct FileDownloadInfo
         /// </summary>
-        public Dictionary<long, udtFileToDownload> FilesToDownload
+        public Dictionary<long, FileDownloadInfo> FilesToDownload
         {
             get;
         }
@@ -61,7 +63,7 @@ namespace MyEMSLReader
         /// <remarks></remarks>
         public DownloadQueue()
         {
-            FilesToDownload = new Dictionary<long, udtFileToDownload>();
+            FilesToDownload = new Dictionary<long, FileDownloadInfo>();
             DownloadedFiles = new Dictionary<string, ArchivedFileInfo>();
         }
 
@@ -115,7 +117,7 @@ namespace MyEMSLReader
             if (string.IsNullOrWhiteSpace(destFilePath))
                 destFilePath = string.Empty;
 
-            var newFile = new udtFileToDownload
+            var newFile = new FileDownloadInfo
             {
                 UnzipRequired = unzipRequired,
                 FileInfo = fileInfo,

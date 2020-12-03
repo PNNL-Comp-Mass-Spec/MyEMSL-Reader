@@ -70,9 +70,9 @@ namespace MyEMSLReader
         /// </summary>
         /// <value></value>
         /// <returns></returns>
-        /// <remarks>Keys are MyEMSL File IDs, values are struct udtFileToDownload</remarks>
+        /// <remarks>Keys are MyEMSL File IDs, values are struct FileDownloadInfo</remarks>
         /// ReSharper disable once UnusedMember.Global
-        public Dictionary<long, DownloadQueue.udtFileToDownload> FilesToDownload => mDownloadQueue.FilesToDownload;
+        public Dictionary<long, DownloadQueue.FileDownloadInfo> FilesToDownload => mDownloadQueue.FilesToDownload;
 
         /// <summary>
         /// When true, raise a DebugEvent prior to contacting the metadata server
