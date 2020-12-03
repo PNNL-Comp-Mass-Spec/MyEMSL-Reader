@@ -9,26 +9,17 @@ namespace MyEMSLReader
     /// </summary>
     public class DatasetListInfo : DatasetInfoBase
     {
-        #region "Module variables"
-
-        /// <summary>
-        /// Keys are dataset names, values are the optional Subdirectory name (or names) to filter on for the given dataset
-        /// </summary>
-        private readonly Dictionary<string, SortedSet<string>> mDatasetsAndSubDirLists;
-
-        #endregion
-
         #region "Properties"
 
         /// <summary>
         /// Dataset names
         /// </summary>
-        public List<string> Datasets => mDatasetsAndSubDirLists.Keys.ToList();
+        public List<string> Datasets => DatasetsAndSubDirs.Keys.ToList();
 
         /// <summary>
         /// Keys are dataset names, values are a list of subdirectory names to filter on for the given dataset (empty string means do not filter)
         /// </summary>
-        public Dictionary<string, SortedSet<string>> DatasetsAndSubDirs => mDatasetsAndSubDirLists;
+        public Dictionary<string, SortedSet<string>> DatasetsAndSubDirs { get; }
 
         #endregion
 
@@ -37,7 +28,7 @@ namespace MyEMSLReader
         /// </summary>
         public DatasetListInfo()
         {
-            mDatasetsAndSubDirLists = new Dictionary<string, SortedSet<string>>(StringComparer.OrdinalIgnoreCase);
+            DatasetsAndSubDirs = new Dictionary<string, SortedSet<string>>(StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -63,7 +54,7 @@ namespace MyEMSLReader
                 subDir = string.Empty;
             }
 
-            if (mDatasetsAndSubDirLists.TryGetValue(datasetName, out var subDirsForDataset))
+            if (DatasetsAndSubDirs.TryGetValue(datasetName, out var subDirsForDataset))
             {
                 // ReSharper disable once PossibleUnintendedLinearSearchInSet
                 if (!subDirsForDataset.Contains(subDir, StringComparer.OrdinalIgnoreCase))
@@ -78,7 +69,7 @@ namespace MyEMSLReader
                     subDir
                 };
 
-                mDatasetsAndSubDirLists.Add(datasetName, subDirsForDataset);
+                DatasetsAndSubDirs.Add(datasetName, subDirsForDataset);
 
                 mCacheIsStale = true;
             }
@@ -86,13 +77,13 @@ namespace MyEMSLReader
 
         public void Clear()
         {
-            mDatasetsAndSubDirLists.Clear();
+            DatasetsAndSubDirs.Clear();
             mCacheIsStale = true;
         }
 
         public bool ContainsDataset(string datasetName)
         {
-            return mDatasetsAndSubDirLists.ContainsKey(datasetName);
+            return DatasetsAndSubDirs.ContainsKey(datasetName);
         }
 
         /// <summary>
@@ -105,7 +96,7 @@ namespace MyEMSLReader
             {
                 mErrorMessages.Clear();
 
-                mArchivedFiles = mReader.FindFilesByDatasetName(mDatasetsAndSubDirLists);
+                mArchivedFiles = mReader.FindFilesByDatasetName(DatasetsAndSubDirs);
                 mCacheDate = DateTime.UtcNow;
                 mCacheIsStale = false;
 

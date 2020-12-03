@@ -9,28 +9,19 @@ namespace MyEMSLReader
     /// </summary>
     public class DataPackageListInfo : DatasetInfoBase
     {
-        #region "Module variables"
-
-        /// <summary>
-        /// Keys are data package IDs, values are the optional Subdirectory name to filter on for the given data package
-        /// </summary>
-        private readonly Dictionary<int, string> mDataPackagesAndSubDirs;
-
-        #endregion
-
         #region "Properties"
 
         /// <summary>
         /// Dataset IDs
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public List<int> DataPackageIDs => mDataPackagesAndSubDirs.Keys.ToList();
+        public List<int> DataPackageIDs => DataPackagesAndSubDirs.Keys.ToList();
 
         /// <summary>
         /// Keys are data package IDs, values are the optional Subdirectory name to filter on for the given data package
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public Dictionary<int, string> DataPackagesAndSubDirs => mDataPackagesAndSubDirs;
+        public Dictionary<int, string> DataPackagesAndSubDirs { get; }
 
         #endregion
 
@@ -39,7 +30,7 @@ namespace MyEMSLReader
         /// </summary>
         public DataPackageListInfo()
         {
-            mDataPackagesAndSubDirs = new Dictionary<int, string>();
+            DataPackagesAndSubDirs = new Dictionary<int, string>();
         }
 
         /// <summary>
@@ -63,13 +54,13 @@ namespace MyEMSLReader
                 subDir = string.Empty;
             }
 
-            if (mDataPackagesAndSubDirs.Keys.Contains(dataPackageID))
+            if (DataPackagesAndSubDirs.Keys.Contains(dataPackageID))
             {
-                mDataPackagesAndSubDirs[dataPackageID] = subDir;
+                DataPackagesAndSubDirs[dataPackageID] = subDir;
             }
             else
             {
-                mDataPackagesAndSubDirs.Add(dataPackageID, subDir);
+                DataPackagesAndSubDirs.Add(dataPackageID, subDir);
                 mCacheIsStale = true;
             }
         }
@@ -77,14 +68,14 @@ namespace MyEMSLReader
         // ReSharper disable once UnusedMember.Global
         public void Clear()
         {
-            mDataPackagesAndSubDirs.Clear();
+            DataPackagesAndSubDirs.Clear();
             mCacheIsStale = true;
         }
 
         // ReSharper disable once UnusedMember.Global
         public bool ContainsDataPackage(int dataPackageID)
         {
-            return mDataPackagesAndSubDirs.ContainsKey(dataPackageID);
+            return DataPackagesAndSubDirs.ContainsKey(dataPackageID);
         }
 
         /// <summary>
@@ -128,7 +119,7 @@ namespace MyEMSLReader
             {
                 mErrorMessages.Clear();
 
-                mArchivedFiles = mReader.FindFilesByDataPackageID(mDataPackagesAndSubDirs, recurse: true);
+                mArchivedFiles = mReader.FindFilesByDataPackageID(DataPackagesAndSubDirs, recurse: true);
                 mCacheDate = DateTime.UtcNow;
                 mCacheIsStale = false;
 
