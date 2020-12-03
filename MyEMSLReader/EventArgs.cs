@@ -2,7 +2,6 @@ using System;
 
 namespace MyEMSLReader
 {
-
     public delegate void FileDownloadedEventHandler(object sender, FileDownloadedEventArgs e);
 
     public class FileDownloadedEventArgs : EventArgs
@@ -23,5 +22,4 @@ namespace MyEMSLReader
             UnzipRequired = unzipRequired;
         }
     }
-
 }

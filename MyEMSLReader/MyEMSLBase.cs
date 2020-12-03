@@ -14,7 +14,6 @@ namespace MyEMSLReader
 {
     public class MyEMSLBase : EventNotifier
     {
-
         #region "Enums"
 
         [Obsolete("Unused")]
@@ -90,13 +89,11 @@ namespace MyEMSLReader
                 }
                 if (gcThread.IsAlive)
                     gcThread.Abort();
-
             }
             catch
             {
                 // Ignore errors here
             }
-
         }
 
         private static void GarbageCollectWaitForGC()
@@ -350,7 +347,6 @@ namespace MyEMSLReader
             out Exception mostRecentException
             )
         {
-
             // The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
             // For more info, see comments in Reader.RunElasticSearchQuery()
             if (ServicePointManager.ServerCertificateValidationCallback == null)
@@ -388,7 +384,6 @@ namespace MyEMSLReader
                         else
                             retrievalSuccess = true;
                     }
-
                 }
                 catch (Exception ex)
                 {
@@ -458,8 +453,6 @@ namespace MyEMSLReader
                 MyEMSLOffline?.Invoke(e.Message);
         }
 
-
         #endregion
     }
-
 }

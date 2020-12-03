@@ -160,7 +160,6 @@ namespace MyEMSLReader
 
             try
             {
-
                 // The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
                 // For more info, see comments in Reader.RunElasticSearchQuery()
                 if (ServicePointManager.ServerCertificateValidationCallback == null)
@@ -193,7 +192,6 @@ namespace MyEMSLReader
 
                             lstOutputFilePaths.Add(archiveFile.RelativePathWindows);
                         }
-
                     }
                 }
 
@@ -250,7 +248,6 @@ namespace MyEMSLReader
                 ReportError(filesNotDownloaded.Count + " files(s) could not be downloaded");
 
                 return false;
-
             }
             catch (Exception ex)
             {
@@ -312,7 +309,6 @@ namespace MyEMSLReader
             }
 
             postData.AppendLine("}");
-
         }
 
         private long ComputeTotalBytes(IReadOnlyDictionary<long, ArchivedFileInfo> dctFiles)
@@ -395,11 +391,9 @@ namespace MyEMSLReader
 
                     var appendComma = fileNumber < filesToDownload.Count;
                     AppendToCartPostData(postData, fileMetadata, appendComma);
-
                 }
 
                 postData.AppendLine("] }");
-
 
                 return postData;
             }
@@ -408,7 +402,6 @@ namespace MyEMSLReader
                 ReportError("Exception in CreateCartPostData", ex);
                 return new StringBuilder();
             }
-
         }
 
         private bool DownloadFile(
@@ -419,7 +412,6 @@ namespace MyEMSLReader
             out Exception mostRecentException,
             out bool fileInUseByOtherProcess)
         {
-
             mostRecentException = null;
             fileInUseByOtherProcess = false;
 
@@ -660,14 +652,12 @@ namespace MyEMSLReader
             DownloadLayout directoryLayout,
             out long bytesDownloaded)
         {
-
             bytesDownloaded = 0;
 
             ReportError(filesToDownload.Count + " purged files(s) could not be downloaded because the Cart Mechanism is not implemented in the Downloader class");
 
             try
             {
-
                 // Create a JSON file with the files to download
 
                 var postData = CreateCartPostData(filesToDownload);
@@ -681,7 +671,6 @@ namespace MyEMSLReader
                 if (!success)
                     return false;
 
-
                 // Check cart status periodically
                 // Examine the HEAD of http://cart.my.emsl.pnl.gov/7bf711b3-b736-43b0-9ac4-138d0ccfe8de
 
@@ -691,14 +680,12 @@ namespace MyEMSLReader
                 // See DownloadTarFileWithRetry();
 
                 throw new NotImplementedException("Need to finish this code");
-
             }
             catch (Exception ex)
             {
                 ReportError("Exception in DownloadFilesViaCart", ex);
                 return false;
             }
-
 
             /*
              * Old cart code
@@ -814,7 +801,6 @@ namespace MyEMSLReader
 
                 ReportMessage("Successfully extracted files from .tar file at " + tarFileURL);
                 UpdateProgress(1, 1);
-
             }
             catch (Exception ex)
             {
@@ -823,7 +809,6 @@ namespace MyEMSLReader
             }
 
             return true;
-
         }
 
         private bool DownloadAndExtractTarFile(
@@ -836,7 +821,6 @@ namespace MyEMSLReader
             string tarFileURL,
             int timeoutSeconds = 100)
         {
-
             if (!ValidateCertFile("DownloadAndExtractTarFile"))
             {
                 return false;
@@ -959,7 +943,6 @@ namespace MyEMSLReader
                                 }
 
                                 originalFileSubmissionTime = archiveFile.SubmissionTimeValue;
-
                             }
                         }
 
@@ -1006,7 +989,6 @@ namespace MyEMSLReader
                                 archiveFile = archiveFileLookup.First();
                                 originalFileSubmissionTime = archiveFile.SubmissionTimeValue;
                             }
-
                         }
 
                         if (downloadFilePath.Length > 255)
@@ -1048,7 +1030,6 @@ namespace MyEMSLReader
                         bytesDownloaded += archiveFile.FileSizeBytes;
                         UpdateProgress(bytesDownloaded, bytesToDownload);
                     }
-
                 }
                 else
                 {
@@ -1090,7 +1071,6 @@ namespace MyEMSLReader
             IEnumerable<long> targetFileIDs,
             IDictionary<long, string> filesDownloaded)
         {
-
             foreach (var targetFileID in targetFileIDs)
             {
                 var targetArchiveFile = filesToDownload[targetFileID];
@@ -1111,7 +1091,6 @@ namespace MyEMSLReader
                 if (!DownloadedFiles.ContainsKey(targetFile.FullName))
                     DownloadedFiles.Add(targetFile.FullName, targetArchiveFile);
             }
-
         }
 
         private bool FileMatchesHash(string localFilePath, string Sha1HashExpected)
@@ -1157,7 +1136,6 @@ namespace MyEMSLReader
             ArchivedFileInfo archiveFile,
             IReadOnlyDictionary<long, string> destFilePathOverride)
         {
-
             var downloadFilePathRelative = ConstructDownloadFilePath(directoryLayout, archiveFile);
 
             string downloadFilePath;
@@ -1297,7 +1275,6 @@ namespace MyEMSLReader
 
             try
             {
-
                 // Construct the URL to post the cart file to, for example
                 // https://cart.my.emsl.pnl.gov/7bf711b3-b736-43b0-9ac4-138d0ccfe8de
                 var URL = mPacificaConfig.CartServerUri + "/" + cartId;
@@ -1312,7 +1289,6 @@ namespace MyEMSLReader
                     try
                     {
                         attempts++;
-
 
                         const bool allowEmptyResponseData = false;
 
@@ -1361,7 +1337,6 @@ namespace MyEMSLReader
                 ReportError("Exception in PostCartFile", ex);
                 return false;
             }
-
         }
 
         protected sealed override void ResetStatus()
@@ -1379,7 +1354,6 @@ namespace MyEMSLReader
             out HttpStatusCode responseStatusCode,
             out Exception mostRecentException)
         {
-
             mostRecentException = null;
 
             if (!ValidateCertFile("SendHeadRequestWithRetry"))

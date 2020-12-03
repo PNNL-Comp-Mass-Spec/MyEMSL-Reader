@@ -9,7 +9,6 @@ namespace MyEMSLReader
     [Obsolete("Valid, but unused")]
     public class DatasetInfo : DatasetInfoBase
     {
-
         #region "Module variables"
 
         private string mDatasetName;
@@ -32,7 +31,6 @@ namespace MyEMSLReader
         /// <remarks></remarks>
         public DatasetInfo(string datasetName)
         {
-
             mDatasetName = string.Empty;
             mDatasetID = 0;
 
@@ -84,7 +82,6 @@ namespace MyEMSLReader
             {
                 AddFileToDownloadQueue(qArchivedFile.First(), unzipRequired);
             }
-
         }
 
         /// <summary>
@@ -103,7 +100,6 @@ namespace MyEMSLReader
         /// <returns>True if successful, false if an error</returns>
         public bool RefreshInfo(string datasetName)
         {
-
             try
             {
                 mErrorMessages.Clear();
@@ -128,7 +124,6 @@ namespace MyEMSLReader
                 mDatasetID = mArchivedFiles.First().DatasetID;
 
                 return true;
-
             }
             catch (Exception ex)
             {
@@ -137,7 +132,6 @@ namespace MyEMSLReader
                 mErrorMessages.Add(msg);
                 return false;
             }
-
         }
 
         /// <summary>
@@ -156,6 +150,5 @@ namespace MyEMSLReader
                 mCacheIsStale = true;
             }
         }
-
     }
 }

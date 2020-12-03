@@ -126,7 +126,6 @@ namespace MyEMSLReader
                 {
                     mPacificaConfig.UseTestInstance = value;
                 }
-
             }
         }
 
@@ -210,7 +209,6 @@ namespace MyEMSLReader
         /// <returns>List of matched files</returns>
         public List<ArchivedFileInfo> FindFilesByDataPackageID(Dictionary<int, string> dataPkgIDsAndSubDirs, bool recurse)
         {
-
             var searchTerms = new List<KeyValuePair<string, string>>();
             var datasetsAndSubDirs = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
@@ -302,7 +300,6 @@ namespace MyEMSLReader
         /// <returns>List of matched files</returns>
         public List<ArchivedFileInfo> FindFilesByDatasetID(Dictionary<int, string> datasetIDsAndSubDirs, bool recurse)
         {
-
             var searchTerms = new List<KeyValuePair<string, string>>();
             var datasetsAndSubDirs = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
@@ -376,7 +373,6 @@ namespace MyEMSLReader
             return FindFilesByDataset(datasetsAndSubDirLists, recurse, instrumentName, searchTerms);
         }
 
-
         /// <summary>
         /// Find all files in MyEMSL for a list of datasets (by dataset name)
         /// </summary>
@@ -434,7 +430,6 @@ namespace MyEMSLReader
             Dictionary<string, SortedSet<string>> datasetsAndSubDirLists,
             bool recurse)
         {
-
             var searchTerms = new List<KeyValuePair<string, string>>();
             foreach (var dataset in datasetsAndSubDirLists)
             {
@@ -506,7 +501,6 @@ namespace MyEMSLReader
                 remoteFilePaths.Add(remoteFileKey, versionToAdd);
                 LastSearchFileCountReturned += 1;
             }
-
         }
 
         /// <summary>
@@ -517,7 +511,6 @@ namespace MyEMSLReader
         private Dictionary<string, SortedSet<string>> ConvertDatasetSubDirDictToSubDirListDict(
             Dictionary<string, string> datasetsAndSubDirs)
         {
-
             var datasetsAndSubDirLists = new Dictionary<string, SortedSet<string>>();
             foreach (var datasetSubDirCombo in datasetsAndSubDirs)
             {
@@ -525,7 +518,6 @@ namespace MyEMSLReader
             }
 
             return datasetsAndSubDirLists;
-
         }
 
         /// <summary>
@@ -561,7 +553,6 @@ namespace MyEMSLReader
 
                 datasetsAndSubDirLists.Add(datasetName, subDirsForDataset);
             }
-
         }
 
         /// <summary>
@@ -616,7 +607,6 @@ namespace MyEMSLReader
                         break;
                     }
                 }
-
             }
 
             return filteredSearchResults;
@@ -641,7 +631,6 @@ namespace MyEMSLReader
                 {
                     throw new InvalidOperationException("Error in FilterFilesByDatasetID: Search key not in the expected form of " + DATASET_ID_TAG + "123456");
                 }
-
             }
 
             // Equivalent Linq expression:
@@ -691,7 +680,6 @@ namespace MyEMSLReader
 
             foreach (var file in searchResults)
             {
-
                 if (datasetsAndSubDirs.Count > 1 && file.Dataset != currentDataset)
                 {
                     if (!LookupSubDirFilterByDataset(datasetsAndSubDirs, file, entityType, out currentSubDirList))
@@ -719,7 +707,6 @@ namespace MyEMSLReader
 
                 foreach (var subDir in currentSubDirList)
                 {
-
                     var lstRequiredSubDirTree = subDir.Split('/', '\\').ToList();
 
                     var lstFileSubDirTree = file.SubDirPath.Split('/', '\\').ToList();
@@ -740,7 +727,6 @@ namespace MyEMSLReader
                         }
                     }
                 }
-
             }
 
             return filteredSearchResults;
@@ -777,7 +763,6 @@ namespace MyEMSLReader
             string instrumentName,
             IEnumerable<KeyValuePair<string, string>> searchTerms)
         {
-
             if (TraceMode)
                 OnDebugEvent("Entering FindFilesByDataset");
 
@@ -839,14 +824,12 @@ namespace MyEMSLReader
 
                 foreach (var searchTerm in searchTerms)
                 {
-
                     // Run the query against the Item Search service
                     // Returns a dictionary where keys are relative file paths (Windows style paths) and values are file info details (multiple entries if multiple versions)
                     var lstFilesToAdd = RunItemSearchQuery(dbTools, searchTerm.Key, searchTerm.Value);
 
                     foreach (var remoteFile in lstFilesToAdd)
                     {
-
                         if (filterOnInstrument)
                         {
                             // Skip files that do not match this instrument
@@ -870,9 +853,7 @@ namespace MyEMSLReader
 
                             AddFileToSearchResults(searchResults, remoteFilePaths, remoteFile, newestVersion, false);
                         }
-
                     }
-
                 }
 
                 // Filter the results
@@ -893,7 +874,6 @@ namespace MyEMSLReader
                                        select item);
 
                 return sortedResults;
-
             }
             catch (Exception ex)
             {
@@ -969,7 +949,6 @@ namespace MyEMSLReader
 
         private int LookupDatasetIDByName(IDBTools dbTools, string datasetName, out string instrument, int retryCount = 2)
         {
-
             var queryString = string.Format(
                 "SELECT ID, Instrument " +
                 "FROM V_Dataset_Export " +
@@ -997,7 +976,6 @@ namespace MyEMSLReader
 
         private string LookupDatasetNameByID(IDBTools dbTools, int datasetID, out string instrument, int retryCount = 2)
         {
-
             var queryString = string.Format(
                 "SELECT Dataset, Instrument " +
                 "FROM V_Dataset_Export WHERE " +
@@ -1101,7 +1079,6 @@ namespace MyEMSLReader
 
             if (string.Equals(QUERY_SPEC_DATASET_ID, searchKey))
             {
-
                 if (!int.TryParse(searchValue, out datasetOrDataPackageId))
                 {
                     ReportWarning("Dataset ID should be an integer, not: " + searchValue);
@@ -1121,7 +1098,6 @@ namespace MyEMSLReader
 
                 if (TraceMode)
                     OnDebugEvent("Dataset ID " + datasetOrDataPackageId + " is " + datasetName);
-
             }
             else if (string.Equals(QUERY_SPEC_DATASET_NAME, searchKey))
             {
@@ -1183,7 +1159,6 @@ namespace MyEMSLReader
 
             try
             {
-
                 // Example URLs:
                 // https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.dataset_id/403490
                 // https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.dataset_name/QC_pp_MCF-7_17_01_B_25JUN17_Frodo_REP-17-06-02
@@ -1234,7 +1209,6 @@ namespace MyEMSLReader
                 var jsonData = JsonConvert.Import(fileInfoListJSON);
 
                 if (!(jsonData is Jayrock.Json.JsonArray jsa)){
-
                     var errMsg = "Could not convert the JSON string to a JsonArray (MyEMSLReader.RunItemSearchQuery)";
 
                     if (jsonData is string conversionError && !string.IsNullOrWhiteSpace(conversionError))
@@ -1329,7 +1303,6 @@ namespace MyEMSLReader
                     remoteFileInfo.UpdateSourceFileTimes(creationTime, lastWriteTime);
 
                     fileVersions.Add(remoteFileInfo);
-
                 }
 
                 if (duplicateHashCount > DUPLICATE_HASH_MESSAGES_TO_LOG)
@@ -1338,14 +1311,12 @@ namespace MyEMSLReader
                 }
 
                 return remoteFiles;
-
             }
             catch (Exception ex)
             {
                 ReportError("Error in MyEMSLReader.RunItemSearchQuery", ex);
                 return remoteFiles;
             }
-
         }
 
         /// <summary>
@@ -1354,7 +1325,6 @@ namespace MyEMSLReader
         /// <param name="datasetsAndSubDirLists">Dictionary to examine</param>
         private static void ValidateDatasetInfoDictionary(Dictionary<string, SortedSet<string>> datasetsAndSubDirLists)
         {
-
             var tagCountDatasetID = 0;
             var tagCountDataPkgID = 0;
             var tagCountDatasetName = 0;
@@ -1394,5 +1364,4 @@ namespace MyEMSLReader
         #endregion
 
     }
-
 }

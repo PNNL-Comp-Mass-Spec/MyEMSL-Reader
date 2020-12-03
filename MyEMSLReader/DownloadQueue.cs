@@ -109,7 +109,6 @@ namespace MyEMSLReader
         /// <remarks>fileInfo can be null if unzipRequired is false</remarks>
         public void AddFileToDownloadQueue(long myEMSLFileID, ArchivedFileInfo fileInfo, bool unzipRequired, string destFilePath)
         {
-
             if (FilesToDownload.ContainsKey(myEMSLFileID))
                 return;
 
@@ -152,7 +151,6 @@ namespace MyEMSLReader
             string downloadDirectoryPath,
             Downloader.DownloadLayout directoryLayout)
         {
-
             if (FilesToDownload.Count == 0)
             {
                 OnErrorEvent("Download queue is empty; nothing to download (ProcessDownloadQueue)");
@@ -203,11 +201,9 @@ namespace MyEMSLReader
                         FileDownloadedEvent?.Invoke(this, new FileDownloadedEventArgs(downloadDirectoryPath, file.Value.FileInfo, file.Value.UnzipRequired));
                     }
                     FilesToDownload.Clear();
-
                 }
 
                 return success;
-
             }
             catch (Exception ex)
             {
@@ -215,6 +211,5 @@ namespace MyEMSLReader
                 return false;
             }
         }
-
     }
 }

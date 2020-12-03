@@ -120,7 +120,6 @@ namespace MyEMSLReader
         /// <returns>True if successful, false if an error</returns>
         public override bool RefreshInfo()
         {
-
             try
             {
                 mErrorMessages.Clear();
@@ -138,7 +137,6 @@ namespace MyEMSLReader
                 }
 
                 return true;
-
             }
             catch (Exception ex)
             {
@@ -148,6 +146,5 @@ namespace MyEMSLReader
                 return false;
             }
         }
-
     }
 }

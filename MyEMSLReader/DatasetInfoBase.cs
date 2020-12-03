@@ -14,7 +14,6 @@ namespace MyEMSLReader
     /// </summary>
     public abstract class DatasetInfoBase : EventNotifier
     {
-
         #region "Constants"
 
         public const string MYEMSL_FILE_ID_TAG = "@MyEMSLID_";
@@ -244,7 +243,6 @@ namespace MyEMSLReader
         /// <remarks></remarks>
         public static long ExtractMyEMSLFileID(string filePath, out string newFilePath)
         {
-
             var charIndex = filePath.LastIndexOf(MYEMSL_FILE_ID_TAG, StringComparison.Ordinal);
             newFilePath = string.Copy(filePath);
 
@@ -258,11 +256,9 @@ namespace MyEMSLReader
                 {
                     return myEmslFileID;
                 }
-
             }
 
             return 0;
-
         }
 
         /// <summary>
@@ -361,7 +357,6 @@ namespace MyEMSLReader
             bool recurse,
             bool fileSplit)
         {
-
             // Re-query the web service if the information is out-of-date
             RefreshInfoIfStale();
 
@@ -473,7 +468,6 @@ namespace MyEMSLReader
                                             if (subdirectoryPathParts[comparisonIndex].ToLower() != pathParts[parentPathIndex].ToLower())
                                                 isMatch = false;
                                         }
-
                                     }
 
                                     if (isMatch)
@@ -492,7 +486,6 @@ namespace MyEMSLReader
                         lstMatches.Add(newMatch);
                     }
                 }
-
             }
 
             return lstMatches;
@@ -520,7 +513,6 @@ namespace MyEMSLReader
         /// <remarks></remarks>
         public List<DatasetDirectoryOrFileInfo> FindDirectories(string directoryName, string datasetName)
         {
-
             // Re-query the web service if the information is out-of-date
             RefreshInfoIfStale();
 
@@ -596,7 +588,6 @@ namespace MyEMSLReader
             }
 
             return lstMatches;
-
         }
 
         private Regex GetFileSearchRegEx(string name)
@@ -626,7 +617,6 @@ namespace MyEMSLReader
         /// <remarks>Returns False if the download queue is empty</remarks>
         public bool ProcessDownloadQueue(string downloadDirectoryPath, Downloader.DownloadLayout directoryLayout)
         {
-
             mErrorMessages.Clear();
             mDownloadedFiles.Clear();
 
@@ -639,7 +629,6 @@ namespace MyEMSLReader
             }
 
             return success;
-
         }
 
         /// <summary>

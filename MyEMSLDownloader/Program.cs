@@ -70,7 +70,6 @@ namespace MyEMSLDownloader
             cmdLineParser.UsageExamples.Add("Syntax #6:" + Environment.NewLine + exeName +
                                             " /FileID:1234 [/Preview] [/V] [/Trace]");
 
-
             cmdLineParser.UsageExamples.Add("Syntax #7:" + Environment.NewLine + exeName +
                                             " /Test [/Preview] [/V] [/Trace]");
 
@@ -295,7 +294,6 @@ namespace MyEMSLDownloader
             {
                 ShowErrorMessage("Download failed");
             }
-
         }
 
         /// <summary>
@@ -316,7 +314,6 @@ namespace MyEMSLDownloader
             string fileMask,
             bool fileSplit)
         {
-
             mDatasetListInfo.AddDataset(datasetName, subdirectory);
 
             if (string.IsNullOrEmpty(fileMask))
@@ -333,7 +330,6 @@ namespace MyEMSLDownloader
             string fileMask,
             bool fileSplit)
         {
-
             mDatasetListInfoByID.AddDataset(datasetID, subdirectory);
 
             if (string.IsNullOrEmpty(fileMask))
@@ -492,7 +488,6 @@ namespace MyEMSLDownloader
                             {
                                 ConsoleMsgUtils.ShowWarning("Dataset ID should be an integer, not: " + datasetNameOrID);
                                 continue;
-
                             }
                             if (!datasetIDsToFind.TryGetValue(datasetId, out var datasetFiles))
                             {
@@ -521,7 +516,6 @@ namespace MyEMSLDownloader
                             // when MyEMSL is first queried via RefreshInfoIfStale (which calls RefreshInfo)
                             mDatasetListInfo.AddDataset(datasetName, fileToFind.SubDir);
                         }
-
                     }
                 }
 
@@ -570,7 +564,6 @@ namespace MyEMSLDownloader
                             archiveFileIDs.Add(archiveFile.FileID);
                         }
                     }
-
                 }
             }
 
@@ -607,7 +600,6 @@ namespace MyEMSLDownloader
                             archiveFileIDs.Add(archiveFile.FileID);
                         }
                     }
-
                 }
             }
 
@@ -658,7 +650,6 @@ namespace MyEMSLDownloader
 
         private static void ShowFiles(IEnumerable<DatasetDirectoryOrFileInfo> archiveFiles, bool verbosePreview)
         {
-
             foreach (var archiveFile in archiveFiles)
             {
                 Console.WriteLine(archiveFile.FileInfo.RelativePathWindows);
@@ -674,7 +665,6 @@ namespace MyEMSLDownloader
                         archiveFile.FileInfo.Sha1Hash,
                         archiveFile.FileInfo.HashType);
                 Console.WriteLine();
-
             }
         }
 
@@ -694,12 +684,10 @@ namespace MyEMSLDownloader
             var archiveFiles = mDatasetListInfo.FindFiles("*");
 
             return archiveFiles;
-
         }
 
         static Dictionary<long, ArchivedFileInfo> TestReader()
         {
-
             Console.WriteLine("Looking for files for test datasets using the Reader class");
             Console.WriteLine();
 
@@ -741,7 +729,6 @@ namespace MyEMSLDownloader
             Console.WriteLine();
 
             return filesToDownload1;
-
         }
 
         static Dictionary<long, ArchivedFileInfo> TestOneDataPackage(Reader reader)
@@ -774,7 +761,6 @@ namespace MyEMSLDownloader
                 // ReSharper disable once StringLiteralTypo
                 var archiveFiles = dataPackageInfoCache.FindFiles("SamplePrepTest_Plasma*", @"misc\final melissa tables");
                 Console.WriteLine("dataPackageInfoCache.FindFiles found {0} items", archiveFiles.Count);
-
             }
             catch (Exception ex)
             {
@@ -928,7 +914,6 @@ namespace MyEMSLDownloader
             {
                 ConsoleMsgUtils.ShowError("Exception from downloader", ex);
             }
-
         }
 
         static void TestDownloader(IReadOnlyCollection<DatasetDirectoryOrFileInfo> archiveFiles)
@@ -943,7 +928,6 @@ namespace MyEMSLDownloader
             ICollection<long> archiveFileIDs,
             IDictionary<long, DatasetDirectoryOrFileInfo> archiveFilesAllDatasets)
         {
-
             // Check for any files in archiveFilesAllDatasets that did not get included in archiveFiles
             foreach (var item in archiveFilesAllDatasets)
             {
