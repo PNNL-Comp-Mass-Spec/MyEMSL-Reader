@@ -135,7 +135,7 @@ namespace MyEMSLReader
         /// <param name="destFilePathOverride">Dictionary where keys are FileIDs and values are the explicit destination path to use</param>
         /// <param name="downloadDirectoryPath">Target directory path (ignored for files defined in destFilePathOverride)</param>
         /// <param name="directoryLayout">Directory Layout (ignored for files defined in destFilePathOverride)</param>
-        /// <remarks>destFilePathOverride is not required and can be empty; it can also have values for just some of the files in lstFileIDs</remarks>
+        /// <remarks>destFilePathOverride is not required and can be empty; it can also have values for just some of the files in filesToDownload</remarks>
         /// <returns>True if success, false if an error</returns>
         public bool DownloadFiles(
             Dictionary<long, ArchivedFileInfo> filesToDownload,
@@ -173,10 +173,10 @@ namespace MyEMSLReader
                     if (datasetIDs.Count > 1)
                     {
                         // Look for conflicts
-                        var lstOutputFilePaths = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+                        var outputFilePaths = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
                         foreach (var archiveFile in filesToDownload.Values)
                         {
-                            if (lstOutputFilePaths.Contains(archiveFile.RelativePathWindows))
+                            if (outputFilePaths.Contains(archiveFile.RelativePathWindows))
                             {
                                 // File conflicts
                                 ReportMessage("Auto-changing directory layout to 'DatasetNameAndSubdirectories' since the files to download come from more than one dataset");
@@ -184,7 +184,7 @@ namespace MyEMSLReader
                                 break;
                             }
 
-                            lstOutputFilePaths.Add(archiveFile.RelativePathWindows);
+                            outputFilePaths.Add(archiveFile.RelativePathWindows);
                         }
                     }
                 }
@@ -290,14 +290,14 @@ namespace MyEMSLReader
             return @"\\?\" + fileOrDirectoryPath;
         }
 
-        private long ComputeTotalBytes(IReadOnlyDictionary<long, ArchivedFileInfo> dctFiles)
+        private long ComputeTotalBytes(IReadOnlyDictionary<long, ArchivedFileInfo> files)
         {
-            return ComputeTotalBytes(dctFiles.Values);
+            return ComputeTotalBytes(files.Values);
         }
 
-        private long ComputeTotalBytes(IEnumerable<ArchivedFileInfo> dctFiles)
+        private long ComputeTotalBytes(IEnumerable<ArchivedFileInfo> files)
         {
-            var bytesToDownload = dctFiles.Sum(archiveFile => archiveFile.FileSizeBytes);
+            var bytesToDownload = files.Sum(archiveFile => archiveFile.FileSizeBytes);
             return bytesToDownload;
         }
 
@@ -592,7 +592,7 @@ namespace MyEMSLReader
         [Obsolete("Valid, but unused")]
         private bool DownloadAndExtractTarFile(
             CookieContainer cookieJar,
-            List<ArchivedFileInfo> lstFilesInArchive,
+            List<ArchivedFileInfo> filesInArchive,
             long bytesDownloaded,
             IReadOnlyDictionary<long, string> destFilePathOverride,
             FileSystemInfo downloadDirectory,
@@ -607,7 +607,7 @@ namespace MyEMSLReader
 
             var request = EasyHttp.InitializeRequest(mPacificaConfig, tarFileURL, ref cookieJar, ref timeoutSeconds, null);
 
-            var bytesToDownload = ComputeTotalBytes(lstFilesInArchive);
+            var bytesToDownload = ComputeTotalBytes(filesInArchive);
 
             // Prepare the request object
             request.Method = "GET";
@@ -689,8 +689,8 @@ namespace MyEMSLReader
 
                         if (fileIdFound)
                         {
-                            // Lookup fileID in dctFiles
-                            var archiveFileLookup = GetArchivedFileByID(lstFilesInArchive, fileID);
+                            // Lookup fileID in filesInArchive
+                            var archiveFileLookup = GetArchivedFileByID(filesInArchive, fileID);
 
                             if (archiveFileLookup.Count == 0)
                             {
@@ -761,8 +761,8 @@ namespace MyEMSLReader
                                 subDirPath = subDirPath.Replace(@"\", "/");
                             }
 
-                            // Look for this file in lstFilesInArchive
-                            var archiveFileLookup = GetArchivedFileByPath(lstFilesInArchive, sourceFileName);
+                            // Look for this file in filesInArchive
+                            var archiveFileLookup = GetArchivedFileByPath(filesInArchive, sourceFileName);
 
                             if (archiveFileLookup.Count == 0)
                             {
@@ -908,17 +908,17 @@ namespace MyEMSLReader
             return fileMatchesHash;
         }
 
-        private List<ArchivedFileInfo> GetArchivedFileByID(List<ArchivedFileInfo> lstFilesInArchive, long fileID)
+        private List<ArchivedFileInfo> GetArchivedFileByID(IEnumerable<ArchivedFileInfo> filesInArchive, long fileID)
         {
-            var archiveFileLookup = (from item in lstFilesInArchive
+            var archiveFileLookup = (from item in filesInArchive
                                      where item.FileID == fileID
                                      select item).ToList();
             return archiveFileLookup;
         }
 
-        private List<ArchivedFileInfo> GetArchivedFileByPath(List<ArchivedFileInfo> lstFilesInArchive, string filePath)
+        private List<ArchivedFileInfo> GetArchivedFileByPath(IEnumerable<ArchivedFileInfo> filesInArchive, string filePath)
         {
-            var archiveFileLookup = (from item in lstFilesInArchive
+            var archiveFileLookup = (from item in filesInArchive
                                      where string.Equals(item.RelativePathWindows, filePath, StringComparison.OrdinalIgnoreCase)
                                      select item).ToList();
 
@@ -981,9 +981,9 @@ namespace MyEMSLReader
             return fiTargetFile;
         }
 
-        private List<int> GetUniqueDatasetIDList(IReadOnlyDictionary<long, ArchivedFileInfo> dctFiles)
+        private List<int> GetUniqueDatasetIDList(IReadOnlyDictionary<long, ArchivedFileInfo> files)
         {
-            var datasetIDs = (from item in dctFiles
+            var datasetIDs = (from item in files
                               group item by item.Value.DatasetID into g
                               select g.Key).ToList();
             return datasetIDs;

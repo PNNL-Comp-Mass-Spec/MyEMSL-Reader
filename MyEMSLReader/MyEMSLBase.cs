@@ -146,12 +146,12 @@ namespace MyEMSLReader
 
         protected static Dictionary<string, SortedSet<string>> GetSingleItemSortedSetDictionary(string datasetNameOrID, string subDir)
         {
-            var dctDatasetsAndSubDirLists = new Dictionary<string, SortedSet<string>>(StringComparer.OrdinalIgnoreCase)
+            var datasetsAndSubDirLists = new Dictionary<string, SortedSet<string>>(StringComparer.OrdinalIgnoreCase)
             {
                 {datasetNameOrID, new SortedSet<string>(StringComparer.OrdinalIgnoreCase) { subDir } }
             };
 
-            return dctDatasetsAndSubDirLists;
+            return datasetsAndSubDirLists;
         }
 
         protected static int IncreaseTimeout(int timeoutSeconds)
@@ -187,9 +187,9 @@ namespace MyEMSLReader
             return true;
         }
 
-        protected string ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, string valueIfMissing)
+        protected string ReadDictionaryValue(Dictionary<string, object> dataDictionary, string keyName, string valueIfMissing)
         {
-            if (dctData.TryGetValue(keyName, out var value))
+            if (dataDictionary.TryGetValue(keyName, out var value))
             {
                 return value.ToString();
             }
@@ -198,9 +198,9 @@ namespace MyEMSLReader
         }
 
         // ReSharper disable once UnusedMember.Global
-        protected bool ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, bool valueIfMissing)
+        protected bool ReadDictionaryValue(Dictionary<string, object> dataDictionary, string keyName, bool valueIfMissing)
         {
-            var valueText = ReadDictionaryValue(dctData, keyName, valueIfMissing.ToString());
+            var valueText = ReadDictionaryValue(dataDictionary, keyName, valueIfMissing.ToString());
 
             if (bool.TryParse(valueText, out var value))
                 return value;
@@ -209,9 +209,9 @@ namespace MyEMSLReader
         }
 
         // ReSharper disable once UnusedMember.Global
-        protected long ReadDictionaryValue(Dictionary<string, object> dctData, string keyName, long valueIfMissing)
+        protected long ReadDictionaryValue(Dictionary<string, object> dataDictionary, string keyName, long valueIfMissing)
         {
-            var valueText = ReadDictionaryValue(dctData, keyName, valueIfMissing.ToString(CultureInfo.InvariantCulture));
+            var valueText = ReadDictionaryValue(dataDictionary, keyName, valueIfMissing.ToString(CultureInfo.InvariantCulture));
 
             if (long.TryParse(valueText, out var value))
                 return value;
@@ -285,42 +285,39 @@ namespace MyEMSLReader
         }
 
         // ReSharper disable once UnusedMember.Global
-        protected List<Dictionary<string, object>> RetrieveDictionaryListByKey(Dictionary<string, object> dctResults, string keyName)
+        protected List<Dictionary<string, object>> RetrieveDictionaryListByKey(Dictionary<string, object> results, string keyName)
         {
-            if (!dctResults.TryGetValue(keyName, out var value))
+            if (!results.TryGetValue(keyName, out var value))
             {
                 ReportError("MyEMSL elastic search did not have a '" + keyName + "' dictionary list");
                 return new List<Dictionary<string, object>>();
             }
 
-            List<Dictionary<string, object>> dctList;
-
             try
             {
-                dctList = (List<Dictionary<string, object>>)value;
+                var dictionaryList = (List<Dictionary<string, object>>)value;
+                return dictionaryList;
             }
             catch (Exception ex)
             {
                 ReportError("Error converting the '" + keyName + "' array to a list object", ex);
                 return new List<Dictionary<string, object>>();
             }
-
-            return dctList;
         }
 
         // ReSharper disable once UnusedMember.Global
-        protected Dictionary<string, object> RetrieveDictionaryObjectByKey(Dictionary<string, object> dctResults, string keyName)
+        protected Dictionary<string, object> RetrieveDictionaryObjectByKey(Dictionary<string, object> results, string keyName)
         {
-            if (!dctResults.TryGetValue(keyName, out var value))
+            if (!results.TryGetValue(keyName, out var value))
             {
                 ReportError("MyEMSL elastic search did not have a '" + keyName + "' section");
                 return new Dictionary<string, object>();
             }
 
-            Dictionary<string, object> dctValue;
+            Dictionary<string, object> dictionaryValue;
             try
             {
-                dctValue = (Dictionary<string, object>)value;
+                dictionaryValue = (Dictionary<string, object>)value;
             }
             catch (Exception ex)
             {
@@ -328,7 +325,7 @@ namespace MyEMSLReader
                 return new Dictionary<string, object>();
             }
 
-            return dctValue;
+            return dictionaryValue;
         }
 
         protected bool SendHTTPRequestWithRetry(

@@ -646,14 +646,14 @@ namespace MyEMSLReader
             IEnumerable<string> datasetNames)
         {
             var filteredSearchResults = new List<ArchivedFileInfo>();
-            var lstDatasetNamesSorted = new SortedSet<string>(datasetNames, StringComparer.OrdinalIgnoreCase);
+            var datasetNamesSorted = new SortedSet<string>(datasetNames, StringComparer.OrdinalIgnoreCase);
 
             // Equivalent Linq expression:
-            // return searchResults.Where(file => lstDatasetNamesSorted.Contains(file.Dataset)).ToList();
+            // return searchResults.Where(file => datasetNamesSorted.Contains(file.Dataset)).ToList();
 
             foreach (var file in searchResults)
             {
-                if (lstDatasetNamesSorted.Contains(file.Dataset))
+                if (datasetNamesSorted.Contains(file.Dataset))
                 {
                     filteredSearchResults.Add(file);
                 }
@@ -704,22 +704,22 @@ namespace MyEMSLReader
 
                 foreach (var subDir in currentSubDirList)
                 {
-                    var lstRequiredSubDirTree = subDir.Split('/', '\\').ToList();
+                    var requiredSubDirTree = subDir.Split('/', '\\').ToList();
 
-                    var lstFileSubDirTree = file.SubDirPath.Split('/', '\\').ToList();
+                    var fileSubDirTree = file.SubDirPath.Split('/', '\\').ToList();
 
-                    if (lstFileSubDirTree.Count >= lstRequiredSubDirTree.Count)
+                    if (fileSubDirTree.Count >= requiredSubDirTree.Count)
                     {
                         var matchCount = 0;
-                        for (var i = 0; i < lstRequiredSubDirTree.Count; i++)
+                        for (var i = 0; i < requiredSubDirTree.Count; i++)
                         {
-                            if (string.Equals(lstFileSubDirTree[i], lstRequiredSubDirTree[i], StringComparison.OrdinalIgnoreCase))
+                            if (string.Equals(fileSubDirTree[i], requiredSubDirTree[i], StringComparison.OrdinalIgnoreCase))
                             {
                                 matchCount++;
                             }
                         }
 
-                        if (matchCount == lstRequiredSubDirTree.Count)
+                        if (matchCount == requiredSubDirTree.Count)
                         {
                             filteredSearchResults.Add(file);
                             break;
@@ -773,7 +773,7 @@ namespace MyEMSLReader
 
                 var filterOnSubDir = false;
 
-                var datasetsAndSubDirsCleaned = new Dictionary<string, SortedSet<string>>(StringComparer.OrdinalIgnoreCase);
+                var datasetsAndSubdirectoriesCleaned = new Dictionary<string, SortedSet<string>>(StringComparer.OrdinalIgnoreCase);
 
                 // Make sure subDir entries have Linux-style slashes
                 foreach (var dataset in datasetsAndSubDirs)
@@ -806,11 +806,11 @@ namespace MyEMSLReader
                         }
                     }
 
-                    datasetsAndSubDirsCleaned.Add(dataset.Key, subDirList);
+                    datasetsAndSubdirectoriesCleaned.Add(dataset.Key, subDirList);
                 }
 
-                // Make sure that datasetsAndSubDirsCleaned does not contain a mix of datasets, dataset IDs, and data package IDs
-                ValidateDatasetInfoDictionary(datasetsAndSubDirsCleaned);
+                // Make sure that datasetsAndSubdirectoriesCleaned does not contain a mix of datasets, dataset IDs, and data package IDs
+                ValidateDatasetInfoDictionary(datasetsAndSubdirectoriesCleaned);
 
                 var searchResults = new List<ArchivedFileInfo>();
 
@@ -829,9 +829,9 @@ namespace MyEMSLReader
                 {
                     // Run the query against the Item Search service
                     // Returns a dictionary where keys are relative file paths (Windows style paths) and values are file info details (multiple entries if multiple versions)
-                    var lstFilesToAdd = RunItemSearchQuery(dbTools, searchTerm.Key, searchTerm.Value);
+                    var filesToAdd = RunItemSearchQuery(dbTools, searchTerm.Key, searchTerm.Value);
 
-                    foreach (var remoteFile in lstFilesToAdd)
+                    foreach (var remoteFile in filesToAdd)
                     {
                         if (filterOnInstrument)
                         {
@@ -862,7 +862,7 @@ namespace MyEMSLReader
                 }
 
                 // Filter the results
-                var filteredSearchResults = FilterSearchResults(datasetsAndSubDirsCleaned, recurse, searchResults, filterOnSubDir);
+                var filteredSearchResults = FilterSearchResults(datasetsAndSubdirectoriesCleaned, recurse, searchResults, filterOnSubDir);
 
                 var sortedResults = new List<ArchivedFileInfo>();
 

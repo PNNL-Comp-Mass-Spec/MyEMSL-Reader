@@ -361,16 +361,16 @@ namespace MyEMSLReader
             // Re-query the web service if the information is out-of-date
             RefreshInfoIfStale();
 
-            var lstMatches = new List<DatasetDirectoryOrFileInfo>();
+            var matches = new List<DatasetDirectoryOrFileInfo>();
 
             if (string.IsNullOrEmpty(fileName))
             {
-                return lstMatches;
+                return matches;
             }
 
             if (mArchivedFiles.Count == 0)
             {
-                return lstMatches;
+                return matches;
             }
 
             Regex reDirectory;
@@ -496,12 +496,12 @@ namespace MyEMSLReader
                     if (isMatch)
                     {
                         var newMatch = new DatasetDirectoryOrFileInfo(archivedFile.FileID, false, archivedFile);
-                        lstMatches.Add(newMatch);
+                        matches.Add(newMatch);
                     }
                 }
             }
 
-            return lstMatches;
+            return matches;
         }
 
         /// <summary>
@@ -529,12 +529,12 @@ namespace MyEMSLReader
             // Re-query the web service if the information is out-of-date
             RefreshInfoIfStale();
 
-            var lstMatches = new List<DatasetDirectoryOrFileInfo>();
-            var lstMatchPaths = new SortedSet<string>();
+            var matches = new List<DatasetDirectoryOrFileInfo>();
+            var matchPaths = new SortedSet<string>();
 
             if (string.IsNullOrEmpty(directoryName))
             {
-                return lstMatches;
+                return matches;
             }
 
             var directoryMatcher = GetFileSearchRegEx(directoryName);
@@ -579,12 +579,12 @@ namespace MyEMSLReader
                     throw new Exception("Forward slash not found in the relative file path; this code should not be reached");
                 }
 
-                if (lstMatchPaths.Contains(relativeDirectoryPath))
+                if (matchPaths.Contains(relativeDirectoryPath))
                 {
                     continue;
                 }
 
-                lstMatchPaths.Add(relativeDirectoryPath);
+                matchPaths.Add(relativeDirectoryPath);
 
                 var pathParts = relativeDirectoryPath.Split('\\').ToList();
                 var subDirPath = string.Empty;
@@ -604,10 +604,10 @@ namespace MyEMSLReader
                 const bool isDirectory = true;
                 var newMatch = new DatasetDirectoryOrFileInfo(fileID, isDirectory, new ArchivedFileInfo(archivedFile.Dataset, relativeDirectoryPath, subDirPath));
 
-                lstMatches.Add(newMatch);
+                matches.Add(newMatch);
             }
 
-            return lstMatches;
+            return matches;
         }
 
         private Regex GetFileSearchRegEx(string name)
