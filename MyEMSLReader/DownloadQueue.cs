@@ -7,6 +7,8 @@ namespace MyEMSLReader
 {
     public class DownloadQueue : EventNotifier
     {
+        // Ignore Spelling: struct, Args, dest
+
         #region "Structures"
 
         public struct FileDownloadInfo
@@ -179,7 +181,7 @@ namespace MyEMSLReader
                     if (string.IsNullOrWhiteSpace(archiveFileInfo.Sha1Hash))
                     {
                         OnWarningEvent(string.Format(
-                                           "File does not have a sha-1 hash; cannot download {0}, FileID {1}",
+                                           "File does not have a SHA-1 hash; cannot download {0}, FileID {1}",
                                            archiveFileInfo.RelativePathWindows, fileToDownload.Key));
                         continue;
                     }

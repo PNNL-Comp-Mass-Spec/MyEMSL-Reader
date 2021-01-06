@@ -13,6 +13,8 @@ namespace MyEMSLReader
     /// </summary>
     public abstract class DatasetInfoBase : EventNotifier
     {
+        // Ignore Spelling: struct, Args, ser, dest
+
         #region "Constants"
 
         public const string MYEMSL_FILE_ID_TAG = "@MyEMSLID_";

@@ -9,6 +9,8 @@ namespace MyEMSLReader
     [Obsolete("Valid, but unused")]
     public class DatasetInfo : DatasetInfoBase
     {
+        // Ignore Spelling: Args
+
         #region "Module variables"
 
         private string mDatasetName;
@@ -96,7 +98,7 @@ namespace MyEMSLReader
         }
 
         /// <summary>
-        /// Contact the metadata server to find the files associated with dataset datasetName
+        /// Contact the metadata server to find the files associated with the given dataset
         /// </summary>
         /// <param name="datasetName">Dataset name to lookup</param>
         /// <returns>True if successful, false if an error</returns>

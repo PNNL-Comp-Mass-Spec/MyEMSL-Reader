@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Threading;
 using Pacifica.Core;
 using ICSharpCode.SharpZipLib.Tar;
@@ -19,6 +18,8 @@ namespace MyEMSLReader
     /// <remarks>Written by Matthew Monroe for PNNL in August 2013</remarks>
     public class Downloader : MyEMSLBase
     {
+        // Ignore Spelling: dest
+
         #region "Constants"
 
         #endregion
@@ -128,7 +129,7 @@ namespace MyEMSLReader
         }
 
         /// <summary>
-        /// Download files in lstFileIDs
+        /// Download files in filesToDownload
         /// </summary>
         /// <param name="filesToDownload">MyEMSL Files to download; keys are MyEMSL File IDs and values are ArchivedFileInfo objects</param>
         /// <param name="destFilePathOverride">Dictionary where keys are FileIDs and values are the explicit destination path to use</param>

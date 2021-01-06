@@ -21,6 +21,8 @@ namespace MyEMSLReader
     /// <remarks>Written by Matthew Monroe for PNNL in 2013.</remarks>
     public class Reader : MyEMSLBase
     {
+        // Ignore Spelling: Linq
+
         #region "Constants"
 
         private const string QUERY_SPEC_DATASET_ID = "omics.dms.dataset_id";
@@ -548,7 +550,7 @@ namespace MyEMSLReader
         /// Return true if fileVersions has a file with the given hash
         /// </summary>
         /// <param name="fileVersions">List of files in MyEMSL</param>
-        /// <param name="fileHash">Sha-1 hash to find</param>
+        /// <param name="fileHash">SHA-1 hash to find</param>
         /// <returns>True if a match is found, otherwise false</returns>
         private bool FileHashExists(IEnumerable<ArchivedFileInfo> fileVersions, string fileHash)
         {
