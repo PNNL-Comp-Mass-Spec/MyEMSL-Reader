@@ -33,6 +33,8 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
+    <DocumentationFile>bin\Release\Pacifica.Core.xml</DocumentationFile>
+    <NoWarn>CS1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -78,6 +80,7 @@
   <PropertyGroup>
     <PostBuildEvent>xcopy "$(TargetPath)" "$(ProjectDir)..\..\DeployedFiles\" /D /Y /I
 xcopy "$(TargetDir)$(TargetName).pdb" "$(ProjectDir)..\..\DeployedFiles\" /Y
+xcopy "$(TargetDir)$(TargetName).xml" "$(ProjectDir)..\..\DeployedFiles" /Y
 
 xcopy "$(TargetDir)PRISM.dll" "$(ProjectDir)..\..\DeployedFiles\" /D /Y /I</PostBuildEvent>
   </PropertyGroup>
