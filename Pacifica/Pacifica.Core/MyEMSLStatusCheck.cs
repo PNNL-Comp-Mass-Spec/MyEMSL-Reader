@@ -268,19 +268,36 @@ namespace Pacifica.Core
                             {
                                 errorMessage += "; ConnectionTimeout exception";
                             }
+                            else if (exception.IndexOf("Traceback", StringComparison.OrdinalIgnoreCase) >= 0)
+                            {
+                                /* Example Traceback as of January 2021:
+                                 * Traceback (most recent call last):\n  File "/opt/pacifica/lib64/python3.6/site-packages/pacifica/ingest/tasks.py", line 88, in ingest_files\n    ingest_obj.ingest()\n  File "/opt/pacifica/lib64/python3.6/site-packages/pacifica/ingest/tarutils.py", line 248, in ingest\n    ingest.upload_file_in_file(info, self.tar)\n  File "/opt/pacifica/lib64/python3.6/site-packages/pacifica/ingest/tarutils.py", line 79, in upload_file_in_file\n    size = int(ret_dict['total_bytes'])\nKeyError: 'total_bytes'\n\n'total_bytes'
+                                 */
+
+                                // Use a RegEx to remove unnecessary text that makes some downstream evaluation harder (like checks in stored procedures)
+                                var exceptionUpdater = new Regex(@"Traceback \(most recent call last\):\s+File", RegexOptions.IgnoreCase);
+                                var exceptionClean = exceptionUpdater.Replace(exception, "in");
+
+                                var keyErrorRegex = new Regex(@"(KeyError:\s.+[^\n])", RegexOptions.IgnoreCase);
+                                var keyError = keyErrorRegex.Match(exception).Value; // == string.Empty if no match found.
+
+                                // Lazy match of a string with at least 75 characters, until (and excluding) a new line, tab, or two spaces
+                                var exceptionTruncate = new Regex(@"((?:.|[\r\n]){50,}?)(?=(?:  )|[\r\n\t])");
+                                var truncated = exceptionTruncate.Match(exceptionClean).Value;
+
+                                // Don't add an exception message longer than 150 characters when using this logic.
+                                errorMessage += "; exception " + (truncated + (" ... " + keyError).TrimEnd()).Substring(0, 150);
+                            }
                             else
                             {
-                                // Unrecognized exception; include the first 75 characters
+                                // Unrecognized, non-"traceback" exception; include the first 75 characters
                                 if (exception.Length < 80)
                                 {
                                     errorMessage += "; exception " + exception;
                                 }
                                 else
                                 {
-                                    // Use a RegEx to remove unnecessary text that makes some downstream evaluation harder (like checks in stored procedures)
-                                    var exceptionUpdater = new Regex(@"Traceback \(most recent call last\):\s+File", RegexOptions.IgnoreCase);
-                                    var exceptionClean = exceptionUpdater.Replace(exception, "in file");
-                                    errorMessage += "; exception " + exceptionClean.Substring(0, 75) + " ...";
+                                    errorMessage += "; exception " + exception.Substring(0, 75) + " ...";
                                 }
                             }
                         }
