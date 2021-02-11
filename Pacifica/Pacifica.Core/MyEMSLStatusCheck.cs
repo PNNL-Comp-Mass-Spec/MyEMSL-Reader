@@ -286,7 +286,8 @@ namespace Pacifica.Core
                                 var truncated = exceptionTruncate.Match(exceptionClean).Value;
 
                                 // Don't add an exception message longer than 150 characters when using this logic.
-                                errorMessage += "; exception " + (truncated + (" ... " + keyError).TrimEnd()).Substring(0, 150);
+                                var reportMessage = truncated + (" ... " + keyError).TrimEnd();
+                                errorMessage += "; exception " + reportMessage.Substring(0, Math.Min(150, reportMessage.Length));
                             }
                             else
                             {
@@ -297,7 +298,7 @@ namespace Pacifica.Core
                                 }
                                 else
                                 {
-                                    errorMessage += "; exception " + exception.Substring(0, 75) + " ...";
+                                    errorMessage += "; exception " + exception.Substring(0, Math.Min(75, exception.Length)) + " ...";
                                 }
                             }
                         }
