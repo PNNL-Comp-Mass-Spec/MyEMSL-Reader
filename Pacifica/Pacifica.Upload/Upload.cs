@@ -290,6 +290,11 @@ namespace Pacifica.Upload
             foreach (var file in fileList)
             {
                 var fio = new FileInfoObject(file.AbsoluteLocalPath, file.RelativeDestinationDirectory, file.Sha1HashHex);
+                if (fileListObject.ContainsKey(file.AbsoluteLocalPath))
+                {
+                    OnWarningEvent("The fileListObject dictionary already has an entry for " + file.AbsoluteLocalPath);
+                    throw new System.Data.Linq.DuplicateKeyException(file.AbsoluteLocalPath);
+                }
                 fileListObject.Add(file.AbsoluteLocalPath, fio);
             }
 
