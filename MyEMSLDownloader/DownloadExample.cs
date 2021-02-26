@@ -80,8 +80,6 @@ namespace MyEMSLDownloader
             ConsoleMsgUtils.ShowError(message, ex);
         }
 
-        #region "Event Handlers"
-
         private void OnDebugEvent(string message)
         {
             ConsoleMsgUtils.ShowDebug(message);
@@ -101,8 +99,5 @@ namespace MyEMSLDownloader
         {
             ConsoleMsgUtils.ShowWarning(message);
         }
-
-        #endregion
-
     }
 }

@@ -15,8 +15,6 @@ namespace Pacifica.Upload
     {
         // Ignore Spelling: Ingester, Workdir, addon
 
-        #region "Constants"
-
         /// <summary>
         /// Block size for tar files
         /// </summary>
@@ -26,10 +24,6 @@ namespace Pacifica.Upload
         /// Used to report status
         /// </summary>
         public const string UPLOADING_FILES = "Uploading files";
-
-        #endregion
-
-        #region "Enums"
 
         /// <summary>
         /// Debug options
@@ -44,16 +38,10 @@ namespace Pacifica.Upload
             MyEMSLOfflineMode = 2
         }
 
-        #endregion
-
-        #region "Events"
-
         /// <summary>
         /// This event is used by SendFileListToIngester to report upload status
         /// </summary>
         public event EventHandler<StatusEventArgs> StatusUpdate;
-
-        #endregion
 
         private long AddTarFileContentLength(string pathInArchive, long fileSizeBytes)
         {

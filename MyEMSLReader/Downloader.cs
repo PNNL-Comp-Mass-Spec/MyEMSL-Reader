@@ -20,12 +20,6 @@ namespace MyEMSLReader
     {
         // Ignore Spelling: dest
 
-        #region "Constants"
-
-        #endregion
-
-        #region "Enums"
-
         public enum DownloadLayout
         {
             FlatNoSubdirectories = 0,
@@ -40,10 +34,6 @@ namespace MyEMSLReader
             Always = 1,
             Never = 2
         }
-
-        #endregion
-
-        #region "Properties"
 
         /// <summary>
         /// The most recently downloaded files.  Keys are the full path to the downloaded file; values are extended file info
@@ -90,14 +80,6 @@ namespace MyEMSLReader
                 }
             }
         }
-
-        #endregion
-
-        #region "Member Variables"
-
-        #endregion
-
-        #region "Public methods"
 
         // Constructor
         public Downloader()
@@ -261,10 +243,6 @@ namespace MyEMSLReader
 
             return false;
         }
-
-        #endregion
-
-        #region "Private Methods"
 
         /// <summary>
         /// Possibly add a special prefix to work with files whose paths are more than 255 characters long
@@ -1096,7 +1074,5 @@ namespace MyEMSLReader
             OnErrorEvent(errorMessage);
             return false;
         }
-
-        #endregion
     }
 }

@@ -7,8 +7,6 @@ namespace MyEMSLReader
     {
         public const string SHA1 = "sha1";
 
-        #region "Auto Properties"
-
         /// <summary>
         /// Dataset name for this file
         /// </summary>
@@ -275,8 +273,6 @@ namespace MyEMSLReader
             get;
             set;
         }
-
-        #endregion
 
         /// <summary>
         /// Constructor

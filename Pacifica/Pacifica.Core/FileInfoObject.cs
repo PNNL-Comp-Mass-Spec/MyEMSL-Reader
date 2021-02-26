@@ -6,8 +6,6 @@ namespace Pacifica.Core
 {
     public class FileInfoObject
     {
-        #region Constructor
-
         /// <summary>
         /// Instantiate a new FileInfoObject, including computing the SHA-1 hash of the file
         /// </summary>
@@ -71,15 +69,7 @@ namespace Pacifica.Core
             }
         }
 
-        #endregion
-
-        #region Private Members
-
         private FileInfo File { get; }
-
-        #endregion
-
-        #region IFileInfoObject Members
 
         /// <summary>
         /// Full path to the local file
@@ -150,16 +140,11 @@ namespace Pacifica.Core
         /// </summary>
         public DateTime LastWriteTime => File.LastWriteTime;
 
-        #endregion
-
-        #region Methods
-
         /// <summary>
         /// Converts a windows path of the form \\proto-7\VOrbi05\2013_2\QC_Shew_13_02_500ng_15May13_Lynx_12-12-04\metadata.xml
         /// to the Linux form proto-7/VOrbi05/2013_2/QC_Shew_13_02_500ng_15May13_Lynx_12-12-04/metadata.xml
         /// </summary>
         /// <param name="path">Unix-style path</param>
-        /// <returns></returns>
         /// <remarks>Removes any leading slashes</remarks>
         protected string ConvertWindowsPathToUnix(string path)
         {
@@ -176,10 +161,6 @@ namespace Pacifica.Core
             return Sha1HashHex.Substring(0, 8) + ": " + AbsoluteLocalPath;
         }
 
-        #endregion
-
-        #region Static Methods
-
         public static string GenerateRelativePath(string absoluteLocalPath, string basePath)
         {
             if (absoluteLocalPath.StartsWith(basePath, StringComparison.OrdinalIgnoreCase))
@@ -189,7 +170,5 @@ namespace Pacifica.Core
 
             throw new InvalidDataException("Cannot generate relative path in GenerateRelativePath since local path (" + absoluteLocalPath + ") does not contain base path (" + basePath + ")");
         }
-
-        #endregion
     }
 }

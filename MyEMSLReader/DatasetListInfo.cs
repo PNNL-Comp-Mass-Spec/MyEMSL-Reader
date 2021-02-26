@@ -9,7 +9,6 @@ namespace MyEMSLReader
     /// </summary>
     public class DatasetListInfo : DatasetInfoBase
     {
-        #region "Properties"
 
         /// <summary>
         /// Dataset names
@@ -20,8 +19,6 @@ namespace MyEMSLReader
         /// Keys are dataset names, values are a list of subdirectory names to filter on for the given dataset (empty string means do not filter)
         /// </summary>
         public Dictionary<string, SortedSet<string>> DatasetsAndSubDirs { get; }
-
-        #endregion
 
         /// <summary>
         /// Constructor

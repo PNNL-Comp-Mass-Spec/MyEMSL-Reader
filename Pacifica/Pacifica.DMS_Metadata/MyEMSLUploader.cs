@@ -27,8 +27,6 @@ namespace Pacifica.DMS_Metadata
 
         private readonly Configuration mPacificaConfig;
 
-        #region "Properties"
-
         /// <summary>
         /// Number of bytes uploaded
         /// </summary>
@@ -121,8 +119,6 @@ namespace Pacifica.DMS_Metadata
                 mPacificaConfig.UseTestInstance = value;
             }
         }
-
-        #endregion
 
         /// <summary>
         /// Constructor
@@ -349,8 +345,6 @@ namespace Pacifica.DMS_Metadata
             return valueIfMissing;
         }
 
-        #region "Events and Event Handlers"
-
         public event EventHandler<MessageEventArgs> MetadataDefinedEvent;
 
         public event EventHandler<StatusEventArgs> StatusUpdate;
@@ -393,8 +387,5 @@ namespace Pacifica.DMS_Metadata
                 StatusUpdate(this, new StatusEventArgs(percentCompleteOverall, 0, MetadataContainer.TotalFileSizeToUpload, progressMessage));
             }
         }
-
-        #endregion
-
     }
 }

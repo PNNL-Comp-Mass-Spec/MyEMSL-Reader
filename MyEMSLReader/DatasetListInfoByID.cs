@@ -9,7 +9,6 @@ namespace MyEMSLReader
     /// </summary>
     public class DatasetListInfoByID : DatasetInfoBase
     {
-        #region "Properties"
 
         /// <summary>
         /// Dataset IDs
@@ -20,8 +19,6 @@ namespace MyEMSLReader
         /// Keys are dataset IDs, values are the optional Subdirectory name to filter on for the given dataset
         /// </summary>
         public Dictionary<int, string> DatasetsAndSubDirs { get; }
-
-        #endregion
 
         /// <summary>
         /// Constructor

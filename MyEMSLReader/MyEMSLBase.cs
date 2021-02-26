@@ -14,7 +14,6 @@ namespace MyEMSLReader
 {
     public class MyEMSLBase : EventNotifier
     {
-        #region "Enums"
 
         public bool ThrowErrors
         {
@@ -22,23 +21,13 @@ namespace MyEMSLReader
             set;
         }
 
-        #endregion
-
-        #region "Member Variables"
-
         protected readonly Configuration mPacificaConfig;
-
-        #endregion
-
-        #region "Properties"
 
         public string ErrorMessage
         {
             get;
             private set;
         }
-
-        #endregion
 
         /// <summary>
         /// Constructor
@@ -435,8 +424,6 @@ namespace MyEMSLReader
             return false;
         }
 
-        #region "Events"
-
         public event StatusEventEventHandler MyEMSLOffline;
 
         protected void EasyHttp_MyEMSLOffline(object sender, MessageEventArgs e)
@@ -446,7 +433,5 @@ namespace MyEMSLReader
             else
                 MyEMSLOffline?.Invoke(e.Message);
         }
-
-        #endregion
     }
 }

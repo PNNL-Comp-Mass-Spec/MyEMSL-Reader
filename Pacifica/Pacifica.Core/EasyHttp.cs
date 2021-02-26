@@ -14,8 +14,6 @@ namespace Pacifica.Core
     {
         // Ignore Spelling: Ingester, json, www, Pacifica, urlencoded
 
-        #region "Constants"
-
         /// <summary>
         /// Response to return when the thread used to send a request aborts
         /// </summary>
@@ -42,19 +40,11 @@ namespace Pacifica.Core
         // ReSharper disable once IdentifierTypo
         public const string MYEMSL_METADATA_FILE_NAME = "metadata.txt";
 
-        #endregion
-
-        #region "Fields"
-
         private static X509Certificate2 mLoginCertificate;
 
         private static Thread mThreadedSend;
 
         private static UrlContactInfo mUrlContactInfo;
-
-        #endregion
-
-        #region "Enums"
 
         /// <summary>
         /// An enumeration of standard HTTP methods.
@@ -74,10 +64,6 @@ namespace Pacifica.Core
             Put = 2
         }
 
-        #endregion
-
-        #region "Events"
-
         /// <summary>
         /// This event is raised if we are unable to connect to MyEMSL, leading to events
         /// System.Net.WebException: Unable to connect to the remote server
@@ -94,8 +80,6 @@ namespace Pacifica.Core
         /// Error event
         /// </summary>
         public static event EventNotifier.ErrorEventEventHandler ErrorEvent;
-
-        #endregion
 
         /// <summary>
         /// Abort thread mThreadedSend

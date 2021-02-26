@@ -78,8 +78,6 @@ namespace Pacifica.DMS_Metadata
             archive, update
         }
 
-        #region "Properties"
-
         /// <summary>
         /// Dataset name
         /// </summary>
@@ -154,8 +152,6 @@ namespace Pacifica.DMS_Metadata
         /// Retrieve the metadata JSON as a string
         /// </summary>
         public string MetadataObjectJSON => Utilities.ObjectToJson(MetadataObject);
-
-        #endregion
 
         /// <summary>
         /// Constructor
@@ -1209,14 +1205,9 @@ namespace Pacifica.DMS_Metadata
             return false;
         }
 
-        #region "Event Functions"
-
         private void FileTools_WaitingForLockQueue(string sourceFilePath, string targetFilePath, int MBBacklogSource, int MBBacklogTarget)
         {
             ConsoleMsgUtils.ShowDebug("  mFileTools_WaitingForLockQueue for " + sourceFilePath);
         }
-
-        #endregion
-
     }
 }

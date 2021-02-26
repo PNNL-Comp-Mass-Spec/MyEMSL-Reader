@@ -23,7 +23,6 @@ namespace MyEMSLReader
     {
         // Ignore Spelling: Linq
 
-        #region "Constants"
 
         private const string QUERY_SPEC_DATASET_ID = "omics.dms.dataset_id";
 
@@ -36,19 +35,12 @@ namespace MyEMSLReader
 
         private const string DEFAULT_DMS_CONNECTION_STRING = "Data Source=gigasax;Initial Catalog=DMS5;Integrated Security=SSPI";
 
-        #endregion
-
-        #region "Enums"
-
         private enum SearchEntity
         {
             DatasetName = 0,
             DatasetID = 1,
             DataPackageID = 2
         }
-        #endregion
-
-        #region "Properties"
 
         public string DMSConnectionString { get; set; } = DEFAULT_DMS_CONNECTION_STRING;
 
@@ -113,10 +105,6 @@ namespace MyEMSLReader
                 }
             }
         }
-
-        #endregion
-
-        #region "Public methods"
 
         // Constructor
         public Reader()
@@ -430,10 +418,6 @@ namespace MyEMSLReader
             var instrumentName = string.Empty;
             return FindFilesByDataset(datasetsAndSubDirLists, recurse, instrumentName, searchTerms);
         }
-
-        #endregion
-
-        #region "private Methods"
 
         /// <summary>
         /// Add a new file to the MyEMSL search results
@@ -1387,8 +1371,5 @@ namespace MyEMSLReader
                 throw new Exception("Coding error: datasetsAndSubDirLists has both dataset ID and dataset name entries");
             }
         }
-
-        #endregion
-
     }
 }

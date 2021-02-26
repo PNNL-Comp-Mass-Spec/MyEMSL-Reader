@@ -147,8 +147,6 @@ namespace Pacifica.Upload
             }
         }
 
-        #region Auto-Properties
-
         /// <summary>
         /// Error message
         /// </summary>
@@ -172,10 +170,6 @@ namespace Pacifica.Upload
         /// When true, upload to ingestdmsdev.my.emsl.pnl.gov instead of ingestdms.my.emsl.pnl.gov
         /// </summary>
         public bool UseTestInstance { get; set; }
-
-        #endregion
-
-        #region Constructor
 
         /// <summary>
         /// Constructor (TransferFolderPath and JobNumber will be empty)
@@ -214,10 +208,6 @@ namespace Pacifica.Upload
             JobNumber = jobNumber;
         }
 
-        #endregion
-
-        #region Events and Handlers
-
         public event EventHandler<MessageEventArgs> MyEMSLOffline;
         public event EventHandler<UploadCompletedEventArgs> UploadCompleted;
         public event EventHandler<StatusEventArgs> StatusUpdate;
@@ -236,10 +226,6 @@ namespace Pacifica.Upload
         {
             UploadCompleted?.Invoke(this, new UploadCompletedEventArgs(serverResponse));
         }
-
-        #endregion
-
-        #region IUpload Members
 
         /// <summary>
         /// Update the files and data tracked by metadataObject to MyEMSL
@@ -459,10 +445,6 @@ namespace Pacifica.Upload
 
             return success;
         }
-
-        #endregion
-
-        #region Member Methods
 
         private static void AppendKVMetadata(ICollection<Dictionary<string, object>> metadataObject, string keyName, int value)
         {
@@ -821,7 +803,5 @@ namespace Pacifica.Upload
 
             OnErrorEvent(errorMessage, ex);
         }
-
-        #endregion
     }
 }

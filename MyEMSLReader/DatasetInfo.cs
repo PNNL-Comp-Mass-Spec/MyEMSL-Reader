@@ -11,20 +11,12 @@ namespace MyEMSLReader
     {
         // Ignore Spelling: Args
 
-        #region "Module variables"
-
         private string mDatasetName;
         private int mDatasetID;
-
-        #endregion
-
-        #region "Properties"
 
         public int DatasetID => mDatasetID;
 
         public string DatasetName => mDatasetName;
-
-        #endregion
 
         /// <summary>
         /// Constructor

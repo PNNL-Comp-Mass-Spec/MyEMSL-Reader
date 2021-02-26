@@ -9,8 +9,6 @@ namespace MyEMSLReader
     {
         // Ignore Spelling: struct, Args, dest
 
-        #region "Structures"
-
         public struct FileDownloadInfo
         {
             public ArchivedFileInfo FileInfo;
@@ -18,19 +16,7 @@ namespace MyEMSLReader
             public string DestFilePath;
         }
 
-        #endregion
-
-        #region "Module variables"
-
-        #endregion
-
-        #region "Events"
-
         public event EventHandler<FileDownloadedEventArgs> FileDownloadedEvent;
-
-        #endregion
-
-        #region "Properties"
 
         /// <summary>
         /// Keys are MyEMSL File IDs, values are struct FileDownloadInfo
@@ -57,12 +43,9 @@ namespace MyEMSLReader
         /// </summary>
         public bool UseTestInstance { get; set; }
 
-        #endregion
-
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <remarks></remarks>
         public DownloadQueue()
         {
             FilesToDownload = new Dictionary<long, FileDownloadInfo>();

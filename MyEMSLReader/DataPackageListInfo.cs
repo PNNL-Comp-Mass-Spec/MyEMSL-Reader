@@ -9,8 +9,6 @@ namespace MyEMSLReader
     /// </summary>
     public class DataPackageListInfo : DatasetInfoBase
     {
-        #region "Properties"
-
         /// <summary>
         /// Dataset IDs
         /// </summary>
@@ -20,10 +18,7 @@ namespace MyEMSLReader
         /// <summary>
         /// Keys are data package IDs, values are the optional Subdirectory name to filter on for the given data package
         /// </summary>
-        // ReSharper disable once UnusedMember.Global
         public Dictionary<int, string> DataPackagesAndSubDirs { get; }
-
-        #endregion
 
         /// <summary>
         /// Constructor

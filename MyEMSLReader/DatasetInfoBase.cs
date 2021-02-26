@@ -15,14 +15,8 @@ namespace MyEMSLReader
     {
         // Ignore Spelling: struct, Args, ser, dest
 
-        #region "Constants"
-
         public const string MYEMSL_FILE_ID_TAG = "@MyEMSLID_";
         private const int CACHE_REFRESH_THRESHOLD_MINUTES = 5;
-
-        #endregion
-
-        #region "Module variables"
 
         protected readonly List<string> mErrorMessages;
         protected List<ArchivedFileInfo> mArchivedFiles;
@@ -43,10 +37,6 @@ namespace MyEMSLReader
 
         // Do not search for * or ? because we treat those as filename wildcards
         private readonly Regex mReplaceReservedRegExChars = new(@"(?<Symbol>[\^\$\.\|\+\(\)\[\{\\])", RegexOptions.Compiled);
-
-        #endregion
-
-        #region "Properties"
 
         /// <summary>
         /// The most recently downloaded files; keys are the full paths to the downloaded file, values are extended file info
@@ -110,7 +100,6 @@ namespace MyEMSLReader
             }
         }
 
-        #endregion
 
         protected DatasetInfoBase()
         {
@@ -675,8 +664,6 @@ namespace MyEMSLReader
             return true;
         }
 
-        #region "Events"
-
         public event EventHandler<FileDownloadedEventArgs> FileDownloadedEvent;
 
         public event StatusEventEventHandler MyEMSLOffline;
@@ -697,8 +684,5 @@ namespace MyEMSLReader
         {
             FileDownloadedEvent?.Invoke(sender, e);
         }
-
-        #endregion
-
     }
 }

@@ -945,8 +945,6 @@ namespace MyEMSLDownloader
             }
         }
 
-        #region "Event Handlers"
-
         private static void MyEMSLReader_MyEMSLOffline(string message)
         {
             OnWarningEvent(message);
@@ -1005,7 +1003,5 @@ namespace MyEMSLDownloader
                 }
             }
         }
-
-        #endregion
     }
 }
