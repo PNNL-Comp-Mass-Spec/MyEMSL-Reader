@@ -18,7 +18,7 @@ namespace Pacifica.Core
     /// </remarks>
     public class MyEMSLStatusCheck : EventNotifier
     {
-        // Ignore Spelling: hashsum, mimetype, mam Frodo, ArgC, CysAlk, hashtype, subdir, mtime, ctime, ok
+        // Ignore Spelling: hashsum, mimetype, mam Frodo, ArgC, CysAlk, hashtype, subdir, mtime, ctime, ok, pacifica
 
         private readonly Configuration mPacificaConfig;
 
