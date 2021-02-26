@@ -590,9 +590,10 @@ namespace MyEMSLReader
         }
 
         [Obsolete("Valid, but unused")]
+        // ReSharper disable once UnusedMember.Local
         private bool DownloadAndExtractTarFile(
             CookieContainer cookieJar,
-            List<ArchivedFileInfo> filesInArchive,
+            IReadOnlyCollection<ArchivedFileInfo> filesInArchive,
             long bytesDownloaded,
             IReadOnlyDictionary<long, string> destFilePathOverride,
             FileSystemInfo downloadDirectory,

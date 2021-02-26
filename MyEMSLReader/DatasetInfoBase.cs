@@ -42,7 +42,7 @@ namespace MyEMSLReader
         protected readonly Dictionary<string, ArchivedFileInfo> mDownloadedFiles;
 
         // Do not search for * or ? because we treat those as filename wildcards
-        private readonly Regex mReplaceReservedRegExChars = new Regex(@"(?<Symbol>[\^\$\.\|\+\(\)\[\{\\])", RegexOptions.Compiled);
+        private readonly Regex mReplaceReservedRegExChars = new(@"(?<Symbol>[\^\$\.\|\+\(\)\[\{\\])", RegexOptions.Compiled);
 
         #endregion
 

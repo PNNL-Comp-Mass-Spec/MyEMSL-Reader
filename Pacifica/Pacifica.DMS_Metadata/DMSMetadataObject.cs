@@ -1043,7 +1043,7 @@ namespace Pacifica.DMS_Metadata
             }
 
             // Convert the response to a dictionary
-            if (!(JsonConvert.Import(fileInfoListJSON) is Jayrock.Json.JsonArray jsa))
+            if (JsonConvert.Import(fileInfoListJSON) is not Jayrock.Json.JsonArray jsa)
             {
                 OnWarningEvent(string.Format(
                     "JsonConvert.Import did not return a JsonArray object; data returned from {0} is likely not JSON", metadataURL));

@@ -54,14 +54,12 @@ namespace Pacifica.Core
         // ReSharper disable once UnusedMember.Global
         public byte DetermineIngestStepsCompleted(string currentTask, int percentComplete, byte ingestStepsCompletedOld)
         {
-            byte ingestStepsCompleted;
             if (percentComplete > 0)
             {
                 // PercentComplete (between 0 and 100) is non-zero
                 // Convert it to a number between 0 and 7 since historically there were 7 steps to the ingest process
-                ingestStepsCompleted = IngestStepCompletionCount(percentComplete);
+                return IngestStepCompletionCount(percentComplete);
             }
-            else
 
             // Define the ingestStepsCompleted value based on the current task reported by the status page
             byte ingestStepsCompleted = currentTask.ToLower() switch

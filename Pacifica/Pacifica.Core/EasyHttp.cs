@@ -852,12 +852,9 @@ namespace Pacifica.Core
             }
             finally
             {
-                if (response != null)
+                if (response is IDisposable toDispose)
                 {
-                    if (response is IDisposable toDispose)
-                    {
-                        toDispose.Dispose();
-                    }
+                    toDispose.Dispose();
                 }
             }
         }

@@ -165,7 +165,7 @@ namespace MyEMSLReader
         {
             var searchTerms = new List<KeyValuePair<string, string>>
             {
-                new KeyValuePair<string, string>(QUERY_SPEC_DATA_PACKAGE_ID, dataPkgID.ToString(CultureInfo.InvariantCulture))
+                new(QUERY_SPEC_DATA_PACKAGE_ID, dataPkgID.ToString(CultureInfo.InvariantCulture))
             };
 
             var datasetsAndSubDirLists = GetSingleItemSortedSetDictionary(DATA_PKG_ID_TAG + dataPkgID, subDir);
@@ -259,7 +259,7 @@ namespace MyEMSLReader
         {
             var searchTerms = new List<KeyValuePair<string, string>>
             {
-                new KeyValuePair<string, string>(QUERY_SPEC_DATASET_ID, datasetID.ToString(CultureInfo.InvariantCulture))
+                new(QUERY_SPEC_DATASET_ID, datasetID.ToString(CultureInfo.InvariantCulture))
             };
 
             var datasetsAndSubDirLists = GetSingleItemSortedSetDictionary(DATASET_ID_TAG + datasetID, subDir);
@@ -352,7 +352,7 @@ namespace MyEMSLReader
 
             var searchTerms = new List<KeyValuePair<string, string>>
             {
-                new KeyValuePair<string, string>(QUERY_SPEC_DATASET_NAME, datasetName)
+                new(QUERY_SPEC_DATASET_NAME, datasetName)
             };
 
             var datasetsAndSubDirLists = GetSingleItemSortedSetDictionary(datasetName, subDir);
@@ -1230,7 +1230,8 @@ namespace MyEMSLReader
                 // Convert the response to a dictionary
                 var jsonData = JsonConvert.Import(fileInfoListJSON);
 
-                if (!(jsonData is Jayrock.Json.JsonArray jsa)){
+                if (jsonData is not Jayrock.Json.JsonArray jsa)
+                {
                     const string errMsg = "Could not convert the JSON string to a JsonArray (MyEMSLReader.RunItemSearchQuery)";
 
                     if (jsonData is string conversionError && !string.IsNullOrWhiteSpace(conversionError))
