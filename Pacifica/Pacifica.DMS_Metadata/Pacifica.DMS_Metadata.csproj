@@ -80,7 +80,8 @@
     <PostBuildEvent>xcopy "$(TargetPath)" "$(ProjectDir)..\..\DeployedFiles" /Y /I
 xcopy "$(TargetDir)$(TargetName).pdb" "$(ProjectDir)..\..\DeployedFiles" /Y
 xcopy "$(TargetDir)$(TargetName).xml" "$(ProjectDir)..\..\DeployedFiles" /Y
-</PostBuildEvent>
+
+if exist "$(ProjectDir)..\..\..\Capture_Task_Manager\RefLib" xcopy "$(ProjectDir)..\..\DeployedFiles\*.*" "$(ProjectDir)..\..\..\Capture_Task_Manager\RefLib\" /Y /D</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
