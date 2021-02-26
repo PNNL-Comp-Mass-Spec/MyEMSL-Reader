@@ -161,13 +161,13 @@ namespace Pacifica.Core
                     }
 
                     var buffer = new byte[32767];
-                    using (var outFile = new FileStream(downloadFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
+
+                    using var outFile = new FileStream(downloadFilePath, FileMode.Create, FileAccess.Write, FileShare.Read);
+
+                    int bytesRead;
+                    while ((bytesRead = responseStream.Read(buffer, 0, buffer.Length)) != 0)
                     {
-                        int bytesRead;
-                        while ((bytesRead = responseStream.Read(buffer, 0, buffer.Length)) != 0)
-                        {
-                            outFile.Write(buffer, 0, bytesRead);
-                        }
+                        outFile.Write(buffer, 0, bytesRead);
                     }
                 }
                 else
@@ -268,17 +268,16 @@ namespace Pacifica.Core
                 maxLines = 1;
             }
 
-            using (var reader = new StreamReader(responseStream))
-            {
-                for (var linesRead = 0; linesRead < maxLines; linesRead++)
-                {
-                    if (reader.EndOfStream)
-                    {
-                        break;
-                    }
+            using var reader = new StreamReader(responseStream);
 
-                    responseData.AppendLine(reader.ReadLine());
+            for (var linesRead = 0; linesRead < maxLines; linesRead++)
+            {
+                if (reader.EndOfStream)
+                {
+                    break;
                 }
+
+                responseData.AppendLine(reader.ReadLine());
             }
 
             return responseData.ToString();
@@ -449,15 +448,13 @@ namespace Pacifica.Core
         /// <param name="responseText"></param>
         public static bool IsResponseError(string responseText)
         {
-            switch (responseText)
+            return responseText switch
             {
-                case REQUEST_ABORTED_RESPONSE:
-                case REQUEST_EXCEPTION_RESPONSE:
-                case REQUEST_TIMEOUT_RESPONSE:
-                    return true;
-                default:
-                    return false;
-            }
+                REQUEST_ABORTED_RESPONSE => true,
+                REQUEST_EXCEPTION_RESPONSE => true,
+                REQUEST_TIMEOUT_RESPONSE => true,
+                _ => false
+            };
         }
 
         /// <summary>
@@ -829,10 +826,8 @@ namespace Pacifica.Core
             // Write POST data, if POST
             if (urlContactInfo.Method == HttpMethod.Post)
             {
-                using (var writer = new StreamWriter(request.GetRequestStream()))
-                {
-                    writer.Write(urlContactInfo.PostData);
-                }
+                using var writer = new StreamWriter(request.GetRequestStream());
+                writer.Write(urlContactInfo.PostData);
             }
 
             // Receive response
@@ -847,10 +842,8 @@ namespace Pacifica.Core
 
                 if (responseStream != null)
                 {
-                    using (var reader = new StreamReader(responseStream))
-                    {
-                        urlContactInfo.ResponseData.ResponseText = reader.ReadToEnd();
-                    }
+                    using var reader = new StreamReader(responseStream);
+                    urlContactInfo.ResponseData.ResponseText = reader.ReadToEnd();
                 }
             }
             catch (WebException ex)

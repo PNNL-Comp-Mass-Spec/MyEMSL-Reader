@@ -62,30 +62,17 @@ namespace Pacifica.Core
                 ingestStepsCompleted = IngestStepCompletionCount(percentComplete);
             }
             else
+
+            // Define the ingestStepsCompleted value based on the current task reported by the status page
+            byte ingestStepsCompleted = currentTask.ToLower() switch
             {
-                // Define the ingestStepsCompleted value based on the current task reported by the status page
-                switch (currentTask.ToLower())
-                {
-                    case "open tar":
-                        ingestStepsCompleted = 2;
-                        break;
-                    case "policy validation":
-                        ingestStepsCompleted = 3;
-                        break;
-                    case "uploading":
-                        ingestStepsCompleted = 4;
-                        break;
-                    case "ingest files":
-                        ingestStepsCompleted = 5;
-                        break;
-                    case "ingest metadata":
-                        ingestStepsCompleted = 6;
-                        break;
-                    default:
-                        ingestStepsCompleted = ingestStepsCompletedOld;
-                        break;
-                }
-            }
+                "open tar" => 2,
+                "policy validation" => 3,
+                "uploading" => 4,
+                "ingest files" => 5,
+                "ingest metadata" => 6,
+                _ => ingestStepsCompletedOld
+            };
 
             return ingestStepsCompleted;
         }

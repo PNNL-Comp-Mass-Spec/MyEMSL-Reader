@@ -832,13 +832,13 @@ namespace MyEMSLReader
                 var responseData = string.Empty;
                 if (ex.Response != null)
                 {
-                    using (var reader = new StreamReader(ex.Response.GetResponseStream()))
+                    using var reader = new StreamReader(ex.Response.GetResponseStream());
+
+                    const int MAX_LINES = 20;
+
+                    for (var linesRead = 0; !reader.EndOfStream && linesRead < MAX_LINES; linesRead++)
                     {
-                        const int MAX_LINES = 20;
-                        for (var linesRead = 0; !reader.EndOfStream && linesRead < MAX_LINES; linesRead++)
-                        {
-                            responseData += reader.ReadLine() + Environment.NewLine;
-                        }
+                        responseData += reader.ReadLine() + Environment.NewLine;
                     }
                 }
                 throw new Exception(responseData, ex);

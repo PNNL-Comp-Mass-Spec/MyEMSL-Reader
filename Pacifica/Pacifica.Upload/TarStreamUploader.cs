@@ -503,10 +503,8 @@ namespace Pacifica.Upload
                 var responseStream = response.GetResponseStream();
                 if (responseStream != null)
                 {
-                    using (var sr = new StreamReader(responseStream))
-                    {
-                        responseData = sr.ReadToEnd();
-                    }
+                    using var reader = new StreamReader(responseStream);
+                    responseData = reader.ReadToEnd();
                 }
             }
             catch (WebException ex)
