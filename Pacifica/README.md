@@ -28,7 +28,7 @@ Website: https://panomics.pnl.gov/ or https://omics.pnl.gov
 
 ## License
 
-Licensed under the 2-Clause BSD License; you may not use this file 
+Licensed under the 2-Clause BSD License; you may not use this program 
 except in compliance with the License. You may obtain a copy of the License at 
 https://opensource.org/licenses/BSD-2-Clause
 
