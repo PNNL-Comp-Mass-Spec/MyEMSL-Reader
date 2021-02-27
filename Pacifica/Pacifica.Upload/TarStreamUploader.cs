@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
@@ -33,18 +32,16 @@ namespace Pacifica.Upload
         /// </summary>
         public enum UploadDebugMode
         {
-            [Description("Debugging is disabled")]
             /// <summary>
             /// Debugging is disabled
             /// </summary>
             DebugDisabled = 0,
-            [Description("Authenticate with MyEMSL, but create a local .tar file")]
+
             /// <summary>
             /// Authenticate with MyEMSL, but create a local .tar file
             /// </summary>
             // ReSharper disable once UnusedMember.Global
             CreateTarLocal = 1,
-            [Description("Do not contact MyEMSL; create a local .tar file")]
 
             /// <summary>
             /// Do not contact MyEMSL; create a local .tar file
