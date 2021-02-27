@@ -56,11 +56,6 @@ namespace MyEMSLReader
             get;
             set;
         }
-        public long LastSearchFileCountMatched
-        {
-            get;
-            private set;
-        }
 
         /// <summary>
         /// File count returned by the most recent search
@@ -808,7 +803,6 @@ namespace MyEMSLReader
                 // Keys in this dictionary are DatasetID_RemoteFilePath; values are the transaction ID for that file
                 var remoteFilePaths = new Dictionary<string, ArchivedFileInfo>();
 
-                LastSearchFileCountMatched = 0;
                 LastSearchFileCountReturned = 0;
 
                 var filterOnInstrument = !string.IsNullOrWhiteSpace(instrumentName);
