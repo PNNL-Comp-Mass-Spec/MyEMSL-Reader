@@ -216,17 +216,19 @@ namespace Pacifica.Core
             var fileList = new List<FileInfoObject>();
             foreach (var item in metadataObject)
             {
-                if (item.TryGetValue("destinationTable", out var destTable))
+                if (!item.TryGetValue("destinationTable", out var destTable))
                 {
-                    var t = (string)destTable;
-                    if (string.Equals(t, "files", StringComparison.OrdinalIgnoreCase))
-                    {
-                        fileList.Add(new FileInfoObject(
-                            (string)item["absolutelocalpath"],
-                            (string)item["subdir"],
-                            (string)item["hashsum"]
-                        ));
-                    }
+                    continue;
+                }
+
+                var t = (string)destTable;
+                if (string.Equals(t, "files", StringComparison.OrdinalIgnoreCase))
+                {
+                    fileList.Add(new FileInfoObject(
+                        (string)item["absolutelocalpath"],
+                        (string)item["subdir"],
+                        (string)item["hashsum"]
+                    ));
                 }
             }
 
