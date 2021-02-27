@@ -16,7 +16,9 @@ namespace MyEMSLDownloader
 
     internal static class Program
     {
-        private const string PROGRAM_DATE = "December 2, 2020";
+        private const string PROGRAM_DATE = "February 26, 2021";
+
+        // Ignore Spelling: ser, Acq, un-purged, Virol, melissa
 
         private static double mPercentComplete;
         private static DateTime mLastProgressUpdateTime = DateTime.UtcNow;

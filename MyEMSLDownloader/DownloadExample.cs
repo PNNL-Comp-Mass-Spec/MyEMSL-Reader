@@ -7,6 +7,8 @@ namespace MyEMSLDownloader
 {
     internal class DownloadExample
     {
+        // Ignore Spelling: Virol
+
         public void StartTest()
         {
             var datasetListInfo = new DatasetListInfo
