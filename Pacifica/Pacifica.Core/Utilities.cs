@@ -235,6 +235,28 @@ namespace Pacifica.Core
             return fileList;
         }
 
+        public static void RemoveFileFromMetadataObject(List<Dictionary<string, object>> metadataObject, string absoluteLocalPath)
+        {
+            for (var i = 0; i < metadataObject.Count; i++)
+            {
+                var item = metadataObject[i];
+
+                if (!item.TryGetValue("destinationTable", out var destTable))
+                    continue;
+
+                var t = (string)destTable;
+                if (string.Equals(t, "files", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (absoluteLocalPath.Equals(item["absolutelocalpath"]))
+                    {
+                        // Remove this item
+                        metadataObject.RemoveAt(i);
+                        return;
+                    }
+                }
+            }
+        }
+
         public static DirectoryInfo GetTempDirectory(Configuration config)
         {
             if (!string.IsNullOrEmpty(config.LocalTempDirectory))

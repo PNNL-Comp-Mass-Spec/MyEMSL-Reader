@@ -414,10 +414,12 @@ namespace Pacifica.Upload
 
                 if (fileListObject.ContainsKey(file.AbsoluteLocalPath))
                 {
-                    // Duplicate file
+                    // Duplicate file; skip it
                     //   This can happen if a dataset has two CacheInfo.txt files that point to the same file
                     //   For example, Dataset.mzML.gz_CacheInfo.txt referring to \\proto-11\MSXML_Cache\Mz_Refinery_1_230\2020_4\Dataset.mzML.gz
-                    // Skip the duplicate
+
+                    // Update metadataObject to remove the duplicate file
+                    Utilities.RemoveFileFromMetadataObject(metadataObject, file.AbsoluteLocalPath);
                     continue;
                 }
 
