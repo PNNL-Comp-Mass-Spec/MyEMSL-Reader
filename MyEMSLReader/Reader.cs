@@ -1265,7 +1265,7 @@ namespace MyEMSLReader
 
                     if (remoteFiles.TryGetValue(relativeFilePath, out var fileVersions))
                     {
-                        // Make sure that fileVersions doesn't already have a version of this file with this specific Sha-1 hash
+                        // Make sure that fileVersions doesn't already have a version of this file with this specific SHA-1 hash
                         // This is a rare occurrence and should only happen due to metadata ingest logic issues
 
                         if (FileHashExists(fileVersions, fileHash))
