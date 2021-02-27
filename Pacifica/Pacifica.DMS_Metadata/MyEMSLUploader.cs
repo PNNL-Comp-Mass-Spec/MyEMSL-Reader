@@ -8,12 +8,21 @@ using Utilities = Pacifica.Core.Utilities;
 
 namespace Pacifica.DMS_Metadata
 {
+    /// <summary>
+    /// MyEMSL uploader
+    /// </summary>
     public class MyEMSLUploader : EventNotifier
     {
         // Ignore Spelling: Uploader, Pacifica
 
+        /// <summary>
+        /// Recursive upload dictionary key
+        /// </summary>
         public const string RECURSIVE_UPLOAD = "MyEMSL_Recurse";
 
+        /// <summary>
+        /// Critical error text
+        /// </summary>
         public const string CRITICAL_UPLOAD_ERROR = "Critical Error";
 
         private readonly Uploader.Upload mUploadWorker;
@@ -193,6 +202,7 @@ namespace Pacifica.DMS_Metadata
         /// </param>
         /// <param name="statusURL">Output: status URL</param>
         /// <returns>True if success, false if an error</returns>
+        // ReSharper disable once UnusedMember.Global
         public bool SetupMetadataAndUpload(Configuration config, Uploader.TarStreamUploader.UploadDebugMode debugMode, out string statusURL)
         {
             var jobNumber = GetParam("Job", 0);
@@ -345,10 +355,19 @@ namespace Pacifica.DMS_Metadata
             return valueIfMissing;
         }
 
+        /// <summary>
+        /// Metadata defined event
+        /// </summary>
         public event EventHandler<MessageEventArgs> MetadataDefinedEvent;
 
+        /// <summary>
+        /// Status update event
+        /// </summary>
         public event EventHandler<StatusEventArgs> StatusUpdate;
 
+        /// <summary>
+        /// Upload complete event
+        /// </summary>
         public event EventHandler<UploadCompletedEventArgs> UploadCompleted;
 
         private void ReportMetadataDefined(string callingFunction, string metadataJSON)

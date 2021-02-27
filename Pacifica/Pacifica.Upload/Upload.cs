@@ -44,6 +44,9 @@ namespace Pacifica.Upload
 
         private readonly Configuration mPacificaConfig;
 
+        /// <summary>
+        /// EUS info
+        /// </summary>
         public class EUSInfo
         {
             /// <summary>
@@ -63,6 +66,9 @@ namespace Pacifica.Upload
             /// <remarks>Aka EUSSubmitterId</remarks>
             public int EUSUploaderID;
 
+            /// <summary>
+            /// Clear stored EUS info
+            /// </summary>
             public void Clear()
             {
                 EUSInstrumentID = 0;
@@ -70,35 +76,146 @@ namespace Pacifica.Upload
                 EUSUploaderID = 0;
             }
 
+            /// <summary>
+            /// Return EUS instrument ID, uploader ID, and project ID
+            /// </summary>
             public override string ToString()
             {
                 return "EUSInstrumentID " + EUSInstrumentID + ", Uploader " + EUSUploaderID + ", Project " + EUSProjectID;
             }
         }
 
+        /// <summary>
+        /// Upload metadata
+        /// </summary>
         public class UploadMetadata
         {
-            public int DatasetID;               // 0 for data packages
+            /// <summary>
+            /// Dataset ID
+            /// </summary>
+            /// <remarks>
+            /// 0 for data packages
+            /// </remarks>
+            public int DatasetID;
+
+            /// <summary>
+            /// Data package ID
+            /// </summary>
             public int DataPackageID;
+
+            /// <summary>
+            /// Subdirectory
+            /// </summary>
             public string SubFolder;
-            public string DatasetName;          // Only used for datasets; not Data Packages
-            public string DateCodeString;       // Only used for datasets; not Data Packages
-            public string DMSInstrumentName;    // Originally only used by datasets. Used by Data Packages starting in July 2017 since required by policy
+
+            /// <summary>
+            /// Dataset name
+            /// </summary>
+            /// <remarks>
+            /// Only used for datasets; not data packages
+            /// </remarks>
+            public string DatasetName;
+
+            /// <summary>
+            /// Date code string
+            /// </summary>
+            /// <remarks>
+            /// Only used for datasets; not data packages
+            /// </remarks>
+            public string DateCodeString;
+
+            /// <summary>
+            /// DMS instrument name
+            /// </summary>
+            /// <remarks>
+            /// Originally only used by datasets. Used by Data Packages starting in July 2017 since required by policy
+            /// </remarks>
+            public string DMSInstrumentName;
+
+            /// <summary>
+            /// Campaign name
+            /// </summary>
             public string CampaignName;
+
+            /// <summary>
+            /// Campaign ID
+            /// </summary>
             public int CampaignID;
-            public int EUSInstrumentID;         // Originally only used by datasets. Used by Data Packages starting in July 2017 since required by policy
-            public string EUSProjectID;         // Originally only used by datasets. Used by Data Packages starting in October 2016 since required by policy
+
+            /// <summary>
+            /// EUS instrument ID
+            /// </summary>
+            /// <remarks>
+            /// Originally only used by datasets. Used by Data Packages starting in July 2017 since required by policy
+            /// </remarks>
+            public int EUSInstrumentID;
+
+            /// <summary>
+            /// EUS project ID
+            /// </summary>
+            /// <remarks>
+            /// Originally only used by datasets. Used by Data Packages starting in October 2016 since required by policy
+            /// </remarks>
+            public string EUSProjectID;
+
+            /// <summary>
+            /// Experiment name
+            /// </summary>
             public string ExperimentName;
+
+            /// <summary>
+            /// Experiment ID
+            /// </summary>
             public int ExperimentID;
+
+            /// <summary>
+            /// Organism name
+            /// </summary>
             public string OrganismName;
+
+            /// <summary>
+            /// Organism ID
+            /// </summary>
             public int OrganismID;
+
+            /// <summary>
+            /// NCBI taxonomy ID
+            /// </summary>
             public int NCBITaxonomyID;
+
+            /// <summary>
+            /// Acquisition time
+            /// </summary>
             public string AcquisitionTime;
+
+            /// <summary>
+            /// Acquisition length, in minutes
+            /// </summary>
             public int AcquisitionLengthMin;
+
+            /// <summary>
+            /// Number of scans
+            /// </summary>
             public int NumberOfScans;
+
+            /// <summary>
+            /// Separation type
+            /// </summary>
             public string SeparationType;
+
+            /// <summary>
+            /// Dataset type
+            /// </summary>
             public string DatasetType;
+
+            /// <summary>
+            /// Requested run ID
+            /// </summary>
             public int RequestedRunID;
+
+            /// <summary>
+            /// User list
+            /// </summary>
             public List<int> UserOfRecordList;
 
             /// <summary>
@@ -108,6 +225,9 @@ namespace Pacifica.Upload
             /// <remarks>DEFAULT_EUS_OPERATOR_ID if unknown</remarks>
             public int EUSOperatorID;
 
+            /// <summary>
+            /// Clear stored metadata
+            /// </summary>
             // ReSharper disable once UnusedMember.Global
             public void Clear()
             {
@@ -136,6 +256,9 @@ namespace Pacifica.Upload
                 EUSOperatorID = DEFAULT_EUS_OPERATOR_ID;
             }
 
+            /// <summary>
+            /// Return the dataset ID if available, otherwise data package ID
+            /// </summary>
             public override string ToString()
             {
                 if (DatasetID == 0 && DataPackageID > 0)
@@ -208,8 +331,19 @@ namespace Pacifica.Upload
             JobNumber = jobNumber;
         }
 
+        /// <summary>
+        /// MyEMSL Offline event
+        /// </summary>
         public event EventHandler<MessageEventArgs> MyEMSLOffline;
+
+        /// <summary>
+        /// Upload completed event
+        /// </summary>
         public event EventHandler<UploadCompletedEventArgs> UploadCompleted;
+
+        /// <summary>
+        /// Status updated event
+        /// </summary>
         public event EventHandler<StatusEventArgs> StatusUpdate;
 
         private void EasyHttp_MyEMSLOffline(object sender, MessageEventArgs e)
@@ -659,8 +793,6 @@ namespace Pacifica.Upload
         /// Return a string description of the EUS info encoded by metadataObject
         /// </summary>
         /// <param name="metadataObject"></param>
-        /// <returns></returns>
-        // ReSharper disable once UnusedMember.Global
         public static string GetMetadataObjectDescription(List<Dictionary<string, object>> metadataObject)
         {
             var metadataList = new List<string>();
@@ -768,7 +900,6 @@ namespace Pacifica.Upload
         /// </summary>
         /// <param name="eusInstrumentId"></param>
         /// <param name="instrumentIdIfUnknown"></param>
-        /// <returns></returns>
         private static int GetEUSInstrumentID(int eusInstrumentId, int instrumentIdIfUnknown)
         {
             return eusInstrumentId <= 0 ? instrumentIdIfUnknown : eusInstrumentId;
@@ -779,7 +910,6 @@ namespace Pacifica.Upload
         /// </summary>
         /// <param name="eusProjectId"></param>
         /// <param name="eusProjectIdIfUnknown"></param>
-        /// <returns></returns>
         /// <remarks>This is a string because the project ID may contain suffix letters</remarks>
         private static string GetEUSProjectID(string eusProjectId, string eusProjectIdIfUnknown)
         {

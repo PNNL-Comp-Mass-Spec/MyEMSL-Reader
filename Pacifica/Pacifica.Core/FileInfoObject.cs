@@ -7,10 +7,13 @@ namespace Pacifica.Core
     public class FileInfoObject
     {
         /// <summary>
-        /// Instantiate a new FileInfoObject, including computing the SHA-1 hash of the file
+        /// Constructor
         /// </summary>
         /// <param name="absoluteLocalFullPath">Full path to the local file</param>
         /// <param name="baseDSPath">Base dataset folder path</param>
+        /// <remarks>
+        /// Instantiate a new FileInfoObject, including computing the SHA-1 hash of the file
+        /// </remarks>
         // ReSharper disable once UnusedMember.Global
         public FileInfoObject(string absoluteLocalFullPath, string baseDSPath)
         {
@@ -151,6 +154,9 @@ namespace Pacifica.Core
             return path.Replace(@"\", "/").TrimStart('/');
         }
 
+        /// <summary>
+        /// Return the SHA-1 hash
+        /// </summary>
         public override string ToString()
         {
             if (string.IsNullOrWhiteSpace(Sha1HashHex))

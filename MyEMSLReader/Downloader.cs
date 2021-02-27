@@ -20,18 +20,53 @@ namespace MyEMSLReader
     {
         // Ignore Spelling: dest
 
+        /// <summary>
+        /// Download layout
+        /// </summary>
         public enum DownloadLayout
         {
+            /// <summary>
+            /// Flat, no subdirectories
+            /// </summary>
             FlatNoSubdirectories = 0,
+
+            /// <summary>
+            /// Single dataset
+            /// </summary>
             SingleDataset = 1,
+
+            /// <summary>
+            /// Separate datasets, each in their own subdirectory
+            /// </summary>
             DatasetNameAndSubdirectories = 2,
+
+            /// <summary>
+            /// Separate datasets, arranged by Year_Quarter\DatasetName
+            /// </summary>
             InstrumentYearQuarterDataset = 3
         }
 
+        /// <summary>
+        /// File overwrite behavior
+        /// </summary>
         public enum Overwrite
         {
-            IfChanged = 0,			// This mode will compute a SHA-1 hash of the target file and only overwrite the target if the hash values differ
+            /// <summary>
+            /// Only overwrite if the downloaded file is different
+            /// </summary>
+            /// <remarks>
+            /// This mode will compute a SHA-1 hash of the target file and only overwrite the target if the hash values differ
+            /// </remarks>
+            IfChanged = 0,
+
+            /// <summary>
+            /// Always overwrite
+            /// </summary>
             Always = 1,
+
+            /// <summary>
+            /// Never overwrite
+            /// </summary>
             Never = 2
         }
 
@@ -81,7 +116,9 @@ namespace MyEMSLReader
             }
         }
 
-        // Constructor
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public Downloader()
         {
             ThrowErrors = true;
@@ -416,7 +453,6 @@ namespace MyEMSLReader
         /// <param name="downloadDirectory"></param>
         /// <param name="directoryLayout"></param>
         /// <param name="bytesDownloaded"></param>
-        /// <returns></returns>
         private Dictionary<long, string> DownloadFilesDirectly(
             IReadOnlyDictionary<long, ArchivedFileInfo> filesToDownload,
             CookieContainer cookieJar,
@@ -974,7 +1010,6 @@ namespace MyEMSLReader
         /// <param name="archiveFile"></param>
         /// <param name="targetFile"></param>
         /// <param name="reportMessage"></param>
-        /// <returns></returns>
         private bool IsDownloadRequired(
             ArchivedFileInfo archiveFile,
             FileSystemInfo targetFile,
@@ -1035,6 +1070,9 @@ namespace MyEMSLReader
             return downloadFile;
         }
 
+        /// <summary>
+        /// Reset the percent complete and clear the list of downloaded files
+        /// </summary>
         protected sealed override void ResetStatus()
         {
             base.ResetStatus();

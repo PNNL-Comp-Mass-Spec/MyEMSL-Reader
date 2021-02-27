@@ -15,17 +15,40 @@ namespace MyEMSLReader
     {
         // Ignore Spelling: struct, Args, ser, dest
 
+        /// <summary>
+        /// MyEMSL ID flag
+        /// </summary>
         public const string MYEMSL_FILE_ID_TAG = "@MyEMSLID_";
         private const int CACHE_REFRESH_THRESHOLD_MINUTES = 5;
 
+        /// <summary>
+        /// Error messages
+        /// </summary>
         protected readonly List<string> mErrorMessages;
+
+        /// <summary>
+        /// List of files in MyEMSL
+        /// </summary>
         protected List<ArchivedFileInfo> mArchivedFiles;
 
+        /// <summary>
+        /// Timestamp when metadata was retrieved
+        /// </summary>
         protected DateTime mCacheDate;
+
+        /// <summary>
+        /// True if the cached metadata is out of date
+        /// </summary>
         protected bool mCacheIsStale;
 
+        /// <summary>
+        /// MyEMSL Reader
+        /// </summary>
         protected readonly Reader mReader;
 
+        /// <summary>
+        /// Tracks information on files to download
+        /// </summary>
         protected readonly DownloadQueue mDownloadQueue;
 
         private bool mUseTestInstance;
@@ -41,8 +64,6 @@ namespace MyEMSLReader
         /// <summary>
         /// The most recently downloaded files; keys are the full paths to the downloaded file, values are extended file info
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
         /// <remarks>Keys are the full paths to the downloaded file, values are extended file info</remarks>
         // ReSharper disable once UnusedMember.Global
         public Dictionary<string, ArchivedFileInfo> DownloadedFiles => mDownloadQueue.DownloadedFiles;
@@ -50,8 +71,6 @@ namespace MyEMSLReader
         /// <summary>
         /// List of error messages
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
         /// <remarks>The messages are cleared by when these functions are called: ProcessDownloadQueue and RefreshInfo</remarks>
         /// ReSharper disable once UnusedMember.Global
         public List<string> ErrorMessages => mErrorMessages;
@@ -59,8 +78,6 @@ namespace MyEMSLReader
         /// <summary>
         /// MyEMSL IDs of files queued to be downloaded
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
         /// <remarks>Keys are MyEMSL File IDs, values are struct FileDownloadInfo</remarks>
         /// ReSharper disable once UnusedMember.Global
         public Dictionary<long, DownloadQueue.FileDownloadInfo> FilesToDownload => mDownloadQueue.FilesToDownload;
@@ -70,6 +87,9 @@ namespace MyEMSLReader
         /// </summary>
         public bool ThrowErrors { get; set; }
 
+        /// <summary>
+        /// When true, raise a DebugEvent prior to contacting the metadata server
+        /// </summary>
         public bool ReportMetadataURLs
         {
             get => mReader.ReportMetadataURLs;
@@ -100,7 +120,9 @@ namespace MyEMSLReader
             }
         }
 
-
+        /// <summary>
+        /// Base dataset info
+        /// </summary>
         protected DatasetInfoBase()
         {
             mErrorMessages = new List<string>();
@@ -217,7 +239,6 @@ namespace MyEMSLReader
         /// </summary>
         /// <param name="filePath">Path to parse, for example QC_Shew_13-04_pt1_1_1_31Jul13_Cheetah_13-07-01.raw@MyEMSLID_84327</param>
         /// <returns>MyEMSL File ID if successfully parsed, 0 if not present or a problem</returns>
-        /// <remarks></remarks>
         /// ReSharper disable once UnusedMember.Global
         public static long ExtractMyEMSLFileID(string filePath)
         {
@@ -230,7 +251,6 @@ namespace MyEMSLReader
         /// <param name="filePath">Path to parse, for example QC_Shew_13-04_pt1_1_1_31Jul13_Cheetah_13-07-01.raw@MyEMSLID_84327</param>
         /// <param name="newFilePath">Path with the MyEMSL FileID tag removed, for example QC_Shew_13-04_pt1_1_1_31Jul13_Cheetah_13-07-01.raw</param>
         /// <returns>MyEMSL File ID if successfully parsed, 0 if not present or a problem</returns>
-        /// <remarks></remarks>
         public static long ExtractMyEMSLFileID(string filePath, out string newFilePath)
         {
             var charIndex = filePath.LastIndexOf(MYEMSL_FILE_ID_TAG, StringComparison.Ordinal);
@@ -256,7 +276,6 @@ namespace MyEMSLReader
         /// </summary>
         /// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
         /// <returns>List of matching files</returns>
-        /// <remarks></remarks>
         public List<DatasetDirectoryOrFileInfo> FindFiles(string fileName)
         {
             var subdirectoryName = string.Empty;
@@ -512,7 +531,6 @@ namespace MyEMSLReader
         /// <param name="directoryName">Directory name to find; can contain a wildcard, e.g. SIC*</param>
         /// <param name="datasetName">Dataset name filter</param>
         /// <returns>List of matching directories</returns>
-        /// <remarks></remarks>
         public List<DatasetDirectoryOrFileInfo> FindDirectories(string directoryName, string datasetName)
         {
             // Re-query the web service if the information is out-of-date
@@ -652,7 +670,6 @@ namespace MyEMSLReader
         /// Refresh the cached file info if over 5 minutes have elapsed
         /// </summary>
         /// <returns>True if success, false if an error</returns>
-        /// <remarks></remarks>
         // ReSharper disable once UnusedMethodReturnValue.Local
         private bool RefreshInfoIfStale()
         {
@@ -664,8 +681,14 @@ namespace MyEMSLReader
             return true;
         }
 
+        /// <summary>
+        /// File downloaded event
+        /// </summary>
         public event EventHandler<FileDownloadedEventArgs> FileDownloadedEvent;
 
+        /// <summary>
+        /// MyEMSL Offline event
+        /// </summary>
         public event StatusEventEventHandler MyEMSLOffline;
 
         private void Reader_MyEMSLOffline(string message)

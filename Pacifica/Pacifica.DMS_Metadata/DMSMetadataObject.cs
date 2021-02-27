@@ -15,6 +15,9 @@ using Utilities = Pacifica.Core.Utilities;
 
 namespace Pacifica.DMS_Metadata
 {
+    /// <summary>
+    /// DMS metadata object
+    /// </summary>
     public class DMSMetadataObject : EventNotifier
     {
         // Ignore Spelling: Json, ssl, ncbi, subfolder, mtime, ctime, fileinfo, keyvalue, hashsum, subdir, hashtype
@@ -56,6 +59,9 @@ namespace Pacifica.DMS_Metadata
         /// </summary>
         public const string EUS_PORTAL_URL = "https://eusi.emsl.pnnl.gov/Portal/";
 
+        /// <summary>
+        /// Text to show when reporting progress
+        /// </summary>
         public const string HASHING_FILES = "Hashing files";
 
         /// <summary>
@@ -73,9 +79,20 @@ namespace Pacifica.DMS_Metadata
 
         private readonly Configuration mPacificaConfig;
 
+        /// <summary>
+        /// Archive modes
+        /// </summary>
         public enum ArchiveModes
         {
-            archive, update
+            /// <summary>
+            /// Archive files (initial push of a dataset's files into MyEMSL)
+            /// </summary>
+            archive,
+
+            /// <summary>
+            /// Add/update a dataset's files
+            /// </summary>
+            update
         }
 
         /// <summary>
@@ -438,7 +455,6 @@ namespace Pacifica.DMS_Metadata
         /// Convert a file size in bytes to gigabytes
         /// </summary>
         /// <param name="sizeBytes"></param>
-        /// <returns></returns>
         private static double BytesToGB(long sizeBytes)
         {
             return sizeBytes / 1024.0 / 1024 / 1024;
@@ -727,6 +743,9 @@ namespace Pacifica.DMS_Metadata
             return missingFiles;
         }
 
+        /// <summary>
+        /// Create lock files for the files in mRemoteCacheInfoFilesToRetrieve
+        /// </summary>
         public void CreateLockFiles()
         {
             const int MAX_LOCKFILE_WAIT_TIME_MINUTES = 20;
@@ -781,6 +800,9 @@ namespace Pacifica.DMS_Metadata
             }
         }
 
+        /// <summary>
+        /// Delete lock files tracked by mRemoteCacheInfoLockFiles
+        /// </summary>
         public void DeleteLockFiles()
         {
             if (mRemoteCacheInfoLockFiles.Count == 0)
@@ -822,7 +844,6 @@ namespace Pacifica.DMS_Metadata
         /// <param name="taskParams"></param>
         /// <param name="mgrParams"></param>
         /// <param name="uploadMetadata"></param>
-        /// <returns></returns>
         public List<FileInfoObject> FindDatasetFilesToArchive(
             Dictionary<string, string> taskParams,
             Dictionary<string, string> mgrParams,
@@ -1140,6 +1161,11 @@ namespace Pacifica.DMS_Metadata
             return remoteFiles;
         }
 
+        /// <summary>
+        /// Get the dataset date-code text, e.g. 2040_4
+        /// </summary>
+        /// <param name="taskParams"></param>
+        /// <returns>Year_Quarter</returns>
         public static string GetDatasetYearQuarter(Dictionary<string, string> taskParams)
         {
             var datasetDate = Utilities.GetDictionaryValue(taskParams, "Created", string.Empty);

@@ -3,8 +3,14 @@ using System.IO;
 
 namespace MyEMSLReader
 {
+    /// <summary>
+    /// Archived file info
+    /// </summary>
     public class ArchivedFileInfo
     {
+        /// <summary>
+        /// SHA-1
+        /// </summary>
         public const string SHA1 = "sha1";
 
         /// <summary>
@@ -85,9 +91,9 @@ namespace MyEMSLReader
         }
 
         /// <summary>
-        /// Sha-1 or MD5 hash
+        /// SHA-1 or MD5 hash
         /// </summary>
-        /// <remarks>Typically a Sha-1 hash</remarks>
+        /// <remarks>Typically a SHA-1 hash</remarks>
         public string Hash
         {
             get;
@@ -197,7 +203,7 @@ namespace MyEMSLReader
         }
 
         /// <summary>
-        /// Sha-1 hash, provided Hashtype is "sha1" or empty
+        /// SHA-1 hash, provided HashType is "sha1" or empty
         /// </summary>
         public string Sha1Hash
         {
@@ -344,6 +350,9 @@ namespace MyEMSLReader
             }
         }
 
+        /// <summary>
+        /// Return the relative file path
+        /// </summary>
         public override string ToString()
         {
             return RelativePathWindows;

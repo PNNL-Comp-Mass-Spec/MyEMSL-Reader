@@ -9,6 +9,7 @@ namespace MyEMSLReader
     /// </summary>
     public class DatasetListInfo : DatasetInfoBase
     {
+        // Ignore Spelling: Dirs
 
         /// <summary>
         /// Dataset names
@@ -72,12 +73,21 @@ namespace MyEMSLReader
             }
         }
 
+        /// <summary>
+        /// Clear cached metadata
+        /// </summary>
+        // ReSharper disable once UnusedMember.Global
         public void Clear()
         {
             DatasetsAndSubDirs.Clear();
             mCacheIsStale = true;
         }
 
+        /// <summary>
+        /// Return true if DatasetsAndSubDirs contains the given dataset
+        /// </summary>
+        /// <param name="datasetName"></param>
+        // ReSharper disable once UnusedMember.Global
         public bool ContainsDataset(string datasetName)
         {
             return DatasetsAndSubDirs.ContainsKey(datasetName);

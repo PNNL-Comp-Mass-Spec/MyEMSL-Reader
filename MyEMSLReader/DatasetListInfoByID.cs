@@ -9,6 +9,7 @@ namespace MyEMSLReader
     /// </summary>
     public class DatasetListInfoByID : DatasetInfoBase
     {
+        // Ignore Spelling: Dirs
 
         /// <summary>
         /// Dataset IDs
@@ -60,12 +61,19 @@ namespace MyEMSLReader
             }
         }
 
+        /// <summary>
+        /// Clear DatasetsAndSubDirs and set mCacheIsStale to true
+        /// </summary>
         public void Clear()
         {
             DatasetsAndSubDirs.Clear();
             mCacheIsStale = true;
         }
 
+        /// <summary>
+        /// Return true if DatasetsAndSubDirs has the given dataset
+        /// </summary>
+        /// <param name="datasetID"></param>
         public bool ContainsDataset(int datasetID)
         {
             return DatasetsAndSubDirs.ContainsKey(datasetID);

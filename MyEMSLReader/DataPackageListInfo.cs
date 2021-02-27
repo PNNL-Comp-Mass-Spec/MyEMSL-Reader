@@ -60,6 +60,9 @@ namespace MyEMSLReader
             }
         }
 
+        /// <summary>
+        /// Clear stored data
+        /// </summary>
         // ReSharper disable once UnusedMember.Global
         public void Clear()
         {
@@ -67,6 +70,10 @@ namespace MyEMSLReader
             mCacheIsStale = true;
         }
 
+        /// <summary>
+        /// Return true if DataPackagesAndSubDirs contains the data package ID
+        /// </summary>
+        /// <param name="dataPackageID"></param>
         // ReSharper disable once UnusedMember.Global
         public bool ContainsDataPackage(int dataPackageID)
         {

@@ -5,17 +5,37 @@ using PRISM;
 
 namespace MyEMSLReader
 {
+    /// <summary>
+    /// Download queue
+    /// </summary>
     public class DownloadQueue : EventNotifier
     {
         // Ignore Spelling: struct, Args, dest
 
+        /// <summary>
+        /// File download info
+        /// </summary>
         public struct FileDownloadInfo
         {
+            /// <summary>
+            /// Archived file info
+            /// </summary>
             public ArchivedFileInfo FileInfo;
+
+            /// <summary>
+            /// True if the file should be unzipped after downloading
+            /// </summary>
             public bool UnzipRequired;
+
+            /// <summary>
+            /// Destination file path
+            /// </summary>
             public string DestFilePath;
         }
 
+        /// <summary>
+        /// File downloaded event
+        /// </summary>
         public event EventHandler<FileDownloadedEventArgs> FileDownloadedEvent;
 
         /// <summary>
@@ -35,6 +55,9 @@ namespace MyEMSLReader
             private set;
         }
 
+        /// <summary>
+        /// When true, raise a DebugEvent prior to contacting the metadata server
+        /// </summary>
         public bool ThrowErrors { get; set; }
 
         /// <summary>

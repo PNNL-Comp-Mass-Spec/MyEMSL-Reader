@@ -378,7 +378,6 @@ namespace Pacifica.Core
         /// <summary>
         /// Initialize a request
         /// </summary>
-        /// <returns></returns>
         private static HttpWebRequest InitializeRequest(UrlContactInfo urlContactInfo)
         {
             urlContactInfo.ResponseData.ResetExceptionInfo();
@@ -462,6 +461,7 @@ namespace Pacifica.Core
         /// <param name="totalBytesSent">Total bytes to send</param>
         /// <param name="totalBytesToSend">Total bytes sent</param>
         /// <param name="statusMessage">Status message</param>
+        // ReSharper disable once UnusedMember.Global
         protected static void RaiseStatusUpdate(
             double percentCompleted, long totalBytesSent,
             long totalBytesToSend, string statusMessage)

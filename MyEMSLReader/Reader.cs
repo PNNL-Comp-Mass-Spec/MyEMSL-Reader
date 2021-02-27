@@ -42,6 +42,9 @@ namespace MyEMSLReader
             DataPackageID = 2
         }
 
+        /// <summary>
+        /// DMS Connection string
+        /// </summary>
         public string DMSConnectionString { get; set; } = DEFAULT_DMS_CONNECTION_STRING;
 
         /// <summary>
@@ -60,6 +63,9 @@ namespace MyEMSLReader
             private set;
         }
 
+        /// <summary>
+        /// File count returned by the most recent search
+        /// </summary>
         public int LastSearchFileCountReturned
         {
             get;
@@ -106,7 +112,9 @@ namespace MyEMSLReader
             }
         }
 
-        // Constructor
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public Reader()
         {
             MaxFileCount = 5000;
@@ -1033,6 +1041,9 @@ namespace MyEMSLReader
             return success;
         }
 
+        /// <summary>
+        /// Clear the error message tracked by the base class
+        /// </summary>
         protected sealed override void ResetStatus()
         {
             base.ResetStatus();

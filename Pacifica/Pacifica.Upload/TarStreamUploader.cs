@@ -11,9 +11,12 @@ using PRISM;
 
 namespace Pacifica.Upload
 {
+    /// <summary>
+    /// .tar stream uploader
+    /// </summary>
     public class TarStreamUploader
     {
-        // Ignore Spelling: Ingester, Workdir, addon
+        // Ignore Spelling: Ingester, Workdir, addon, uploader
 
         /// <summary>
         /// Block size for tar files
@@ -31,10 +34,21 @@ namespace Pacifica.Upload
         public enum UploadDebugMode
         {
             [Description("Debugging is disabled")]
+            /// <summary>
+            /// Debugging is disabled
+            /// </summary>
             DebugDisabled = 0,
             [Description("Authenticate with MyEMSL, but create a local .tar file")]
+            /// <summary>
+            /// Authenticate with MyEMSL, but create a local .tar file
+            /// </summary>
+            // ReSharper disable once UnusedMember.Global
             CreateTarLocal = 1,
             [Description("Do not contact MyEMSL; create a local .tar file")]
+
+            /// <summary>
+            /// Do not contact MyEMSL; create a local .tar file
+            /// </summary>
             MyEMSLOfflineMode = 2
         }
 
@@ -334,7 +348,7 @@ namespace Pacifica.Upload
         /// <param name="fileListObject"></param>
         /// <param name="metadataFilePath"></param>
         /// <param name="debugMode"></param>
-        /// <returns></returns>
+        /// <returns>Web response data</returns>
         public string SendFileListToIngester(
             Configuration config,
             string location, string serverBaseAddress,

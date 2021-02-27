@@ -50,7 +50,6 @@ namespace Pacifica.Core
         /// <param name="currentTask"></param>
         /// <param name="percentComplete">percent complete; typically meaningless (either 0 or 100)</param>
         /// <param name="ingestStepsCompletedOld"></param>
-        /// <returns></returns>
         // ReSharper disable once UnusedMember.Global
         public byte DetermineIngestStepsCompleted(string currentTask, int percentComplete, byte ingestStepsCompletedOld)
         {

@@ -14,15 +14,20 @@ namespace MyEMSLReader
         private string mDatasetName;
         private int mDatasetID;
 
+        /// <summary>
+        /// Dataset ID
+        /// </summary>
         public int DatasetID => mDatasetID;
 
+        /// <summary>
+        /// Dataset name
+        /// </summary>
         public string DatasetName => mDatasetName;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="datasetName"></param>
-        /// <remarks></remarks>
         public DatasetInfo(string datasetName)
         {
             mDatasetName = string.Empty;

@@ -2,10 +2,13 @@
 
 namespace MyEMSLReader
 {
+    /// <summary>
+    /// Dataset directory or file info
+    /// </summary>
     public class DatasetDirectoryOrFileInfo
     {
         /// <summary>
-        /// The UTC datetime that the info was cached in memory
+        /// The UTC timestamp that the info was cached in memory
         /// </summary>
         public DateTime CacheDateUTC
         {
@@ -51,6 +54,9 @@ namespace MyEMSLReader
             FileInfo = fileInfo;
         }
 
+        /// <summary>
+        /// Return the MyEMSL file ID
+        /// </summary>
         public override string ToString()
         {
             return "FileID " + FileID + "; " + FileInfo;

@@ -307,7 +307,6 @@ namespace MyEMSLDownloader
         /// <param name="subdirectory">Subdirectory to filter on (optional)</param>
         /// <param name="fileMask">File name or file spec like *.txt to filter on (optional)</param>
         /// <param name="fileSplit"></param>
-        /// <returns></returns>
         /// <remarks>
         /// For fileMask, specify a list of names and/or specs by separating with a vertical bar
         /// For example: analysis.baf|ser

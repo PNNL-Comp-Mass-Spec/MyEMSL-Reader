@@ -255,6 +255,9 @@ namespace Pacifica.DMS_Metadata
             }
         }
 
+        /// <summary>
+        /// Return the relative file path
+        /// </summary>
         public override string ToString()
         {
             return RelativePathWindows;

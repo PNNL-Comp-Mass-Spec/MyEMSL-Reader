@@ -12,17 +12,30 @@ using Utilities = Pacifica.Core.Utilities;
 
 namespace MyEMSLReader
 {
+    /// <summary>
+    /// Base class for the Downloader and Reader classes
+    /// </summary>
     public class MyEMSLBase : EventNotifier
     {
+        // Ignore Spelling: Pacifica
 
+        /// <summary>
+        /// When true, raise a DebugEvent prior to contacting the metadata server
+        /// </summary>
         public bool ThrowErrors
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// Pacifica configuration
+        /// </summary>
         protected readonly Configuration mPacificaConfig;
 
+        /// <summary>
+        /// Error message
+        /// </summary>
         public string ErrorMessage
         {
             get;
@@ -37,6 +50,9 @@ namespace MyEMSLReader
             mPacificaConfig = new Configuration();
         }
 
+        /// <summary>
+        /// Garbage collect now
+        /// </summary>
         public static void GarbageCollectNow()
         {
             const int intMaxWaitTimeMSec = 1000;
@@ -99,6 +115,7 @@ namespace MyEMSLReader
         /// <param name="valueIfNull">Integer to return if null</param>
         /// <param name="isNull">True if the value is null</param>
         /// <returns>Integer</returns>
+        // ReSharper disable once UnusedMember.Global
         protected static int GetDbValue(IDataRecord reader, string fieldName, int valueIfNull, out bool isNull)
         {
             if (Convert.IsDBNull(reader[fieldName]))
@@ -119,6 +136,7 @@ namespace MyEMSLReader
         /// <param name="valueIfNull">String to return if null</param>
         /// <param name="isNull">True if the value is null</param>
         /// <returns>String</returns>
+        // ReSharper disable once UnusedMember.Global
         protected static string GetDbValue(IDataRecord reader, string fieldName, string valueIfNull, out bool isNull)
         {
             if (Convert.IsDBNull(reader[fieldName]))
@@ -133,6 +151,11 @@ namespace MyEMSLReader
             return reader[fieldName].ToString();
         }
 
+        /// <summary>
+        /// Create a SortedSet dictionary for a single dataset and its subdirectory
+        /// </summary>
+        /// <param name="datasetNameOrID"></param>
+        /// <param name="subDir"></param>
         protected static Dictionary<string, SortedSet<string>> GetSingleItemSortedSetDictionary(string datasetNameOrID, string subDir)
         {
             var datasetsAndSubDirLists = new Dictionary<string, SortedSet<string>>(StringComparer.OrdinalIgnoreCase)
@@ -143,6 +166,10 @@ namespace MyEMSLReader
             return datasetsAndSubDirLists;
         }
 
+        /// <summary>
+        /// Compute a longer timeout to use, first by doubling, but later by multiplying by 1.5
+        /// </summary>
+        /// <param name="timeoutSeconds"></param>
         protected static int IncreaseTimeout(int timeoutSeconds)
         {
             if (timeoutSeconds < 8)
@@ -176,6 +203,13 @@ namespace MyEMSLReader
             return true;
         }
 
+        /// <summary>
+        /// Read the value for the given key in the dictionary
+        /// </summary>
+        /// <param name="dataDictionary"></param>
+        /// <param name="keyName"></param>
+        /// <param name="valueIfMissing"></param>
+        /// <returns>The value if found, or valueIfMissing</returns>
         protected string ReadDictionaryValue(Dictionary<string, object> dataDictionary, string keyName, string valueIfMissing)
         {
             if (dataDictionary.TryGetValue(keyName, out var value))
@@ -186,6 +220,13 @@ namespace MyEMSLReader
             return valueIfMissing;
         }
 
+        /// <summary>
+        /// Read the value for the given key in the dictionary
+        /// </summary>
+        /// <param name="dataDictionary"></param>
+        /// <param name="keyName"></param>
+        /// <param name="valueIfMissing"></param>
+        /// <returns>The value if found, or valueIfMissing</returns>
         // ReSharper disable once UnusedMember.Global
         protected bool ReadDictionaryValue(Dictionary<string, object> dataDictionary, string keyName, bool valueIfMissing)
         {
@@ -197,6 +238,13 @@ namespace MyEMSLReader
             return valueIfMissing;
         }
 
+        /// <summary>
+        /// Read the value for the given key in the dictionary
+        /// </summary>
+        /// <param name="dataDictionary"></param>
+        /// <param name="keyName"></param>
+        /// <param name="valueIfMissing"></param>
+        /// <returns>The value if found, or valueIfMissing</returns>
         // ReSharper disable once UnusedMember.Global
         protected long ReadDictionaryValue(Dictionary<string, object> dataDictionary, string keyName, long valueIfMissing)
         {
@@ -257,22 +305,39 @@ namespace MyEMSLReader
             }
         }
 
+        /// <summary>
+        /// Raise event StatusEvent if the message is not empty
+        /// </summary>
+        /// <param name="message"></param>
         protected void ReportMessage(string message)
         {
             if (!string.IsNullOrEmpty(message))
                 OnStatusEvent(message);
         }
 
+        /// <summary>
+        /// Raise event WarningEvent
+        /// </summary>
+        /// <param name="message"></param>
         protected void ReportWarning(string message)
         {
             OnWarningEvent(message);
         }
 
+        /// <summary>
+        /// Clear the error message
+        /// </summary>
         protected virtual void ResetStatus()
         {
             ErrorMessage = string.Empty;
         }
 
+        /// <summary>
+        /// Look for the given key in the results dictionary
+        /// </summary>
+        /// <param name="results"></param>
+        /// <param name="keyName"></param>
+        /// <returns>List Dictionary of string, object if found, or empty dictionary list if not found or an error occurs</returns>
         // ReSharper disable once UnusedMember.Global
         protected List<Dictionary<string, object>> RetrieveDictionaryListByKey(Dictionary<string, object> results, string keyName)
         {
@@ -294,6 +359,12 @@ namespace MyEMSLReader
             }
         }
 
+        /// <summary>
+        /// Look for the given key in the results dictionary
+        /// </summary>
+        /// <param name="results"></param>
+        /// <param name="keyName"></param>
+        /// <returns>(Dictionary of string, object if found, or empty dictionary if not found or an error occurs</returns>
         // ReSharper disable once UnusedMember.Global
         protected Dictionary<string, object> RetrieveDictionaryObjectByKey(Dictionary<string, object> results, string keyName)
         {
@@ -317,6 +388,19 @@ namespace MyEMSLReader
             return dictionaryValue;
         }
 
+        /// <summary>
+        /// Send the HTTP request, retrying if an error
+        /// </summary>
+        /// <param name="URL"></param>
+        /// <param name="cookieJar"></param>
+        /// <param name="postData"></param>
+        /// <param name="postMethod"></param>
+        /// <param name="maxAttempts"></param>
+        /// <param name="allowEmptyResponseData"></param>
+        /// <param name="responseData"></param>
+        /// <param name="mostRecentException"></param>
+        /// <returns>True if success, false if an error</returns>
+        // ReSharper disable once UnusedMember.Global
         protected bool SendHTTPRequestWithRetry(
             string URL, CookieContainer cookieJar,
             string postData, EasyHttp.HttpMethod postMethod,
@@ -424,8 +508,16 @@ namespace MyEMSLReader
             return false;
         }
 
+        /// <summary>
+        /// MyEMSL offline event
+        /// </summary>
         public event StatusEventEventHandler MyEMSLOffline;
 
+        /// <summary>
+        /// Raise event MyEMSLOffline
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         protected void EasyHttp_MyEMSLOffline(object sender, MessageEventArgs e)
         {
             if (MyEMSLOffline == null)
