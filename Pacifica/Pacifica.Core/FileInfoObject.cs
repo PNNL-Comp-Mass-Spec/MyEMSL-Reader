@@ -1,53 +1,59 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using PRISM;
 
 namespace Pacifica.Core
 {
     public class FileInfoObject
     {
         /// <summary>
-        /// Constructor
+        /// Constructor and takes a file path
         /// </summary>
-        /// <param name="absoluteLocalFullPath">Full path to the local file</param>
+        /// <param name="filePath">Full path to the local file</param>
         /// <param name="baseDSPath">Base dataset folder path</param>
         /// <remarks>
         /// Instantiate a new FileInfoObject, including computing the SHA-1 hash of the file
         /// </remarks>
         // ReSharper disable once UnusedMember.Global
-        public FileInfoObject(string absoluteLocalFullPath, string baseDSPath)
+        [Obsolete("Use the constructor that takes a FileInfo object, which has better compatibility for path lengths over 255 characters")]
+        public FileInfoObject(string filePath, string baseDSPath)
         {
-            AbsoluteLocalPath = absoluteLocalFullPath;
-            File = new FileInfo(AbsoluteLocalPath);
-            if (File.Directory != null)
-            {
-                mRelativeDestinationDirectory = GenerateRelativePath(File.Directory.FullName, baseDSPath);
+            File = new FileInfo(filePath);
+            AbsoluteLocalPath = File.FullName;
+            mRelativeDestinationDirectory = GetRelativeDestinationDirectory(File, baseDSPath);
+            Sha1HashHex = Utilities.GenerateSha1Hash(filePath);
+        }
 
-                if (!string.IsNullOrWhiteSpace(mRelativeDestinationDirectory) && Path.IsPathRooted(mRelativeDestinationDirectory))
-                {
-                    throw new ArgumentException(
-                        "The relative destination directory returned from GenerateRelativePath is rooted; it must be relative: " +
-                        mRelativeDestinationDirectory + " for " + absoluteLocalFullPath);
-                }
-            }
-            else
-            {
-                mRelativeDestinationDirectory = string.Empty;
-            }
-
-            Sha1HashHex = Utilities.GenerateSha1Hash(AbsoluteLocalPath);
+        /// <summary>
+        /// Constructor that takes a FileInfo object
+        /// </summary>
+        /// <param name="fileToAdd">File info</param>
+        /// <param name="baseDSPath">Base dataset folder path</param>
+        /// <param name="fileTools">FileTools object, which is used to copy files with long paths to the local temp directory</param>
+        /// <remarks>
+        /// Instantiate a new FileInfoObject, including computing the SHA-1 hash of the file
+        /// </remarks>
+        // ReSharper disable once UnusedMember.Global
+        public FileInfoObject(FileInfo fileToAdd, string baseDSPath, FileTools fileTools)
+        {
+            File = fileToAdd;
+            AbsoluteLocalPath = fileToAdd.FullName;
+            mRelativeDestinationDirectory = GetRelativeDestinationDirectory(fileToAdd, baseDSPath);
+            Sha1HashHex = Utilities.GenerateSha1Hash(fileToAdd, fileTools);
         }
 
         /// <summary>
         /// Instantiate a new FileInfoObject; auto-computes the SHA-1 hash if sha1Hash is blank or is not exactly 40 characters long
         /// </summary>
-        /// <param name="absoluteLocalFullPath">Full path to the local file</param>
+        /// <param name="fileToAdd">File info</param>
         /// <param name="relativeDestinationDirectory">Folder in archive in which to store the file; empty string means to store in the dataset folder</param>
         /// <param name="sha1Hash">SHA-1 hash for the file; if blank, the hash will be auto-computed</param>
-        public FileInfoObject(string absoluteLocalFullPath, string relativeDestinationDirectory, string sha1Hash)
+        /// <param name="fileTools">FileTools object, which is used to copy files with long paths to the local temp directory</param>
+        public FileInfoObject(FileInfo fileToAdd, string relativeDestinationDirectory, string sha1Hash, FileTools fileTools)
         {
-            AbsoluteLocalPath = absoluteLocalFullPath;
-            File = new FileInfo(AbsoluteLocalPath);
+            File = fileToAdd;
+            AbsoluteLocalPath = fileToAdd.FullName;
 
             if (string.IsNullOrWhiteSpace(relativeDestinationDirectory))
             {
@@ -59,7 +65,7 @@ namespace Pacifica.Core
             if (!string.IsNullOrWhiteSpace(mRelativeDestinationDirectory) && Path.IsPathRooted(mRelativeDestinationDirectory))
             {
                 throw new ArgumentException("Relative Destination Directory cannot be rooted; it must be relative: " +
-                                            mRelativeDestinationDirectory + " for " + absoluteLocalFullPath);
+                                            mRelativeDestinationDirectory + " for " + fileToAdd.FullName);
             }
 
             if (!string.IsNullOrWhiteSpace(sha1Hash) && sha1Hash.Length == 40)
@@ -68,11 +74,14 @@ namespace Pacifica.Core
             }
             else
             {
-                Sha1HashHex = Utilities.GenerateSha1Hash(AbsoluteLocalPath);
+                Sha1HashHex = Utilities.GenerateSha1Hash(fileToAdd, fileTools);
             }
         }
 
-        private FileInfo File { get; }
+        /// <summary>
+        /// File info
+        /// </summary>
+        public FileInfo File { get; }
 
         /// <summary>
         /// Full path to the local file
@@ -149,9 +158,28 @@ namespace Pacifica.Core
         /// </summary>
         /// <param name="path">Unix-style path</param>
         /// <remarks>Removes any leading slashes</remarks>
-        protected string ConvertWindowsPathToUnix(string path)
+        private string ConvertWindowsPathToUnix(string path)
         {
             return path.Replace(@"\", "/").TrimStart('/');
+        }
+
+        private string GetRelativeDestinationDirectory(FileInfo file, string baseDSPath)
+        {
+            if (file.Directory == null)
+            {
+                return string.Empty;
+            }
+
+            var relativeDestinationDirectory = GenerateRelativePath(file.Directory.FullName, baseDSPath);
+
+            if (!string.IsNullOrWhiteSpace(mRelativeDestinationDirectory) && Path.IsPathRooted(mRelativeDestinationDirectory))
+            {
+                throw new ArgumentException(
+                    "The relative destination directory returned from GenerateRelativePath is rooted; it must be relative: " +
+                    mRelativeDestinationDirectory + " for " + file.FullName);
+            }
+
+            return relativeDestinationDirectory;
         }
 
         /// <summary>

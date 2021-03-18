@@ -214,6 +214,7 @@ namespace Pacifica.Core
         public static List<FileInfoObject> GetFileListFromMetadataObject(List<Dictionary<string, object>> metadataObject)
         {
             var fileList = new List<FileInfoObject>();
+
             foreach (var item in metadataObject)
             {
                 if (!item.TryGetValue("destinationTable", out var destTable))
@@ -222,14 +223,17 @@ namespace Pacifica.Core
                 }
 
                 var t = (string)destTable;
-                if (string.Equals(t, "files", StringComparison.OrdinalIgnoreCase))
-                {
-                    fileList.Add(new FileInfoObject(
-                        (string)item["absolutelocalpath"],
-                        (string)item["subdir"],
-                        (string)item["hashsum"]
-                    ));
-                }
+                if (!string.Equals(t, "files", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                var file = new FileInfo((string)item["absolutelocalpath"]);
+
+                fileList.Add(new FileInfoObject(
+                    file,
+                    (string)item["subdir"],
+                    (string)item["hashsum"],
+                    mFileTools
+                ));
             }
 
             return fileList;

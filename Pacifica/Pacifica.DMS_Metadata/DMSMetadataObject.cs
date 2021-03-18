@@ -445,7 +445,7 @@ namespace Pacifica.DMS_Metadata
             var relativeDestinationDirectory = FileInfoObject.GenerateRelativePath(cacheInfoFile.Directory.FullName, baseDSPath);
 
             // This constructor will auto-compute the SHA-1 hash value for the file
-            var fio = new FileInfoObject(remoteFile.FullName, relativeDestinationDirectory, sha1Hash: string.Empty);
+            var fio = new FileInfoObject(remoteFile, relativeDestinationDirectory, sha1Hash: string.Empty, mFileTools);
             fileCollection.Add(fio);
 
             return true;
@@ -570,7 +570,7 @@ namespace Pacifica.DMS_Metadata
                 ReportProgress(HASHING_FILES + ": " + dataFile.Name, fractionCompleted * 100);
 
                 // This constructor will auto-compute the SHA-1 hash value for the file
-                var fio = new FileInfoObject(dataFile.FullName, baseDSPath);
+                var fio = new FileInfoObject(dataFile, baseDSPath, mFileTools);
                 fileCollection.Add(fio);
 
                 if (fio.FileName.EndsWith("_CacheInfo.txt"))
