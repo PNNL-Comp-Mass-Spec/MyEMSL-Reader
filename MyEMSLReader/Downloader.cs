@@ -97,6 +97,8 @@ namespace MyEMSLReader
             private set;
         }
 
+        private readonly PRISM.FileTools mFileTools;
+
         private bool mUseTestInstance;
 
         /// <summary>
@@ -127,6 +129,9 @@ namespace MyEMSLReader
 
             EasyHttp.MyEMSLOffline += EasyHttp_MyEMSLOffline;
             EasyHttp.ErrorEvent += OnErrorEvent;
+
+            mFileTools = new PRISM.FileTools("MyEMSLDownloader", 2);
+            RegisterEvents(mFileTools);
 
             ResetStatus();
         }
@@ -901,13 +906,13 @@ namespace MyEMSLReader
             }
         }
 
-        private bool FileMatchesHash(string localFilePath, string Sha1HashExpected)
+        private bool FileMatchesHash(FileInfo localFile, string Sha1HashExpected)
         {
             var fileMatchesHash = false;
 
             try
             {
-                var actualSha1Hash = Utilities.GenerateSha1Hash(localFilePath);
+                var actualSha1Hash = Utilities.GenerateSha1Hash(localFile, mFileTools);
 
                 if (actualSha1Hash == Sha1HashExpected)
                 {
@@ -1012,7 +1017,7 @@ namespace MyEMSLReader
         /// <param name="reportMessage"></param>
         private bool IsDownloadRequired(
             ArchivedFileInfo archiveFile,
-            FileSystemInfo targetFile,
+            FileInfo targetFile,
             bool reportMessage)
         {
             bool downloadFile;
@@ -1043,7 +1048,7 @@ namespace MyEMSLReader
                         break;
                     }
 
-                    if (FileMatchesHash(targetFile.FullName, archiveFile.Sha1Hash))
+                    if (FileMatchesHash(targetFile, archiveFile.Sha1Hash))
                     {
                         message = "skipping (file unchanged) " + targetFile.FullName;
                         downloadFile = false;
