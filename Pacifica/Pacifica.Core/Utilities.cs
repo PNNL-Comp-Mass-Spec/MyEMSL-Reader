@@ -18,6 +18,8 @@ namespace Pacifica.Core
     {
         // Ignore Spelling: absolutelocalpath, subdir, hashsum, Json
 
+        private static readonly FileTools mFileTools = new("Pacifica.Core.Utilities", 2);
+
         /// <summary>
         /// Decode a password
         /// </summary>
@@ -79,11 +81,21 @@ namespace Pacifica.Core
         }
 
         private static SHA1Managed _hashProvider;
+
+        [Obsolete("Use the method that takes a FileInfo object")]
         public static string GenerateSha1Hash(string filePath)
+        {
+            return GenerateSha1Hash(new FileInfo(filePath), mFileTools);
+        }
+
+        public static string GenerateSha1Hash(FileInfo file, FileTools fileTools)
         {
             byte[] fileHash;
 
-            var fi = new FileInfo(filePath);
+            if (!file.Exists)
+            {
+                throw new FileNotFoundException("File not found in GenerateSha1Hash: " + file.FullName);
+            }
 
             if (!fi.Exists)
             {
@@ -95,12 +107,36 @@ namespace Pacifica.Core
                 _hashProvider = new SHA1Managed();
             }
 
-            using (var sourceFile = new FileStream(fi.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
+            FileInfo fileToUse;
+            bool fileCopiedToTemp;
+
+            if (file.FullName.Length > 255)
+            {
+                // Copy the file to the local temp directory and hash there
+                fileCopiedToTemp = true;
+
+                var tempFilePath = Path.GetTempFileName();
+                fileTools.CopyFile(file.FullName, tempFilePath, true);
+
+                fileToUse = new FileInfo(tempFilePath);
+            }
+            else
+            {
+                fileToUse = file;
+                fileCopiedToTemp = false;
+            }
+
+            using (var sourceFile = new FileStream(fileToUse.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 fileHash = _hashProvider.ComputeHash(sourceFile);
             }
 
             var hashString = ToHexString(fileHash);
+
+            if (fileCopiedToTemp)
+            {
+                fileToUse.Delete();
+            }
 
             return hashString;
         }
