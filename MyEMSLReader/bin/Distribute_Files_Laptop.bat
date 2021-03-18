@@ -1,5 +1,5 @@
 xcopy debug\MyEMSLReader.dll "C:\Users\d3l243\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Common" /D /Y
-xcopy debug\MyEMSLReader.dll "C:\Users\d3l243\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Program\AM_Shared\bin\Debug" /D /Y
+xcopy debug\MyEMSLReader.dll "C:\Users\d3l243\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Shared\bin\Debug" /D /Y
 xcopy debug\MyEMSLReader.dll "C:\Users\d3l243\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Program\bin" /D /Y
 
 xcopy debug\MyEMSLReader.dll "C:\Users\d3l243\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_Ape_PlugIn\bin\Debug" /D /Y

@@ -1,5 +1,5 @@
 xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Common" /D /Y
-xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Program\AM_Shared\bin\Debug" /D /Y
+xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Shared\bin\Debug" /D /Y
 xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Program\bin" /D /Y
 
 xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_Ape_PlugIn\bin\Debug" /D /Y
@@ -12,7 +12,7 @@ xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Anal
 xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_DTASpectraFileGen_PlugIn\bin" /D /Y
 xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_Extraction_PlugIn\bin" /D /Y
 xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_ICR2LS_PlugIn\bin" /D /Y
-xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_IDM_Plugin\AM_IDM_Plugin\bin\Debug" /D /Y
+xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_IDM_Plugin\bin\Debug" /D /Y
 xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_IDPicker_PlugIn\bin" /D /Y
 xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_InSpecT_PlugIn\bin" /D /Y
 xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_InspectResultsAssembly_PlugIn\bin" /D /Y
@@ -56,7 +56,7 @@ xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Data
 
 xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\RefLib" /D /Y
 xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\DeployedFiles" /D /Y
-xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\CaptureTaskManager\CaptureTaskManager\bin\Debug" /D /Y
+xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\CaptureTaskManager\bin\Debug" /D /Y
 xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\ArchiveVerifyPlugin\bin\Debug" /D /Y
 
 xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\MyEMSL_MTS_File_Cache_Manager\Lib" /D /Y
@@ -91,7 +91,7 @@ xcopy Debug\MyEMSLReader.dll "C:\DMS_Programs\MyEMSLDownloader" /D /Y
 xcopy Debug\Pacifica.Core.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Common" /D /Y
 xcopy Debug\Pacifica.Core.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Program\bin" /D /Y
 xcopy Debug\Pacifica.Core.dll "F:\Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\ArchiveVerifyPlugin\bin\Debug" /D /Y
-xcopy Debug\Pacifica.Core.dll "F:\Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\CaptureTaskManager\CaptureTaskManager\bin\Debug" /D /Y
+xcopy Debug\Pacifica.Core.dll "F:\Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\CaptureTaskManager\bin\Debug" /D /Y
 xcopy Debug\Pacifica.Core.dll "F:\Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\DeployedFiles" /D /Y
 xcopy Debug\Pacifica.Core.dll "F:\Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\RefLib" /D /Y
 xcopy Debug\Pacifica.Core.dll "F:\Documents\Projects\DataMining\DMS_Managers\DataImportManager\DataImportManager\bin\Debug" /D /Y
