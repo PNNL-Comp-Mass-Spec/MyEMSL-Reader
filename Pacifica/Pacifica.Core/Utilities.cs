@@ -97,9 +97,11 @@ namespace Pacifica.Core
                 throw new FileNotFoundException("File not found in GenerateSha1Hash: " + file.FullName);
             }
 
-            if (!fi.Exists)
+            if (file.Length == 0)
             {
-                throw new FileNotFoundException("File not found in GenerateSha1Hash: " + filePath);
+                // Bruker mass spectrometers store data in .d directories and those often have zero-byte files that could potentially have long names
+                // Since zero-byte files will always give the same hash, simply return that hash
+                return "da39a3ee5e6b4b0d3255bfef95601890afd80709";
             }
 
             if (_hashProvider == null)
