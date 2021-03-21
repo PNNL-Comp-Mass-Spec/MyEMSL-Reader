@@ -88,7 +88,7 @@ namespace Pacifica.Core
             return GenerateSha1Hash(new FileInfo(filePath), mFileTools);
         }
 
-        public static string GenerateSha1Hash(FileInfo file, FileTools fileTools)
+        public static string GenerateSha1Hash(FileInfo file)
         {
             byte[] fileHash;
 
@@ -97,50 +97,17 @@ namespace Pacifica.Core
                 throw new FileNotFoundException("File not found in GenerateSha1Hash: " + file.FullName);
             }
 
-            if (file.Length == 0)
-            {
-                // Bruker mass spectrometers store data in .d directories and those often have zero-byte files that could potentially have long names
-                // Since zero-byte files will always give the same hash, simply return that hash
-                return "da39a3ee5e6b4b0d3255bfef95601890afd80709";
-            }
-
             if (_hashProvider == null)
             {
                 _hashProvider = new SHA1Managed();
             }
 
-            FileInfo fileToUse;
-            bool fileCopiedToTemp;
-
-            if (file.FullName.Length > 255)
-            {
-                // Copy the file to the local temp directory and hash there
-                fileCopiedToTemp = true;
-
-                var tempFilePath = Path.GetTempFileName();
-                fileTools.CopyFile(file.FullName, tempFilePath, true);
-
-                fileToUse = new FileInfo(tempFilePath);
-            }
-            else
-            {
-                fileToUse = file;
-                fileCopiedToTemp = false;
-            }
-
-            using (var sourceFile = new FileStream(fileToUse.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var sourceFile = new FileStream(PossiblyConvertToLongPath(file.FullName), FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 fileHash = _hashProvider.ComputeHash(sourceFile);
             }
 
-            var hashString = ToHexString(fileHash);
-
-            if (fileCopiedToTemp)
-            {
-                fileToUse.Delete();
-            }
-
-            return hashString;
+            return ToHexString(fileHash);
         }
 
         /// <summary>
