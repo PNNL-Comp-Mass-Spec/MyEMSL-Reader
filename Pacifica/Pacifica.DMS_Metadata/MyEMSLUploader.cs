@@ -294,7 +294,7 @@ namespace Pacifica.DMS_Metadata
 
             try
             {
-                uploadSuccess = mUploadWorker.StartUpload(MetadataContainer.MetadataObject, mFileTools, debugMode, out statusURL);
+                uploadSuccess = mUploadWorker.StartUpload(MetadataContainer.MetadataObject, debugMode, out statusURL);
             }
             catch (Exception ex)
             {

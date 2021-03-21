@@ -30,17 +30,16 @@ namespace Pacifica.Core
         /// </summary>
         /// <param name="fileToAdd">File info</param>
         /// <param name="baseDSPath">Base dataset folder path</param>
-        /// <param name="fileTools">FileTools object, which is used to copy files with long paths to the local temp directory</param>
         /// <remarks>
         /// Instantiate a new FileInfoObject, including computing the SHA-1 hash of the file
         /// </remarks>
         // ReSharper disable once UnusedMember.Global
-        public FileInfoObject(FileInfo fileToAdd, string baseDSPath, FileTools fileTools)
+        public FileInfoObject(FileInfo fileToAdd, string baseDSPath)
         {
             File = fileToAdd;
             AbsoluteLocalPath = NativeIOFileTools.GetCleanPath(fileToAdd.FullName);
             mRelativeDestinationDirectory = GetRelativeDestinationDirectory(fileToAdd, baseDSPath);
-            Sha1HashHex = Utilities.GenerateSha1Hash(fileToAdd, fileTools);
+            Sha1HashHex = Utilities.GenerateSha1Hash(fileToAdd);
         }
 
         /// <summary>
@@ -49,8 +48,7 @@ namespace Pacifica.Core
         /// <param name="fileToAdd">File info</param>
         /// <param name="relativeDestinationDirectory">Folder in archive in which to store the file; empty string means to store in the dataset folder</param>
         /// <param name="sha1Hash">SHA-1 hash for the file; if blank, the hash will be auto-computed</param>
-        /// <param name="fileTools">FileTools object, which is used to copy files with long paths to the local temp directory</param>
-        public FileInfoObject(FileInfo fileToAdd, string relativeDestinationDirectory, string sha1Hash, FileTools fileTools)
+        public FileInfoObject(FileInfo fileToAdd, string relativeDestinationDirectory, string sha1Hash)
         {
             File = fileToAdd;
             AbsoluteLocalPath = NativeIOFileTools.GetCleanPath(fileToAdd.FullName);
@@ -74,7 +72,7 @@ namespace Pacifica.Core
             }
             else
             {
-                Sha1HashHex = Utilities.GenerateSha1Hash(fileToAdd, fileTools);
+                Sha1HashHex = Utilities.GenerateSha1Hash(fileToAdd);
             }
         }
 

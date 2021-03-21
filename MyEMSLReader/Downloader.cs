@@ -97,8 +97,6 @@ namespace MyEMSLReader
             private set;
         }
 
-        private readonly PRISM.FileTools mFileTools;
-
         private bool mUseTestInstance;
 
         /// <summary>
@@ -129,9 +127,6 @@ namespace MyEMSLReader
 
             EasyHttp.MyEMSLOffline += EasyHttp_MyEMSLOffline;
             EasyHttp.ErrorEvent += OnErrorEvent;
-
-            mFileTools = new PRISM.FileTools("MyEMSLDownloader", 2);
-            RegisterEvents(mFileTools);
 
             ResetStatus();
         }
@@ -912,7 +907,7 @@ namespace MyEMSLReader
 
             try
             {
-                var actualSha1Hash = Utilities.GenerateSha1Hash(localFile, mFileTools);
+                var actualSha1Hash = Utilities.GenerateSha1Hash(localFile);
 
                 if (actualSha1Hash == Sha1HashExpected)
                 {

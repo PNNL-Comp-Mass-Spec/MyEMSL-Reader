@@ -18,8 +18,6 @@ namespace Pacifica.Core
     {
         // Ignore Spelling: absolutelocalpath, subdir, hashsum, Json
 
-        private static readonly FileTools mFileTools = new("Pacifica.Core.Utilities", 2);
-
         /// <summary>
         /// Decode a password
         /// </summary>
@@ -85,7 +83,7 @@ namespace Pacifica.Core
         [Obsolete("Use the method that takes a FileInfo object")]
         public static string GenerateSha1Hash(string filePath)
         {
-            return GenerateSha1Hash(new FileInfo(filePath), mFileTools);
+            return GenerateSha1Hash(new FileInfo(filePath));
         }
 
         public static string GenerateSha1Hash(FileInfo file)
@@ -238,8 +236,7 @@ namespace Pacifica.Core
                 fileList.Add(new FileInfoObject(
                     file,
                     (string)item["subdir"],
-                    (string)item["hashsum"],
-                    mFileTools
+                    (string)item["hashsum"]
                 ));
             }
 

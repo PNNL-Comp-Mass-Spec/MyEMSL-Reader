@@ -365,23 +365,21 @@ namespace Pacifica.Upload
         /// Update the files and data tracked by metadataObject to MyEMSL
         /// </summary>
         /// <param name="metadataObject"></param>
-        /// <param name="fileTools">Instance of FileTools</param>
         /// <param name="statusURI">Status URL</param>
         /// <returns>True if successfully uploaded, false if an error</returns>
         /// <remarks>This method is used by the DataPackage Archive Manager</remarks>
         // ReSharper disable once UnusedMember.Global
-        public bool StartUpload(List<Dictionary<string, object>> metadataObject, FileTools fileTools, out string statusURI)
+        public bool StartUpload(List<Dictionary<string, object>> metadataObject, out string statusURI)
         {
             const TarStreamUploader.UploadDebugMode debugMode = TarStreamUploader.UploadDebugMode.DebugDisabled;
 
-            return StartUpload(metadataObject, fileTools, debugMode, out statusURI);
+            return StartUpload(metadataObject, debugMode, out statusURI);
         }
 
         /// <summary>
         /// Update the files and data tracked by metadataObject to MyEMSL
         /// </summary>
         /// <param name="metadataObject"></param>
-        /// <param name="fileTools">Instance of FileTools</param>
         /// <param name="debugMode">
         /// Set to UploadDebugMode.CreateTarLocal to authenticate with MyEMSL, then create a .tar file locally instead of actually uploading it
         /// Set to UploadDebugMode.MyEMSLOfflineMode to create the .tar file locally without contacting MyEMSL
@@ -390,7 +388,6 @@ namespace Pacifica.Upload
         /// <returns>True if successfully uploaded, false if an error</returns>
         public bool StartUpload(
             List<Dictionary<string, object>> metadataObject,
-            FileTools fileTools,
             TarStreamUploader.UploadDebugMode debugMode,
             out string statusURI)
         {
@@ -413,7 +410,7 @@ namespace Pacifica.Upload
 
             foreach (var file in fileList)
             {
-                var fio = new FileInfoObject(file.File, file.RelativeDestinationDirectory, file.Sha1HashHex, fileTools);
+                var fio = new FileInfoObject(file.File, file.RelativeDestinationDirectory, file.Sha1HashHex);
 
                 if (fileListObject.ContainsKey(file.AbsoluteLocalPath))
                 {
