@@ -204,7 +204,7 @@ namespace Pacifica.Upload
             // Add the files to be archived
             foreach (var fileToArchive in fileListObject)
             {
-                var sourceFile = new FileInfo(fileToArchive.Key);
+                var sourceFile = new FileInfo(Utilities.PossiblyConvertToLongPath(fileToArchive.Key));
 
                 int headerBlocks;
                 if (!string.IsNullOrEmpty(fileToArchive.Value.RelativeDestinationDirectory))
@@ -214,7 +214,9 @@ namespace Pacifica.Upload
                         throw new DirectoryNotFoundException("Cannot access the parent folder for the source file: " + fileToArchive.Value.RelativeDestinationFullPath);
                     }
 
-                    if (!directoryEntriesStored.Contains(sourceFile.Directory.FullName))
+                    var parentDirectoryPath = NativeIOFileTools.GetCleanPath(sourceFile.Directory.FullName);
+
+                    if (!directoryEntriesStored.Contains(parentDirectoryPath))
                     {
                         var dirPathInArchive = fileToArchive.Value.RelativeDestinationDirectory.TrimEnd('/') + "/";
                         addonBytes = AddTarFileContentLength(dirPathInArchive, 0, out headerBlocks);
@@ -231,7 +233,7 @@ namespace Pacifica.Upload
 
                         contentLength += addonBytes;
 
-                        directoryEntriesStored.Add(sourceFile.Directory.FullName);
+                        directoryEntriesStored.Add(parentDirectoryPath);
                     }
                 }
 
@@ -322,6 +324,7 @@ namespace Pacifica.Upload
 
             ConsoleMsgUtils.ShowDebugCustom(metadataLine, emptyLinesBeforeMessage: 0);
         }
+
         /// <summary>
         /// Report a status update
         /// </summary>
@@ -442,7 +445,7 @@ namespace Pacifica.Upload
 
             foreach (var fileToArchive in fileListObject)
             {
-                var sourceFile = new FileInfo(fileToArchive.Key);
+                var sourceFile = new FileInfo(Utilities.PossiblyConvertToLongPath(fileToArchive.Key));
 
                 if (!string.IsNullOrEmpty(fileToArchive.Value.RelativeDestinationDirectory))
                 {

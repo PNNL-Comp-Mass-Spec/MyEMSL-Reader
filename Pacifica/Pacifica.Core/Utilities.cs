@@ -264,7 +264,9 @@ namespace Pacifica.Core
                 if (!string.Equals(t, "files", StringComparison.OrdinalIgnoreCase))
                     continue;
 
-                var file = new FileInfo((string)item["absolutelocalpath"]);
+                var filePathToUse = PossiblyConvertToLongPath((string)item["absolutelocalpath"]);
+
+                var file = new FileInfo(filePathToUse);
 
                 fileList.Add(new FileInfoObject(
                     file,
@@ -275,6 +277,18 @@ namespace Pacifica.Core
             }
 
             return fileList;
+        }
+
+        /// <summary>
+        /// Return the path as-is if less than 260 characters in length
+        /// Otherwise, convert to a long path
+        /// </summary>
+        /// <param name="path"></param>
+        public static string PossiblyConvertToLongPath(string path)
+        {
+            return path.Length < NativeIOFileTools.FILE_PATH_LENGTH_THRESHOLD ?
+                       path :
+                       NativeIOFileTools.GetWin32LongPath(path);
         }
 
         public static void RemoveFileFromMetadataObject(List<Dictionary<string, object>> metadataObject, string absoluteLocalPath)

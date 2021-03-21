@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using PRISM;
 
@@ -19,7 +18,8 @@ namespace Pacifica.Core
         [Obsolete("Use the constructor that takes a FileInfo object, which has better compatibility for path lengths over 255 characters")]
         public FileInfoObject(string filePath, string baseDSPath)
         {
-            File = new FileInfo(filePath);
+            File = new FileInfo(Utilities.PossiblyConvertToLongPath(filePath));
+
             AbsoluteLocalPath = File.FullName;
             mRelativeDestinationDirectory = GetRelativeDestinationDirectory(File, baseDSPath);
             Sha1HashHex = Utilities.GenerateSha1Hash(filePath);
@@ -38,7 +38,7 @@ namespace Pacifica.Core
         public FileInfoObject(FileInfo fileToAdd, string baseDSPath, FileTools fileTools)
         {
             File = fileToAdd;
-            AbsoluteLocalPath = fileToAdd.FullName;
+            AbsoluteLocalPath = NativeIOFileTools.GetCleanPath(fileToAdd.FullName);
             mRelativeDestinationDirectory = GetRelativeDestinationDirectory(fileToAdd, baseDSPath);
             Sha1HashHex = Utilities.GenerateSha1Hash(fileToAdd, fileTools);
         }
@@ -53,7 +53,7 @@ namespace Pacifica.Core
         public FileInfoObject(FileInfo fileToAdd, string relativeDestinationDirectory, string sha1Hash, FileTools fileTools)
         {
             File = fileToAdd;
-            AbsoluteLocalPath = fileToAdd.FullName;
+            AbsoluteLocalPath = NativeIOFileTools.GetCleanPath(fileToAdd.FullName);
 
             if (string.IsNullOrWhiteSpace(relativeDestinationDirectory))
             {
@@ -170,7 +170,8 @@ namespace Pacifica.Core
                 return string.Empty;
             }
 
-            var relativeDestinationDirectory = GenerateRelativePath(file.Directory.FullName, baseDSPath);
+            var directoryPath = NativeIOFileTools.GetCleanPath(file.Directory.FullName);
+            var relativeDestinationDirectory = GenerateRelativePath(directoryPath, baseDSPath);
 
             if (!string.IsNullOrWhiteSpace(mRelativeDestinationDirectory) && Path.IsPathRooted(mRelativeDestinationDirectory))
             {
