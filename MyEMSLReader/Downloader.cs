@@ -290,7 +290,7 @@ namespace MyEMSLReader
         /// <remarks>This only works if the path is rooted</remarks>
         private string AddLongPathCode(string fileOrDirectoryPath)
         {
-            if (fileOrDirectoryPath.Length <= 255 || fileOrDirectoryPath.StartsWith(@"\\?\"))
+            if (fileOrDirectoryPath.Length < PRISM.NativeIOFileTools.FILE_PATH_LENGTH_THRESHOLD || fileOrDirectoryPath.StartsWith(@"\\?\"))
             {
                 return fileOrDirectoryPath;
             }
@@ -965,7 +965,7 @@ namespace MyEMSLReader
             // Use a special prefix to work with files whose paths are more than 255 characters long
             // See https://msdn.microsoft.com/en-us/library/aa365247(v=vs.85).aspx#maxpath
             // This only works if the path is rooted
-            if (downloadFilePath.Length > 255 && !downloadFilePath.StartsWith(@"\\?\"))
+            if (downloadFilePath.Length >= PRISM.NativeIOFileTools.FILE_PATH_LENGTH_THRESHOLD && !downloadFilePath.StartsWith(@"\\?\"))
             {
                 if (!Path.IsPathRooted(downloadFilePath))
                 {
