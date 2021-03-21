@@ -374,12 +374,10 @@ namespace MyEMSLReader
             var success = false;
             var triedGC = false;
 
-            // Use a special prefix to work with files whose paths are more than 255 characters long
+            // Use the special prefix \\?\ when working with files whose paths are 260 characters or longer
             // See https://msdn.microsoft.com/en-us/library/aa365247(v=vs.85).aspx#maxpath
-            if (downloadFilePath.Length > 255 && !downloadFilePath.StartsWith(@"\\?\"))
-            {
-                downloadFilePath = @"\\?\" + downloadFilePath;
-            }
+
+            var downloadPathToUse = Utilities.PossiblyConvertToLongPath(downloadFilePath);
 
             while (!success && attempts <= maxAttempts)
             {
@@ -389,7 +387,7 @@ namespace MyEMSLReader
                     success = EasyHttp.GetFile(
                         mPacificaConfig, URL, cookieJar,
                         out _,
-                        downloadFilePath, timeoutSeconds);
+                        downloadPathToUse, timeoutSeconds);
 
                     if (!success)
                     {
