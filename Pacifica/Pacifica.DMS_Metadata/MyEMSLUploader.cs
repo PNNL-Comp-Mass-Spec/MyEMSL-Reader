@@ -299,6 +299,8 @@ namespace Pacifica.DMS_Metadata
             catch (Exception ex)
             {
                 OnWarningEvent("Exception calling UploadWorker.StartUpload: " + ex.Message);
+                OnWarningEvent(StackTraceFormatter.GetExceptionStackTraceMultiLine(ex));
+
                 MetadataContainer.DeleteLockFiles();
                 throw;
             }
