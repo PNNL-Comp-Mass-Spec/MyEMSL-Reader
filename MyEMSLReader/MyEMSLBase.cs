@@ -412,8 +412,7 @@ namespace MyEMSLReader
         {
             // The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
             // For more info, see comments in Reader.RunElasticSearchQuery()
-            if (ServicePointManager.ServerCertificateValidationCallback == null)
-                ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
+            ServicePointManager.ServerCertificateValidationCallback ??= ValidateRemoteCertificate;
 
             mostRecentException = null;
             responseData = string.Empty;

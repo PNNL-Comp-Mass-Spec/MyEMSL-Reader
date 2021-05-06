@@ -95,10 +95,7 @@ namespace Pacifica.Core
                 throw new FileNotFoundException("File not found in GenerateSha1Hash: " + file.FullName);
             }
 
-            if (_hashProvider == null)
-            {
-                _hashProvider = new SHA1Managed();
-            }
+            _hashProvider ??= new SHA1Managed();
 
             using (var sourceFile = new FileStream(PossiblyConvertToLongPath(file.FullName), FileMode.Open, FileAccess.Read, FileShare.Read))
             {
@@ -321,10 +318,7 @@ namespace Pacifica.Core
 
             foreach (string key in jso.Names)
             {
-                if (jso[key] == null)
-                {
-                    jso[key] = string.Empty;
-                }
+                jso[key] ??= string.Empty;
 
                 var value = jso[key];
                 if (value.GetType().Name == "JsonObject")

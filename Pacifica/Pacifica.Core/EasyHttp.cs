@@ -353,10 +353,7 @@ namespace Pacifica.Core
             NetworkCredential loginCredentials,
             double maxTimeoutHours = 24)
         {
-            if (cookies == null)
-            {
-                cookies = new CookieContainer();
-            }
+            cookies ??= new CookieContainer();
 
             if (timeoutSeconds < 3)
             {
