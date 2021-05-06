@@ -33,8 +33,8 @@ namespace MyEMSLMetadataValidator
 
                     ContactInfo = "Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2017" +
                                   Environment.NewLine + Environment.NewLine +
-                                  "E-mail: matthew.monroe@pnnl.gov or matt@alchemistmatt.com" + Environment.NewLine +
-                                  "Website: http://panomics.pnnl.gov/ or http://omics.pnl.gov or http://www.sysbio.org/resources/staff/",
+                                  "E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov" + Environment.NewLine +
+                                  "Website: http://panomics.pnnl.gov/ or http://omics.pnl.gov or http://panomics.pnnl.gov/",
 
                     UsageExamples = {
                         exeName + "/Start:200000 /End:201000",
