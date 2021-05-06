@@ -11,18 +11,15 @@ namespace MyEMSLReader
     {
         // Ignore Spelling: Args
 
-        private string mDatasetName;
-        private int mDatasetID;
-
         /// <summary>
         /// Dataset ID
         /// </summary>
-        public int DatasetID => mDatasetID;
+        public int DatasetID { get; private set; }
 
         /// <summary>
         /// Dataset name
         /// </summary>
-        public string DatasetName => mDatasetName;
+        public string DatasetName { get; private set; }
 
         /// <summary>
         /// Constructor
@@ -30,8 +27,8 @@ namespace MyEMSLReader
         /// <param name="datasetName"></param>
         public DatasetInfo(string datasetName)
         {
-            mDatasetName = string.Empty;
-            mDatasetID = 0;
+            DatasetName = string.Empty;
+            DatasetID = 0;
 
             UpdateDatasetName(datasetName);
         }
@@ -68,13 +65,13 @@ namespace MyEMSLReader
                 if (unzipRequired)
                 {
                     message = "Cannot queue file " + myEMSLFileID + " for download because the UnzipRequired flag was set, " +
-                              "but the MyEMSL FileID is not cached locally for dataset " + mDatasetName;
+                              "but the MyEMSL FileID is not cached locally for dataset " + DatasetName;
                     OnErrorEvent(message);
                     throw new FormatException(message);
                 }
 
                 message = "Queued file " + myEMSLFileID + " for download with null ArchivedFileInfo " +
-                          "because the MyEMSL FileID is not cached locally for dataset " + mDatasetName;
+                          "because the MyEMSL FileID is not cached locally for dataset " + DatasetName;
                 OnErrorEvent(message);
 
                 AddFileToDownloadQueue(myEMSLFileID, null, unzipRequired: false);
@@ -91,7 +88,7 @@ namespace MyEMSLReader
         /// <returns>True if successful, false if an error</returns>
         public override bool RefreshInfo()
         {
-            return RefreshInfo(mDatasetName);
+            return RefreshInfo(DatasetName);
         }
 
         /// <summary>
@@ -105,12 +102,12 @@ namespace MyEMSLReader
             {
                 mErrorMessages.Clear();
 
-                if (datasetName != mDatasetName)
+                if (datasetName != DatasetName)
                 {
                     UpdateDatasetName(datasetName);
                 }
 
-                mArchivedFiles = mReader.FindFilesByDatasetName(mDatasetName);
+                mArchivedFiles = mReader.FindFilesByDatasetName(DatasetName);
                 mCacheDate = DateTime.UtcNow;
                 mCacheIsStale = false;
 
@@ -119,7 +116,7 @@ namespace MyEMSLReader
                     return mErrorMessages.Count == 0;
                 }
 
-                mDatasetID = mArchivedFiles.First().DatasetID;
+                DatasetID = mArchivedFiles.First().DatasetID;
 
                 return true;
             }
@@ -139,10 +136,10 @@ namespace MyEMSLReader
         /// <remarks>Use RefreshInfo to find the files tracked by MyEMSL for this dataset</remarks>
         public void UpdateDatasetName(string datasetName)
         {
-            if (datasetName != mDatasetName)
+            if (datasetName != DatasetName)
             {
-                mDatasetName = datasetName;
-                mDatasetID = 0;
+                DatasetName = datasetName;
+                DatasetID = 0;
                 mArchivedFiles.Clear();
 
                 mCacheIsStale = true;
