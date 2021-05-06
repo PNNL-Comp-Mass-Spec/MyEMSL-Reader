@@ -16,7 +16,7 @@ namespace Pacifica.Core
 {
     public static class Utilities
     {
-        // Ignore Spelling: absolutelocalpath, subdir, hashsum, Json
+        // Ignore Spelling: absolutelocalpath, hashsum, Json, subdir
 
         /// <summary>
         /// Decode a password

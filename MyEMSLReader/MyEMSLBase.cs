@@ -17,7 +17,7 @@ namespace MyEMSLReader
     /// </summary>
     public class MyEMSLBase : EventNotifier
     {
-        // Ignore Spelling: Pacifica
+        // Ignore Spelling: downloader, Pacifica, svc
 
         /// <summary>
         /// When true, raise a DebugEvent prior to contacting the metadata server

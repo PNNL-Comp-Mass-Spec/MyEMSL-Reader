@@ -12,8 +12,8 @@ namespace Pacifica.Upload
     // ReSharper disable once UnusedMember.Global
     public class Upload : EventNotifier
     {
-        // Ignore Spelling: Uploader, Frodo, Pacifica, http, ok, Ingester, ncbi, absolutelocalpath
-        // Ignore Spelling: subdir, hashsum, mimetype, hashtype, ctime, mtime, eus, gz
+        // Ignore Spelling: absolutelocalpath, backend, ctime, eus, Frodo, gz, hashsum, hashtype, http
+        // Ignore Spelling: Ingester, mimetype, mtime, ncbi, ok, Pacifica, proteomics, subdir, Uploader
 
         /// <summary>
         /// EUS Operator ID to use when operator ID is unknown

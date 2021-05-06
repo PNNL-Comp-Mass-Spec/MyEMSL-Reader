@@ -13,7 +13,7 @@ namespace Pacifica.DMS_Metadata
     /// </summary>
     public class MyEMSLUploader : EventNotifier
     {
-        // Ignore Spelling: Uploader, Pacifica
+        // Ignore Spelling: Pacifica, Uploader
 
         /// <summary>
         /// Recursive upload dictionary key

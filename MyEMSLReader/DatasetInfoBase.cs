@@ -13,7 +13,11 @@ namespace MyEMSLReader
     /// </summary>
     public abstract class DatasetInfoBase : EventNotifier
     {
-        // Ignore Spelling: struct, Args, ser, dest
+        // ReSharper disable CommentTypo
+
+        // Ignore Spelling: acyl, Args, dest, oxoacyl, ser, struct, svc, wildcards
+
+        // ReSharper restore CommentTypo
 
         /// <summary>
         /// MyEMSL ID flag

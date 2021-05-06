@@ -15,7 +15,7 @@ namespace Pacifica.Upload
     /// </summary>
     public class TarStreamUploader
     {
-        // Ignore Spelling: Ingester, Workdir, addon, uploader
+        // Ignore Spelling: addon, Ingester, uploader, Workdir
 
         /// <summary>
         /// Block size for tar files

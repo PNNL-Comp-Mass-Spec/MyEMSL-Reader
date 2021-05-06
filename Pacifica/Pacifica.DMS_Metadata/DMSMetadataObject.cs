@@ -20,7 +20,7 @@ namespace Pacifica.DMS_Metadata
     /// </summary>
     public class DMSMetadataObject : EventNotifier
     {
-        // Ignore Spelling: Json, ssl, ncbi, subfolder, mtime, ctime, fileinfo, keyvalue, hashsum, subdir, hashtype
+        // Ignore Spelling: ctime, fileinfo, hashsum, hashtype, Json, keyvalue, mtime, ncbi, ssl, subdir, subfolder
 
         /// <summary>
         /// If a dataset archive task involves more 15 GB of data, only archive the root directory and the QC directory
