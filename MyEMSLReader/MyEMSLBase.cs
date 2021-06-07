@@ -185,17 +185,16 @@ namespace MyEMSLReader
         }
 
         /// <summary>
-        /// Verify that svc-dms.pfx exists either in the same directory as Pacifica.core.dll or at C:\client_certs\
+        /// Verify that svc-dms.pfx exists either in the same directory as Pacifica.core.dll, C:\DMS_Programs\client_certs, or at C:\client_certs\
         /// </summary>
         /// <param name="errorMessage">Output: error message, indicating the paths that were checked</param>
         /// <returns>True if the file is found, otherwise false</returns>
         public bool CertificateFileExists(out string errorMessage)
         {
-            var certificateFilePath = EasyHttp.ResolveCertFile(mPacificaConfig, "CertificateFileExists", out _);
+            var certificateFilePath = EasyHttp.ResolveCertFile(mPacificaConfig, "CertificateFileExists", out errorMessage, out _);
 
             if (string.IsNullOrWhiteSpace(certificateFilePath))
             {
-                errorMessage = "MyEMSL certificate file not found in the current directory or in " + Configuration.CLIENT_CERT_DIRECTORY;
                 return false;
             }
 

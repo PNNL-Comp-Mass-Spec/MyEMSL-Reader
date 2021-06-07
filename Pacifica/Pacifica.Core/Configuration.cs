@@ -49,6 +49,11 @@ namespace Pacifica.Core
         public const string TEST_INGEST_HOST_NAME = "ingestdmsdev.my.emsl.pnl.gov";
 
         /// <summary>
+        /// Windows directory (for DMS) with the MyEMSL client certificate file
+        /// </summary>
+        public const string DMS_CLIENT_CERT_DIRECTORY = @"C:\DMS_Programs\client_certs\";
+
+        /// <summary>
         /// Windows directory with the MyEMSL client certificate file
         /// </summary>
         public const string CLIENT_CERT_DIRECTORY = @"C:\client_certs\";
@@ -157,7 +162,7 @@ namespace Pacifica.Core
         /// Look for the newest client certificate file (e.g., svc-dms.pfx)
         /// </summary>
         /// <returns>Path to the file if found, otherwise an empty string</returns>
-        /// <remarks>First checks the directory with the executing assembly, then checks C:\client_certs\</remarks>
+        /// <remarks>First checks the directory with the executing assembly, then C:\DMS_Programs\client_certs, then C:\client_certs\</remarks>
         private string FindNewestClientCertFile()
         {
             const string CERTIFICATE_FILE_MASK = "*.pfx";
@@ -178,6 +183,12 @@ namespace Pacifica.Core
                 {
                     var workingDirectory = new DirectoryInfo(assemblyFile.DirectoryName);
                     directoriesToCheck.Add(workingDirectory);
+                }
+
+                var sharedClientCertDirectoryDMS = new DirectoryInfo(DMS_CLIENT_CERT_DIRECTORY);
+                if (sharedClientCertDirectoryDMS.Exists)
+                {
+                    directoriesToCheck.Add(sharedClientCertDirectoryDMS);
                 }
 
                 var sharedClientCertDirectory = new DirectoryInfo(CLIENT_CERT_DIRECTORY);

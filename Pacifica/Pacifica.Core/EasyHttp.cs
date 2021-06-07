@@ -865,18 +865,42 @@ namespace Pacifica.Core
         /// <returns>Path to the file if found, otherwise an empty string</returns>
         public static string ResolveCertFile(Configuration config, string callingMethod, out string errorMessage)
         {
+            return ResolveCertFile(config, callingMethod, out _, out errorMessage);
+        }
+
+        /// <summary>
+        /// Determine the path to the MyEMSL Certificate file
+        /// </summary>
+        /// <param name="config">Pacifica Config</param>
+        /// <param name="callingMethod">Calling method</param>
+        /// <param name="errorMessage">Output: error message</param>
+        /// <param name="errorMessageDetailed">Output: error message, including calling method</param>
+        /// <returns>Path to the file if found, otherwise an empty string</returns>
+        public static string ResolveCertFile(Configuration config, string callingMethod, out string errorMessage, out string errorMessageDetailed)
+        {
             var certificateFilePath = config.ClientCertFilePath;
 
             if (!string.IsNullOrWhiteSpace(certificateFilePath))
             {
                 errorMessage = string.Empty;
+                errorMessageDetailed = string.Empty;
                 return certificateFilePath;
             }
 
             // Example message:
+            // MyEMSL certificate file not found in the current directory or at C:\client_certs\svc-dms.pfx
+            if (Directory.Exists(@"C:\DMS_Programs"))
+            {
+                errorMessage = "MyEMSL certificate file not found in the current directory, in " + Configuration.DMS_CLIENT_CERT_DIRECTORY + ", or in " + Configuration.CLIENT_CERT_DIRECTORY;
+            }
+            else
+            {
+                errorMessage = "MyEMSL certificate file not found in the current directory or in " + Configuration.CLIENT_CERT_DIRECTORY;
+            }
+
+            // Example message:
             // Authentication failure in InitializeRequest; MyEMSL certificate file not found in the current directory or at C:\client_certs\svc-dms.pfx
-            errorMessage = "Authentication failure in " + callingMethod + "; " +
-                           "MyEMSL certificate file not found in the current directory or in " + Configuration.CLIENT_CERT_DIRECTORY;
+            errorMessageDetailed = "Authentication failure in " + callingMethod + "; " + errorMessage;
 
             return string.Empty;
         }

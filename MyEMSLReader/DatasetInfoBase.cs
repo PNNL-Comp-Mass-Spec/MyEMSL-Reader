@@ -219,7 +219,7 @@ namespace MyEMSLReader
         }
 
         /// <summary>
-        /// Verify that svc-dms.pfx exists either in the same directory as Pacifica.core.dll or at C:\client_certs\
+        /// Verify that svc-dms.pfx exists either in the same directory as Pacifica.core.dll, C:\DMS_Programs\client_certs, or at C:\client_certs\
         /// </summary>
         /// <param name="errorMessage">Output: error message, indicating the paths that were checked</param>
         /// <returns>True if the file is found, otherwise false</returns>
