@@ -163,10 +163,7 @@ namespace Pacifica.Core
 
             // The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
             // For more info, see comments in Upload.StartUpload()
-            if (ServicePointManager.ServerCertificateValidationCallback == null)
-            {
-                ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
-            }
+            ServicePointManager.ServerCertificateValidationCallback ??= ValidateRemoteCertificate;
 
             OnStatusEvent("Contacting " + statusURI);
             var startTime = DateTime.UtcNow;
