@@ -12,7 +12,7 @@ namespace Pacifica.Core
 {
     public class EasyHttp
     {
-        // Ignore Spelling: Ingester, json, Pacifica, urlencoded, www
+        // Ignore Spelling: Ingester, json, Pacifica, svc-dms, urlencoded, www
 
         /// <summary>
         /// Response to return when the thread used to send a request aborts

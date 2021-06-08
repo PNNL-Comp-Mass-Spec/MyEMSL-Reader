@@ -18,7 +18,7 @@ namespace MyEMSLDownloader
     {
         private const string PROGRAM_DATE = "June 7, 2021";
 
-        // Ignore Spelling: Acq, melissa, ser, un-purged, Virol
+        // Ignore Spelling: Acq, downloader, melissa, ser, un-purged, Virol
 
         private static double mPercentComplete;
         private static DateTime mLastProgressUpdateTime = DateTime.UtcNow;

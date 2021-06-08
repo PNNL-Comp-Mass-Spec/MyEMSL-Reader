@@ -13,8 +13,13 @@ namespace Pacifica.Core
     /// Examine the status of a given ingest job
     /// </summary>
     /// <remarks>
+    /// <para>
     /// First call GetIngestStatus then call IngestStepCompleted.
     /// This allows for just one web request, but the ability to examine the status of multiple steps
+    /// </para>
+    /// <para>
+    /// This class is used by Capture Task Manager plugins Archive Verify and Archive Status Check
+    /// </para>
     /// </remarks>
     public class MyEMSLStatusCheck : EventNotifier
     {

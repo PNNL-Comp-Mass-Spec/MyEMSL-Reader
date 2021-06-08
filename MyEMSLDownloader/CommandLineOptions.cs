@@ -4,6 +4,8 @@ namespace MyEMSLDownloader
 {
     internal class CommandLineOptions
     {
+        // Ignore Spelling: ser, wildcards
+
         [Option("Dataset", ArgPosition = 1, HelpShowsDefault = false, HelpText = "Dataset Name (can also be a Dataset ID)")]
         public string DatasetName { get; set; }
 

@@ -8,6 +8,8 @@ namespace MyEMSLReader
     /// </summary>
     public class ArchivedFileInfo
     {
+        // Ignore Spelling: yyyy-MM-dd, HH:mm:ss, tt
+
         /// <summary>
         /// SHA-1
         /// </summary>
@@ -220,7 +222,7 @@ namespace MyEMSLReader
 
         /// <summary>
         /// SubDirectory path of the file, as reported by MyEMSL
-        /// This path will have unix-style slashes ('/') if there are subdirectories
+        /// This path will have Linux-style slashes ('/') if there are subdirectories
         /// </summary>
         /// <remarks>The SubDirPath for Data package files will always start with the data package directory name</remarks>
         public string SubDirPath
