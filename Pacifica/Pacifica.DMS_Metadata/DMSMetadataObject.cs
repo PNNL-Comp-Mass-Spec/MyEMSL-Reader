@@ -228,14 +228,19 @@ namespace Pacifica.DMS_Metadata
             var datasetFilesToArchive = FindDatasetFilesToArchive(taskParams, mgrParams, out var uploadMetadata);
 
             // DMS5 database
-            mgrParams.TryGetValue("DefaultDMSConnString", out var connectionString);
+            mgrParams.TryGetValue("DefaultDMSConnString", out var dmsConnectionString);
 
             // DMS_Capture database
             mgrParams.TryGetValue("ConnectionString", out var captureDbConnectionString);
 
             taskParams.TryGetValue("Dataset_ID", out var datasetID);
 
-            var supplementalDataSuccess = GetSupplementalDMSMetadata(connectionString, datasetID, uploadMetadata);
+            var applicationName = "MyEMSLReader_DatasetID_" + datasetID;
+
+            var dmsConnectionStringToUse = DbToolsFactory.AddApplicationNameToConnectionString(dmsConnectionString, applicationName);
+            var captureDbConnectionStringToUse = DbToolsFactory.AddApplicationNameToConnectionString(captureDbConnectionString, applicationName);
+
+            var supplementalDataSuccess = GetSupplementalDMSMetadata(dmsConnectionStringToUse, datasetID, uploadMetadata);
             if (!supplementalDataSuccess)
             {
                 criticalError = false;
@@ -249,7 +254,7 @@ namespace Pacifica.DMS_Metadata
 
             // Find the files that are new or need to be updated
             var unmatchedFiles = CompareDatasetContentsWithMyEMSLMetadata(
-                captureDbConnectionString,
+                captureDbConnectionStringToUse,
                 datasetFilesToArchive,
                 uploadMetadata,
                 out criticalError,
