@@ -271,7 +271,7 @@ namespace Pacifica.Core
                                 var keyErrorRegex = new Regex(@"(KeyError:\s.+[^\n])", RegexOptions.IgnoreCase);
                                 var keyError = keyErrorRegex.Match(exception).Value; // == string.Empty if no match found.
 
-                                // Lazy match of a string with at least 75 characters, until (and excluding) a new line, tab, or two spaces
+                                // Lazy match of a string with at least 75 characters, until (and excluding) a newline, tab, or two spaces
                                 var exceptionTruncate = new Regex(@"((?:.|[\r\n]){50,}?)(?=(?:  )|[\r\n\t])");
                                 var truncated = exceptionTruncate.Match(exceptionClean).Value;
 
