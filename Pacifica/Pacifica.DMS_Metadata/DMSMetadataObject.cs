@@ -235,10 +235,8 @@ namespace Pacifica.DMS_Metadata
 
             taskParams.TryGetValue("Dataset_ID", out var datasetID);
 
-            var applicationName = "MyEMSLReader_DatasetID_" + datasetID;
-
-            var dmsConnectionStringToUse = DbToolsFactory.AddApplicationNameToConnectionString(dmsConnectionString, applicationName);
-            var captureDbConnectionStringToUse = DbToolsFactory.AddApplicationNameToConnectionString(captureDbConnectionString, applicationName);
+            var dmsConnectionStringToUse = DbToolsFactory.AddApplicationNameToConnectionString(dmsConnectionString, "MyEMSLReader");
+            var captureDbConnectionStringToUse = DbToolsFactory.AddApplicationNameToConnectionString(captureDbConnectionString, "MyEMSLReader");
 
             var supplementalDataSuccess = GetSupplementalDMSMetadata(dmsConnectionStringToUse, datasetID, uploadMetadata);
             if (!supplementalDataSuccess)

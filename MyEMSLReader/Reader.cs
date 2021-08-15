@@ -807,9 +807,7 @@ namespace MyEMSLReader
 
                 var filterOnInstrument = !string.IsNullOrWhiteSpace(instrumentName);
 
-                var applicationName = GetApplicationNameForConnectionString(datasetsAndSubDirs.Keys.FirstOrDefault());
-
-                var connectionStringToUse = DbToolsFactory.AddApplicationNameToConnectionString(DMSConnectionString, applicationName);
+                var connectionStringToUse = DbToolsFactory.AddApplicationNameToConnectionString(DMSConnectionString, "MyEMSLReader");
 
                 var dbTools = DbToolsFactory.GetDBTools(connectionStringToUse);
                 RegisterEvents(dbTools);
@@ -932,24 +930,7 @@ namespace MyEMSLReader
 
             return filteredSearchResults;
         }
-
-        private string GetApplicationNameForConnectionString(string datasetName)
-        {
-            if (string.IsNullOrWhiteSpace(datasetName))
-                return "MyEMSLReader";
-
-            var applicationName = "MyEMSLReader_" + datasetName;
-
-            if (applicationName.Contains(DATASET_ID_TAG))
-                return applicationName.Replace(DATASET_ID_TAG, "DatasetID_");
-
-            // ReSharper disable once ConvertIfStatementToReturnStatement
-            if (applicationName.Contains(DATA_PKG_ID_TAG))
-                return applicationName.Replace(DATA_PKG_ID_TAG, "DataPackage_");
-
-            return applicationName;
-        }
-
+        
         private SearchEntity GetEntityType(Dictionary<string, SortedSet<string>> datasetsAndSubDirLists)
         {
             if (datasetsAndSubDirLists.First().Key.StartsWith(DATASET_ID_TAG))
