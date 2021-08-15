@@ -930,7 +930,7 @@ namespace MyEMSLReader
 
             return filteredSearchResults;
         }
-        
+
         private SearchEntity GetEntityType(Dictionary<string, SortedSet<string>> datasetsAndSubDirLists)
         {
             if (datasetsAndSubDirLists.First().Key.StartsWith(DATASET_ID_TAG))
