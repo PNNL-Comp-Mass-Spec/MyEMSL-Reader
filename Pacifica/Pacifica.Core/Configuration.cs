@@ -1,4 +1,4 @@
-using PRISM;
+﻿using PRISM;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -161,8 +161,8 @@ namespace Pacifica.Core
         /// <summary>
         /// Look for the newest client certificate file (e.g., svc-dms.pfx)
         /// </summary>
-        /// <returns>Path to the file if found, otherwise an empty string</returns>
         /// <remarks>First checks the directory with the executing assembly, then C:\DMS_Programs\client_certs, then C:\client_certs\</remarks>
+        /// <returns>Path to the file if found, otherwise an empty string</returns>
         private string FindNewestClientCertFile()
         {
             const string CERTIFICATE_FILE_MASK = "*.pfx";

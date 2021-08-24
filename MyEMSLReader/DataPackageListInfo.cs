@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -83,11 +83,11 @@ namespace MyEMSLReader
         /// <summary>
         /// Looks for the given file, returning any matches as a list (searches this directory and subdirectories)
         /// </summary>
+        /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         /// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
         /// <param name="subdirectoryName">Subdirectory in which the file must reside; can contain a wildcard, e.g. SIC*</param>
         /// <param name="dataPackageID">Data Package ID filter</param>
         /// <returns>List of matching files</returns>
-        /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         // ReSharper disable once UnusedMember.Global
         public List<DatasetDirectoryOrFileInfo> FindFiles(string fileName, string subdirectoryName, int dataPackageID)
         {
@@ -97,13 +97,13 @@ namespace MyEMSLReader
         /// <summary>
         /// Looks for the given file, returning any matches as a list
         /// </summary>
+        /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         /// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
         /// <param name="subdirectoryName">Subdirectory in which the file must reside; can contain a wildcard, e.g. SIC*</param>
         /// <param name="dataPackageID">Data Package ID filter</param>
         /// <param name="recurse">True to search all subdirectories; false to only search the root directory (or only subdirectoryName)</param>
         /// <param name="fileSplit">Set to True if fileName contains a list of file names (or file specs) separated by a semicolon</param>
         /// <returns>List of matching files</returns>
-        /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         public List<DatasetDirectoryOrFileInfo> FindFiles(string fileName, string subdirectoryName, int dataPackageID, bool recurse, bool fileSplit = false)
         {
             var datasetName = string.Empty;

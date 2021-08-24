@@ -180,13 +180,13 @@ namespace MyEMSLReader
         /// <summary>
         /// Queue a file to be downloaded
         /// </summary>
+        /// <remarks>fileInfo can be null if unzipRequired is false</remarks>
         /// <param name="myEMSLFileID">MyEMSL File ID</param>
         /// <param name="fileInfo">Archive File Info</param>
         /// <param name="unzipRequired">
         /// True if the file will need to be unzipped after the download
         /// (this DLL will not unzip the file; it will simply include this in event FileDownloadedEventArgs)
         /// </param>
-        /// <remarks>fileInfo can be null if unzipRequired is false</remarks>
         public void AddFileToDownloadQueue(long myEMSLFileID, ArchivedFileInfo fileInfo, bool unzipRequired)
         {
             mDownloadQueue.AddFileToDownloadQueue(myEMSLFileID, fileInfo, unzipRequired);
@@ -195,12 +195,12 @@ namespace MyEMSLReader
         /// <summary>
         /// Queue a file to be downloaded
         /// </summary>
+        /// <remarks>fileInfo can be null if unzipRequired is false</remarks>
+        /// ReSharper disable once UnusedMember.Global
         /// <param name="myEMSLFileID">MyEMSL File ID</param>
         /// <param name="fileInfo">Archive File Info</param>
         /// <param name="unzipRequired">True if the file will need to be unzipped after the download (this DLL will not unzip the file; it will simply include this in event FileDownloadedEventArgs)</param>
         /// <param name="destFilePath">Explicit destination file path</param>
-        /// <remarks>fileInfo can be null if unzipRequired is false</remarks>
-        /// ReSharper disable once UnusedMember.Global
         public void AddFileToDownloadQueue(long myEMSLFileID, ArchivedFileInfo fileInfo, bool unzipRequired, string destFilePath)
         {
             mDownloadQueue.AddFileToDownloadQueue(myEMSLFileID, fileInfo, unzipRequired, destFilePath);
@@ -290,10 +290,10 @@ namespace MyEMSLReader
         /// <summary>
         /// Looks for the given file in all datasets added using AddDataset(), returning any matches as a list
         /// </summary>
+        /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         /// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
         /// <param name="subdirectoryName">Subdirectory in which the file must reside; can contain a wildcard, e.g. SIC*</param>
         /// <returns>List of matching files</returns>
-        /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         public List<DatasetDirectoryOrFileInfo> FindFiles(string fileName, string subdirectoryName)
         {
             var datasetName = string.Empty;
@@ -303,12 +303,12 @@ namespace MyEMSLReader
         /// <summary>
         /// Looks for the given file, returning any matches as a list
         /// </summary>
+        /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         /// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
         /// <param name="subdirectoryName">Subdirectory in which the file must reside; can contain a wildcard, e.g. SIC*</param>
         /// <param name="recurse">True to search all subdirectories; false to only search the root directory (or only subdirectoryName)</param>
         /// <param name="fileSplit">Set to True if fileName contains a list of file names (or file specs) separated by a semicolon</param>
         /// <returns>List of matching files</returns>
-        /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         public List<DatasetDirectoryOrFileInfo> FindFiles(string fileName, string subdirectoryName, bool recurse, bool fileSplit = false)
         {
             var datasetName = string.Empty;
@@ -318,12 +318,12 @@ namespace MyEMSLReader
         /// <summary>
         /// Looks for the given file, returning any matches as a list
         /// </summary>
+        /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
+        /// ReSharper disable once UnusedMember.Global
         /// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
         /// <param name="subdirectoryName">Subdirectory in which the file must reside; can contain a wildcard, e.g. SIC*</param>
         /// <param name="datasetName">Dataset name filter</param>
         /// <returns>List of matching files</returns>
-        /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
-        /// ReSharper disable once UnusedMember.Global
         public List<DatasetDirectoryOrFileInfo> FindFiles(string fileName, string subdirectoryName, string datasetName)
         {
             return FindFiles(fileName, subdirectoryName, datasetName, recurse: true);
@@ -332,6 +332,7 @@ namespace MyEMSLReader
         /// <summary>
         /// Looks for the given file, returning any matches as a list
         /// </summary>
+        /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         /// <param name="fileName">
         /// File name to find; can contain a wildcard, e.g. *.zip
         /// Separate multiple values using a vertical bar, e.g. analysis.baf|ser
@@ -341,7 +342,6 @@ namespace MyEMSLReader
         /// <param name="recurse">True to search all subdirectories; false to only search the root directory (or only subdirectoryName)</param>
         /// <param name="fileSplit">Set to True if fileName contains a list of file names (or file specs) separated by a semicolon</param>
         /// <returns>List of matching files</returns>
-        /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         public List<DatasetDirectoryOrFileInfo> FindFiles(string fileName, string subdirectoryName, string datasetName, bool recurse, bool fileSplit = false)
         {
             const int dataPackageID = 0;
@@ -351,6 +351,7 @@ namespace MyEMSLReader
         /// <summary>
         /// Looks for the given file, returning any matches as a list
         /// </summary>
+        /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         /// <param name="fileName">
         /// File name to find; can contain a wildcard, e.g. *.zip
         /// Separate multiple values using a vertical bar, e.g. analysis.baf|ser
@@ -361,7 +362,6 @@ namespace MyEMSLReader
         /// <param name="recurse">True to search all subdirectories; false to only search the root directory (or only subdirectoryName)</param>
         /// <param name="fileSplit">Set to True if fileName contains a list of file names (or file specs) separated by a semicolon</param>
         /// <returns>List of matching files</returns>
-        /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
         public List<DatasetDirectoryOrFileInfo> FindFiles(
             string fileName,
             string subdirectoryName,
@@ -642,10 +642,10 @@ namespace MyEMSLReader
         /// <summary>
         /// Retrieve queued files from MyEMSL
         /// </summary>
+        /// <remarks>Returns False if the download queue is empty</remarks>
         /// <param name="downloadDirectoryPath">Target directory path (ignored for files defined in destFilePathOverride)</param>
         /// <param name="directoryLayout">Directory Layout (ignored for files defined in destFilePathOverride)</param>
         /// <returns>True if success, false if an error</returns>
-        /// <remarks>Returns False if the download queue is empty</remarks>
         public bool ProcessDownloadQueue(string downloadDirectoryPath, Downloader.DownloadLayout directoryLayout)
         {
             mErrorMessages.Clear();

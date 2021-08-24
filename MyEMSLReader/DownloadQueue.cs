@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Collections.Generic;
 using PRISM;
@@ -99,10 +99,10 @@ namespace MyEMSLReader
         /// <summary>
         /// Queue a file to be downloaded
         /// </summary>
+        /// <remarks>fileInfo can be null if unzipRequired is false</remarks>
         /// <param name="myEMSLFileID">MyEMSL File ID</param>
         /// <param name="fileInfo">Archive File Info</param>
         /// <param name="unzipRequired">True if the file will need to be unzipped after the download (this DLL will not unzip the file; it will simply include this in event FileDownloadedEventArgs)</param>
-        /// <remarks>fileInfo can be null if unzipRequired is false</remarks>
         public void AddFileToDownloadQueue(long myEMSLFileID, ArchivedFileInfo fileInfo, bool unzipRequired)
         {
             var destFilePath = string.Empty;
@@ -112,11 +112,11 @@ namespace MyEMSLReader
         /// <summary>
         /// Queue a file to be downloaded
         /// </summary>
+        /// <remarks>fileInfo can be null if unzipRequired is false</remarks>
         /// <param name="myEMSLFileID">MyEMSL File ID</param>
         /// <param name="fileInfo">Archive File Info</param>
         /// <param name="unzipRequired">True if the file will need to be unzipped after the download (this DLL will not unzip the file; it will simply include this in event FileDownloadedEventArgs)</param>
         /// <param name="destFilePath">Explicit destination file path</param>
-        /// <remarks>fileInfo can be null if unzipRequired is false</remarks>
         public void AddFileToDownloadQueue(long myEMSLFileID, ArchivedFileInfo fileInfo, bool unzipRequired, string destFilePath)
         {
             if (FilesToDownload.ContainsKey(myEMSLFileID))
@@ -153,10 +153,10 @@ namespace MyEMSLReader
         /// <summary>
         /// Retrieve queued files from MyEMSL
         /// </summary>
+        /// <remarks>Returns False if the download queue is empty</remarks>
         /// <param name="downloadDirectoryPath">Target directory path (ignored for files defined in destFilePathOverride)</param>
         /// <param name="directoryLayout">Directory Layout (ignored for files defined in destFilePathOverride)</param>
         /// <returns>True if success, false if an error</returns>
-        /// <remarks>Returns False if the download queue is empty</remarks>
         public bool ProcessDownloadQueue(
             string downloadDirectoryPath,
             Downloader.DownloadLayout directoryLayout)

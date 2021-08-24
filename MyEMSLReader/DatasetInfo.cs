@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 
 namespace MyEMSLReader
@@ -132,8 +132,8 @@ namespace MyEMSLReader
         /// <summary>
         /// Update the dataset name associated with this instance
         /// </summary>
-        /// <param name="datasetName"></param>
         /// <remarks>Use RefreshInfo to find the files tracked by MyEMSL for this dataset</remarks>
+        /// <param name="datasetName"></param>
         public void UpdateDatasetName(string datasetName)
         {
             if (datasetName != DatasetName)

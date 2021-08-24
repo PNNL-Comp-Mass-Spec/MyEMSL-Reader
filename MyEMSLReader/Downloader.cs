@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -150,11 +150,11 @@ namespace MyEMSLReader
         /// <summary>
         /// Download files in filesToDownload
         /// </summary>
+        /// <remarks>destFilePathOverride is not required and can be empty; it can also have values for just some of the files in filesToDownload</remarks>
         /// <param name="filesToDownload">MyEMSL Files to download; keys are MyEMSL File IDs and values are ArchivedFileInfo objects</param>
         /// <param name="destFilePathOverride">Dictionary where keys are FileIDs and values are the explicit destination path to use</param>
         /// <param name="downloadDirectoryPath">Target directory path (ignored for files defined in destFilePathOverride)</param>
         /// <param name="directoryLayout">Directory Layout (ignored for files defined in destFilePathOverride)</param>
-        /// <remarks>destFilePathOverride is not required and can be empty; it can also have values for just some of the files in filesToDownload</remarks>
         /// <returns>True if success, false if an error</returns>
         public bool DownloadFiles(
             Dictionary<long, ArchivedFileInfo> filesToDownload,
@@ -282,9 +282,9 @@ namespace MyEMSLReader
         /// Possibly add a special prefix to work with files whose paths are more than 255 characters long
         /// See https://msdn.microsoft.com/en-us/library/aa365247(v=vs.85).aspx#maxpath
         /// </summary>
+        /// <remarks>This only works if the path is rooted</remarks>
         /// <param name="fileOrDirectoryPath"></param>
         /// <returns>Updated path</returns>
-        /// <remarks>This only works if the path is rooted</remarks>
         private string AddLongPathCode(string fileOrDirectoryPath)
         {
             if (fileOrDirectoryPath.Length < PRISM.NativeIOFileTools.FILE_PATH_LENGTH_THRESHOLD || fileOrDirectoryPath.StartsWith(@"\\?\"))

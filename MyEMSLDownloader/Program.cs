@@ -305,14 +305,14 @@ namespace MyEMSLDownloader
         /// <summary>
         /// Find files for the given dataset
         /// </summary>
-        /// <param name="datasetName">Dataset name</param>
-        /// <param name="subdirectory">Subdirectory to filter on (optional)</param>
-        /// <param name="fileMask">File name or file spec like *.txt to filter on (optional)</param>
-        /// <param name="fileSplit"></param>
         /// <remarks>
         /// For fileMask, specify a list of names and/or specs by separating with a vertical bar
         /// For example: analysis.baf|ser
         /// </remarks>
+        /// <param name="datasetName">Dataset name</param>
+        /// <param name="subdirectory">Subdirectory to filter on (optional)</param>
+        /// <param name="fileMask">File name or file spec like *.txt to filter on (optional)</param>
+        /// <param name="fileSplit"></param>
         private static List<DatasetDirectoryOrFileInfo> FindDatasetFiles(
             string datasetName,
             string subdirectory,

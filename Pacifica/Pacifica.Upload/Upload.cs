@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using Pacifica.Core;
@@ -297,8 +297,8 @@ namespace Pacifica.Upload
         /// <summary>
         /// Constructor (TransferFolderPath and JobNumber will be empty)
         /// </summary>
-        /// <param name="config">Pacifica configuration</param>
         /// <remarks>This constructor is used by the DataPackage Archive Manager</remarks>
+        /// <param name="config">Pacifica configuration</param>
         // ReSharper disable once UnusedMember.Global
         public Upload(Configuration config) : this(config, string.Empty, string.Empty)
         {
@@ -307,13 +307,13 @@ namespace Pacifica.Upload
         /// <summary>
         /// Constructor
         /// </summary>
+        /// <remarks>The metadata.txt file will be copied to the transfer folder</remarks>
         /// <param name="config">Pacifica config</param>
         /// <param name="transferFolderPath">
         /// Transfer folder path for this dataset,
         /// for example \\proto-4\DMS3_Xfer\IFT001_Pool_17_B_10x_27Aug13_Tiger_13-07-36
         /// </param>
         /// <param name="jobNumber">DMS Data Capture job number</param>
-        /// <remarks>The metadata.txt file will be copied to the transfer folder</remarks>
         public Upload(Configuration config, string transferFolderPath, string jobNumber)
         {
             mPacificaConfig = config;
@@ -364,10 +364,10 @@ namespace Pacifica.Upload
         /// <summary>
         /// Update the files and data tracked by metadataObject to MyEMSL
         /// </summary>
+        /// <remarks>This method is used by the DataPackage Archive Manager</remarks>
         /// <param name="metadataObject"></param>
         /// <param name="statusURI">Status URL</param>
         /// <returns>True if successfully uploaded, false if an error</returns>
-        /// <remarks>This method is used by the DataPackage Archive Manager</remarks>
         // ReSharper disable once UnusedMember.Global
         public bool StartUpload(List<Dictionary<string, object>> metadataObject, out string statusURI)
         {
@@ -910,9 +910,9 @@ namespace Pacifica.Upload
         /// <summary>
         /// Validate the EUS project ID, or use the default
         /// </summary>
+        /// <remarks>This is a string because the project ID may contain suffix letters</remarks>
         /// <param name="eusProjectId"></param>
         /// <param name="eusProjectIdIfUnknown"></param>
-        /// <remarks>This is a string because the project ID may contain suffix letters</remarks>
         private static string GetEUSProjectID(string eusProjectId, string eusProjectIdIfUnknown)
         {
             return string.IsNullOrWhiteSpace(eusProjectId) ? eusProjectIdIfUnknown : eusProjectId;

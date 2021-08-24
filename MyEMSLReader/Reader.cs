@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
@@ -720,6 +720,10 @@ namespace MyEMSLReader
         /// <summary>
         /// Searches for files associated with one or more datasets
         /// </summary>
+        /// <remarks>
+        /// If the keys in datasetsAndSubDirLists start with DATASET_ID_TAG then they are Dataset IDs and not dataset names
+        /// If the keys in datasetsAndSubDirLists start with DATA_PKG_ID_TAG then they are Data Package IDs and not dataset names
+        /// </remarks>
         /// <param name="datasetsAndSubDirs">
         /// Keys are dataset names (or DATASET_ID_TAG and DatasetID or DATA_PKG_ID_TAG and DataPkgID),
         /// Values are a list of subdirectory names to filter on for the given dataset
@@ -738,10 +742,6 @@ namespace MyEMSLReader
         ///  (it cannot be blank, but it could be "dummy" or "unknown" or "0", etc.)
         /// </param>
         /// <returns>Files that were found</returns>
-        /// <remarks>
-        /// If the keys in datasetsAndSubDirLists start with DATASET_ID_TAG then they are Dataset IDs and not dataset names
-        /// If the keys in datasetsAndSubDirLists start with DATA_PKG_ID_TAG then they are Data Package IDs and not dataset names
-        /// </remarks>
         private List<ArchivedFileInfo> FindFilesByDataset(
             Dictionary<string, SortedSet<string>> datasetsAndSubDirs,
             bool recurse,
@@ -1047,12 +1047,12 @@ namespace MyEMSLReader
         /// <summary>
         /// Call the Item Search service to find the matching items
         /// </summary>
+        /// <remarks>A given remote file could have multiple hash values if multiple versions of the file have been uploaded</remarks>
         /// <param name="dbTools">Key to search on</param>
         /// <param name="searchKey">Key to search on</param>
         /// <param name="searchValue">Value to match</param>
         /// <param name="timeoutSeconds">Max time (in seconds) to wait for the item search query to finish</param>
         /// <returns>Dictionary where keys are relative file paths (Windows style paths); values are file info details</returns>
-        /// <remarks>A given remote file could have multiple hash values if multiple versions of the file have been uploaded</remarks>
         internal Dictionary<string, List<ArchivedFileInfo>> RunItemSearchQuery(
             IDBTools dbTools,
             string searchKey,

@@ -473,7 +473,6 @@ namespace MyEMSLMetadataValidator
         /// <summary>
         /// Validate metadata in MyEMSL
         /// </summary>
-        /// <returns></returns>
         public bool ValidateMyEMSLMetadata()
         {
 

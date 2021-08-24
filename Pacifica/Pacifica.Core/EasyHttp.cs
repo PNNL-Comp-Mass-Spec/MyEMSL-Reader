@@ -585,6 +585,7 @@ namespace Pacifica.Core
         /// <summary>
         /// Get or post data to a URL
         /// </summary>
+        /// <remarks>Uses the Task Parallel Library (TPL)</remarks>
         /// <param name="config">Configuration options</param>
         /// <param name="url">URL</param>
         /// <param name="cookies">Cookies</param>
@@ -596,7 +597,6 @@ namespace Pacifica.Core
         /// <param name="sendStringInHeader">If True, and the method is Get, include postData in the header</param>
         /// <param name="loginCredentials">Login credentials</param>
         /// <returns>Response data</returns>
-        /// <remarks>Uses the Task Parallel Library (TPL)</remarks>
         public static string Send(
             Configuration config,
             string url,
@@ -635,12 +635,12 @@ namespace Pacifica.Core
         /// <summary>
         /// Get or post data to a URL
         /// </summary>
+        /// <remarks>Uses ThreadStart instead of TPL</remarks>
         /// <param name="config">Configuration options</param>
         /// <param name="url">URL</param>
         /// <param name="responseStatusCode">Response status code</param>
         /// <param name="timeoutSeconds">Timeout, in seconds</param>
         /// <returns>Response data</returns>
-        /// <remarks>Uses ThreadStart instead of TPL</remarks>
         public static string SendViaThreadStart(
             Configuration config,
             string url,
@@ -654,6 +654,7 @@ namespace Pacifica.Core
         /// <summary>
         /// Get or post data to a URL
         /// </summary>
+        /// <remarks>Uses ThreadStart instead of TPL</remarks>
         /// <param name="config">Configuration options</param>
         /// <param name="url">URL</param>
         /// <param name="cookies">Cookies</param>
@@ -665,7 +666,6 @@ namespace Pacifica.Core
         /// <param name="sendStringInHeader">If True, and the method is Get, include postData in the header</param>
         /// <param name="loginCredentials">Login credentials</param>
         /// <returns>Response data</returns>
-        /// <remarks>Uses ThreadStart instead of TPL</remarks>
         public static string SendViaThreadStart(
             Configuration config,
             string url,

@@ -9,11 +9,11 @@ namespace Pacifica.Core
         /// <summary>
         /// Constructor and takes a file path
         /// </summary>
-        /// <param name="filePath">Full path to the local file</param>
-        /// <param name="baseDSPath">Base dataset folder path</param>
         /// <remarks>
         /// Instantiate a new FileInfoObject, including computing the SHA-1 hash of the file
         /// </remarks>
+        /// <param name="filePath">Full path to the local file</param>
+        /// <param name="baseDSPath">Base dataset folder path</param>
         // ReSharper disable once UnusedMember.Global
         [Obsolete("Use the constructor that takes a FileInfo object, which has better compatibility for path lengths over 255 characters")]
         public FileInfoObject(string filePath, string baseDSPath)
@@ -28,11 +28,11 @@ namespace Pacifica.Core
         /// <summary>
         /// Constructor that takes a FileInfo object
         /// </summary>
-        /// <param name="fileToAdd">File info</param>
-        /// <param name="baseDSPath">Base dataset folder path</param>
         /// <remarks>
         /// Instantiate a new FileInfoObject, including computing the SHA-1 hash of the file
         /// </remarks>
+        /// <param name="fileToAdd">File info</param>
+        /// <param name="baseDSPath">Base dataset folder path</param>
         // ReSharper disable once UnusedMember.Global
         public FileInfoObject(FileInfo fileToAdd, string baseDSPath)
         {
@@ -154,8 +154,8 @@ namespace Pacifica.Core
         /// Converts a windows path of the form \\proto-7\VOrbi05\2013_2\QC_Shew_13_02_500ng_15May13_Lynx_12-12-04\metadata.xml
         /// to the Linux form proto-7/VOrbi05/2013_2/QC_Shew_13_02_500ng_15May13_Lynx_12-12-04/metadata.xml
         /// </summary>
-        /// <param name="path">Unix-style path</param>
         /// <remarks>Removes any leading slashes</remarks>
+        /// <param name="path">Unix-style path</param>
         private string ConvertWindowsPathToUnix(string path)
         {
             return path.Replace(@"\", "/").TrimStart('/');

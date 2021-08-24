@@ -84,9 +84,9 @@ namespace Pacifica.Core
         /// <summary>
         /// Check whether a file exists in MyEMSL
         /// </summary>
+        /// <remarks>Searches using Sha1HashHex, so could match a file in a different location than the specific path tracked by fileInfo</remarks>
         /// <param name="fileInfo">File info object</param>
         /// <returns>True if found, otherwise false</returns>
-        /// <remarks>Searches using Sha1HashHex, so could match a file in a different location than the specific path tracked by fileInfo</remarks>
         // ReSharper disable once UnusedMember.Global
         public bool DoesFileExistInMyEMSL(FileInfoObject fileInfo)
         {
@@ -367,9 +367,9 @@ namespace Pacifica.Core
         /// <summary>
         /// Percent complete (value between 0 and 100)
         /// </summary>
+        /// <remarks>Reports 7 when percentComplete is 100</remarks>
         /// <param name="percentComplete"></param>
         /// <returns>Number of steps completed</returns>
-        /// <remarks>Reports 7 when percentComplete is 100</remarks>
         private byte IngestStepCompletionCount(int percentComplete)
         {
             // Convert the percent complete value to a number between 0 and 7
