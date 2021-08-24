@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,7 +16,7 @@ namespace MyEMSLDownloader
 
     internal static class Program
     {
-        private const string PROGRAM_DATE = "August 14, 2021";
+        private const string PROGRAM_DATE = "August 24, 2021";
 
         // Ignore Spelling: Acq, downloader, melissa, ser, un-purged, Virol
 

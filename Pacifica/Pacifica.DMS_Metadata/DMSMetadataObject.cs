@@ -57,7 +57,8 @@ namespace Pacifica.DMS_Metadata
         /// <summary>
         /// URL of the EUS website
         /// </summary>
-        public const string EUS_PORTAL_URL = "https://eusi.emsl.pnnl.gov/Portal/";
+        /// <remarks>Previously https://eusi.emsl.pnnl.gov/Portal/</remarks>
+        public const string EUS_PORTAL_URL = "https://nexus.emsl.pnl.gov/Portal";
 
         /// <summary>
         /// Text to show when reporting progress
