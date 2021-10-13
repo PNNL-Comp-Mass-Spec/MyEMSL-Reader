@@ -16,7 +16,7 @@ namespace MyEMSLDownloader
 
     internal static class Program
     {
-        private const string PROGRAM_DATE = "August 24, 2021";
+        private const string PROGRAM_DATE = "October 12, 2021";
 
         // Ignore Spelling: Acq, downloader, melissa, ser, un-purged, Virol
 
@@ -46,7 +46,7 @@ namespace MyEMSLDownloader
                                   "Version: " + PRISM.FileProcessor.ProcessFilesOrDirectoriesBase.GetAppVersion(PROGRAM_DATE) +
                                   Environment.NewLine + Environment.NewLine +
                                   "E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov" + Environment.NewLine +
-                                  "Website: https://omics.pnl.gov/ or https://panomics.pnnl.gov/"
+                                  "Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics"
                 };
 
             cmdLineParser.UsageExamples.Add("Syntax #1:" + Environment.NewLine + exeName +
