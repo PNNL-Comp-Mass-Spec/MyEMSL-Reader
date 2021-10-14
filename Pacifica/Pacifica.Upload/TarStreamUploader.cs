@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Text.RegularExpressions;
 using ICSharpCode.SharpZipLib.Tar;
 using Pacifica.Core;
@@ -423,7 +424,7 @@ namespace Pacifica.Upload
             // This way, the .tar file is never actually created on a local hard drive
             // Code modeled after https://github.com/icsharpcode/SharpZipLib/wiki/GZip-and-Tar-Samples
 
-            var tarOutputStream = new TarOutputStream(requestStream);
+            var tarOutputStream = new TarOutputStream(requestStream, Encoding.UTF8);
 
             var directoryEntries = new SortedSet<string>();
 
