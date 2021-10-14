@@ -274,7 +274,10 @@ namespace Pacifica.DMS_Metadata
                     if (policyError)
                     {
                         criticalError = true;
-                        criticalErrorMessage = "Policy validation error, e.g. invalid EUS Project ID or unrecognized instrument operator";
+                        criticalErrorMessage = string.Format(
+                            "Policy validation error, e.g. invalid EUS Project ID or unrecognized instrument operator; " +
+                            "metadata has Instrument ID {0}, Project ID {1}, and Uploader ID {2}",
+                            eusInfo.EUSInstrumentID, eusInfo.EUSProjectID, eusInfo.EUSUploaderID);
                     }
 
                     return false;
