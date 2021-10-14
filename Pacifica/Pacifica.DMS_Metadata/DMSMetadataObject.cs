@@ -219,10 +219,7 @@ namespace Pacifica.DMS_Metadata
             // System.Net.ServicePointManager.ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
 
             // Instead, only allow certain domains, as defined by ValidateRemoteCertificate
-            if (ServicePointManager.ServerCertificateValidationCallback == null)
-            {
-                ServicePointManager.ServerCertificateValidationCallback += ValidateRemoteCertificate;
-            }
+            ServicePointManager.ServerCertificateValidationCallback ??= ValidateRemoteCertificate;
 
             DatasetName = Utilities.GetDictionaryValue(taskParams, "Dataset", "Unknown_Dataset");
 

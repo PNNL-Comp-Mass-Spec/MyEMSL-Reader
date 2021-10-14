@@ -80,10 +80,8 @@ namespace Pacifica.Core
             Config = config;
             Url = url;
 
-            if (cookies == null)
-            {
-                cookies = new CookieContainer();
-            }
+            cookies ??= new CookieContainer();
+
             Cookies = cookies;
 
             ResponseData = new WebResponseData();

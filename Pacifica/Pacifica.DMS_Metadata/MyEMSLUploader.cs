@@ -54,18 +54,7 @@ namespace Pacifica.DMS_Metadata
         /// Error message from the MyEMSLUploader
         /// </summary>
         // ReSharper disable once UnusedMember.Global
-        public string ErrorMessage
-        {
-            get
-            {
-                if (mUploadWorker == null)
-                {
-                    return string.Empty;
-                }
-
-                return mUploadWorker.ErrorMessage;
-            }
-        }
+        public string ErrorMessage => mUploadWorker == null ? string.Empty : mUploadWorker.ErrorMessage;
 
         /// <summary>
         /// EUS Info
