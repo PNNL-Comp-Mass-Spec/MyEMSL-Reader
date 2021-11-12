@@ -38,7 +38,6 @@ namespace MyEMSLMetadataValidator
             IReadOnlyCollection<ArchivedFileInfo> filesInMyEMSL,
             long bytesInMyEMSL)
         {
-
             // StatusDate  EntryID  Job  DatasetID  Subdirectory  StatusNum  TransactionID  Entered  Files  FilesInMyEMSL  Bytes  BytesInMyEMSL
             var resultLine = new List<string>
             {
@@ -154,7 +153,6 @@ namespace MyEMSLMetadataValidator
                 resultLine.Add(matchRatio.ToString("0.00"));
                 resultLine.Add(warningToWrite);
             }
-
         }
 
         private void CompareDMSDataToMyEMSL(
@@ -175,7 +173,6 @@ namespace MyEMSLMetadataValidator
 
                     foreach (var uploadTask in datasetUploadTasks)
                     {
-
                         if (statsByFolder.TryGetValue(uploadTask.Subdirectory, out var taskStats))
                         {
                             if (taskStats.TotalFiles < uploadTask.FilesAddedOrUpdated)
@@ -189,7 +186,6 @@ namespace MyEMSLMetadataValidator
                         }
 
                         statsByFolder.Add(uploadTask.Subdirectory, new IngestTaskStats(uploadTask, uploadTask.FilesAddedOrUpdated, uploadTask.Bytes));
-
                     }
 
                     var datasetFilesInMyEMSL = (from item in archiveFiles
@@ -257,16 +253,13 @@ namespace MyEMSLMetadataValidator
                         {
                             AppendResult(resultsWriter, item.Value.IngestTasks.First(), item.Value, new List<ArchivedFileInfo>(), 0);
                         }
-
                     }
-
                 }
             }
             catch (Exception ex)
             {
                 OnErrorEvent("Error in CompareDMSDataToMyEMSL: " + ex.Message, ex);
             }
-
         }
 
         private int GetMaxDatasetIdInMyEMSL(IDBTools dbTools, bool limitToOldMyEMSL = true)
@@ -350,7 +343,6 @@ namespace MyEMSLMetadataValidator
 
                 foreach (var result in queryResults)
                 {
-
                     var entryId = dbTools.GetColumnValue(result, columnMap, "Entry_ID", 0);
                     var job = dbTools.GetColumnValue(result, columnMap, "Job", 0);
                     var datasetId = dbTools.GetColumnValue(result, columnMap, "Dataset_ID", 0);
@@ -386,7 +378,6 @@ namespace MyEMSLMetadataValidator
                 }
 
                 return dmsMetadata;
-
             }
             catch (Exception ex)
             {
@@ -400,7 +391,6 @@ namespace MyEMSLMetadataValidator
         {
             return (from item in datasetFilesInMyEMSL select item.FileSizeBytes).Sum();
         }
-
 
         /// <summary>
         /// If Options.DatasetIdFile is defined, load the dataset IDs from that file
@@ -467,7 +457,6 @@ namespace MyEMSLMetadataValidator
                 OnErrorEvent("Error in LoadDatasetIDs: " + ex.Message, ex);
                 return null;
             }
-
         }
 
         /// <summary>
@@ -475,12 +464,10 @@ namespace MyEMSLMetadataValidator
         /// </summary>
         public bool ValidateMyEMSLMetadata()
         {
-
             var datasetIdStart = 0;
 
             try
             {
-
                 var outputFolder = new DirectoryInfo(Options.OutputFolderPath);
                 if (!outputFolder.Exists)
                 {
@@ -607,11 +594,9 @@ namespace MyEMSLMetadataValidator
                             resultsWriter.Flush();
                         }
                     }
-
                 } // Close the writer
 
                 OnProgressUpdate("Processing Complete", 100);
-
             }
             catch (Exception ex)
             {
@@ -622,7 +607,6 @@ namespace MyEMSLMetadataValidator
             }
 
             return true;
-
         }
 
         private bool ValidateDatasetBatch(
@@ -634,10 +618,8 @@ namespace MyEMSLMetadataValidator
             int totalDatasetsToProcess,
             float basePercentComplete)
         {
-
             try
             {
-
                 var dmsMetadata = GetMyEMSLUploadInfoFromDMS(dbTools, datasetIdStart, datasetIdEnd);
 
                 if (dmsMetadata.Count == 0)
@@ -731,8 +713,6 @@ namespace MyEMSLMetadataValidator
 
                 return false;
             }
-
         }
-
     }
 }

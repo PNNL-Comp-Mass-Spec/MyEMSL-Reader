@@ -7,7 +7,6 @@ using PRISM.Logging;
 
 namespace MyEMSLMetadataValidator
 {
-
     internal static class Program
     {
         private static double mPercentComplete;
@@ -15,7 +14,6 @@ namespace MyEMSLMetadataValidator
 
         private static int Main(string[] args)
         {
-
             try
             {
                 var asmName = typeof(Program).GetTypeInfo().Assembly.GetName();
@@ -91,7 +89,6 @@ namespace MyEMSLMetadataValidator
                 Thread.Sleep(1000);
                 return -1;
             }
-
         }
 
         private static void ShowErrorMessage(string message, Exception ex = null)
@@ -146,7 +143,6 @@ namespace MyEMSLMetadataValidator
             mPercentComplete = percentComplete;
             mLastProgressUpdateTime = DateTime.UtcNow;
         }
-
 
         #endregion
     }

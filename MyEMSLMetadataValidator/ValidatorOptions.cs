@@ -104,6 +104,5 @@ namespace MyEMSLMetadataValidator
             errorMessage = string.Empty;
             return true;
         }
-
     }
 }
