@@ -20,7 +20,11 @@ namespace Pacifica.DMS_Metadata
     /// </summary>
     public class DMSMetadataObject : EventNotifier
     {
+        // ReSharper disable CommentTypo
+
         // Ignore Spelling: ctime, fileinfo, gzipped, hashsum, hashtype, Json, keyvalue, mtime, ncbi, ssl, subdir, subfolder
+
+        // ReSharper restore CommentTypo
 
         /// <summary>
         /// If a dataset archive task involves more 15 GB of data, only archive the root directory and the QC directory
