@@ -16,7 +16,7 @@ namespace MyEMSLDownloader
 
     internal static class Program
     {
-        private const string PROGRAM_DATE = "October 12, 2021";
+        private const string PROGRAM_DATE = "November 11, 2021";
 
         // Ignore Spelling: Acq, downloader, melissa, ser, un-purged, Virol
 
@@ -35,13 +35,13 @@ namespace MyEMSLDownloader
             var exeName = Path.GetFileName(assembly.Location);
             var appVersion = "version " + assembly.GetName().Version;
 
-            var cmdLineParser =
+            var parser =
                 new CommandLineParser<CommandLineOptions>(programName, appVersion)
                 {
                     ProgramInfo = "This program downloads files from MyEMSL" + Environment.NewLine + Environment.NewLine +
                                   "To download files for a given dataset, enter the dataset name or dataset ID, plus optionally the subdirectory name. " +
                                   "Alternatively, use /Dataset or /DatasetID plus optionally /SubDir",
-                    ContactInfo = "Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA) in 2013" +
+                    ContactInfo = "Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)" +
                                   Environment.NewLine + Environment.NewLine +
                                   "Version: " + PRISM.FileProcessor.ProcessFilesOrDirectoriesBase.GetAppVersion(PROGRAM_DATE) +
                                   Environment.NewLine + Environment.NewLine +
@@ -49,36 +49,42 @@ namespace MyEMSLDownloader
                                   "Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics"
                 };
 
-            cmdLineParser.UsageExamples.Add("Syntax #1:" + Environment.NewLine + exeName +
-                                            " DatasetNameOrID [SubdirectoryName] [/Files:FileMask] [/FileSplit]" +
-                                            " [/O:OutputDirectory] [/D] [/Preview] [/V] [/Trace] [/UseTest]");
+            parser.UsageExamples.Add("Syntax #1:" + Environment.NewLine + exeName +
+                                     " DatasetNameOrID [SubdirectoryName] [/Files:FileMask] [/FileSplit]" +
+                                     " [/O:OutputDirectory] [/D] [/Preview] [/V] [/Trace] [/UseTest]");
 
-            cmdLineParser.UsageExamples.Add("Syntax #2:" + Environment.NewLine + exeName +
-                                            " /Dataset:DatasetName [/SubDir:SubdirectoryName] [/Files:FileMask] [/FileSplit]" +
-                                            " [/O:OutputDirectory] [/D] [/Preview] [/V] [/Trace] [/UseTest]");
+            parser.UsageExamples.Add("Syntax #2:" + Environment.NewLine + exeName +
+                                     " /Dataset:DatasetName [/SubDir:SubdirectoryName] [/Files:FileMask] [/FileSplit]" +
+                                     " [/O:OutputDirectory] [/D] [/Preview] [/V] [/Trace] [/UseTest]");
 
-            cmdLineParser.UsageExamples.Add("Syntax #3:" + Environment.NewLine + exeName +
-                                            " /DatasetID:DatasetID [/SubDir:SubdirectoryName] [/Files:FileMask] [/FileSplit]" +
-                                            " [/O:OutputDirectory] [/D] [/Preview] [/V] [/Trace] [/UseTest]");
+            parser.UsageExamples.Add("Syntax #3:" + Environment.NewLine + exeName +
+                                     " /DatasetID:DatasetID [/SubDir:SubdirectoryName] [/Files:FileMask] [/FileSplit]" +
+                                     " [/O:OutputDirectory] [/D] [/Preview] [/V] [/Trace] [/UseTest]");
 
-            cmdLineParser.UsageExamples.Add("Syntax #4:" + Environment.NewLine + exeName +
-                                            " /DataPkg:DataPackageID [/SubDir:SubdirectoryName] [/Files:FileMask] [/FileSplit]" +
-                                            " [/O:OutputDirectory] [/Preview] [/V] [/Trace] [/UseTest]");
+            parser.UsageExamples.Add("Syntax #4:" + Environment.NewLine + exeName +
+                                     " /DataPkg:DataPackageID [/SubDir:SubdirectoryName] [/Files:FileMask] [/FileSplit]" +
+                                     " [/O:OutputDirectory] [/Preview] [/V] [/Trace] [/UseTest]");
 
-            cmdLineParser.UsageExamples.Add("Syntax #5:" + Environment.NewLine + exeName +
-                                            " /FileList:FileInfoFile.txt [/O:OutputDirectory]" +
-                                            " [/Preview] [/V] [/Trace] [/UseTest]");
+            parser.UsageExamples.Add("Syntax #5:" + Environment.NewLine + exeName +
+                                     " /FileList:FileInfoFile.txt [/O:OutputDirectory]" +
+                                     " [/Preview] [/V] [/Trace] [/UseTest]");
 
-            cmdLineParser.UsageExamples.Add("Syntax #6:" + Environment.NewLine + exeName +
-                                            " /FileID:1234 [/Preview] [/V] [/Trace]");
+            parser.UsageExamples.Add("Syntax #6:" + Environment.NewLine + exeName +
+                                     " /FileID:1234 [/Preview] [/V] [/Trace]");
 
-            cmdLineParser.UsageExamples.Add("Syntax #7:" + Environment.NewLine + exeName +
-                                            " /Test [/Preview] [/V] [/Trace]");
+            parser.UsageExamples.Add("Syntax #7:" + Environment.NewLine + exeName +
+                                     " /Test [/Preview] [/V] [/Trace]");
 
-            var results = cmdLineParser.ParseArgs(args);
-            mOptions = results.ParsedResults;
-            if (!results.Success || !mOptions.Validate())
+            var result = parser.ParseArgs(args);
+            mOptions = result.ParsedResults;
+
+            if (!result.Success || !mOptions.Validate())
             {
+                if (parser.CreateParamFileProvided)
+                {
+                    return 0;
+                }
+
                 // Delay for 1 second in case the user double clicked this file from within Windows Explorer (or started the program via a shortcut)
                 System.Threading.Thread.Sleep(1000);
                 return -1;
