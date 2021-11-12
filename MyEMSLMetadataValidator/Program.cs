@@ -47,7 +47,7 @@ namespace MyEMSLMetadataValidator
                 var result = parser.ParseArgs(args);
                 var options = result.ParsedResults;
 
-                if (!parseResults.Success)
+                if (!result.Success)
                 {
                     if (parser.CreateParamFileProvided)
                     {
@@ -100,13 +100,13 @@ namespace MyEMSLMetadataValidator
 
         #region "Event Handlers"
 
-        private static void RegisterEvents(EventNotifier oProcessingClass)
+        private static void RegisterEvents(IEventNotifier processingClass)
         {
-            oProcessingClass.DebugEvent += OnDebugEvent;
-            oProcessingClass.StatusEvent += OnStatusEvent;
-            oProcessingClass.ErrorEvent += OnErrorEvent;
-            oProcessingClass.WarningEvent += OnWarningEvent;
-            oProcessingClass.ProgressUpdate += OnProgressUpdate;
+            processingClass.DebugEvent += OnDebugEvent;
+            processingClass.StatusEvent += OnStatusEvent;
+            processingClass.ErrorEvent += OnErrorEvent;
+            processingClass.WarningEvent += OnWarningEvent;
+            processingClass.ProgressUpdate += OnProgressUpdate;
         }
 
         private static void OnDebugEvent(string message)
