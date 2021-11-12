@@ -3,7 +3,7 @@ using System;
 
 namespace MyEMSLMetadataValidator
 {
-    class DMSMetadata
+    internal class DMSMetadata
     {
         public int EntryID { get; set; }
 

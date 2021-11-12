@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace MyEMSLMetadataValidator
 {
-    class IngestTaskStats
+    internal class IngestTaskStats
     {
         /// <summary>
         /// Ingest Tasks associated with these stats

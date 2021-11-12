@@ -8,7 +8,7 @@ using PRISMDatabaseUtils;
 
 namespace MyEMSLMetadataValidator
 {
-    class MetadataValidator : EventNotifier
+    internal class MetadataValidator : EventNotifier
     {
         private const string DATE_TIME_FORMAT = "yyyy-MM-dd hh:mm:ss tt";
 

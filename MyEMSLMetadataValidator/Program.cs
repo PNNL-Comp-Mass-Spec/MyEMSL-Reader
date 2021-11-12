@@ -10,11 +10,10 @@ namespace MyEMSLMetadataValidator
 
     internal static class Program
     {
+        private static double mPercentComplete;
+        private static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
 
-        static double mPercentComplete;
-        static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
-
-        static int Main(string[] args)
+        private static int Main(string[] args)
         {
 
             try
