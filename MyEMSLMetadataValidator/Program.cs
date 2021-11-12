@@ -1,7 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 using PRISM;
+using PRISM.Logging;
 
 namespace MyEMSLMetadataValidator
 {
@@ -67,7 +69,7 @@ namespace MyEMSLMetadataValidator
                     ConsoleMsgUtils.ShowWarning("Validation error:");
                     ConsoleMsgUtils.ShowWarning(errorMessage);
 
-                    System.Threading.Thread.Sleep(1500);
+                    Thread.Sleep(1500);
                     return -1;
                 }
 
@@ -81,13 +83,13 @@ namespace MyEMSLMetadataValidator
                 if (success)
                     return 0;
 
-                System.Threading.Thread.Sleep(1000);
+                Thread.Sleep(1000);
                 return -1;
             }
             catch (Exception ex)
             {
                 ShowErrorMessage("Error occurred in Program->Main: " + Environment.NewLine + ex.Message, ex);
-                System.Threading.Thread.Sleep(1000);
+                Thread.Sleep(1000);
                 return -1;
             }
 
