@@ -496,7 +496,7 @@ namespace Pacifica.DMS_Metadata
             {
                 if (IgnoreMaxFileLimit)
                 {
-                    OnWarningEvent(string.Format("Uploading a large number of files to the archive: {0}", fileList.Count));
+                    OnWarningEvent("Uploading a large number of files to the archive: {0}", fileList.Count);
                 }
                 else
                 {
@@ -594,7 +594,7 @@ namespace Pacifica.DMS_Metadata
 
                 if (TraceMode)
                 {
-                    OnDebugEvent(string.Format("{0}, {1:F1}% complete: {2}", HASHING_FILES, fractionCompleted * 100, dataFile.Name));
+                    OnDebugEvent("{0}, {1:F1}% complete: {2}", HASHING_FILES, fractionCompleted * 100, dataFile.Name);
                 }
             }
 
@@ -687,10 +687,8 @@ namespace Pacifica.DMS_Metadata
             {
                 if (IgnoreMyEMSLFileTrackingError)
                 {
-                    OnWarningEvent(
-                        string.Format("MyEMSL reported {0} files for Dataset ID {1}; it should be tracking at least {2} files; " +
-                                      "ignoring because job parameter IgnoreMyEMSLFileTrackingError is True",
-                                      remoteFiles.Count, datasetID, expectedRemoteFileCount));
+                    OnWarningEvent("MyEMSL reported {0} files for Dataset ID {1}; it should be tracking at least {2} files; " +
+                                   "ignoring because job parameter IgnoreMyEMSLFileTrackingError is True", remoteFiles.Count, datasetID, expectedRemoteFileCount);
                 }
                 else
                 {
@@ -1058,16 +1056,14 @@ namespace Pacifica.DMS_Metadata
 
             if (fileInfoListJSON.StartsWith("(no response,"))
             {
-                OnDebugEvent(string.Format(
-                    "JsonConvert.Import did not return a valid response for {0}", metadataURL));
+                OnDebugEvent("JsonConvert.Import did not return a valid response for {0}", metadataURL);
                 return null;
             }
 
             // Convert the response to a dictionary
             if (JsonConvert.Import(fileInfoListJSON) is not Jayrock.Json.JsonArray jsa)
             {
-                OnWarningEvent(string.Format(
-                    "JsonConvert.Import did not return a JsonArray object; data returned from {0} is likely not JSON", metadataURL));
+                OnWarningEvent("JsonConvert.Import did not return a JsonArray object; data returned from {0} is likely not JSON", metadataURL);
                 return null;
             }
 
@@ -1120,9 +1116,8 @@ namespace Pacifica.DMS_Metadata
                         if (duplicateHashCount <= DUPLICATE_HASH_MESSAGES_TO_LOG)
                         {
                             // This warning is logged as a debug event since it's not a critical error
-                            OnDebugEvent(string.Format(
-                                "Remote file listing reports the same file with the same hash more than once; " +
-                                "ignoring duplicate hash {0} for {1}", fileHash, relativeFilePath));
+                            OnDebugEvent("Remote file listing reports the same file with the same hash more than once; " +
+                                         "ignoring duplicate hash {0} for {1}", fileHash, relativeFilePath);
                         }
                         continue;
                     }
@@ -1159,7 +1154,7 @@ namespace Pacifica.DMS_Metadata
 
             if (duplicateHashCount > DUPLICATE_HASH_MESSAGES_TO_LOG)
             {
-                OnDebugEvent(string.Format("Duplicate hash value found for {0} files in MyEMSL", duplicateHashCount));
+                OnDebugEvent("Duplicate hash value found for {0} files in MyEMSL", duplicateHashCount);
             }
 
             return remoteFiles;

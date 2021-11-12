@@ -173,7 +173,7 @@ namespace Pacifica.Core
             var elapsedSeconds = DateTime.UtcNow.Subtract(startTime).TotalSeconds;
             if (elapsedSeconds > 20)
             {
-                OnStatusEvent(string.Format("Result received after {0} seconds: {1}", (int)elapsedSeconds, statusResult));
+                OnStatusEvent("Result received after {0} seconds: {1}", (int)elapsedSeconds, statusResult);
             }
             else
             {
@@ -246,11 +246,11 @@ namespace Pacifica.Core
                         errorMessage = "Upload failed, task \"" + currentTask + "\"";
                         if (string.IsNullOrWhiteSpace(exception))
                         {
-                            OnErrorEvent(string.Format("{0}; see {1}", errorMessage, statusURI));
+                            OnErrorEvent("{0}; see {1}", errorMessage, statusURI);
                         }
                         else
                         {
-                            OnErrorEvent(string.Format("{0}; exception \"{1}\"; see {2}", errorMessage, exception, statusURI));
+                            OnErrorEvent("{0}; exception \"{1}\"; see {2}", errorMessage, exception, statusURI);
 
                             if (exception.IndexOf("ConnectionTimeout", StringComparison.OrdinalIgnoreCase) >= 0)
                             {

@@ -670,8 +670,7 @@ namespace Pacifica.Upload
             // Possibly override EUSProject ID
             if (eusInfo.EUSProjectID.StartsWith("EPR"))
             {
-                PRISM.Logging.LogTools.LogWarning(string.Format("Overriding project {0} with {1} for dataset {2}", eusInfo.EUSProjectID,
-                                                                DEFAULT_EUS_PROJECT_ID, uploadMetadata.DatasetName));
+                PRISM.Logging.LogTools.LogWarning("Overriding project {0} with {1} for dataset {2}", eusInfo.EUSProjectID, DEFAULT_EUS_PROJECT_ID, uploadMetadata.DatasetName);
                 eusInfo.EUSProjectID = DEFAULT_EUS_PROJECT_ID;
             }
 
