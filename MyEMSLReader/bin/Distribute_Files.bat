@@ -14,8 +14,6 @@ xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Anal
 xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_ICR2LS_PlugIn\bin" /D /Y
 xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_IDM_Plugin\bin\Debug" /D /Y
 xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_IDPicker_PlugIn\bin" /D /Y
-xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_InSpecT_PlugIn\bin" /D /Y
-xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_InspectResultsAssembly_PlugIn\bin" /D /Y
 xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_LCMSFeatureFinder_Plugin\bin" /D /Y
 xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_LipidMapSearch_Plugin\bin" /D /Y
 xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_Mage_PlugIn\bin\Debug" /D /Y
@@ -36,7 +34,6 @@ xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Anal
 xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_PRIDE_Converter_PlugIn\bin" /D /Y
 xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_ProSightPC_Quant_Plugin\bin" /D /Y
 xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_ResultsXfer_PlugIn\bin" /D /Y
-xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_Sequest_PlugIn\bin" /D /Y
 xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_SMAQC_PlugIn\bin" /D /Y
 xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\Plugins\AM_XTandem_PlugIn\bin" /D /Y
 
@@ -118,6 +115,14 @@ xcopy Debug\Pacifica.Core.dll "F:\Documents\Projects\DataMining\DMS_Programs\Pur
 xcopy Debug\Pacifica.Core.dll "F:\Documents\Projects\DataMining\DMS_Programs\PurgedMzMLFileRetriever\lib" /D /Y
 
 xcopy Debug\Pacifica.Core.dll "C:\DMS_Programs\MyEMSLDownloader" /D /Y
+
+xcopy ..\..\Pacifica\Pacifica.Upload\bin\Debug\Pacifica.Upload.dll F:\Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\DeployedFiles\ /D /Y
+xcopy ..\..\Pacifica\Pacifica.Upload\bin\Debug\Pacifica.Upload.dll F:\Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\RefLib\ /D /Y
+xcopy ..\..\Pacifica\Pacifica.Upload\bin\Debug\Pacifica.Upload.dll F:\Documents\Projects\DataMining\DMS_Managers\DataPackage_Archive_Manager\Lib\ /D /Y
+
+xcopy ..\..\Pacifica\Pacifica.DMS_Metadata\bin\Debug\Pacifica.DMS_Metadata.dll F:\Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\RefLib\ /D /Y
+xcopy ..\..\Pacifica\Pacifica.DMS_Metadata\bin\Debug\Pacifica.DMS_Metadata.dll F:\Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\DeployedFiles\ /D /Y
+xcopy ..\..\Pacifica\Pacifica.DMS_Metadata\bin\Debug\Pacifica.DMS_Metadata.dll F:\Documents\Projects\DataMining\DMS_Managers\DataPackage_Archive_Manager\Lib\ /D /Y
 
 xcopy Debug\Jayrock.Json.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Common" /D /Y
 xcopy Debug\Jayrock.Json.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Program\bin" /D /Y
