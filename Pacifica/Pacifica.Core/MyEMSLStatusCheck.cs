@@ -181,13 +181,15 @@ namespace Pacifica.Core
             }
 
             // Example contents of statusResult
-            // (as returned by https://ingestdms.my.emsl.pnl.gov/get_state?job_id=123456)
-            // {"task_percent": "0.00000", "state": "OK",     "task": "UPLOADING",         "job_id": 104}      (starting)
-            // {"task_percent": "0.00000", "state": "FAILED", "task": "Policy Validation", "job_id": 104}      (error)
-            // {"task_percent": "0.00000", "state": "FAILED", "task": "ingest metadata",   "job_id": 1300782}  (error)
-            // {"task_percent": "0.00000", "state": "FAILED", "task": "ingest files",      "job_id": 1301499}  (error)
-            // {"task_percent": "100.00000", "state": "OK", "task": "ingest metadata",     "job_id": 1300004}  (complete)
-            // {"task_percent": "0.00000", "updated": "2017-07-06 22:00:49", "task": "ingest files", "job_id": 1303430, "created": "2017-07-06 22:00:51", "exception": "", "state": "OK"}
+            // (as returned by https://ingestdms.my.emsl.pnl.gov/get_state?job_id=2390349)
+
+            // {"job_id": 104,     "state": "OK",     "task": "UPLOADING",         "task_percent": "0.00000"      }  (starting)
+            // {"job_id": 104,     "state": "FAILED", "task": "Policy Validation", "task_percent": "0.00000"      }  (error)
+            // {"job_id": 1300782, "state": "FAILED", "task": "ingest metadata",   "task_percent": "0.00000"      }  (error)
+            // {"job_id": 1301499, "state": "FAILED", "task": "ingest files",      "task_percent": "0.00000"      }  (error)
+            // {"job_id": 1300004, "state": "OK",     "task": "ingest metadata",   "task_percent": "100.00000"    }  (complete)
+            // {"job_id": 1303430, "state": "OK",     "task": "ingest files",      "task_percent": "0.00000",  "updated": "2017-07-06 22:00:49",  "created": "2017-07-06 22:00:51", "exception": ""}
+            // {"job_id": 2390349, "state": "OK",     "task": "ingest metadata",   "task_percent": "100.00000", "complete": true, "updated": "2021-12-02 03:00:18.072576", "created": "2021-12-02 03:00:04.512060", "exception": ""}
 
             try
             {
