@@ -68,7 +68,7 @@ namespace Pacifica.Core
             }
 
             // Define the ingestStepsCompleted value based on the current task reported by the status page
-            byte ingestStepsCompleted = currentTask.ToLower() switch
+            return currentTask.ToLower() switch
             {
                 "open tar" => 2,
                 "policy validation" => 3,
@@ -77,8 +77,6 @@ namespace Pacifica.Core
                 "ingest metadata" => 6,
                 _ => ingestStepsCompletedOld
             };
-
-            return ingestStepsCompleted;
         }
 
         /// <summary>
@@ -384,9 +382,7 @@ namespace Pacifica.Core
             // 6. Available        Visible via Elastic Search
             // 7. Archived         Data copied to tape
 
-            var stepsCompleted = (byte)(Math.Round(7 * (percentComplete / 100.0)));
-
-            return stepsCompleted;
+            return (byte)(Math.Round(7 * (percentComplete / 100.0)));
         }
 
         /// <summary>

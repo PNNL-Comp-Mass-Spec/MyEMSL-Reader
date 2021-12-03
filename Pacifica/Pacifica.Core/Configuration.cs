@@ -205,8 +205,7 @@ namespace Pacifica.Core
                 {
                     foreach (var directoryToCheck in directoriesToCheck)
                     {
-                        var certificateFiles = directoryToCheck.GetFiles(CERTIFICATE_FILE_MASK);
-                        foreach (var certificateFile in certificateFiles)
+                        foreach (var certificateFile in directoryToCheck.GetFiles(CERTIFICATE_FILE_MASK))
                         {
                             var match = certificateFileMatcher.Match(certificateFile.Name);
                             DateTime dayOfYear;

@@ -368,8 +368,7 @@ namespace Pacifica.Core
 
             var urlContactInfo = new UrlContactInfo(config, url, cookies, timeoutSeconds: timeoutSeconds, loginCredentials: loginCredentials);
 
-            var request = InitializeRequest(urlContactInfo);
-            return request;
+            return InitializeRequest(urlContactInfo);
         }
 
         /// <summary>
@@ -404,11 +403,10 @@ namespace Pacifica.Core
             }
             else
             {
-                var c = new CredentialCache
+                request.Credentials = new CredentialCache
                 {
                     { new Uri(urlContactInfo.Url), "Basic", new NetworkCredential(urlContactInfo.LoginCredentials.UserName, urlContactInfo.LoginCredentials.SecurePassword) }
                 };
-                request.Credentials = c;
             }
 
             var cookie = new Cookie("user_name", cleanUserName)

@@ -977,9 +977,7 @@ namespace Pacifica.DMS_Metadata
 
             // Grab file information from this dataset directory
             // This process will also compute the SHA-1 hash value for each file
-            var datasetFilesToArchive = CollectFileInformation(archiveMode, sourceDirectoryPath, baseDSPath, recurse);
-
-            return datasetFilesToArchive;
+            return CollectFileInformation(archiveMode, sourceDirectoryPath, baseDSPath, recurse);
         }
 
         /// <summary>
@@ -1184,9 +1182,7 @@ namespace Pacifica.DMS_Metadata
             var date_code = DateTime.Parse(datasetDate);
             var yq = date_code.Month / 12.0 * 4.0;
             var yearQuarter = (int)Math.Ceiling(yq);
-            var datasetDateCodeString = date_code.Year + "_" + yearQuarter;
-
-            return datasetDateCodeString;
+            return date_code.Year + "_" + yearQuarter;
         }
 
         /// <summary>
@@ -1195,12 +1191,10 @@ namespace Pacifica.DMS_Metadata
         /// <returns>SortedSet of strings (case insensitive)</returns>
         public static SortedSet<string> GetFilesToIgnore()
         {
-            var filesToIgnore = new SortedSet<string>(StringComparer.InvariantCultureIgnoreCase) {
+            return new SortedSet<string>(StringComparer.InvariantCultureIgnoreCase) {
                 ".DS_Store",
                 "Thumbs.db"
             };
-
-            return filesToIgnore;
         }
 
         private void ReportProgress(float percentComplete)
