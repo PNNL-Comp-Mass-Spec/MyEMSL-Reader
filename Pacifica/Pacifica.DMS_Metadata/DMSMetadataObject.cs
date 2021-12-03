@@ -964,6 +964,15 @@ namespace Pacifica.DMS_Metadata
                 throw new Exception(errorMessage);
             }
 
+            // Possibly override EUS ID
+            // ReSharper disable once StringLiteralTypo
+            if (uploadMetadata.EUSOperatorID == 52259 && operatorUsername.EndsWith("SWEN778", StringComparison.OrdinalIgnoreCase))
+            {
+                // This user has two EUS IDs and MyEMSL only recognizes the first one
+                // Override the EUS ID
+                uploadMetadata.EUSOperatorID = 45413;
+            }
+
             var recurse = Utilities.GetDictionaryValue(taskParams, MyEMSLUploader.RECURSIVE_UPLOAD, true);
 
             // Grab file information from this dataset directory
