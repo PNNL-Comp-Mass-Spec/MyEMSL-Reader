@@ -42,7 +42,7 @@ xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\Anal
 @echo off
 echo.
 echo.
-pause
+if not "%1"=="NoPause" pause
 echo.
 echo.
 echo.
@@ -66,7 +66,7 @@ xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Managers\DMS_
 @echo off
 echo.
 echo.
-pause
+if not "%1"=="NoPause" pause
 echo.
 echo.
 echo.
@@ -140,4 +140,4 @@ xcopy Debug\Jayrock.Json.dll "F:\Documents\Projects\DataMining\DMS_Programs\Purg
 
 xcopy Debug\Jayrock.Json.dll "C:\DMS_Programs\MyEMSLDownloader" /D /Y
 
-pause
+if not "%1"=="NoPause" pause

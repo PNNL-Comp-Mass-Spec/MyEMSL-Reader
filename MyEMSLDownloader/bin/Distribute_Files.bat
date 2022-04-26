@@ -13,4 +13,4 @@ rem xcopy Debug\MyEMSLReader.dll  "F:\Documents\Projects\DataMining\DMS_Programs
 
 popd
 
-pause
+if not "%1"=="NoPause" pause
