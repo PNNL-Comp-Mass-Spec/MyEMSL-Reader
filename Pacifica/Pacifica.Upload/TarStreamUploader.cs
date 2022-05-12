@@ -425,7 +425,13 @@ namespace Pacifica.Upload
 
             if (writeToDisk)
             {
-                requestStream = new FileStream(Path.Combine(DEBUG_WORKING_DIRECTORY, "TestFile3.tar"), FileMode.Create, FileAccess.Write, FileShare.Read);
+                var tarFile = new FileInfo(Path.Combine(DEBUG_WORKING_DIRECTORY, "TestFile3.tar"));
+
+                Console.WriteLine();
+                Console.WriteLine("Tar file path: " + tarFile.FullName);
+                Console.WriteLine();
+
+                requestStream = new FileStream(tarFile.FullName, FileMode.Create, FileAccess.Write, FileShare.Read);
             }
             else
             {
