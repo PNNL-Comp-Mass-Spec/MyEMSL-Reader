@@ -18,6 +18,8 @@ namespace Pacifica.Upload
     {
         // Ignore Spelling: addon, Ingester, uploader, Workdir
 
+        private const string DEBUG_WORKING_DIRECTORY = @"C:\CTM_Workdir";
+
         /// <summary>
         /// Block size for tar files
         /// </summary>
@@ -159,7 +161,7 @@ namespace Pacifica.Upload
 
             if (debugging)
             {
-                tarMetadataFile = new StreamWriter(new FileStream(@"C:\CTM_Workdir\TarMetadata.txt", FileMode.Create, FileAccess.Write, FileShare.Read))
+                tarMetadataFile = new StreamWriter(new FileStream(Path.Combine(DEBUG_WORKING_DIRECTORY, "TarMetadata.txt"), FileMode.Create, FileAccess.Write, FileShare.Read))
                 {
                     AutoFlush = true
                 };
@@ -369,6 +371,16 @@ namespace Pacifica.Upload
             HttpWebRequest webRequest = null;
             var metadataFile = new FileInfo(metadataFilePath);
 
+            if (debugMode != UploadDebugMode.DebugDisabled)
+            {
+                var workDir = new DirectoryInfo(DEBUG_WORKING_DIRECTORY);
+                if (!workDir.Exists)
+                {
+                    Console.WriteLine("Creating missing directory: " + workDir.FullName);
+                    workDir.Create();
+                }
+            }
+
             // Compute the total number of bytes that will be written to the tar file
             var contentLength = ComputeTarFileSize(fileListObject, metadataFile, debugMode);
 
@@ -413,7 +425,7 @@ namespace Pacifica.Upload
 
             if (writeToDisk)
             {
-                requestStream = new FileStream(@"C:\CTM_Workdir\TestFile3.tar", FileMode.Create, FileAccess.Write, FileShare.Read);
+                requestStream = new FileStream(Path.Combine(DEBUG_WORKING_DIRECTORY, "TestFile3.tar"), FileMode.Create, FileAccess.Write, FileShare.Read);
             }
             else
             {
