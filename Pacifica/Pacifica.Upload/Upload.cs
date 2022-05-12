@@ -469,21 +469,28 @@ namespace Pacifica.Upload
 
             const string location = "upload";
 
-            var serverUri = "https://ServerIsOffline/dummy_page?test";
+            string serverUri;
 
-            if (debugMode == TarStreamUploader.UploadDebugMode.MyEMSLOfflineMode)
+            switch (debugMode)
             {
-                OnDebugEvent("StartUpload is creating the .tar file locally");
-            }
-            else
-            {
-                serverUri = mPacificaConfig.IngestServerUri;
+                case TarStreamUploader.UploadDebugMode.MyEMSLOfflineMode:
+                case TarStreamUploader.UploadDebugMode.CreateTarLocal:
+                    OnDebugEvent("StartUpload is creating the .tar file locally (debugMode is {0})", debugMode);
+                    serverUri = "https://ServerIsOffline/dummy_page?test";
+                    break;
 
-                // URL for posting the virtual .tar file to
-                // Typically: https://ingestdms.my.emsl.pnl.gov/upload
-                var storageUrl = serverUri + "/" + location;
+                case TarStreamUploader.UploadDebugMode.DebugDisabled:
+                    serverUri = mPacificaConfig.IngestServerUri;
 
-                OnDebugEvent("StartUpload is sending file to " + storageUrl);
+                    // URL for posting the virtual .tar file to
+                    // Typically: https://ingestdms.my.emsl.pnl.gov/upload
+                    var storageUrl = serverUri + "/" + location;
+
+                    OnDebugEvent("StartUpload is sending file to " + storageUrl);
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(debugMode), debugMode, null);
             }
 
             var streamUploader = new TarStreamUploader();
