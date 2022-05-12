@@ -43,7 +43,6 @@ namespace Pacifica.Upload
             /// <summary>
             /// Authenticate with MyEMSL, but create a local .tar file
             /// </summary>
-            // ReSharper disable once UnusedMember.Global
             CreateTarLocal = 1,
 
             /// <summary>
@@ -389,7 +388,9 @@ namespace Pacifica.Upload
 
             RaiseStatusUpdate(0, bytesWritten, contentLength, string.Empty);
 
-            // Set this to .CreateTarLocal to debug things and create the .tar file locally instead of sending to the server
+            // Set this to .CreateTarLocal Authenticate with MyEMSL, but create the .tar file locally instead of sending to the server
+            // Set this to .MyEMSLOfflineMode to not contact MyEMSL, and create a local .tar file
+
             // See method PerformTask in clsArchiveUpdate
             var writeToDisk = (debugMode != UploadDebugMode.DebugDisabled); // aka WriteFile or SaveFile
 
