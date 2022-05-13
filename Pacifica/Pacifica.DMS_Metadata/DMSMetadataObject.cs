@@ -85,6 +85,11 @@ namespace Pacifica.DMS_Metadata
         private readonly Configuration mPacificaConfig;
 
         /// <summary>
+        /// Event raised when a zero byte file is encountered
+        /// </summary>
+        public event ZeroByteFileEventEventHandler ZeroByteFileEvent;
+
+        /// <summary>
         /// Archive modes
         /// </summary>
         public enum ArchiveModes
@@ -1196,6 +1201,8 @@ namespace Pacifica.DMS_Metadata
                 // Prior to May 2022, MyEMSL handled zero byte files without issue
                 // Something changed, and now the upload task fails if any zero byte files are included in the .tar file
 
+                if (raiseZeroByteFileEvent)
+                    OnZeroByteFileEvent(dataFile);
 
                 return true;
             }
@@ -1219,6 +1226,9 @@ namespace Pacifica.DMS_Metadata
             {
                 // Prior to May 2022, MyEMSL handled zero byte files without issue
                 // Something changed, and now the upload task fails if any zero byte files are included in the .tar file
+
+                if (raiseZeroByteFileEvent)
+                    OnZeroByteFileEvent(new FileInfo(fileName));
 
                 return true;
             }
@@ -1255,6 +1265,16 @@ namespace Pacifica.DMS_Metadata
                 "Thumbs.db",
                 ".sqlite-journal"
             };
+        }
+
+        private void OnZeroByteFileEvent(FileInfo dataFile)
+        {
+            var message = string.Format("Skipping zero byte file {0} in {1}", dataFile.Name, dataFile.DirectoryName ?? " dataset");
+
+            if (ZeroByteFileEvent == null)
+                OnWarningEvent(message);
+            else
+                ZeroByteFileEvent(dataFile, message);
         }
 
         private void ReportProgress(float percentComplete)
@@ -1301,5 +1321,12 @@ namespace Pacifica.DMS_Metadata
         {
             ConsoleMsgUtils.ShowDebug("  mFileTools_WaitingForLockQueue for " + sourceFilePath);
         }
+
+        /// <summary>
+        /// Event for reporting that a zero byte file was skipped when creating the .tar file
+        /// </summary>
+        /// <param name="dataFile">File information</param>
+        /// <param name="message">Warning message</param>
+        public delegate void ZeroByteFileEventEventHandler(FileInfo dataFile, string message);
     }
 }

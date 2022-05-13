@@ -186,8 +186,8 @@ namespace Pacifica.DMS_Metadata
         /// </summary>
         /// <param name="config"></param>
         /// <param name="debugMode">
-        /// Set to eDebugMode.CreateTarLocal to authenticate with MyEMSL, then create a .tar file locally instead of actually uploading it
-        /// Set to eDebugMode.MyEMSLOfflineMode to create the .tar file locally without contacting MyEMSL
+        /// Set to UploadDebugMode.CreateTarLocal to authenticate with MyEMSL, then create a .tar file locally instead of actually uploading it
+        /// Set to UploadDebugMode.MyEMSLOfflineMode to create the .tar file locally without contacting MyEMSL
         /// </param>
         /// <param name="statusURL">Output: status URL</param>
         /// <returns>True if success, false if an error</returns>
@@ -220,6 +220,8 @@ namespace Pacifica.DMS_Metadata
 
             // Attach the events
             RegisterEvents(MetadataContainer);
+
+            MetadataContainer.ZeroByteFileEvent += Container_ZeroByteFileEvent;
 
             // Also process Progress Updates using Container_ProgressEvent, which triggers event StatusUpdate
             MetadataContainer.ProgressUpdate += Container_ProgressEvent;
@@ -361,6 +363,11 @@ namespace Pacifica.DMS_Metadata
         /// </summary>
         public event EventHandler<UploadCompletedEventArgs> UploadCompleted;
 
+        /// <summary>
+        /// Event raised when a zero byte file is encountered
+        /// </summary>
+        public event DMSMetadataObject.ZeroByteFileEventEventHandler ZeroByteFileEvent;
+
         private void ReportMetadataDefined(string callingFunction, string metadataJSON)
         {
             var e = new MessageEventArgs(callingFunction, metadataJSON);
@@ -395,6 +402,18 @@ namespace Pacifica.DMS_Metadata
                 // Multiplying by 0.25 because we're assuming 25% of the time is required for mMetadataContainer to compute the SHA-1 hashes of files to be uploaded while 75% of the time is required to create and upload the .tar file
                 var percentCompleteOverall = 0 + percentComplete * 0.25;
                 StatusUpdate(this, new StatusEventArgs(percentCompleteOverall, 0, MetadataContainer.TotalFileSizeToUpload, progressMessage));
+            }
+        }
+
+        private void Container_ZeroByteFileEvent(FileInfo dataFile, string message)
+        {
+            if (ZeroByteFileEvent == null)
+            {
+                OnWarningEvent(message);
+            }
+            else
+            {
+                ZeroByteFileEvent.Invoke(dataFile, message);
             }
         }
     }
