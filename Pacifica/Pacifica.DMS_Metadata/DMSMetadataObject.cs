@@ -509,9 +509,6 @@ namespace Pacifica.DMS_Metadata
                 }
             }
 
-            // Get the file names that we can ignore
-            var filesToIgnore = GetFilesToIgnore();
-
             var fractionCompleted = 0f;
 
             // Determine the amount of data to be pushed
@@ -563,7 +560,7 @@ namespace Pacifica.DMS_Metadata
 
             foreach (var dataFile in fileList)
             {
-                if (filesToIgnore.Contains(dataFile.Name))
+                if (IgnoreFile(dataFile))
                 {
                     continue;
                 }
@@ -1186,14 +1183,77 @@ namespace Pacifica.DMS_Metadata
         }
 
         /// <summary>
+        /// Check whether a file should be ignored when either uploading files or comparing existing files to files already in MyEMSL
+        /// </summary>
+        /// <param name="dataFile"></param>
+        /// <param name="raiseZeroByteFileEvent">When true, raise event ZeroByteFileEvent if the file size is 0 bytes</param>
+        /// <returns>True if the file should be ignored</returns>
+        public bool IgnoreFile(FileInfo dataFile, bool raiseZeroByteFileEvent = true)
+        {
+            // ReSharper disable once InvertIf
+            if (dataFile.Length == 0)
+            {
+                // Prior to May 2022, MyEMSL handled zero byte files without issue
+                // Something changed, and now the upload task fails if any zero byte files are included in the .tar file
+
+
+                return true;
+            }
+
+            return IgnoreFile(dataFile.Name);
+        }
+
+
+        /// <summary>
+        /// Check whether a file should be ignored when either uploading files or comparing existing files to files already in MyEMSL
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="fileSizeBytes"></param>
+        /// <param name="raiseZeroByteFileEvent">When true, raise event ZeroByteFileEvent if the file size is 0 bytes</param>
+        /// <returns>True if the file should be ignored</returns>
+        // ReSharper disable once UnusedMember.Global
+        public bool IgnoreFile(string fileName, long fileSizeBytes, bool raiseZeroByteFileEvent = true)
+        {
+            // ReSharper disable once InvertIf
+            if (fileSizeBytes == 0)
+            {
+                // Prior to May 2022, MyEMSL handled zero byte files without issue
+                // Something changed, and now the upload task fails if any zero byte files are included in the .tar file
+
+                return true;
+            }
+
+            return IgnoreFile(fileName);
+        }
+
+        /// <summary>
+        /// Check whether a file should be ignored when either uploading files or comparing existing files to files already in MyEMSL
+        /// </summary>
+        /// <remarks>
+        /// Ignore files .DS_Store and Thumbs.db
+        /// Also ignore files that end with .sqlite-journal
+        /// </remarks>
+        /// <param name="fileName"></param>
+        /// <returns>True if the file should be ignored</returns>
+        public static bool IgnoreFile(string fileName)
+        {
+            return fileName.Equals(".DS_Store", StringComparison.OrdinalIgnoreCase) ||
+                   fileName.Equals("Thumbs.db", StringComparison.OrdinalIgnoreCase) ||
+                   fileName.EndsWith(".sqlite-journal", StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
         /// Get a list of file names that we can ignore when transferring data to MyEMSL or comparing files on disk to files in MyEMSL
         /// </summary>
         /// <returns>SortedSet of strings (case insensitive)</returns>
+        // ReSharper disable once UnusedMember.Global
+        [Obsolete("Use method IgnoreFile to check whether a file should be skipped")]
         public static SortedSet<string> GetFilesToIgnore()
         {
             return new SortedSet<string>(StringComparer.InvariantCultureIgnoreCase) {
                 ".DS_Store",
-                "Thumbs.db"
+                "Thumbs.db",
+                ".sqlite-journal"
             };
         }
 
