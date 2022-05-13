@@ -303,7 +303,7 @@ namespace Pacifica.DMS_Metadata
             var dbTools = DbToolsFactory.GetDBTools(dmsConnectionString, debugMode: TraceMode);
             RegisterEvents(dbTools);
 
-            var success = dbTools.GetQueryResultsDataTable(queryString, out var table, retryCount, 5);
+            var success = dbTools.GetQueryResultsDataTable(queryString, out var table, retryCount);
 
             foreach (DataRow row in table.Rows)
             {
@@ -334,7 +334,7 @@ namespace Pacifica.DMS_Metadata
         {
             var queryString = "SELECT EUS_Person_ID FROM V_Requested_Run_EUS_Users_Export WHERE Request_ID = " + requestedRunID;
 
-            dbTools.GetQueryResultsDataTable(queryString, out var table, retryCount, 5);
+            dbTools.GetQueryResultsDataTable(queryString, out var table, retryCount);
 
             var personList = new List<int>();
 
@@ -1000,7 +1000,7 @@ namespace Pacifica.DMS_Metadata
             var dbTools = DbToolsFactory.GetDBTools(connectionString, debugMode: TraceMode);
             RegisterEvents(dbTools);
 
-            var success = dbTools.GetQueryScalar(queryString, out var result, retryCount, 5);
+            var success = dbTools.GetQueryScalar(queryString, out var result, retryCount);
             if (!success)
             {
                 return -1;
