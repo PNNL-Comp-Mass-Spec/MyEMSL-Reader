@@ -497,9 +497,9 @@ namespace Pacifica.DMS_Metadata
                     string.Format("{0}: {1} (CollectFileInformation)", SOURCE_DIRECTORY_NOT_FOUND, sourceDirectory));
             }
 
-            var eSearchOption = recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+            var searchOption = recurse ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
 
-            var fileList = sourceDirectory.GetFiles("*", eSearchOption).ToList();
+            var fileList = sourceDirectory.GetFiles("*", searchOption).ToList();
 
             if (fileList.Count >= MAX_FILES_TO_ARCHIVE)
             {
