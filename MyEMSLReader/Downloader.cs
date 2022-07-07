@@ -639,9 +639,14 @@ namespace MyEMSLReader
                     var receiveStream = response.GetResponseStream();
 
                     var tarIn = new TarInputStream(receiveStream);
-                    TarEntry tarEntry;
-                    while ((tarEntry = tarIn.GetNextEntry()) != null)
+
+                    while (true)
                     {
+                        var tarEntry = tarIn.GetNextEntry();
+
+                        if (tarEntry == null)
+                            break;
+
                         if (tarEntry.IsDirectory)
                         {
                             continue;
