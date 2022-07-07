@@ -1210,7 +1210,6 @@ namespace Pacifica.DMS_Metadata
             return IgnoreFile(dataFile.Name);
         }
 
-
         /// <summary>
         /// Check whether a file should be ignored when either uploading files or comparing existing files to files already in MyEMSL
         /// </summary>
