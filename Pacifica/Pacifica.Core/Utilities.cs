@@ -502,7 +502,13 @@ namespace Pacifica.Core
             {
                 "my.emsl.pnnl.gov",
                 "my.emsl.pnl.gov",
+                "*.my.emsl.pnnl.gov",
+                "*.my.emsl.pnl.gov",
+                "emsl.pnnl.gov",
                 "emsl.pnl.gov",
+                "*.emsl.pnnl.gov",
+                "*.emsl.pnl.gov",
+                "pnnl.gov",
                 "pnl.gov"
             };
 
