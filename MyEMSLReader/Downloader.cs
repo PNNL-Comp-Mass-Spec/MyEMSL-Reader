@@ -251,7 +251,7 @@ namespace MyEMSLReader
                     }
                 }
 
-                OnDebugEvent(string.Format("Downloaded {0:F1} MB total", bytesDownloaded / 1024.0 / 1024));
+                OnDebugEvent("Downloaded {0:F1} MB total", bytesDownloaded / 1024.0 / 1024);
 
                 if (filesNotDownloaded.Count == 0)
                 {

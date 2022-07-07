@@ -967,8 +967,7 @@ namespace MyEMSLReader
                 }
             }
 
-            OnWarningEvent(string.Format("Dataset {0} not found in DMS (using {1})",
-                datasetName, dbTools.ConnectStr));
+            OnWarningEvent("Dataset {0} not found in DMS (using {1})", datasetName, dbTools.ConnectStr);
 
             return 0;
         }
@@ -1278,9 +1277,8 @@ namespace MyEMSLReader
                             if (duplicateHashCount <= DUPLICATE_HASH_MESSAGES_TO_LOG)
                             {
                                 // This warning is logged as a debug event since it's not a critical error
-                                OnDebugEvent(string.Format(
-                                    "Remote file listing reports the same file with the same hash more than once;\n" +
-                                    "  ignoring duplicate hash {0} for {1}", fileHash, relativeFilePath));
+                                OnDebugEvent("Remote file listing reports the same file with the same hash more than once;\n" +
+                                             "  ignoring duplicate hash {0} for {1}", fileHash, relativeFilePath);
                             }
                             continue;
                         }
@@ -1324,7 +1322,7 @@ namespace MyEMSLReader
 
                 if (duplicateHashCount > DUPLICATE_HASH_MESSAGES_TO_LOG)
                 {
-                    OnDebugEvent(string.Format("Duplicate hash value found for {0} files in MyEMSL", duplicateHashCount));
+                    OnDebugEvent("Duplicate hash value found for {0} files in MyEMSL", duplicateHashCount);
                 }
 
                 return remoteFiles;
