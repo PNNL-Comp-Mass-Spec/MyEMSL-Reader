@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
@@ -491,13 +492,27 @@ namespace Pacifica.Core
         /// <summary>
         /// Callback used to validate the certificate in an SSL conversation
         /// </summary>
-        /// <param name="cert"></param>
+        /// <param name="cert">Certificate to be validated</param>
+        /// <param name="policyErrors">Results from the default certificate validation</param>
         /// <param name="errorMessage"></param>
         /// <returns>True if the server is trusted</returns>
         public static bool ValidateRemoteCertificate(
             X509Certificate cert,
+            SslPolicyErrors policyErrors,
             out string errorMessage)
         {
+            if (policyErrors == SslPolicyErrors.None)
+            {
+                // .NET server certificate validation succeeded
+                errorMessage = "";
+                return true;
+            }
+
+            var message = new StringBuilder();
+            message.Append(".NET server certificate validation failed; errors: " + policyErrors);
+            ConsoleMsgUtils.ShowWarning(message.ToString());
+            ConsoleMsgUtils.ShowWarning("Checking certificate name against a known list");
+
             var trustedDomains = new List<string>
             {
                 "my.emsl.pnnl.gov",
@@ -540,9 +555,9 @@ namespace Pacifica.Core
                 return true;
             }
 
-            var message = new StringBuilder();
-            message.Append("The domain name associated with the certificate is not trusted: " + domainToValidate);
-            ConsoleMsgUtils.ShowWarning(message.ToString());
+            var mismatchMessage = "Pacifica.Core.Utilities.ValidateRemoteCertificate: The domain name associated with the certificate is not trusted: " + domainToValidate;
+            message.Append("\n" + mismatchMessage);
+            ConsoleMsgUtils.ShowWarning(mismatchMessage);
 
             Console.WriteLine("Trusted domains, as defined in ValidateRemoteCertificate:");
             foreach (var domainName in trustedDomains)

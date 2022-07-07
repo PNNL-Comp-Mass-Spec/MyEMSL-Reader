@@ -1307,9 +1307,13 @@ namespace Pacifica.DMS_Metadata
 
         private bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors policyErrors)
         {
-            var success = Utilities.ValidateRemoteCertificate(cert, out var errorMessage);
+            var success = Utilities.ValidateRemoteCertificate(cert, policyErrors, out var errorMessage);
             if (success)
             {
+                if (!string.IsNullOrWhiteSpace(errorMessage))
+                {
+                    OnWarningEvent(errorMessage);
+                }
                 return true;
             }
 
