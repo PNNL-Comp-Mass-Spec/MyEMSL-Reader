@@ -962,8 +962,7 @@ namespace MyEMSLReader
                 foreach (DataRow row in table.Rows)
                 {
                     instrument = row["Instrument"].CastDBVal(string.Empty);
-                    var datasetId = row["ID"].CastDBVal(0);
-                    return datasetId;
+                    return row["ID"].CastDBVal(0);
                 }
             }
 
@@ -988,8 +987,7 @@ namespace MyEMSLReader
                 foreach (DataRow row in table.Rows)
                 {
                     instrument = row["Instrument"].CastDBVal(string.Empty);
-                    var datasetName = row["Dataset"].CastDBVal(string.Empty);
-                    return datasetName;
+                    return row["Dataset"].CastDBVal(string.Empty);
                 }
             }
 
