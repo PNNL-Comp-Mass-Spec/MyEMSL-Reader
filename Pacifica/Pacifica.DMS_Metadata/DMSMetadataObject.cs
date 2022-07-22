@@ -423,7 +423,8 @@ namespace Pacifica.DMS_Metadata
             FileInfo cacheInfoFile,
             ICollection<FileInfoObject> fileCollection,
             string baseDSPath,
-            out string remoteFilePath)
+            out string remoteFilePath,
+            out bool remoteFileNotFound)
         {
             remoteFilePath = string.Empty;
 
@@ -438,6 +439,7 @@ namespace Pacifica.DMS_Metadata
             if (string.IsNullOrWhiteSpace(remoteFilePath))
             {
                 OnErrorEvent("Warning: Cache info file did not contain a file path; see " + cacheInfoFile.FullName);
+                remoteFileNotFound = true;
                 return false;
             }
 
@@ -445,13 +447,15 @@ namespace Pacifica.DMS_Metadata
             if (!remoteFile.Exists)
             {
                 // This is not a fatal error; the file may have been purged
-                OnDebugEvent("Note: Remote file referred to by the cache info file was not found: " + remoteFile.FullName);
+                OnWarningEvent("Note: Remote file referred to by the cache info file was not found: " + remoteFile.FullName);
+                remoteFileNotFound = true;
                 return false;
             }
 
             if (cacheInfoFile.Directory == null)
             {
                 OnErrorEvent("Unable to determine the parent directory of the cache info file (this should never happen)");
+                remoteFileNotFound = true;
                 return false;
             }
 
@@ -461,6 +465,7 @@ namespace Pacifica.DMS_Metadata
             var fio = new FileInfoObject(remoteFile, relativeDestinationDirectory, sha1Hash: string.Empty);
             fileCollection.Add(fio);
 
+            remoteFileNotFound = false;
             return true;
         }
 
@@ -588,11 +593,15 @@ namespace Pacifica.DMS_Metadata
                     // This is a cache info file that likely points to a .mzXML or .mzML file (possibly gzipped)
                     // Auto-include that file in the .tar to be uploaded
 
-                    var success = AddUsingCacheInfoFile(dataFile, fileCollection, baseDSPath, out var remoteFilePath);
+                    var success = AddUsingCacheInfoFile(dataFile, fileCollection, baseDSPath, out var remoteFilePath, out var remoteFileNotFound);
+
                     if (!success)
                     {
+                        if (remoteFileNotFound)
+                            continue;
+
                         throw new Exception(
-                            string.Format("Error reported by AddUsingCacheInfoFile for {0} (CollectFileInformation)", dataFile.FullName));
+                            string.Format("AddUsingCacheInfoFile reports false for {0} (CollectFileInformation)", dataFile.FullName));
                     }
 
                     mRemoteCacheInfoFilesToRetrieve.Add(remoteFilePath);
