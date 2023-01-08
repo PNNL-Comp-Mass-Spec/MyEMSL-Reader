@@ -16,7 +16,7 @@ namespace MyEMSLDownloader
 
     internal static class Program
     {
-        private const string PROGRAM_DATE = "July 22, 2022";
+        private const string PROGRAM_DATE = "January 7, 2023";
 
         // Ignore Spelling: Acq, downloader, melissa, ser, un-purged, Virol
 

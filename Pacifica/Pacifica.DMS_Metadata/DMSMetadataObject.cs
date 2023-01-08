@@ -1001,10 +1001,10 @@ namespace Pacifica.DMS_Metadata
         private int GetDatasetFileCountExpectedInMyEMSL(string connectionString, int datasetID, int retryCount = 3)
         {
             var queryString = string.Format(
-                "SELECT SUM(FileCountNew) AS Files " +
+                "SELECT SUM(File_Count_New) AS Files " +
                 "FROM V_MyEMSL_Uploads " +
                 "WHERE Dataset_ID = {0} AND " +
-                      "(Verified > 0 AND Ingest_Steps_Completed >= 5 AND ErrorCode = 0 OR " +
+                      "(Verified > 0 AND Ingest_Steps_Completed >= 5 AND Error_Code = 0 OR " +
                       " Ingest_Steps_Completed >= 7)",
                 datasetID);
 
