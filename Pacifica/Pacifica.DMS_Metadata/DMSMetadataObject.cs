@@ -344,7 +344,7 @@ namespace Pacifica.DMS_Metadata
 
         private List<int> GetRequestedRunUsers(IDBTools dbTools, int requestedRunID, int retryCount = 3)
         {
-            var queryString = "SELECT EUS_Person_ID FROM V_Requested_Run_EUS_Users_Export WHERE Request_ID = " + requestedRunID;
+            var queryString = "SELECT eus_person_id FROM V_Requested_Run_EUS_Users_Export WHERE request_id = " + requestedRunID;
 
             dbTools.GetQueryResultsDataTable(queryString, out var table, retryCount);
 
@@ -352,7 +352,7 @@ namespace Pacifica.DMS_Metadata
 
             foreach (DataRow row in table.Rows)
             {
-                var personId = row["EUS_Person_ID"].CastDBVal(-1);
+                var personId = row["eus_person_id"].CastDBVal(-1);
                 if (personId > -1)
                 {
                     personList.Add(personId);

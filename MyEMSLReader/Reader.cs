@@ -47,7 +47,7 @@ namespace MyEMSLReader
         public string DMSConnectionString { get; set; } = DEFAULT_DMS_CONNECTION_STRING;
 
         /// <summary>
-        /// When True, will include all revisions of files that were imported to MyEMSL multiple times
+        /// When True, include all revisions of files that were imported to MyEMSL multiple times
         /// When False, only reports the newest version of a file
         /// </summary>
         /// <remarks>Default is False</remarks>
@@ -949,9 +949,9 @@ namespace MyEMSLReader
         private int LookupDatasetIDByName(IDBTools dbTools, string datasetName, out string instrument, int retryCount = 2)
         {
             var queryString = string.Format(
-                "SELECT ID, Instrument " +
-                "FROM V_Dataset_Export " +
-                "WHERE Dataset = '{0}'",
+                "SELECT id, instrument " +
+                "FROM v_dataset_export " +
+                "WHERE dataset = '{0}'",
                 datasetName);
 
             instrument = string.Empty;
@@ -961,8 +961,8 @@ namespace MyEMSLReader
             {
                 foreach (DataRow row in table.Rows)
                 {
-                    instrument = row["Instrument"].CastDBVal(string.Empty);
-                    return row["ID"].CastDBVal(0);
+                    instrument = row["instrument"].CastDBVal(string.Empty);
+                    return row["id"].CastDBVal(0);
                 }
             }
 
@@ -974,9 +974,9 @@ namespace MyEMSLReader
         private string LookupDatasetNameByID(IDBTools dbTools, int datasetID, out string instrument, int retryCount = 2)
         {
             var queryString = string.Format(
-                "SELECT Dataset, Instrument " +
-                "FROM V_Dataset_Export WHERE " +
-                "ID = {0}",
+                "SELECT dataset, instrument " +
+                "FROM v_dataset_export" +
+                "WHERE id = {0}",
                 datasetID);
 
             instrument = string.Empty;
@@ -986,8 +986,8 @@ namespace MyEMSLReader
             {
                 foreach (DataRow row in table.Rows)
                 {
-                    instrument = row["Instrument"].CastDBVal(string.Empty);
-                    return row["Dataset"].CastDBVal(string.Empty);
+                    instrument = row["instrument"].CastDBVal(string.Empty);
+                    return row["dataset"].CastDBVal(string.Empty);
                 }
             }
 
