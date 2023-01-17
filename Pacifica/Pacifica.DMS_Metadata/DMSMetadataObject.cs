@@ -303,7 +303,14 @@ namespace Pacifica.DMS_Metadata
             Uploader.Upload.UploadMetadata uploadMetadata,
             int retryCount = 3)
         {
-            var queryString = "SELECT * FROM V_MyEMSL_Supplemental_Metadata WHERE [omics.dms.dataset_id] = " + datasetID;
+            var queryString = "SELECT " +
+                              "\"omics.dms.dataset_id\", \"omics.dms.dataset_name\", \"omics.dms.experiment_id\", " +
+                              "\"omics.dms.experiment_name\", \"omics.dms.campaign_id\", \"omics.dms.campaign_name\", " +
+                              "\"omics.dms.organism_id\", organism_name, ncbi_taxonomy_id, \"omics.dms.acquisition_time\", " +
+                              "\"omics.dms.acquisition_length_min\", \"omics.dms.number_of_scans\", \"omics.dms.separation_type\", " +
+                              "\"omics.dms.dataset_type\", \"omics.dms.requested_run_id\" " +
+                              "FROM V_MyEMSL_Supplemental_Metadata " +
+                              "WHERE \"omics.dms.dataset_id\" = " + datasetID;
 
             var dbTools = DbToolsFactory.GetDBTools(dmsConnectionString, debugMode: TraceMode);
             RegisterEvents(dbTools);
