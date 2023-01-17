@@ -67,7 +67,7 @@ namespace MyEMSLDownloader
         public bool MultiDatasetMode { get; set; }
 
         [Option("Preview", HelpShowsDefault = false,
-            HelpText = "View files that would be downloaded, but not actually download them.")]
+            HelpText = "View files that would be downloaded, but not actually download them")]
         public bool PreviewMode { get; set; }
 
         [Option("V", "Verbose", HelpShowsDefault = false,
@@ -75,7 +75,9 @@ namespace MyEMSLDownloader
         public bool VerbosePreview { get; set; }
 
         [Option("IncludeAll", "IncludeAllRevisions", HelpShowsDefault = false,
-            HelpText = "When true, if MyEMSL has multiple versions of the same file, show each version")]
+            HelpText = "When true, if MyEMSL has multiple versions of the same file, show each version. " +
+                       "If this is true when downloading files, all file versions will be downloaded, " +
+                       "and a suffix will be applied to files that have multiple versions")]
         public bool IncludeAllRevisions { get; set; }
 
         [Option("Test", HelpShowsDefault = false,
