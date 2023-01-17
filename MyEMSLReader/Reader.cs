@@ -1006,7 +1006,8 @@ namespace MyEMSLReader
             {
                 if (!datasetsAndSubDirLists.TryGetValue(DATASET_ID_TAG + file.DatasetID, out subDirs))
                 {
-                    ReportError("File " + file.FileID + " has an unrecognized dataset ID: " + file.DatasetID +
+                    ReportError(
+                        "File " + file.FileID + " has an unrecognized dataset ID: " + file.DatasetID +
                         "; skipping (MyEMSLReader.LookupSubDirFilterByDataset)");
                     success = false;
                 }
@@ -1015,7 +1016,8 @@ namespace MyEMSLReader
             {
                 if (!datasetsAndSubDirLists.TryGetValue(DATA_PKG_ID_TAG + file.DataPackageID, out subDirs))
                 {
-                    ReportError("File " + file.FileID + " has an unrecognized data package ID: " + file.DataPackageID +
+                    ReportError(
+                        "File " + file.FileID + " has an unrecognized data package ID: " + file.DataPackageID +
                         "; skipping (MyEMSLReader.LookupSubDirFilterByDataset)");
                     success = false;
                 }
@@ -1024,7 +1026,8 @@ namespace MyEMSLReader
             {
                 if (!datasetsAndSubDirLists.TryGetValue(file.Dataset, out subDirs))
                 {
-                    ReportError("File " + file.FileID + " has an unrecognized dataset name: " + file.Dataset +
+                    ReportError(
+                        "File " + file.FileID + " has an unrecognized dataset name: " + file.Dataset +
                         "; skipping (MyEMSLReader.LookupSubDirFilterByDataset)");
                     success = false;
                 }
