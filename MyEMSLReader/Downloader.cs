@@ -998,10 +998,9 @@ namespace MyEMSLReader
 
         private List<int> GetUniqueDatasetIDList(IReadOnlyDictionary<long, ArchivedFileInfo> files)
         {
-            var datasetIDs = (from item in files
-                              group item by item.Value.DatasetID into g
-                              select g.Key).ToList();
-            return datasetIDs;
+            return  (from item in files
+                     group item by item.Value.DatasetID into g
+                     select g.Key).ToList();
         }
 
         /// <summary>

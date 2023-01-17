@@ -330,9 +330,7 @@ namespace MyEMSLDownloader
             if (string.IsNullOrEmpty(fileMask))
                 fileMask = "*";
 
-            var archiveFiles = mDatasetListInfo.FindFiles(fileMask, subdirectory, datasetName, true, fileSplit);
-
-            return archiveFiles;
+            return mDatasetListInfo.FindFiles(fileMask, subdirectory, datasetName, true, fileSplit);
         }
 
         private static List<DatasetDirectoryOrFileInfo> FindDatasetFilesByID(
@@ -346,9 +344,7 @@ namespace MyEMSLDownloader
             if (string.IsNullOrEmpty(fileMask))
                 fileMask = "*";
 
-            var archiveFiles = mDatasetListInfoByID.FindFiles(fileMask, subdirectory, string.Empty, true, fileSplit);
-
-            return archiveFiles;
+            return mDatasetListInfoByID.FindFiles(fileMask, subdirectory, string.Empty, true, fileSplit);
         }
 
         private static List<DatasetDirectoryOrFileInfo> FindDataPkgFiles(
@@ -362,9 +358,7 @@ namespace MyEMSLDownloader
             if (string.IsNullOrEmpty(fileMask))
                 fileMask = "*";
 
-            var archiveFiles = mDataPackageListInfo.FindFiles(fileMask, subdirectory, true, fileSplit);
-
-            return archiveFiles;
+            return mDataPackageListInfo.FindFiles(fileMask, subdirectory, true, fileSplit);
         }
 
         private static List<DatasetDirectoryOrFileInfo> FindFileListFiles(FileSystemInfo fileListFile)
@@ -692,9 +686,7 @@ namespace MyEMSLDownloader
             // ReSharper disable once StringLiteralTypo
             mDatasetListInfo.AddDataset("2013_10_01_CMPD04_000005");
 
-            var archiveFiles = mDatasetListInfo.FindFiles("*");
-
-            return archiveFiles;
+            return mDatasetListInfo.FindFiles("*");
         }
 
         private static Dictionary<long, ArchivedFileInfo> TestReader()
@@ -881,9 +873,7 @@ namespace MyEMSLDownloader
                 {382287, ""}
             };
 
-            var filesToDownload = TestDatasetByID(reader, dctDatasetsAndSubDirs);
-
-            return filesToDownload;
+            return TestDatasetByID(reader, dctDatasetsAndSubDirs);
         }
 
         private static Dictionary<long, ArchivedFileInfo> TestMultiDatasetID(Reader reader)
@@ -895,9 +885,7 @@ namespace MyEMSLDownloader
                 {334455, ""}
             };
 
-            var filesToDownload = TestDatasetByID(reader, dctDatasetsAndSubDirs);
-
-            return filesToDownload;
+            return TestDatasetByID(reader, dctDatasetsAndSubDirs);
         }
 
         private static void TestDownloader(Dictionary<long, ArchivedFileInfo> filesToDownload)
