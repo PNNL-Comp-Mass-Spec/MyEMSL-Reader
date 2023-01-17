@@ -97,7 +97,6 @@ xcopy Debug\Pacifica.Core.dll "F:\Documents\Projects\DataMining\DMS_Managers\Cap
 xcopy Debug\Pacifica.Core.dll "F:\Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\DeployedFiles" /D /Y
 xcopy Debug\Pacifica.Core.dll "F:\Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\RefLib" /D /Y
 xcopy Debug\Pacifica.Core.dll "F:\Documents\Projects\DataMining\DMS_Managers\DataImportManager\DataImportManager\bin\Debug" /D /Y
-xcopy Debug\Pacifica.Core.dll "F:\Documents\Projects\DataMining\DMS_Managers\DataImportManager\DataImportManager\bin\Release" /D /Y
 xcopy Debug\Pacifica.Core.dll "F:\Documents\Projects\DataMining\DMS_Managers\DataImportManager\DataImportManager\lib" /D /Y
 xcopy Debug\Pacifica.Core.dll "F:\Documents\Projects\DataMining\DMS_Managers\DataPackage_Archive_Manager\bin\Debug" /D /Y
 xcopy Debug\Pacifica.Core.dll "F:\Documents\Projects\DataMining\DMS_Managers\DataPackage_Archive_Manager\Lib" /D /Y
