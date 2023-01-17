@@ -427,20 +427,14 @@ namespace MyEMSLReader
 
                 foreach (var archivedFile in mArchivedFiles)
                 {
-                    if (!string.IsNullOrWhiteSpace(datasetName))
+                    if (!string.IsNullOrWhiteSpace(datasetName) && !string.Equals(datasetName, archivedFile.Dataset, StringComparison.OrdinalIgnoreCase))
                     {
-                        if (!string.Equals(datasetName, archivedFile.Dataset, StringComparison.OrdinalIgnoreCase))
-                        {
-                            continue;
-                        }
+                        continue;
                     }
 
-                    if (dataPackageID > 0)
+                    if (dataPackageID > 0 && archivedFile.DataPackageID != dataPackageID)
                     {
-                        if (archivedFile.DataPackageID != dataPackageID)
-                        {
-                            continue;
-                        }
+                        continue;
                     }
 
                     if (!fileMatcher.IsMatch(archivedFile.Filename))
