@@ -87,6 +87,21 @@ namespace MyEMSLReader
         public Dictionary<long, DownloadQueue.FileDownloadInfo> FilesToDownload => mDownloadQueue.FilesToDownload;
 
         /// <summary>
+        /// When True, include all revisions of files that were imported to MyEMSL multiple times
+        /// When False, only reports the newest version of a file
+        /// </summary>
+        /// <remarks>Default is False</remarks>
+        public bool IncludeAllRevisions
+        {
+            get => mReader.IncludeAllRevisions;
+            set
+            {
+                mReader.IncludeAllRevisions = value;
+                mDownloadQueue.IncludeAllRevisions = value;
+            }
+        }
+
+        /// <summary>
         /// When true, raise a DebugEvent prior to contacting the metadata server
         /// </summary>
         public bool ThrowErrors { get; set; }

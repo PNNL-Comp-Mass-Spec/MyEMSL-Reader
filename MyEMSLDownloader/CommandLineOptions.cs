@@ -74,6 +74,9 @@ namespace MyEMSLDownloader
             HelpText = "Enable verbose preview, showing extended details about each file")]
         public bool VerbosePreview { get; set; }
 
+        [Option("IncludeAll", "IncludeAllRevisions", HelpShowsDefault = false,
+            HelpText = "When true, if MyEMSL has multiple versions of the same file, show each version")]
+        public bool IncludeAllRevisions { get; set; }
 
         [Option("Test", HelpShowsDefault = false,
             HelpText = "Perform automatic tests using predefined dataset names")]
@@ -101,6 +104,7 @@ namespace MyEMSLDownloader
 
             PreviewMode = false;
             VerbosePreview = false;
+            IncludeAllRevisions = false;
             AutoTestMode = false;
             TraceMode = false;
             UseTestInstance = false;

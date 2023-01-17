@@ -79,6 +79,17 @@ namespace MyEMSLReader
         }
 
         /// <summary>
+        /// When True, if downloading multiple versions of the same file, include the FileID in the filename
+        /// When False, if downloading multiple versions of the same file, will only keep one of the versions (order is not defined)
+        /// </summary>
+        /// <remarks>Default is False</remarks>
+        public bool IncludeAllRevisions
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Overwrite mode (IfChanged, Always, or Never)
         /// </summary>
         /// <remarks>Default is IfChanged</remarks>
@@ -121,6 +132,7 @@ namespace MyEMSLReader
         /// </summary>
         public Downloader()
         {
+            IncludeAllRevisions = false;
             ThrowErrors = true;
             OverwriteMode = Overwrite.IfChanged;
             DownloadedFiles = new Dictionary<string, ArchivedFileInfo>(StringComparer.OrdinalIgnoreCase);
@@ -472,6 +484,10 @@ namespace MyEMSLReader
                 var fileHashToTypeMap = new Dictionary<string, string>();
                 var fileHashToIdMap = new Dictionary<string, SortedSet<long>>();
 
+                // This dictionary tracks the number of copies of each target file that will be downloaded
+                // Typically each target file will only have one instance, but if IncludeAllRevisions is true, a file could have multiple versions
+                var targetFileCounts = new Dictionary<string, int>();
+
                 foreach (var archivedFileInfo in filesToDownload)
                 {
                     var fileHash = archivedFileInfo.Value.Hash;
@@ -489,6 +505,19 @@ namespace MyEMSLReader
                     fileHashToIdMap.Add(fileHash, fileIDs);
 
                     fileHashToTypeMap.Add(fileHash, archivedFileInfo.Value.HashType);
+
+                    var targetFile = GetTargetFile(
+                        downloadDirectory, directoryLayout,
+                        archivedFileInfo.Value, destFilePathOverride);
+
+                    if (targetFileCounts.TryGetValue(targetFile.FullName, out var fileCount))
+                    {
+                        targetFileCounts[targetFile.FullName] = fileCount + 1;
+                    }
+                    else
+                    {
+                        targetFileCounts.Add(targetFile.FullName, 1);
+                    }
                 }
 
                 foreach (var fileHashInfo in fileHashToIdMap)
@@ -505,14 +534,16 @@ namespace MyEMSLReader
 
                     var firstArchiveFile = filesToDownload[fileIDs.First()];
 
-                    var targetFile = GetTargetFile(
+                    var targetFileInitial = GetTargetFile(
                         downloadDirectory, directoryLayout,
                         firstArchiveFile, destFilePathOverride);
 
-                    if (targetFile == null)
+                    if (targetFileInitial == null)
                     {
                         continue;
                     }
+
+                    var targetFile = GetTargetFileWithOptionalID(targetFileCounts, targetFileInitial, firstArchiveFile.FileID);
 
                     const int DEFAULT_MAX_ATTEMPTS = 5;
                     var fileInUseByOtherProcess = false;
@@ -570,7 +601,7 @@ namespace MyEMSLReader
                         // Copy the downloaded file to the additional local target file locations
                         DuplicateFile(
                             downloadDirectory, directoryLayout, destFilePathOverride,
-                            targetFile, filesToDownload, fileIDs.Skip(1), filesDownloaded);
+                            targetFile, filesToDownload, fileIDs.Skip(1), filesDownloaded, targetFileCounts);
                     }
 
                     if (fileInUseByOtherProcess || !downloadFile)
@@ -873,20 +904,23 @@ namespace MyEMSLReader
             FileInfo fiSourceFile,
             IReadOnlyDictionary<long, ArchivedFileInfo> filesToDownload,
             IEnumerable<long> targetFileIDs,
-            IDictionary<long, string> filesDownloaded)
+            IDictionary<long, string> filesDownloaded,
+            Dictionary<string, int> targetFileCounts)
         {
             foreach (var targetFileID in targetFileIDs)
             {
                 var targetArchiveFile = filesToDownload[targetFileID];
 
-                var targetFile = GetTargetFile(
+                var targetFileInitial = GetTargetFile(
                         downloadDirectory, directoryLayout,
                         targetArchiveFile, destFilePathOverride);
 
-                if (targetFile == null)
+                if (targetFileInitial == null)
                 {
                     continue;
                 }
+
+                var targetFile = GetTargetFileWithOptionalID(targetFileCounts, targetFileInitial, targetArchiveFile.FileID);
 
                 fiSourceFile.CopyTo(targetFile.FullName, true);
 
@@ -994,6 +1028,26 @@ namespace MyEMSLReader
             }
 
             return fiTargetFile;
+        }
+
+
+        private FileInfo GetTargetFileWithOptionalID(IReadOnlyDictionary<string, int> targetFileCounts, FileInfo targetFile, long myEmslFileID)
+        {
+            var fileCount = targetFileCounts[targetFile.FullName];
+
+            if (fileCount == 1 || targetFile.DirectoryName == null)
+            {
+                return targetFile;
+            }
+
+            var filePathWithFileID = Path.Combine(
+                targetFile.DirectoryName,
+                string.Format("{0}_FileID_{1}{2}",
+                    Path.GetFileNameWithoutExtension(targetFile.Name),
+                    myEmslFileID,
+                    Path.GetExtension(targetFile.Name)));
+
+            return new FileInfo(filePathWithFileID);
         }
 
         private List<int> GetUniqueDatasetIDList(IReadOnlyDictionary<long, ArchivedFileInfo> files)

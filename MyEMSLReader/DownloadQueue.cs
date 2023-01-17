@@ -56,6 +56,17 @@ namespace MyEMSLReader
         }
 
         /// <summary>
+        /// When True, if downloading multiple versions of the same file, include the FileID in the filename
+        /// When False, if downloading multiple versions of the same file, will only keep one of the versions (order is not defined)
+        /// </summary>
+        /// <remarks>Default is False</remarks>
+        public bool IncludeAllRevisions
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// When true, raise a DebugEvent prior to contacting the metadata server
         /// </summary>
         public bool ThrowErrors { get; set; }
@@ -172,6 +183,7 @@ namespace MyEMSLReader
                 var downloader = new Downloader();
                 RegisterEvents(downloader);
 
+                downloader.IncludeAllRevisions = IncludeAllRevisions;
                 downloader.ThrowErrors = ThrowErrors;
                 downloader.UseTestInstance = UseTestInstance;
 

@@ -16,7 +16,7 @@ namespace MyEMSLDownloader
 
     internal static class Program
     {
-        private const string PROGRAM_DATE = "January 7, 2023";
+        private const string PROGRAM_DATE = "January 16, 2023";
 
         // Ignore Spelling: Acq, downloader, melissa, ser, un-purged, Virol
 
@@ -94,6 +94,7 @@ namespace MyEMSLDownloader
             {
                 mDatasetListInfo = new DatasetListInfo
                 {
+                    IncludeAllRevisions = mOptions.IncludeAllRevisions,
                     ReportMetadataURLs = mOptions.PreviewMode || mOptions.TraceMode,
                     ThrowErrors = false,
                     TraceMode = mOptions.TraceMode
@@ -102,6 +103,7 @@ namespace MyEMSLDownloader
 
                 mDatasetListInfoByID = new DatasetListInfoByID
                 {
+                    IncludeAllRevisions = mOptions.IncludeAllRevisions,
                     ReportMetadataURLs = mOptions.PreviewMode || mOptions.TraceMode,
                     ThrowErrors = false,
                     TraceMode = mOptions.TraceMode
@@ -110,6 +112,7 @@ namespace MyEMSLDownloader
 
                 mDataPackageListInfo = new DataPackageListInfo
                 {
+                    IncludeAllRevisions = mOptions.IncludeAllRevisions,
                     ReportMetadataURLs = mOptions.PreviewMode || mOptions.TraceMode,
                     ThrowErrors = false,
                     TraceMode = mOptions.TraceMode
@@ -197,6 +200,7 @@ namespace MyEMSLDownloader
                 }
 
                 Console.WriteLine();
+
                 if (mOptions.DataPkgID > 0)
                     DownloadDataPackageFiles(archiveFiles, mOptions.OutputDirectoryPath);
                 else
@@ -753,6 +757,7 @@ namespace MyEMSLDownloader
 
                 var dataPackageInfoCache = new DataPackageListInfo
                 {
+                    IncludeAllRevisions = mOptions.IncludeAllRevisions,
                     ReportMetadataURLs = mOptions.PreviewMode || mOptions.TraceMode,
                     ThrowErrors = false,
                     TraceMode = mOptions.TraceMode

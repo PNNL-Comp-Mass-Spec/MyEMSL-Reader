@@ -81,6 +81,8 @@ This mode does not use Simple Search to find files and can thus be used to
 retrieve a file that Simple Search does not find. Provide a comma separated list
 to retrieve multiple files.
 
+Use `/IncludeAll` to show or download all versions of a file if MyEMSL has multiple versions of the same file (by file path)
+
 Use `/Test` to perform automatic tests using predefined dataset names
 
 Use `/Preview` to view files that would be downloaded, but not actually download

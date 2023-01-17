@@ -13,6 +13,7 @@ namespace MyEMSLDownloader
         {
             var datasetListInfo = new DatasetListInfo
             {
+                IncludeAllRevisions = false,
                 ReportMetadataURLs = true,
                 ThrowErrors = false,
                 TraceMode = false
