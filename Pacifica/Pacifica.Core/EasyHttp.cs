@@ -697,7 +697,7 @@ namespace Pacifica.Core
                 // Loop until URL call finishes, or until timeoutSeconds elapses
                 while (mThreadedSend.ThreadState != ThreadState.Stopped)
                 {
-                    ProgRunner.SleepMilliseconds(25);
+                    AppUtils.SleepMilliseconds(25);
 
                     if (mThreadedSend.ThreadState == ThreadState.Aborted)
                     {
@@ -712,7 +712,7 @@ namespace Pacifica.Core
 
                     var abortThread = new Thread(AbortThreadedSendNow);
                     abortThread.Start();
-                    ProgRunner.SleepMilliseconds(25);
+                    AppUtils.SleepMilliseconds(25);
 
                     runtimeExceeded = true;
                     threadAborted = true;

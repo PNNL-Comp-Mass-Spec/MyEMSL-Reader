@@ -43,7 +43,7 @@ namespace MyEMSLDownloader
                                   "Alternatively, use /Dataset or /DatasetID plus optionally /SubDir",
                     ContactInfo = "Program written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)" +
                                   Environment.NewLine + Environment.NewLine +
-                                  "Version: " + PRISM.FileProcessor.ProcessFilesOrDirectoriesBase.GetAppVersion(PROGRAM_DATE) +
+                                  "Version: " + AppUtils.GetAppVersion(PROGRAM_DATE) +
                                   Environment.NewLine + Environment.NewLine +
                                   "E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov" + Environment.NewLine +
                                   "Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics"
