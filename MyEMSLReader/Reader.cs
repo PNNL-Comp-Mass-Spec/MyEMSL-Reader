@@ -975,7 +975,7 @@ namespace MyEMSLReader
         {
             var queryString = string.Format(
                 "SELECT dataset, instrument " +
-                "FROM v_dataset_export" +
+                "FROM v_dataset_export " +
                 "WHERE id = {0}",
                 datasetID);
 
