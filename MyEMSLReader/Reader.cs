@@ -1216,7 +1216,7 @@ namespace MyEMSLReader
                 }
 
                 // Convert the response to a dictionary
-                var remoteFileInfoList = Utilities.JsonToDictionaryList(fileInfoListJSON, metadataUrl, "MyEMSLReader.RunItemSearchQuery", out var jsonError);
+                var remoteFileInfoList = Utilities.JsonToFileList(fileInfoListJSON, metadataUrl, "MyEMSLReader.RunItemSearchQuery", out var jsonError);
                 if (remoteFileInfoList is null)
                 {
                     ReportError(jsonError);
@@ -1230,10 +1230,9 @@ namespace MyEMSLReader
 
                 foreach (var fileObj in remoteFileInfoList)
                 {
-                    var fileName = Utilities.GetDictionaryValue(fileObj, "name");
-                    var fileId = Utilities.GetDictionaryValue(fileObj, "_id", 0);
-                    var fileHash = Utilities.GetDictionaryValue(fileObj, "hashsum");
-                    var subdirectory = Utilities.GetDictionaryValue(fileObj, "subdir");
+                    var fileName = fileObj.Filename;
+                    var fileHash = fileObj.HashSum;
+                    var subdirectory = fileObj.SubDir;
 
                     // Windows style path
                     var relativeFilePath = Path.Combine(subdirectory, fileName);
@@ -1270,15 +1269,10 @@ namespace MyEMSLReader
                         remoteFiles.Add(relativeFilePath, fileVersions);
                     }
 
-                    var remoteFileInfo = new ArchivedFileInfo(datasetName, fileName, subdirectory, fileId)
+                    var remoteFileInfo = new ArchivedFileInfo(datasetName, fileObj)
                     {
                         DatasetYearQuarter = string.Empty,
-                        FileSizeBytes = Utilities.GetDictionaryValue(fileObj, "size", 0),
-                        Hash = fileHash,
-                        HashType = Utilities.GetDictionaryValue(fileObj, "hashtype"),
-                        Instrument = instrument,
-                        SubmissionTime = Utilities.GetDictionaryValue(fileObj, "created"),
-                        TransactionID = Utilities.GetDictionaryValue(fileObj, "transaction_id", 0)
+                        Instrument = instrument
                     };
 
                     if (checkingDataPackage)
@@ -1291,11 +1285,6 @@ namespace MyEMSLReader
                         remoteFileInfo.DatasetID = datasetOrDataPackageId;
                         remoteFileInfo.DataPackageID = 0;
                     }
-
-                    var creationTime = Utilities.GetDictionaryValue(fileObj, "ctime");
-                    var lastWriteTime = Utilities.GetDictionaryValue(fileObj, "mtime");
-
-                    remoteFileInfo.UpdateSourceFileTimes(creationTime, lastWriteTime);
 
                     fileVersions.Add(remoteFileInfo);
                 }

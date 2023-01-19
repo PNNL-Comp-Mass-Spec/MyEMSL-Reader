@@ -115,8 +115,8 @@ namespace Pacifica.Core
 
             // ReSharper restore CommentTypo
 
-            var fileList = Utilities.JsonToDictionaryList(fileListJSON, metadataURL, "MyEMSLStatusCheck.DoesFileExistInMyEMSL", out var jsonError);
-            if (fileList == null)
+            var fileList = Utilities.JsonToFileList(fileListJSON, metadataURL, "MyEMSLStatusCheck.DoesFileExistInMyEMSL", out var jsonError);
+            if (fileList == null || !string.IsNullOrWhiteSpace(jsonError))
             {
                 OnWarningEvent(jsonError);
                 return false;
@@ -124,8 +124,7 @@ namespace Pacifica.Core
 
             foreach (var fileObj in fileList)
             {
-                var fileHash = Utilities.GetDictionaryValue(fileObj, "hashsum");
-                if (string.Equals(fileHash, fileSHA1HashSum))
+                if (string.Equals(fileObj.HashSum, fileSHA1HashSum))
                 {
                     return true;
                 }
@@ -145,7 +144,7 @@ namespace Pacifica.Core
         /// <param name="lookupError">Output: true if an error occurs</param>
         /// <param name="errorMessage">Output: error message if lookupError is true</param>
         /// <returns>Status dictionary (empty dictionary if an error)</returns>
-        public Dictionary<string, object> GetIngestStatus(
+        public MyEMSLTaskStatus GetIngestStatus(
             string statusURI,
             out string currentTask,
             out int percentComplete,
@@ -159,7 +158,7 @@ namespace Pacifica.Core
                 currentTask = string.Empty;
                 percentComplete = 0;
                 lookupError = true;
-                return new Dictionary<string, object>();
+                return new MyEMSLTaskStatus();
             }
 
             // The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
@@ -199,7 +198,7 @@ namespace Pacifica.Core
                     OnWarningEvent("Ingest status lookup timed out");
                     currentTask = string.Empty;
                     percentComplete = 0;
-                    return new Dictionary<string, object>();
+                    return new MyEMSLTaskStatus();
                 }
 
                 if (EasyHttp.IsResponseError(statusResult))
@@ -207,27 +206,15 @@ namespace Pacifica.Core
                     OnWarningEvent("Ingest status error: " + statusResult);
                     currentTask = string.Empty;
                     percentComplete = 0;
-                    return new Dictionary<string, object>();
+                    return new MyEMSLTaskStatus();
                 }
 
-                var statusJSON = Utilities.JsonToObject(statusResult);
+                var status = Utilities.JsonToTaskStatus(statusResult);
 
-                var state = Utilities.GetDictionaryValue(statusJSON, "state").ToLower();
-
-                currentTask = Utilities.GetDictionaryValue(statusJSON, "task");
-
-                var exception = Utilities.GetDictionaryValue(statusJSON, "exception");
-
-                var percentCompleteText = Utilities.GetDictionaryValue(statusJSON, "task_percent");
-
-                if (float.TryParse(percentCompleteText, out var percentCompleteFloat))
-                {
-                    percentComplete = (int)percentCompleteFloat;
-                }
-                else
-                {
-                    percentComplete = 0;
-                }
+                var state = status.State.ToLower();
+                currentTask = status.CurrentTask;
+                var exception = status.Exception;
+                percentComplete = (int)status.PercentComplete;
 
                 switch (state)
                 {
@@ -310,14 +297,14 @@ namespace Pacifica.Core
                         break;
                 }
 
-                return statusJSON;
+                return status;
             }
             catch (Exception ex)
             {
                 OnErrorEvent("Error parsing ingest status response", ex);
                 currentTask = string.Empty;
                 percentComplete = 0;
-                return new Dictionary<string, object>();
+                return new MyEMSLTaskStatus();
             }
         }
 

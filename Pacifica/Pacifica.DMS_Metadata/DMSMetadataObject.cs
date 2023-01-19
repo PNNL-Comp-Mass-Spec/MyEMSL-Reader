@@ -1088,8 +1088,8 @@ namespace Pacifica.DMS_Metadata
             }
 
             // Convert the response to a dictionary
-            var remoteFileInfoList = Utilities.JsonToDictionaryList(fileInfoListJSON, metadataURL, "DMSMetadataObjects.GetDatasetFilesInMyEMSL", out var jsonError);
-            if (remoteFileInfoList is null)
+            var remoteFileInfoList = Utilities.JsonToFileList(fileInfoListJSON, metadataURL, "DMSMetadataObjects.GetDatasetFilesInMyEMSL", out var jsonError);
+            if (remoteFileInfoList is null || !string.IsNullOrWhiteSpace(jsonError))
             {
                 OnWarningEvent(jsonError);
                 return null;
@@ -1106,10 +1106,7 @@ namespace Pacifica.DMS_Metadata
 
             foreach (var fileObj in remoteFileInfoList)
             {
-                var fileName = Utilities.GetDictionaryValue(fileObj, "name");
-                var fileId = Utilities.GetDictionaryValue(fileObj, "_id", 0);
-                var fileHash = Utilities.GetDictionaryValue(fileObj, "hashsum");
-                var fileSubDir = Utilities.GetDictionaryValue(fileObj, "subdir");
+                var fileSubDir = fileObj.SubDir;
 
                 if (!string.IsNullOrWhiteSpace(subDirFilter))
                 {
@@ -1118,6 +1115,9 @@ namespace Pacifica.DMS_Metadata
                         continue;
                     }
                 }
+
+                var fileName = fileObj.Filename;
+                var fileHash = fileObj.HashSum;
 
                 // Unix style path
                 var relativeFilePath = PathUtils.CombineLinuxPaths(fileSubDir, fileName);
@@ -1155,27 +1155,7 @@ namespace Pacifica.DMS_Metadata
                     remoteFiles.Add(relativeFilePath, fileVersions);
                 }
 
-                var remoteFileInfo = new MyEMSLFileInfo(fileName, fileId, fileHash)
-                {
-                    DatasetYearQuarter = string.Empty,
-                    HashType = Utilities.GetDictionaryValue(fileObj, "hashtype"),
-                    SubDir = fileSubDir,
-                    Size = Utilities.GetDictionaryValue(fileObj, "size", 0),
-                    TransactionId = Utilities.GetDictionaryValue(fileObj, "transaction_id", 0)
-                };
-
-                var createdInMyEMSL = Utilities.GetDictionaryValue(fileObj, "created");
-                var updatedInMyEMSL = Utilities.GetDictionaryValue(fileObj, "updated");
-                var deletedInMyEMSL = Utilities.GetDictionaryValue(fileObj, "deleted");
-
-                remoteFileInfo.UpdateRemoteFileTimes(createdInMyEMSL, updatedInMyEMSL, deletedInMyEMSL);
-
-                var creationTime = Utilities.GetDictionaryValue(fileObj, "ctime");
-                var lastWriteTime = Utilities.GetDictionaryValue(fileObj, "mtime");
-
-                remoteFileInfo.UpdateSourceFileTimes(creationTime, lastWriteTime);
-
-                fileVersions.Add(remoteFileInfo);
+                fileVersions.Add(fileObj);
             }
 
             if (duplicateHashCount > DUPLICATE_HASH_MESSAGES_TO_LOG)

@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Pacifica.Core;
 
 namespace MyEMSLReader
 {
@@ -326,6 +327,23 @@ namespace MyEMSLReader
             FileID = fileID;
             Instrument = instrument;
             DatasetYearQuarter = datasetYearQuarter;
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="dataset">Dataset name</param>
+        /// <param name="fileData">File metadata read from MyEMSL</param>
+        public ArchivedFileInfo(string dataset, MyEMSLFileInfo fileData) : this(dataset, fileData.Filename, fileData.SubDir, fileData.FileID)
+        {
+            DatasetYearQuarter = string.Empty;
+            FileSizeBytes = fileData.Size;
+            Hash = fileData.HashSum;
+            HashType = fileData.HashType;
+            SubmissionTime = fileData.Created.ToUniversalTime().ToString("s");
+            TransactionID = fileData.TransactionId;
+            FileCreationTime = fileData.FileCreationTime;
+            FileLastWriteTime = fileData.FileLastWriteTime;
         }
 
         /// <summary>

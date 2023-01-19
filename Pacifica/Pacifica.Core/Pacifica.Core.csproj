@@ -46,32 +46,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EventArgs.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="MyEMSLStatusCheck.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="EasyHttp.cs" />
+    <Compile Include="EventArgs.cs" />
+    <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="FileInfoObject.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="MyEMSLFileInfo.cs" />
+    <Compile Include="MyEMSLStatusCheck.cs" />
+    <Compile Include="MyEMSLTaskStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UrlContactInfo.cs" />
-    <Compile Include="WebResponseData.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="EasyHttp.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Utilities.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="ExtensionMethods.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="FileInfoObject.cs" />
+    <Compile Include="WebResponseData.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="README.txt" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="jayrock-json">
-      <Version>0.9.16530.1</Version>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>13.0.2</Version>
     </PackageReference>
     <PackageReference Include="PRISM-Library">
       <Version>2.8.5</Version>

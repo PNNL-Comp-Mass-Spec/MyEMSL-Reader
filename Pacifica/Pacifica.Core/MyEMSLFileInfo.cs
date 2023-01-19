@@ -1,77 +1,102 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
+using Newtonsoft.Json;
 
-namespace Pacifica.DMS_Metadata
+namespace Pacifica.Core
 {
     /// <summary>
     /// Metadata for files in MyEMSL
     /// </summary>
+    [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class MyEMSLFileInfo
     {
         /// <summary>
+        /// True if essential values are set.
+        /// </summary>
+        public bool Valid => !string.IsNullOrWhiteSpace(Filename) && FileID > 0 && !string.IsNullOrWhiteSpace(HashSum);
+
+        /// <summary>
         /// Filename
         /// </summary>
+        [JsonProperty("name")]
+        [DefaultValue("")]
         public string Filename { get; }
 
         /// <summary>
         /// File ID in MyEMSL
         /// </summary>
+        [JsonProperty("_id")]
         public long FileID { get; }
 
         /// <summary>
         /// File hash (typically SHA-1)
         /// </summary>
+        [JsonProperty("hashsum")]
+        [DefaultValue("")]
         public string HashSum { get; }
 
         /// <summary>
         /// Hash type
         /// </summary>
+        [JsonProperty("hashtype")]
+        [DefaultValue("")]
         public string HashType { get; set; }
 
         /// <summary>
         /// Time created in MyEMSL
         /// </summary>
         /// <remarks>Use UpdateRemoteFileTimes to update this value</remarks>
-        public DateTime Created { get; private set; }
+        [JsonProperty("created")]
+        public DateTime Created { get; protected set; }
 
         /// <summary>
         /// Time updated in MyEMSL (typically identical to Created)
         /// </summary>
         /// <remarks>Use UpdateRemoteFileTimes to update this value</remarks>
-        public DateTime? Updated { get; private set; }
+        [JsonProperty("updated")]
+        public DateTime? Updated { get; protected set; }
 
         /// <summary>
         /// Time deleted in MyEMSL; null if not deleted
         /// </summary>
         /// <remarks>Use UpdateRemoteFileTimes to update this value</remarks>
-        public DateTime? Deleted { get; private set; }
+        [JsonProperty("deleted")]
+        public DateTime? Deleted { get; protected set; }
 
         /// <summary>
         /// Original file creation time (on the host system prior to MyEMSL ingest)
         /// </summary>
         /// <remarks>Use UpdateSourceFileTimes to update this value</remarks>
-        public DateTime FileCreationTime { get; private set; }
+        [JsonProperty("ctime")]
+        public DateTime FileCreationTime { get; protected set; }
 
         /// <summary>
         /// Last modification time (on the host system prior to MyEMSL ingest)
         /// </summary>
         /// <remarks>Use UpdateSourceFileTimes to update this value</remarks>
-        public DateTime FileLastWriteTime { get; private set; }
+        [JsonProperty("mtime")]
+        public DateTime FileLastWriteTime { get; protected set; }
 
         /// <summary>
         /// File size, in bytes
         /// </summary>
+        [JsonProperty("size")]
+        [DefaultValue("0")]
         public long Size { get; set; }
 
         /// <summary>
         /// Subdirectory (subfolder) below the dataset folder
         /// </summary>
+        [JsonProperty("subdir")]
+        [DefaultValue("")]
         public string SubDir { get; set; }
 
         /// <summary>
         /// Transaction ID
         /// </summary>
         /// <remarks>All files uploaded in a given batch will have the same transaction ID</remarks>
+        [JsonProperty("transaction_id")]
         public long TransactionId { get; set; }
 
         /// <summary>
@@ -179,16 +204,13 @@ namespace Pacifica.DMS_Metadata
         }
 
         /// <summary>
-        /// Constructor
+        /// Private constructor that can be accessed for deserialization
         /// </summary>
-        /// <param name="fileName"></param>
-        /// <param name="fileId"></param>
-        /// <param name="hashSum"></param>
-        public MyEMSLFileInfo(string fileName, long fileId, string hashSum)
+        private MyEMSLFileInfo()
         {
-            Filename = fileName;
-            FileID = fileId;
-            HashSum = hashSum;
+            Filename = string.Empty;
+            FileID = 0;
+            HashSum = string.Empty;
             HashType = string.Empty;
 
             SubDir = string.Empty;
@@ -196,6 +218,28 @@ namespace Pacifica.DMS_Metadata
 
             Instrument = string.Empty;
             DatasetYearQuarter = string.Empty;
+        }
+
+        [JsonConstructor]
+        public MyEMSLFileInfo(string name, long _id, string hashsum, DateTime created) : this()
+        {
+            Filename = name ?? string.Empty;
+            FileID = _id;
+            HashSum = hashsum ?? string.Empty;
+            Created = created;
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <param name="fileId"></param>
+        /// <param name="hashSum"></param>
+        public MyEMSLFileInfo(string fileName, long fileId, string hashSum) : this()
+        {
+            Filename = fileName;
+            FileID = fileId;
+            HashSum = hashSum;
         }
 
         /// <summary>

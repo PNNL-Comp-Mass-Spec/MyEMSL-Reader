@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using Pacifica.Core;
 using PRISM;
 
@@ -507,11 +508,14 @@ namespace Pacifica.Upload
 
             try
             {
-                var responseJSON = Utilities.JsonToObject(responseData);
+                var responseStatus = Utilities.JsonToTaskStatus(responseData);
 
-                var transactionID = Convert.ToInt32(responseJSON["job_id"].ToString());
+                if (!responseStatus.Valid)
+                {
+                    throw new Exception("Response JSON did not contain a valid job_id or state.");
+                }
 
-                statusURI = mPacificaConfig.IngestServerUri + "/get_state?job_id=" + transactionID;
+                statusURI = mPacificaConfig.IngestServerUri + "/get_state?job_id=" + responseStatus.JobId;
             }
             catch (Exception ex)
             {
@@ -543,11 +547,11 @@ namespace Pacifica.Upload
                     return false;
                 }
 
-                Dictionary<string, object> statusJSON;
+                MyEMSLTaskStatus statusData;
 
                 try
                 {
-                    statusJSON = Utilities.JsonToObject(statusResult);
+                    statusData = Utilities.JsonToTaskStatus(statusResult);
                 }
                 catch (Exception)
                 {
@@ -555,7 +559,7 @@ namespace Pacifica.Upload
                     return false;
                 }
 
-                var state = statusJSON["state"].ToString().ToLower();
+                var state = statusData.State.ToLower();
 
                 if (state == "ok")
                 {
@@ -574,7 +578,7 @@ namespace Pacifica.Upload
                 }
                 else
                 {
-                    OnError("Unrecognized ingest state: " + statusJSON["state"]);
+                    OnError("Unrecognized ingest state: " + statusData.State);
                 }
             }
             catch (Exception ex)
