@@ -5,10 +5,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
-using Jayrock.Json.Conversion;
 using Pacifica.Core;
 using PRISMDatabaseUtils;
-using Utilities = Pacifica.Core.Utilities;
 
 namespace MyEMSLReader
 {
@@ -1218,31 +1216,12 @@ namespace MyEMSLReader
                 }
 
                 // Convert the response to a dictionary
-                var jsonData = JsonConvert.Import(fileInfoListJSON);
-
-                if (jsonData is not Jayrock.Json.JsonArray jsa)
+                var remoteFileInfoList = Utilities.JsonToDictionaryList(fileInfoListJSON, metadataUrl, "MyEMSLReader.RunItemSearchQuery", out var jsonError);
+                if (remoteFileInfoList is null)
                 {
-                    const string errMsg = "Could not convert the JSON string to a JsonArray (MyEMSLReader.RunItemSearchQuery)";
-
-                    if (jsonData is string conversionError && !string.IsNullOrWhiteSpace(conversionError))
-                    {
-                        if (conversionError.Length > 100)
-                        {
-                            ReportError(errMsg + ": " + conversionError.Substring(0, 100) + " ...");
-                        }
-                        else
-                        {
-                            ReportError(errMsg + ": " + conversionError);
-                        }
-                    }
-                    else
-                    {
-                        ReportError(errMsg);
-                    }
-
+                    ReportError(jsonError);
                     return remoteFiles;
                 }
-                var remoteFileInfoList = Utilities.JsonArrayToDictionaryList(jsa);
 
                 var duplicateHashCount = 0;
 

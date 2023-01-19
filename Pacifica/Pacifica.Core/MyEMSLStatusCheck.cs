@@ -1,5 +1,4 @@
-﻿using Jayrock.Json.Conversion;
-using PRISM;
+﻿using PRISM;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -116,8 +115,12 @@ namespace Pacifica.Core
 
             // ReSharper restore CommentTypo
 
-            var jsa = (Jayrock.Json.JsonArray)JsonConvert.Import(fileListJSON);
-            var fileList = Utilities.JsonArrayToDictionaryList(jsa);
+            var fileList = Utilities.JsonToDictionaryList(fileListJSON, metadataURL, "MyEMSLStatusCheck.DoesFileExistInMyEMSL", out var jsonError);
+            if (fileList == null)
+            {
+                OnWarningEvent(jsonError);
+                return false;
+            }
 
             foreach (var fileObj in fileList)
             {

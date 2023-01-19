@@ -290,6 +290,38 @@ namespace Pacifica.Core
             return BitConverter.ToString(buffer).Replace("-", string.Empty).ToLower();
         }
 
+        public static List<Dictionary<string, object>> JsonToDictionaryList(string jsonString, string dataUrl, string callingMethodName, out string errorMessage)
+        {
+            errorMessage = "";
+            // Convert the response to a dictionary
+            var jsonData = JsonConvert.Import(jsonString);
+
+            if (jsonData is not JsonArray jsa)
+            {
+                var errMsg = "Could not convert the JSON string from " + dataUrl + " to a JsonArray (" + callingMethodName + ")";
+
+                if (jsonData is string conversionError && !string.IsNullOrWhiteSpace(conversionError))
+                {
+                    if (conversionError.Length > 100)
+                    {
+                        errorMessage = errMsg + ": " + conversionError.Substring(0, 100) + " ...";
+                    }
+                    else
+                    {
+                        errorMessage = errMsg + ": " + conversionError;
+                    }
+                }
+                else
+                {
+                    errorMessage = errMsg;
+                }
+
+                return null;
+            }
+
+            return JsonArrayToDictionaryList(jsa);
+        }
+
         public static Dictionary<string, object> JsonToObject(string jsonString)
         {
             var jso = (JsonObject)JsonConvert.Import(jsonString);

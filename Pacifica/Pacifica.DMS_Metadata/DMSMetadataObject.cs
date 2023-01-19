@@ -1,5 +1,4 @@
-﻿using Jayrock.Json.Conversion;
-using Pacifica.Core;
+﻿using Pacifica.Core;
 using PRISM;
 using System;
 using System.Collections.Generic;
@@ -11,7 +10,6 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using PRISMDatabaseUtils;
 using Uploader = Pacifica.Upload;
-using Utilities = Pacifica.Core.Utilities;
 
 namespace Pacifica.DMS_Metadata
 {
@@ -1090,13 +1088,12 @@ namespace Pacifica.DMS_Metadata
             }
 
             // Convert the response to a dictionary
-            if (JsonConvert.Import(fileInfoListJSON) is not Jayrock.Json.JsonArray jsa)
+            var remoteFileInfoList = Utilities.JsonToDictionaryList(fileInfoListJSON, metadataURL, "DMSMetadataObjects.GetDatasetFilesInMyEMSL", out var jsonError);
+            if (remoteFileInfoList is null)
             {
-                OnWarningEvent("JsonConvert.Import did not return a JsonArray object; data returned from {0} is likely not JSON", metadataURL);
+                OnWarningEvent(jsonError);
                 return null;
             }
-
-            var remoteFileInfoList = Utilities.JsonArrayToDictionaryList(jsa);
 
             // Keys in this dictionary are relative file paths (Unix style paths); values are file info details
             // A given remote file could have multiple hash values if multiple versions of the file have been uploaded
