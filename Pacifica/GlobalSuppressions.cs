@@ -6,6 +6,8 @@
 using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Usage", "RCS1246:Use element access.", Justification = "Prefer to use .First()", Scope = "module")]
+[assembly: SuppressMessage("Performance", "RCS1197:Optimize StringBuilder.Append/AppendLine call.", Justification = "Optimization not necessary", Scope = "module")]
 [assembly: SuppressMessage("Design", "RCS1075:Avoid empty catch clause that catches System.Exception.", Justification = "Safe to ignore lock file deletion issues", Scope = "member", Target = "~M:Pacifica.DMS_Metadata.DMSMetadataObject.DeleteLockFiles")]
 [assembly: SuppressMessage("Readability", "RCS1123:Add parentheses when necessary.", Justification = "Parentheses not required", Scope = "member", Target = "~M:Pacifica.DMS_Metadata.MyEMSLUploader.MyEMSLUpload_StatusUpdate(System.Object,Pacifica.Core.StatusEventArgs)")]
 [assembly: SuppressMessage("Readability", "RCS1123:Add parentheses when necessary.", Justification = "Parentheses not required", Scope = "member", Target = "~M:Pacifica.DMS_Metadata.MyEMSLUploader.Container_ProgressEvent(System.String,System.Single)")]
+[assembly: SuppressMessage("Readability", "RCS1123:Add parentheses when necessary.", Justification = "Parentheses not required", Scope = "member", Target = "~M:Pacifica.Upload.TarStreamUploader.SendFileListToIngester(Pacifica.Core.Configuration,System.String,System.String,System.Collections.Generic.SortedDictionary{System.String,Pacifica.Core.FileInfoObject},System.String,Pacifica.Upload.TarStreamUploader.UploadDebugMode)~System.String")]

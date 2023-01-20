@@ -53,9 +53,9 @@
       <Project>{3672e426-ffb5-43c0-a78b-d29e66e0076d}</Project>
       <Name>MyEMSLReader</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Pacifica\Pacifica.Core\Pacifica.Core.csproj">
-      <Project>{46d080da-392c-4f7c-b2f7-683695b1c029}</Project>
-      <Name>Pacifica.Core</Name>
+    <ProjectReference Include="..\Pacifica\Pacifica.csproj">
+      <Project>{cb910f22-9338-4339-a015-f7f29dcb2489}</Project>
+      <Name>Pacifica</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

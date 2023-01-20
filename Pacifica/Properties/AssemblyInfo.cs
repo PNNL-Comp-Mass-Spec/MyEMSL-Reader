@@ -1,16 +1,15 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Pacifica.Upload")]
+[assembly: AssemblyTitle("Pacifica")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Pacifica.Upload")]
-[assembly: AssemblyCopyright("Copyright ©  2019")]
+[assembly: AssemblyCompany("PNNL-EMSL")]
+[assembly: AssemblyProduct("Pacifica")]
+[assembly: AssemblyCopyright("Copyright © PNNL 2012")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("4e0a4851-eb71-491c-8027-4af7b6a830bb")]
+[assembly: Guid("cb910f22-9338-4339-a015-f7f29dcb2489")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -29,4 +28,6 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("1.0.*")]
+// You can specify all the values or you can default the Build and Revision Numbers
+// by using the '*' as shown below:
+[assembly: AssemblyVersion("2.0.*")]
