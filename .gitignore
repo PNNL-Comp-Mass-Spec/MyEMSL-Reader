@@ -1,3 +1,4 @@
 Lib/MyEMSLReader.dll
 **/.vs
 /DeployedFiles
+*.user
