@@ -4,6 +4,7 @@ using PRISM;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Pacifica.Json;
 
 namespace Pacifica.DMSDataUpload
 {
@@ -201,7 +202,8 @@ namespace Pacifica.DMSDataUpload
                 if (int.TryParse(ignoreMaxFileLimitSetting, out var value))
                 {
                     ignoreMaxFileLimit = value > 0;
-                } else if (bool.TryParse(ignoreMaxFileLimitSetting, out var boolValue))
+                }
+                else if (bool.TryParse(ignoreMaxFileLimitSetting, out var boolValue))
                 {
                     ignoreMaxFileLimit = boolValue;
                 }
@@ -268,7 +270,7 @@ namespace Pacifica.DMSDataUpload
 
             EUSInfo = MetadataContainer.EUSInfo;
 
-            var fileList = Utilities.GetFileListFromMetadataObject(MetadataContainer.MetadataObject);
+            var fileList = MetadataContainer.MetadataObject.GetFileListFromMetadataObject();
             if (fileList.Count == 0)
             {
                 OnDebugEvent("File list is empty in StartUpload; nothing to do");

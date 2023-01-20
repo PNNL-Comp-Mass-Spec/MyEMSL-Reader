@@ -22,6 +22,11 @@ namespace Pacifica.Json
         public string DestinationTable => DestinationTableName;
 
         /// <summary>
+        /// True if the data meets the validity requirements of the metadata type
+        /// </summary>
+        public bool Valid => !string.IsNullOrWhiteSpace(Name) && !string.IsNullOrWhiteSpace(Size) && !Size.Equals("0") && !string.IsNullOrWhiteSpace(HashSum);
+
+        /// <summary>
         /// File name
         /// </summary>
         [JsonProperty("name", Required = Required.Always)]
@@ -105,6 +110,16 @@ namespace Pacifica.Json
             return $"{DestinationTable}: {Name}, {SubDir}, {HashSum}";
         }
 
+        /// <summary>
+        /// Method for the round-trip/upgrade JSON testing
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="absoluteLocalPath"></param>
+        /// <param name="subDir"></param>
+        /// <param name="size"></param>
+        /// <param name="hashSum"></param>
+        /// <param name="fileCreationTime"></param>
+        /// <param name="fileLastModifiedTime"></param>
         public UploadMetadataFile(string name, string absoluteLocalPath, string subDir, string size, string hashSum, string fileCreationTime, string fileLastModifiedTime)
         {
             Name = name;

@@ -20,6 +20,11 @@ namespace Pacifica.Json
         public string DestinationTable => DestinationTableName;
 
         /// <summary>
+        /// True if the data meets the validity requirements of the metadata type
+        /// </summary>
+        public bool Valid => !string.IsNullOrWhiteSpace(Key) && !string.IsNullOrWhiteSpace(Value.ToString());
+
+        /// <summary>
         /// Entry key/name
         /// </summary>
         [JsonProperty("key", Required = Required.Always)]

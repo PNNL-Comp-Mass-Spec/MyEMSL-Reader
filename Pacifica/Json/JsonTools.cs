@@ -115,6 +115,7 @@ namespace Pacifica.Json
         /// Converts a list of dictionaries to a JSON string
         /// </summary>
         /// <param name="metadataList"></param>
+        // ReSharper disable once UnusedMember.Global
         public static string ObjectToJson(IList metadataList)
         {
             if (metadataList == null)

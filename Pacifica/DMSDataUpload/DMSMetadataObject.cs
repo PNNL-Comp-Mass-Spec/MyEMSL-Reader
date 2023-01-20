@@ -139,10 +139,9 @@ namespace Pacifica.DMSDataUpload
         /// Object that tracks the upload details, including the files to upload
         /// </summary>
         /// <remarks>
-        /// The information in this dictionary is translated to JSON;
-        /// Keys are key names; values are either strings or dictionary objects or even a list of dictionary objects
+        /// The objects in this list are translated to a single JSON string
         /// </remarks>
-        public List<Dictionary<string, object>> MetadataObject { get; private set; }
+        public List<IUploadMetadata> MetadataObject { get; private set; }
 
         /// <summary>
         /// Subdirectory names that were skipped during a DatasetArchive task because we're pushing more than 15 GB of data
@@ -177,7 +176,7 @@ namespace Pacifica.DMSDataUpload
         /// <summary>
         /// Retrieve the metadata JSON as a string
         /// </summary>
-        public string MetadataObjectJSON => JsonTools.ObjectToJson(MetadataObject);
+        public string MetadataObjectJSON => JsonTools.UploadMetadataToJson(MetadataObject);
 
         /// <summary>
         /// Constructor
@@ -273,7 +272,7 @@ namespace Pacifica.DMSDataUpload
 
             if (unmatchedFiles.Count > 0)
             {
-                var jsonMetadata = JsonTools.ObjectToJson(MetadataObject);
+                var jsonMetadata = JsonTools.UploadMetadataToJson(MetadataObject);
                 if (!CheckMetadataValidity(jsonMetadata, out var policyError))
                 {
                     if (policyError)
@@ -843,7 +842,9 @@ namespace Pacifica.DMSDataUpload
                     }
                 }
                 // ReSharper disable once EmptyGeneralCatchClause
+#pragma warning disable RCS1075
                 catch (Exception)
+#pragma warning restore RCS1075
                 {
                     // Ignore errors here
                 }

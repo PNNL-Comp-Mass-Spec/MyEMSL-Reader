@@ -61,6 +61,7 @@
     <Compile Include="Json\MyEMSLFileInfo.cs" />
     <Compile Include="Json\MyEMSLTaskStatus.cs" />
     <Compile Include="Json\UploadMetadataConverter.cs" />
+    <Compile Include="Json\UploadMetadataExtensions.cs" />
     <Compile Include="Json\UploadMetadataFile.cs" />
     <Compile Include="Json\UploadMetadataKeyValue.cs" />
     <Compile Include="Json\UploadMetadataValue.cs" />

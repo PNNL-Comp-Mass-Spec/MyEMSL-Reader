@@ -38,6 +38,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FileInfoObjectTest.cs" />
     <Compile Include="JayrockJson_Backup.cs" />
     <Compile Include="JsonCompare.cs" />
     <Compile Include="MyEmslFileInfoTest.cs" />

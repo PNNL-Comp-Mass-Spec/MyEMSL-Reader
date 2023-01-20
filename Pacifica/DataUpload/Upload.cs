@@ -228,6 +228,14 @@ namespace Pacifica.DataUpload
             public int EUSOperatorID;
 
             /// <summary>
+            /// Default constructor to ensure default values are populated
+            /// </summary>
+            public UploadMetadata()
+            {
+                Clear();
+            }
+
+            /// <summary>
             /// Clear stored metadata
             /// </summary>
             // ReSharper disable once UnusedMember.Global
@@ -371,7 +379,7 @@ namespace Pacifica.DataUpload
         /// <param name="statusURI">Status URL</param>
         /// <returns>True if successfully uploaded, false if an error</returns>
         // ReSharper disable once UnusedMember.Global
-        public bool StartUpload(List<Dictionary<string, object>> metadataObject, out string statusURI)
+        public bool StartUpload(List<IUploadMetadata> metadataObject, out string statusURI)
         {
             const TarStreamUploader.UploadDebugMode debugMode = TarStreamUploader.UploadDebugMode.DebugDisabled;
 
@@ -389,7 +397,7 @@ namespace Pacifica.DataUpload
         /// <param name="statusURI">Status URL</param>
         /// <returns>True if successfully uploaded, false if an error</returns>
         public bool StartUpload(
-            List<Dictionary<string, object>> metadataObject,
+            List<IUploadMetadata> metadataObject,
             TarStreamUploader.UploadDebugMode debugMode,
             out string statusURI)
         {
@@ -404,7 +412,7 @@ namespace Pacifica.DataUpload
                 return false;
             }
 
-            var fileList = Utilities.GetFileListFromMetadataObject(metadataObject);
+            var fileList = metadataObject.GetFileListFromMetadataObject();
 
             // Grab the list of files from the top-level "file" object
             // Keys in this dictionary are the source file path (Windows paths); values are metadata about the file
@@ -421,7 +429,7 @@ namespace Pacifica.DataUpload
                     //   For example, Dataset.mzML.gz_CacheInfo.txt referring to \\proto-11\MSXML_Cache\Mz_Refinery_1_230\2020_4\Dataset.mzML.gz
 
                     // Update metadataObject to remove the duplicate file
-                    Utilities.RemoveFileFromMetadataObject(metadataObject, file.AbsoluteLocalPath);
+                    metadataObject.RemoveFileFromMetadataObject(file.AbsoluteLocalPath);
                     continue;
                 }
 
@@ -431,7 +439,7 @@ namespace Pacifica.DataUpload
             // Optionally use the test instance
             mPacificaConfig.UseTestInstance = UseTestInstance;
 
-            var jsonMetadata = JsonTools.ObjectToJson(metadataObject);
+            var jsonMetadata = JsonTools.UploadMetadataToJson(metadataObject);
 
             // Create the metadata.txt file
             var metadataFilePath = Path.GetTempFileName();
@@ -594,45 +602,6 @@ namespace Pacifica.DataUpload
             return success;
         }
 
-        private static void AppendKVMetadata(ICollection<Dictionary<string, object>> metadataObject, string keyName, int value)
-        {
-            metadataObject.Add(new Dictionary<string, object> {
-                { "destinationTable", "TransactionKeyValue" },
-                { "key", keyName },
-                { "value", value }
-            });
-        }
-
-        private static void AppendKVMetadata(ICollection<Dictionary<string, object>> metadataObject, string keyName, string value)
-        {
-            metadataObject.Add(new Dictionary<string, object> {
-                { "destinationTable", "TransactionKeyValue" },
-                { "key", keyName },
-                { "value", value }
-            });
-        }
-
-        private static void AppendTransactionMetadata(ICollection<Dictionary<string, object>> metadataObject, string columnName, int value)
-        {
-            // Example destination table name:
-            //  Transactions.instrument
-            metadataObject.Add(new Dictionary<string, object> {
-                { "destinationTable", "Transactions." + columnName },
-                { "value", value }
-            });
-        }
-
-        private static void AppendTransactionMetadata(ICollection<Dictionary<string, object>> metadataObject, string columnName, string value)
-        {
-            // Example destination table names:
-            //  Transactions.project
-            //  Transactions.submitter
-            metadataObject.Add(new Dictionary<string, object> {
-                { "destinationTable", "Transactions." + columnName },
-                { "value", value }
-            });
-        }
-
         /// <summary>
         /// Create the metadata object with the upload details, including the files to upload
         /// </summary>
@@ -644,7 +613,7 @@ namespace Pacifica.DataUpload
         /// Keys are key names; values are either strings or dictionary objects or even a list of dictionary objects
         /// </returns>
         // ReSharper disable once UnusedMember.Global
-        public static List<Dictionary<string, object>> CreatePacificaMetadataObject(
+        public static List<IUploadMetadata> CreatePacificaMetadataObject(
             UploadMetadata uploadMetadata,
             List<FileInfoObject> filesToUpload,
             out EUSInfo eusInfo)
@@ -653,7 +622,7 @@ namespace Pacifica.DataUpload
             eusInfo.Clear();
 
             // new metadata object is just a list of dictionary entries
-            var metadataObject = new List<Dictionary<string, object>>();
+            var metadataObject = new List<IUploadMetadata>();
 
             if (uploadMetadata.EUSInstrumentID <= 0)
             {
@@ -689,60 +658,58 @@ namespace Pacifica.DataUpload
             // Fill out Transaction Key/Value pairs
             if (uploadMetadata.DatasetID > 0)
             {
-                AppendKVMetadata(metadataObject, "omics.dms.instrument", uploadMetadata.DMSInstrumentName);
-                AppendKVMetadata(metadataObject, "omics.dms.instrument_id", eusInfo.EUSInstrumentID);
-                AppendKVMetadata(metadataObject, "omics.dms.date_code", uploadMetadata.DateCodeString);
-                AppendKVMetadata(metadataObject, "omics.dms.dataset", uploadMetadata.DatasetName);
-                AppendKVMetadata(metadataObject, "omics.dms.campaign_name", uploadMetadata.CampaignName);
-                AppendKVMetadata(metadataObject, "omics.dms.experiment_name", uploadMetadata.ExperimentName);
-                AppendKVMetadata(metadataObject, "omics.dms.dataset_name", uploadMetadata.DatasetName);
-                AppendKVMetadata(metadataObject, "omics.dms.campaign_id", uploadMetadata.CampaignID.ToString());
-                AppendKVMetadata(metadataObject, "omics.dms.experiment_id", uploadMetadata.ExperimentID.ToString());
-                AppendKVMetadata(metadataObject, "omics.dms.dataset_id", uploadMetadata.DatasetID.ToString());
+                metadataObject.AddKeyValue("omics.dms.instrument", uploadMetadata.DMSInstrumentName);
+                metadataObject.AddKeyValue("omics.dms.instrument_id", eusInfo.EUSInstrumentID);
+                metadataObject.AddKeyValue("omics.dms.date_code", uploadMetadata.DateCodeString);
+                metadataObject.AddKeyValue("omics.dms.dataset", uploadMetadata.DatasetName);
+                metadataObject.AddKeyValue("omics.dms.campaign_name", uploadMetadata.CampaignName);
+                metadataObject.AddKeyValue("omics.dms.experiment_name", uploadMetadata.ExperimentName);
+                metadataObject.AddKeyValue("omics.dms.dataset_name", uploadMetadata.DatasetName);
+                metadataObject.AddKeyValue("omics.dms.campaign_id", uploadMetadata.CampaignID.ToString());
+                metadataObject.AddKeyValue("omics.dms.experiment_id", uploadMetadata.ExperimentID.ToString());
+                metadataObject.AddKeyValue("omics.dms.dataset_id", uploadMetadata.DatasetID.ToString());
 
                 if (!string.IsNullOrEmpty(uploadMetadata.OrganismName))
                 {
-                    AppendKVMetadata(metadataObject, "organism_name", uploadMetadata.OrganismName);
+                    metadataObject.AddKeyValue("organism_name", uploadMetadata.OrganismName);
                 }
 
                 if (uploadMetadata.OrganismID != 0)
                 {
-                    AppendKVMetadata(metadataObject, "omics.dms.organism_id", uploadMetadata.OrganismID.ToString());
+                    metadataObject.AddKeyValue("omics.dms.organism_id", uploadMetadata.OrganismID.ToString());
                 }
 
                 if (uploadMetadata.NCBITaxonomyID != 0)
                 {
-                    AppendKVMetadata(metadataObject, "ncbi_taxonomy_id", uploadMetadata.NCBITaxonomyID.ToString());
+                    metadataObject.AddKeyValue("ncbi_taxonomy_id", uploadMetadata.NCBITaxonomyID.ToString());
                 }
 
                 if (!string.IsNullOrEmpty(uploadMetadata.SeparationType))
                 {
-                    AppendKVMetadata(metadataObject, "omics.dms.separation_type", uploadMetadata.SeparationType);
+                    metadataObject.AddKeyValue("omics.dms.separation_type", uploadMetadata.SeparationType);
                 }
 
                 if (!string.IsNullOrEmpty(uploadMetadata.DatasetType))
                 {
-                    AppendKVMetadata(metadataObject, "omics.dms.dataset_type", uploadMetadata.DatasetType);
+                    metadataObject.AddKeyValue("omics.dms.dataset_type", uploadMetadata.DatasetType);
                 }
 
-                AppendKVMetadata(metadataObject, "omics.dms.run_acquisition_length_min", uploadMetadata.AcquisitionLengthMin);
+                metadataObject.AddKeyValue("omics.dms.run_acquisition_length_min", uploadMetadata.AcquisitionLengthMin);
 
                 if (uploadMetadata.UserOfRecordList.Count > 0)
                 {
                     foreach (var userId in uploadMetadata.UserOfRecordList)
                     {
-                        AppendKVMetadata(metadataObject, "User of Record", userId.ToString());
-                        AppendKVMetadata(metadataObject, "user_of_record", userId.ToString());
+                        metadataObject.AddKeyValue("User of Record", userId.ToString());
+                        metadataObject.AddKeyValue("user_of_record", userId.ToString());
                     }
                 }
             }
             else if (uploadMetadata.DataPackageID > 0)
             {
-                AppendKVMetadata(metadataObject, "omics.dms.instrument", uploadMetadata.DMSInstrumentName);
-
-                AppendKVMetadata(metadataObject, "omics.dms.instrument_id", eusInfo.EUSInstrumentID);
-
-                AppendKVMetadata(metadataObject, "omics.dms.datapackage_id", uploadMetadata.DataPackageID.ToString());
+                metadataObject.AddKeyValue("omics.dms.instrument", uploadMetadata.DMSInstrumentName);
+                metadataObject.AddKeyValue("omics.dms.instrument_id", eusInfo.EUSInstrumentID);
+                metadataObject.AddKeyValue("omics.dms.datapackage_id", uploadMetadata.DataPackageID.ToString());
             }
             else
             {
@@ -750,9 +717,12 @@ namespace Pacifica.DataUpload
             }
 
             // Append the required metadata
-            AppendTransactionMetadata(metadataObject, "instrument", eusInfo.EUSInstrumentID);
-            AppendTransactionMetadata(metadataObject, "project", eusInfo.EUSProjectID);
-            AppendTransactionMetadata(metadataObject, "submitter", eusInfo.EUSUploaderID);
+            //  Transactions.instrument
+            //  Transactions.project
+            //  Transactions.submitter
+            metadataObject.AddValue("instrument", eusInfo.EUSInstrumentID);
+            metadataObject.AddValue("project", eusInfo.EUSProjectID);
+            metadataObject.AddValue("submitter", eusInfo.EUSUploaderID);
 
             // Append the files
             foreach (var file in filesToUpload)
@@ -784,19 +754,7 @@ namespace Pacifica.DataUpload
                     throw new Exception("File path should not have two forward slashes: " + subDirString);
                 }
 
-                metadataObject.Add(new Dictionary<string, object> {
-                    { "destinationTable", "Files" },
-                    { "name", file.FileName },
-                    // ReSharper disable once StringLiteralTypo
-                    { "absolutelocalpath", file.AbsoluteLocalPath},
-                    { "subdir", subDirString },
-                    { "size", file.FileSizeInBytes.ToString() },
-                    { "hashsum", file.Sha1HashHex },
-                    { "mimetype", "application/octet-stream" },
-                    { "hashtype", "sha1" },
-                    { "ctime", file.CreationTime.ToUniversalTime().ToString("s") },
-                    { "mtime", file.LastWriteTime.ToUniversalTime().ToString("s") }
-                });
+                metadataObject.AddFile(file, subDirString);
             }
 
             return metadataObject;
@@ -806,7 +764,7 @@ namespace Pacifica.DataUpload
         /// Return a string description of the EUS info encoded by metadataObject
         /// </summary>
         /// <param name="metadataObject"></param>
-        public static string GetMetadataObjectDescription(List<Dictionary<string, object>> metadataObject)
+        public static string GetMetadataObjectDescription(List<IUploadMetadata> metadataObject)
         {
             var metadataList = new List<string>();
             var fileCount = 0;
@@ -830,63 +788,47 @@ namespace Pacifica.DataUpload
 
             foreach (var item in metadataObject)
             {
-                if (!GetDictionaryValue(item, "destinationTable", out var tableName))
+                if (!item.Valid)
                 {
                     continue;
                 }
 
-                switch (tableName)
+                switch (item)
                 {
-                    case "TransactionKeyValue":
+                    case UploadMetadataKeyValue kv:
+                        if (!GetDictionaryValue(kvLookup, kv.Key, out var kvValueDescription))
                         {
-                            if (!GetDictionaryValue(item, "key", out var keyName))
-                            {
-                                continue;
-                            }
-
-                            if (!GetDictionaryValue(item, "value", out var keyValue))
-                            {
-                                continue;
-                            }
-
-                            if (!GetDictionaryValue(kvLookup, keyName, out var valueDescription))
-                            {
-                                continue;
-                            }
-
-                            metadataList.Add(valueDescription + "=" + keyValue);
-                            matchedKeys.Add(valueDescription);
-                            break;
+                            continue;
                         }
-                    case "Files":
-                        if (item.TryGetValue("size", out _))
-                        {
-                            fileCount++;
-                        }
+
+                        metadataList.Add(kvValueDescription + "=" + kv.Value);
+                        matchedKeys.Add(kvValueDescription);
                         break;
-                    default:
+
+                    case UploadMetadataFile f:
+                        fileCount++;
+                        break;
+
+                    case UploadMetadataValue v:
+                        if (!transactionValueLookup.TryGetValue(item.DestinationTable, out var valueDescription))
                         {
-                            if (!transactionValueLookup.TryGetValue(tableName, out var valueDescription))
-                            {
-                                continue;
-                            }
-
-                            if (matchedKeys.Contains(valueDescription))
-                            {
-                                // This item has already been added (typically EUS_Instrument_ID)
-                                continue;
-                            }
-
-                            // Include the value for this item in the description
-                            if (!GetDictionaryValue(item, "value", out var keyValue))
-                            {
-                                continue;
-                            }
-
-                            metadataList.Add(valueDescription + "=" + keyValue);
-                            matchedKeys.Add(valueDescription);
-                            break;
+                            continue;
                         }
+
+                        if (matchedKeys.Contains(valueDescription))
+                        {
+                            // This item has already been added (typically EUS_Instrument_ID)
+                            continue;
+                        }
+
+                        // Include the value for this item in the description
+                        metadataList.Add(valueDescription + "=" + v.Value);
+                        matchedKeys.Add(valueDescription);
+                        break;
+
+                    default:
+                        // Unknown item type
+                        break;
                 }
             }
 

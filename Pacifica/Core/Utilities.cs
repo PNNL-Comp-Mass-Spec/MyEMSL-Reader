@@ -9,6 +9,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
+using Pacifica.Json;
 
 namespace Pacifica.Core
 {
@@ -160,35 +161,6 @@ namespace Pacifica.Core
             return valueIfMissingOrNull;
         }
 
-        public static List<FileInfoObject> GetFileListFromMetadataObject(List<Dictionary<string, object>> metadataObject)
-        {
-            var fileList = new List<FileInfoObject>();
-
-            foreach (var item in metadataObject)
-            {
-                if (!item.TryGetValue("destinationTable", out var destTable))
-                {
-                    continue;
-                }
-
-                var t = (string)destTable;
-                if (!string.Equals(t, "files", StringComparison.OrdinalIgnoreCase))
-                    continue;
-
-                var filePathToUse = PossiblyConvertToLongPath((string)item["absolutelocalpath"]);
-
-                var file = new FileInfo(filePathToUse);
-
-                fileList.Add(new FileInfoObject(
-                    file,
-                    (string)item["subdir"],
-                    (string)item["hashsum"]
-                ));
-            }
-
-            return fileList;
-        }
-
         /// <summary>
         /// Return the path as-is if less than 260 characters in length
         /// Otherwise, convert to a long path
@@ -199,28 +171,6 @@ namespace Pacifica.Core
             return path.Length < NativeIOFileTools.FILE_PATH_LENGTH_THRESHOLD ?
                        path :
                        NativeIOFileTools.GetWin32LongPath(path);
-        }
-
-        public static void RemoveFileFromMetadataObject(List<Dictionary<string, object>> metadataObject, string absoluteLocalPath)
-        {
-            for (var i = 0; i < metadataObject.Count; i++)
-            {
-                var item = metadataObject[i];
-
-                if (!item.TryGetValue("destinationTable", out var destTable))
-                    continue;
-
-                var t = (string)destTable;
-                if (string.Equals(t, "files", StringComparison.OrdinalIgnoreCase))
-                {
-                    if (absoluteLocalPath.Equals(item["absolutelocalpath"]))
-                    {
-                        // Remove this item
-                        metadataObject.RemoveAt(i);
-                        return;
-                    }
-                }
-            }
         }
 
         public static DirectoryInfo GetTempDirectory(Configuration config)
