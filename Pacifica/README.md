@@ -1,25 +1,28 @@
 # Pacifica
 
-The Pacifica DLLs are used to interact with MyEMSL, 
+The Pacifica DLL is used to interact with MyEMSL, 
 including both pushing data into MyEMSL and extracting data from MyEMSL.
 
 ## Dependencies
 
-| DLL                    | Dependency      | Source |
-|------------------------|-----------------|--------|
-| Pacifica.Core          | jayrock-json    | NuGet  |
-| Pacifica.Core          | PRISM-Library   | NuGet  |
-|                        |                 |        |
-| Pacifica.Upload        | Pacifica.Core   | Local  |
-| Pacifica.Upload        | PRISM-Library   | NuGet  |
-| Pacifica.Upload        | SharpZipLib     | NuGet  |
-|                        |                 |        |
-| Pacifica.DMS_Metadata  | jayrock-json    | NuGet  |
-| Pacifica.DMS_Metadata  | Pacifica.Core   | Local  |
-| Pacifica.DMS_Metadata  | Pacifica.Upload | Local  |
-| Pacifica.DMS_Metadata  | PRISM-Library   | NuGet  |
+| Namespace              | Dependency                       | Source |
+|------------------------|----------------------------------|--------|
+| Pacifica.Json          | NewtonSoft.Json                  | NuGet  |
+|                        |                                  |        |
+| Pacifica.Core          | Pacifica.Json (namespace)        | NuGet  |
+| Pacifica.Core          | PRISM-Library                    | NuGet  |
+|                        |                                  |        |
+| Pacifica.DataUpload    | Pacifica.Json (namespace)        | Local  |
+| Pacifica.DataUpload    | Pacifica.Core (namespace)        | Local  |
+| Pacifica.DataUpload    | PRISM-Library                    | NuGet  |
+| Pacifica.DataUpload    | SharpZipLib                      | NuGet  |
+|                        |                                  |        |
+| Pacifica.DMSDataUpload | Pacifica.Json (namespace)        | Local  |
+| Pacifica.DMSDataUpload | Pacifica.Core (namespace)        | Local  |
+| Pacifica.DMSDataUpload | Pacifica.DataUpload (namespace)  | Local  |
+| Pacifica.DMSDataUpload | PRISM-Library                    | NuGet  |
+| Pacifica.DMSDataUpload | PRISM-DatabaseUtils              | NuGet  |
 
-	
 ## Contacts
 
 Written by Kevin Fox, Ken Auberry, and Matthew Monroe for the Department of Energy (PNNL, Richland, WA) \
