@@ -60,12 +60,12 @@
     <Compile Include="Core\UrlContactInfo.cs" />
     <Compile Include="Core\Utilities.cs" />
     <Compile Include="Core\WebResponseData.cs" />
-    <Compile Include="DMS_Metadata\DMSMetadataObject.cs" />
-    <Compile Include="DMS_Metadata\MyEMSLUploader.cs" />
+    <Compile Include="DataUpload\TarStreamUploader.cs" />
+    <Compile Include="DataUpload\Upload.cs" />
+    <Compile Include="DMSDataUpload\DMSMetadataObject.cs" />
+    <Compile Include="DMSDataUpload\MyEMSLUploader.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Upload\TarStreamUploader.cs" />
-    <Compile Include="Upload\Upload.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="README_notes.txt" />

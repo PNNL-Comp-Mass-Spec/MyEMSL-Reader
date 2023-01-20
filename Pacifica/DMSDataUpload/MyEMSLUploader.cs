@@ -1,12 +1,11 @@
 using Pacifica.Core;
+using Pacifica.DataUpload;
 using PRISM;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Uploader = Pacifica.Upload;
-using Utilities = Pacifica.Core.Utilities;
 
-namespace Pacifica.DMS_Metadata
+namespace Pacifica.DMSDataUpload
 {
     /// <summary>
     /// MyEMSL uploader
@@ -25,7 +24,7 @@ namespace Pacifica.DMS_Metadata
         /// </summary>
         public const string CRITICAL_UPLOAD_ERROR = "Critical Error";
 
-        private readonly Uploader.Upload mUploadWorker;
+        private readonly Upload mUploadWorker;
 
         private readonly Dictionary<string, string> mMgrParams;
         private readonly Dictionary<string, string> mTaskParams;
@@ -59,7 +58,7 @@ namespace Pacifica.DMS_Metadata
         /// <summary>
         /// EUS Info
         /// </summary>
-        public Uploader.Upload.EUSInfo EUSInfo
+        public Upload.EUSInfo EUSInfo
         {
             get;
             private set;
@@ -136,7 +135,7 @@ namespace Pacifica.DMS_Metadata
 
             CriticalErrorMessage = string.Empty;
 
-            EUSInfo = new Uploader.Upload.EUSInfo();
+            EUSInfo = new Upload.EUSInfo();
             EUSInfo.Clear();
 
             mMgrParams = mgrParams;
@@ -171,7 +170,7 @@ namespace Pacifica.DMS_Metadata
                 throw new InvalidDataException("Job parameters do not have Job defined; unable to continue");
             }
 
-            mUploadWorker = new Uploader.Upload(config, transferDirectoryPath, jobNumber);
+            mUploadWorker = new Upload(config, transferDirectoryPath, jobNumber);
             RegisterEvents(mUploadWorker);
 
             // Attach the events
@@ -192,7 +191,7 @@ namespace Pacifica.DMS_Metadata
         /// <param name="statusURL">Output: status URL</param>
         /// <returns>True if success, false if an error</returns>
         // ReSharper disable once UnusedMember.Global
-        public bool SetupMetadataAndUpload(Configuration config, Uploader.TarStreamUploader.UploadDebugMode debugMode, out string statusURL)
+        public bool SetupMetadataAndUpload(Configuration config, TarStreamUploader.UploadDebugMode debugMode, out string statusURL)
         {
             var jobNumber = GetParam("Job", 0);
 

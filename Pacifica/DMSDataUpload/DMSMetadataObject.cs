@@ -1,5 +1,7 @@
 ﻿using Pacifica.Core;
+using Pacifica.DataUpload;
 using PRISM;
+using PRISMDatabaseUtils;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -8,10 +10,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
-using PRISMDatabaseUtils;
-using Uploader = Pacifica.Upload;
 
-namespace Pacifica.DMS_Metadata
+namespace Pacifica.DMSDataUpload
 {
     /// <summary>
     /// DMS metadata object
@@ -111,7 +111,7 @@ namespace Pacifica.DMS_Metadata
         /// <summary>
         /// EUS Info
         /// </summary>
-        public Uploader.Upload.EUSInfo EUSInfo { get; private set; }
+        public Upload.EUSInfo EUSInfo { get; private set; }
 
         /// <summary>
         /// Job number (in the DMS_Capture database)
@@ -268,7 +268,7 @@ namespace Pacifica.DMS_Metadata
                 return false;
             }
 
-            MetadataObject = Uploader.Upload.CreatePacificaMetadataObject(uploadMetadata, unmatchedFiles, out var eusInfo);
+            MetadataObject = Upload.CreatePacificaMetadataObject(uploadMetadata, unmatchedFiles, out var eusInfo);
 
             if (unmatchedFiles.Count > 0)
             {
@@ -288,7 +288,7 @@ namespace Pacifica.DMS_Metadata
                 }
             }
 
-            var metadataDescription = Uploader.Upload.GetMetadataObjectDescription(MetadataObject);
+            var metadataDescription = Upload.GetMetadataObjectDescription(MetadataObject);
             OnDebugEvent(metadataDescription);
 
             EUSInfo = eusInfo;
@@ -298,7 +298,7 @@ namespace Pacifica.DMS_Metadata
         private bool GetSupplementalDMSMetadata(
             string dmsConnectionString,
             string datasetID,
-            Uploader.Upload.UploadMetadata uploadMetadata,
+            Upload.UploadMetadata uploadMetadata,
             int retryCount = 3)
         {
             var queryString = "SELECT " +
@@ -635,7 +635,7 @@ namespace Pacifica.DMS_Metadata
         private List<FileInfoObject> CompareDatasetContentsWithMyEMSLMetadata(
             string captureDbConnectionString,
             IEnumerable<FileInfoObject> candidateFilesToUpload,
-            Uploader.Upload.UploadMetadata uploadMetadata,
+            Upload.UploadMetadata uploadMetadata,
             out bool criticalError,
             out string criticalErrorMessage)
         {
@@ -869,9 +869,9 @@ namespace Pacifica.DMS_Metadata
         public List<FileInfoObject> FindDatasetFilesToArchive(
             Dictionary<string, string> taskParams,
             Dictionary<string, string> mgrParams,
-            out Uploader.Upload.UploadMetadata uploadMetadata)
+            out Upload.UploadMetadata uploadMetadata)
         {
-            uploadMetadata = new Uploader.Upload.UploadMetadata();
+            uploadMetadata = new Upload.UploadMetadata();
             uploadMetadata.Clear();
 
             // Translate values from task/mgr params into usable variables

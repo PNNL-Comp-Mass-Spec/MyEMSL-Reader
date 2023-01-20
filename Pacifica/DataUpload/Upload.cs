@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 using Pacifica.Core;
 using PRISM;
 
-namespace Pacifica.Upload
+namespace Pacifica.DataUpload
 {
     /// <summary>
     /// MyEMSL Upload metadata class

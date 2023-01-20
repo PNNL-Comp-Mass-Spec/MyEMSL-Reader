@@ -9,7 +9,7 @@ using ICSharpCode.SharpZipLib.Tar;
 using Pacifica.Core;
 using PRISM;
 
-namespace Pacifica.Upload
+namespace Pacifica.DataUpload
 {
     /// <summary>
     /// .tar stream uploader
