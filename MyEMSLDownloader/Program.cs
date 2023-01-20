@@ -908,7 +908,7 @@ namespace MyEMSLDownloader
             {
                 string outputDirectory;
                 if (string.IsNullOrEmpty(mOptions.OutputDirectoryPath))
-                    outputDirectory = @"F:\Temp\MyEMSL";
+                    outputDirectory = @"E:\Temp\MyEMSL";
                 else
                     outputDirectory = mOptions.OutputDirectoryPath;
 
