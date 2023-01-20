@@ -220,8 +220,15 @@ namespace Pacifica.Json
             DatasetYearQuarter = string.Empty;
         }
 
+        /// <summary>
+        /// Constructor for use during JSON deserialization
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="_id"></param>
+        /// <param name="hashsum"></param>
+        /// <param name="created"></param>
         [JsonConstructor]
-        public MyEMSLFileInfo(string name, long _id, string hashsum, DateTime created) : this()
+        private MyEMSLFileInfo(string name, long _id, string hashsum, DateTime created) : this()
         {
             Filename = name ?? string.Empty;
             FileID = _id;
