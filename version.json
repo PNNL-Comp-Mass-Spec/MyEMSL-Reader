@@ -1,0 +1,19 @@
+{ // Monolithic/shared versioning config file
+  "$schema": "https://raw.githubusercontent.com/dotnet/Nerdbank.GitVersioning/main/src/NerdBank.GitVersioning/version.schema.json",
+  "version": "2.1",
+  "assemblyVersion": {
+    "precision": "build"
+  },
+  "pathFilters": [
+    ":/", // Consider all committed file changes in the repo root folder for version increases
+    ":^/README.md", // Exclude changes to README.md
+    ":^/Pacifica/README.md", // Exclude changes to README.md
+    ":^/Pacifica/README_notes.txt", // Exclude changes to README_notes.txt
+    ":^/RevisionHistory.txt", // Exclude changes to RevisionHistory.txt
+    ":^/MyEMSLReader.sln.DotSettings", // Exclude changes to MyEMSLReader.sln.DotSettings
+    ":^/.gitignore" // Exclude changes to .gitignore
+  ],
+  "publicReleaseRefSpec": [
+    "^refs/heads/master$" // we release out of master
+  ]
+}
