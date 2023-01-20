@@ -32,6 +32,31 @@ namespace Pacifica.Json
         }
 
         /// <summary>
+        /// Convert JSON text into a list of <see cref="IUploadMetadata"/>-implementing objects
+        /// </summary>
+        /// <param name="jsonString"></param>
+        /// <param name="dataUrl"></param>
+        /// <param name="callingMethodName"></param>
+        /// <param name="errorMessage"></param>
+        public static List<IUploadMetadata> JsonToUploadMetadata(string jsonString, string dataUrl, string callingMethodName, out string errorMessage)
+        {
+            try
+            {
+                errorMessage = "";
+                return JsonConvert.DeserializeObject<List<IUploadMetadata>>(jsonString, new JsonSerializerSettings
+                {
+                    ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
+                    Converters = new List<JsonConverter> { new UploadMetadataConverter() }
+                });
+            }
+            catch (Exception e)
+            {
+                errorMessage = "Could not convert the JSON string from " + dataUrl + " to a FileList (" + callingMethodName + "): " + e.Message;
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Convert JSON text into a <see cref="MyEMSLTaskStatus"/> object
         /// </summary>
         /// <param name="jsonString"></param>
@@ -40,6 +65,19 @@ namespace Pacifica.Json
             return JsonConvert.DeserializeObject<MyEMSLTaskStatus>(jsonString, new JsonSerializerSettings { ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor });
         }
 
+        /// <summary>
+        /// Convert a list of <see cref="IUploadMetadata"/>-implementing objects into JSON text
+        /// </summary>
+        /// <param name="metadataList"></param>
+        public static string UploadMetadataToJson(IReadOnlyList<IUploadMetadata> metadataList)
+        {
+            if (metadataList == null)
+            {
+                return string.Empty;
+            }
+
+            return JsonConvert.SerializeObject(metadataList);
+        }
 
         /// <summary>
         /// Converts JSON string into a list of dictionaries

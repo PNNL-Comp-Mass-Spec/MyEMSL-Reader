@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Pacifica.Json;
 
 namespace PacificaUnitTests
@@ -282,104 +280,6 @@ namespace PacificaUnitTests
             Assert.AreEqual(jj.PercentCompleteText, nj.PercentCompleteText);
             Assert.AreEqual(jj.PercentComplete, nj.PercentComplete);
             Assert.AreEqual(jj.Exception, nj.Exception);
-        }
-
-        [Test]
-        public void TestConvertToJson()
-        {
-            var data = CreatePacificaMetadataObject();
-
-            var jayrockJson = JayrockJson_Backup.ObjectToJson(data);
-            var newtonsoftJson = JsonTools.ObjectToJson(data);
-
-            Assert.AreEqual(jayrockJson, newtonsoftJson);
-        }
-
-        private static void AppendKVMetadata(ICollection<Dictionary<string, object>> metadataObject, string keyName, string value)
-        {
-            metadataObject.Add(new Dictionary<string, object> {
-                { "destinationTable", "TransactionKeyValue" },
-                { "key", keyName },
-                { "value", value }
-            });
-        }
-
-        private static void AppendTransactionMetadata(ICollection<Dictionary<string, object>> metadataObject, string columnName, string value)
-        {
-            // Example destination table names:
-            //  Transactions.project
-            //  Transactions.submitter
-            metadataObject.Add(new Dictionary<string, object> {
-                { "destinationTable", "Transactions." + columnName },
-                { "value", value }
-            });
-        }
-
-        /// <summary>
-        /// Create the metadata object with the upload details, including the files to upload
-        /// </summary>
-        /// <returns>
-        /// Dictionary of the information to translate to JSON;
-        /// Keys are key names; values are either strings or dictionary objects or even a list of dictionary objects
-        /// </returns>
-        // ReSharper disable once UnusedMember.Global
-        public static List<Dictionary<string, object>> CreatePacificaMetadataObject()
-        {
-
-            // new metadata object is just a list of dictionary entries
-            var metadataObject = new List<Dictionary<string, object>>();
-
-            // Fill out Transaction Key/Value pairs
-            AppendKVMetadata(metadataObject, "omics.dms.instrument", "uploadMetadata.DMSInstrumentName");
-            AppendKVMetadata(metadataObject, "omics.dms.instrument_id", "eusInfo.EUSInstrumentID");
-            AppendKVMetadata(metadataObject, "omics.dms.date_code", "uploadMetadata.DateCodeString");
-            AppendKVMetadata(metadataObject, "omics.dms.dataset", "uploadMetadata.DatasetName");
-            AppendKVMetadata(metadataObject, "omics.dms.campaign_name", "uploadMetadata.CampaignName");
-            AppendKVMetadata(metadataObject, "omics.dms.experiment_name", "uploadMetadata.ExperimentName");
-            AppendKVMetadata(metadataObject, "omics.dms.dataset_name", "uploadMetadata.DatasetName");
-            AppendKVMetadata(metadataObject, "omics.dms.campaign_id", "uploadMetadata.CampaignID");
-            AppendKVMetadata(metadataObject, "omics.dms.experiment_id", "uploadMetadata.ExperimentID");
-            AppendKVMetadata(metadataObject, "omics.dms.dataset_id", "uploadMetadata.DatasetID");
-            AppendKVMetadata(metadataObject, "omics.dms.run_acquisition_length_min", "uploadMetadata.AcquisitionLengthMin");
-
-            AppendKVMetadata(metadataObject, "User of Record", "user1");
-            AppendKVMetadata(metadataObject, "user_of_record", "user1");
-            AppendKVMetadata(metadataObject, "User of Record", "user2");
-            AppendKVMetadata(metadataObject, "user_of_record", "user2");
-
-            // Append the required metadata
-            AppendTransactionMetadata(metadataObject, "instrument", "eusInfo.EUSInstrumentID");
-            AppendTransactionMetadata(metadataObject, "project", "eusInfo.EUSProjectID");
-            AppendTransactionMetadata(metadataObject, "submitter", "eusInfo.EUSUploaderID");
-
-            // Append the files
-            // The subdirectory path must be "data/" or of the form "data/SubDirectory"
-            // "data/" is required for files at the root dataset level because the root of the tar file
-            // has a metadata.txt file and we would have a conflict if the dataset folder root
-            // also had a file named metadata.txt
-
-            // The ingest system will trim out the leading "data/" when storing the SubDir in the system
-
-            // Note the inconsistent requirements; files in the root dataset level must have "data/"
-            // while files in subdirectories should have a SubDir that does _not_ end in a forward slash
-            // It is likely that this discrepancy has been fixed in the backend python code on the ingest server
-
-            metadataObject.Add(new Dictionary<string, object> {
-                { "destinationTable", "Files" },
-                { "name", "file.FileName" },
-                // ReSharper disable once StringLiteralTypo
-                { "absolutelocalpath", "file.AbsoluteLocalPath"},
-                { "subdir", "subDirString" },
-                { "size", "file.FileSizeInBytes" },
-                { "hashsum", "file.Sha1HashHex" },
-                { "mimetype", "application/octet-stream" },
-                { "hashtype", "sha1" },
-                { "ctime", DateTime.Now.ToUniversalTime().ToString("s") },
-                { "mtime", new DateTime(2021, 10, 15, 15, 10, 33).ToUniversalTime().ToString("s") }
-            });
-
-
-            return metadataObject;
         }
     }
 }
