@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using Pacifica.Core;
+using Pacifica.Json;
 using PRISMDatabaseUtils;
 
 namespace MyEMSLReader
@@ -1216,7 +1217,7 @@ namespace MyEMSLReader
                 }
 
                 // Convert the response to a dictionary
-                var remoteFileInfoList = Utilities.JsonToFileList(fileInfoListJSON, metadataUrl, "MyEMSLReader.RunItemSearchQuery", out var jsonError);
+                var remoteFileInfoList = JsonTools.JsonToFileList(fileInfoListJSON, metadataUrl, "MyEMSLReader.RunItemSearchQuery", out var jsonError);
                 if (remoteFileInfoList is null)
                 {
                     ReportError(jsonError);

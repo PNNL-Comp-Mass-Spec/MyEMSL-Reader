@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
+using Pacifica.Json;
 
 namespace Pacifica.DMSDataUpload
 {
@@ -176,7 +177,7 @@ namespace Pacifica.DMSDataUpload
         /// <summary>
         /// Retrieve the metadata JSON as a string
         /// </summary>
-        public string MetadataObjectJSON => Utilities.ObjectToJson(MetadataObject);
+        public string MetadataObjectJSON => JsonTools.ObjectToJson(MetadataObject);
 
         /// <summary>
         /// Constructor
@@ -272,7 +273,7 @@ namespace Pacifica.DMSDataUpload
 
             if (unmatchedFiles.Count > 0)
             {
-                var jsonMetadata = Utilities.ObjectToJson(MetadataObject);
+                var jsonMetadata = JsonTools.ObjectToJson(MetadataObject);
                 if (!CheckMetadataValidity(jsonMetadata, out var policyError))
                 {
                     if (policyError)
@@ -1088,7 +1089,7 @@ namespace Pacifica.DMSDataUpload
             }
 
             // Convert the response to a dictionary
-            var remoteFileInfoList = Utilities.JsonToFileList(fileInfoListJSON, metadataURL, "DMSMetadataObjects.GetDatasetFilesInMyEMSL", out var jsonError);
+            var remoteFileInfoList = JsonTools.JsonToFileList(fileInfoListJSON, metadataURL, "DMSMetadataObjects.GetDatasetFilesInMyEMSL", out var jsonError);
             if (remoteFileInfoList is null || !string.IsNullOrWhiteSpace(jsonError))
             {
                 OnWarningEvent(jsonError);

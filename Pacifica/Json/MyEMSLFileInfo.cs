@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.IO;
 using Newtonsoft.Json;
 
-namespace Pacifica.Core
+namespace Pacifica.Json
 {
     /// <summary>
     /// Metadata for files in MyEMSL

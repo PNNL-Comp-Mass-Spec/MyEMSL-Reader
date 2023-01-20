@@ -54,9 +54,7 @@
     <Compile Include="Core\EventArgs.cs" />
     <Compile Include="Core\ExtensionMethods.cs" />
     <Compile Include="Core\FileInfoObject.cs" />
-    <Compile Include="Core\MyEMSLFileInfo.cs" />
     <Compile Include="Core\MyEMSLStatusCheck.cs" />
-    <Compile Include="Core\MyEMSLTaskStatus.cs" />
     <Compile Include="Core\UrlContactInfo.cs" />
     <Compile Include="Core\Utilities.cs" />
     <Compile Include="Core\WebResponseData.cs" />
@@ -65,6 +63,9 @@
     <Compile Include="DMSDataUpload\DMSMetadataObject.cs" />
     <Compile Include="DMSDataUpload\MyEMSLUploader.cs" />
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Json\JsonTools.cs" />
+    <Compile Include="Json\MyEMSLFileInfo.cs" />
+    <Compile Include="Json\MyEMSLTaskStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

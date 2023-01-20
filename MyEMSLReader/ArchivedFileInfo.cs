@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Pacifica.Core;
+using Pacifica.Json;
 
 namespace MyEMSLReader
 {

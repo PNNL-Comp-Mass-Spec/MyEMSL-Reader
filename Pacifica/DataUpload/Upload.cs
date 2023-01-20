@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Pacifica.Core;
+using Pacifica.Json;
 using PRISM;
 
 namespace Pacifica.DataUpload
@@ -430,7 +431,7 @@ namespace Pacifica.DataUpload
             // Optionally use the test instance
             mPacificaConfig.UseTestInstance = UseTestInstance;
 
-            var jsonMetadata = Utilities.ObjectToJson(metadataObject);
+            var jsonMetadata = JsonTools.ObjectToJson(metadataObject);
 
             // Create the metadata.txt file
             var metadataFilePath = Path.GetTempFileName();
@@ -507,7 +508,7 @@ namespace Pacifica.DataUpload
 
             try
             {
-                var responseStatus = Utilities.JsonToTaskStatus(responseData);
+                var responseStatus = JsonTools.JsonToTaskStatus(responseData);
 
                 if (!responseStatus.Valid)
                 {
@@ -550,7 +551,7 @@ namespace Pacifica.DataUpload
 
                 try
                 {
-                    statusData = Utilities.JsonToTaskStatus(statusResult);
+                    statusData = JsonTools.JsonToTaskStatus(statusResult);
                 }
                 catch (Exception)
                 {

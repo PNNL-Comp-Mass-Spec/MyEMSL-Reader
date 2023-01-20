@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using Newtonsoft.Json;
 
-namespace Pacifica.Core
+namespace Pacifica.Json
 {
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class MyEMSLTaskStatus

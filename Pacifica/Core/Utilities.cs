@@ -1,7 +1,5 @@
-using Newtonsoft.Json;
 using PRISM;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -238,35 +236,6 @@ namespace Pacifica.Core
         public static string ToHexString(byte[] buffer)
         {
             return BitConverter.ToString(buffer).Replace("-", string.Empty).ToLower();
-        }
-
-        public static List<MyEMSLFileInfo> JsonToFileList(string jsonString, string dataUrl, string callingMethodName, out string errorMessage)
-        {
-            try
-            {
-                errorMessage = "";
-                return JsonConvert.DeserializeObject<List<MyEMSLFileInfo>>(jsonString);
-            }
-            catch (Exception e)
-            {
-                errorMessage = "Could not convert the JSON string from " + dataUrl + " to a FileList (" + callingMethodName + "): " + e.Message;
-                return null;
-            }
-        }
-
-        public static MyEMSLTaskStatus JsonToTaskStatus(string jsonString)
-        {
-            return JsonConvert.DeserializeObject<MyEMSLTaskStatus>(jsonString, new JsonSerializerSettings {ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor});
-        }
-
-        public static string ObjectToJson(IList metadataList)
-        {
-            if (metadataList == null)
-            {
-                return string.Empty;
-            }
-
-            return JsonConvert.SerializeObject(metadataList);
         }
 
         public static string GetMetadataFilenameForJob(string jobNumber)

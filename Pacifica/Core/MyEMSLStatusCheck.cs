@@ -1,10 +1,10 @@
 ﻿using PRISM;
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
+using Pacifica.Json;
 
 // ReSharper disable UnusedMember.Global
 
@@ -115,7 +115,7 @@ namespace Pacifica.Core
 
             // ReSharper restore CommentTypo
 
-            var fileList = Utilities.JsonToFileList(fileListJSON, metadataURL, "MyEMSLStatusCheck.DoesFileExistInMyEMSL", out var jsonError);
+            var fileList = JsonTools.JsonToFileList(fileListJSON, metadataURL, "MyEMSLStatusCheck.DoesFileExistInMyEMSL", out var jsonError);
             if (fileList == null || !string.IsNullOrWhiteSpace(jsonError))
             {
                 OnWarningEvent(jsonError);
@@ -209,7 +209,7 @@ namespace Pacifica.Core
                     return new MyEMSLTaskStatus();
                 }
 
-                var status = Utilities.JsonToTaskStatus(statusResult);
+                var status = JsonTools.JsonToTaskStatus(statusResult);
 
                 var state = status.State.ToLower();
                 currentTask = status.CurrentTask;
