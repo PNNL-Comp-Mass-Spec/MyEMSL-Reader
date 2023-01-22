@@ -28,7 +28,7 @@ namespace MyEMSLDownloader
 
         private static int Main(string[] args)
         {
-            var commitDate = ThisAssembly.GitCommitDate.ToString("MMMM dd, yyyy");
+            var commitDate = ThisAssembly.GitCommitDate.ToLocalTime().ToString("MMMM dd, yyyy");
             var assembly = System.Reflection.Assembly.GetExecutingAssembly();
             var programName = assembly.GetName().Name;
             var exeName = Path.GetFileName(assembly.Location);
