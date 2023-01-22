@@ -405,7 +405,7 @@ namespace Pacifica.DataUpload
                 webRequest = (HttpWebRequest)WebRequest.Create(uploadUri);
 
                 var certificate = new X509Certificate2();
-                var password = Utilities.DecodePassword(Configuration.CLIENT_CERT_PASSWORD);
+                var password = AppUtils.DecodeShiftCipher(Configuration.CLIENT_CERT_PASSWORD);
                 certificate.Import(certificateFilePath, password, X509KeyStorageFlags.PersistKeySet);
                 webRequest.ClientCertificates.Add(certificate);
 

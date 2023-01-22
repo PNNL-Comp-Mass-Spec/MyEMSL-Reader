@@ -2,64 +2,18 @@ using PRISM;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
-using Pacifica.Json;
 
 namespace Pacifica.Core
 {
     public static class Utilities
     {
         // Ignore Spelling: absolutelocalpath, hashsum, Json, subdir
-
-        /// <summary>
-        /// Decode a password
-        /// </summary>
-        /// <param name="encodedPwd">Encoded password</param>
-        /// <returns>Clear text password</returns>
-        public static string DecodePassword(string encodedPwd)
-        {
-            return EncryptDecrypt(encodedPwd, false);
-        }
-
-        /// <summary>
-        /// Encode or decode a password
-        /// </summary>
-        /// <param name="password">Password</param>
-        /// <param name="encrypt">True to encode the password; false to decode the password</param>
-        /// <returns>Encoded password</returns>
-        private static string EncryptDecrypt(string password, bool encrypt)
-        {
-            // Convert the password string to a character array
-            var pwdChars = password.ToCharArray();
-            var pwdCharsAdj = new List<char>();
-
-            var pwdBytes = pwdChars.Select(t => (byte)t).ToList();
-
-            var modTest = encrypt ? 1 : 0;
-
-            // Modify the byte array by shifting alternating bytes up or down and converting back to char
-            for (var index = 0; index < pwdBytes.Count; index++)
-            {
-                if (index % 2 == modTest)
-                {
-                    pwdBytes[index]++;
-                }
-                else
-                {
-                    pwdBytes[index]--;
-                }
-
-                pwdCharsAdj.Add((char)pwdBytes[index]);
-            }
-
-            return string.Join("", pwdCharsAdj);
-        }
 
         /// <summary>
         /// Try to delete the file; ignore any errors

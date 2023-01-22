@@ -396,7 +396,7 @@ namespace Pacifica.Core
                     }
 
                     mLoginCertificate = new X509Certificate2();
-                    var password = Utilities.DecodePassword(Configuration.CLIENT_CERT_PASSWORD);
+                    var password = AppUtils.DecodeShiftCipher(Configuration.CLIENT_CERT_PASSWORD);
                     mLoginCertificate.Import(certificateFilePath, password, X509KeyStorageFlags.PersistKeySet);
                 }
                 request.ClientCertificates.Add(mLoginCertificate);
