@@ -90,8 +90,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy "$(TargetPath)" "$(ProjectDir)..\..\DeployedFiles\" /D /Y /I
-xcopy "$(TargetDir)$(TargetName).pdb" "$(ProjectDir)..\..\DeployedFiles\" /Y
-xcopy "$(TargetDir)$(TargetName).xml" "$(ProjectDir)..\..\DeployedFiles\" /Y</PostBuildEvent>
+    <PostBuildEvent>xcopy "$(TargetPath)" "$(ProjectDir)..\DeployedFiles\" /D /Y /I
+xcopy "$(TargetDir)$(TargetName).pdb" "$(ProjectDir)..\DeployedFiles\" /Y
+xcopy "$(TargetDir)$(TargetName).xml" "$(ProjectDir)..\DeployedFiles\" /Y</PostBuildEvent>
   </PropertyGroup>
 </Project>
