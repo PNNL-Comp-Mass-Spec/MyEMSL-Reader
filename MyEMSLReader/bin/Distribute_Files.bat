@@ -79,6 +79,37 @@ xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\JoshAldrich\ProteinParsimony
 
 xcopy Debug\MyEMSLReader.dll "C:\DMS_Programs\MyEMSLDownloader" /D /Y
 
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Common" /D /Y
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Program\bin" /D /Y
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\ArchiveVerifyPlugin\bin\Debug" /D /Y
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\CaptureTaskManager\bin\Debug" /D /Y
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\DeployedFiles" /D /Y
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\DataMining\DMS_Managers\Capture_Task_Manager\RefLib" /D /Y
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\DataMining\DMS_Managers\DataPackage_Archive_Manager\bin\Debug" /D /Y
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\DataMining\DMS_Managers\DataPackage_Archive_Manager\Lib" /D /Y
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\DataMining\DMS_Managers\DMS_Space_Manager\DMS_Space_Manager\Bin\Debug" /D /Y
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\DataMining\DMS_Managers\DMS_Space_Manager\DMS_Space_Manager\Bin\Release" /D /Y
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\DataMining\DMS_Managers\DMS_Space_Manager\DMS_Space_Manager\RefLib" /D /Y
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\DataMining\DMS_Managers\MyEMSL_MTS_File_Cache_Manager\bin\Debug" /D /Y
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\DataMining\DMS_Managers\MyEMSL_MTS_File_Cache_Manager\Lib" /D /Y
+
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\DataMining\DMS_Programs\DMS_Dataset_Retriever\bin" /D /Y
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\DataMining\DMS_Programs\DMS_Dataset_Retriever\Lib" /D /Y
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\DataMining\DMS_Programs\Mage\DeployedFiles\MageExtractor" /D /Y
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\DataMining\DMS_Programs\Mage\DeployedFiles\MageFileProcessor" /D /Y
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\DataMining\DMS_Programs\Mage\Mage\bin\Release" /D /Y
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\DataMining\DMS_Programs\Mage\Mage\lib" /D /Y
+
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\DataMining\DMS_Programs\PurgedMzMLFileRetriever\bin" /D /Y
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\DataMining\DMS_Programs\PurgedMzMLFileRetriever\lib" /D /Y
+
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\JohnSandoval\APE\lib" /D /Y
+
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\JoshAldrich\InterferenceDetection\InterDetect\DLLLibrary" /D /Y
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\JoshAldrich\ProteinParsimony\SetCover\Lib" /D /Y
+
+xcopy Debug\Pacifica.dll "C:\DMS_Programs\MyEMSLDownloader" /D /Y
+
 xcopy Debug\Jayrock.Json.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Common" /D /Y
 xcopy Debug\Jayrock.Json.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Program\bin" /D /Y
 
