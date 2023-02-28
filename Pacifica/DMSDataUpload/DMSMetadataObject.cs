@@ -977,7 +977,7 @@ namespace Pacifica.DMSDataUpload
                 var errorMessage =
                     UNDEFINED_EUS_OPERATOR_ID + ". " +
                     operatorUsername + " needs to login at " + EUS_PORTAL_URL + " to be assigned an ID, " +
-                    "then DMS needs to update T_EUS_Users (occurs daily via UpdateEUSUsersFromEUSImports), then the job parameters must be updated with: EXEC update_parameters_for_job " + jobNumber;
+                    "then DMS needs to update T_EUS_Users (occurs daily via update_eus_users_from_eus_imports), then the job parameters must be updated with: EXEC update_parameters_for_job " + jobNumber;
 
                 throw new Exception(errorMessage);
             }
