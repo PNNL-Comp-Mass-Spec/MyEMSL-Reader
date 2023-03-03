@@ -13,8 +13,6 @@ namespace Pacifica.Core
 {
     public static class Utilities
     {
-        // Ignore Spelling: absolutelocalpath, hashsum, Json, subdir
-
         /// <summary>
         /// Try to delete the file; ignore any errors
         /// </summary>

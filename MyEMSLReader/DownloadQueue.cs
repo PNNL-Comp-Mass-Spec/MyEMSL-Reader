@@ -10,8 +10,6 @@ namespace MyEMSLReader
     /// </summary>
     public class DownloadQueue : EventNotifier
     {
-        // Ignore Spelling: Args, dest, struct
-
         /// <summary>
         /// File download info
         /// </summary>
@@ -39,7 +37,7 @@ namespace MyEMSLReader
         public event EventHandler<FileDownloadedEventArgs> FileDownloadedEvent;
 
         /// <summary>
-        /// Keys are MyEMSL File IDs, values are struct FileDownloadInfo
+        /// Keys are MyEMSL File IDs, values are instances of FileDownloadInfo
         /// </summary>
         public Dictionary<long, FileDownloadInfo> FilesToDownload
         {

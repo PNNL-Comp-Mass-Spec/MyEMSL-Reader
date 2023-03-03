@@ -11,6 +11,8 @@ namespace Pacifica.Json
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class MyEMSLFileInfo
     {
+        // Ignore Spelling: absolutelocalpath, ctime, deserialization, hashsum, hashtype, mimetype, mtime, subdir, subfolder
+
         /// <summary>
         /// True if essential values are set.
         /// </summary>
@@ -223,8 +225,11 @@ namespace Pacifica.Json
         /// <summary>
         /// Constructor for use during JSON deserialization
         /// </summary>
+        /// <remarks>
+        /// MyEMSL file ID must be "_id" to match JsonProperty value "_id", which corresponds to a key name in the JSON returned by https://metadata.my.emsl.pnl.gov/
+        /// </remarks>
         /// <param name="name"></param>
-        /// <param name="_id"></param>
+        /// <param name="_id">MyEMSL file ID</param>
         /// <param name="hashsum"></param>
         /// <param name="created"></param>
         [JsonConstructor]

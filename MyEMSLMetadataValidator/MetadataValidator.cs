@@ -10,6 +10,8 @@ namespace MyEMSLMetadataValidator
 {
     internal class MetadataValidator : EventNotifier
     {
+        // Ignore Spelling: dd, hh:mm:ss, subfolder, tt, yyyy
+
         private const string DATE_TIME_FORMAT = "yyyy-MM-dd hh:mm:ss tt";
 
         private ValidatorOptions Options { get; }

@@ -8,6 +8,8 @@ namespace Pacifica.Json
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class UploadMetadataKeyValue : IUploadMetadata
     {
+        // Ignore Spelling: deserialization
+
         /// <summary>
         /// Destination table name used for all 'key-value' entries
         /// </summary>

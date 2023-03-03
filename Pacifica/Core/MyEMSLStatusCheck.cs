@@ -248,11 +248,13 @@ namespace Pacifica.Core
                             }
                             else if (exception.IndexOf("Traceback", StringComparison.OrdinalIgnoreCase) >= 0)
                             {
-                                // ReSharper disable once CommentTypo
 
-                                /* Example Traceback as of January 2021:
-                                 * Traceback (most recent call last):\n  File "/opt/pacifica/lib64/python3.6/site-packages/pacifica/ingest/tasks.py", line 88, in ingest_files\n    ingest_obj.ingest()\n  File "/opt/pacifica/lib64/python3.6/site-packages/pacifica/ingest/tarutils.py", line 248, in ingest\n    ingest.upload_file_in_file(info, self.tar)\n  File "/opt/pacifica/lib64/python3.6/site-packages/pacifica/ingest/tarutils.py", line 79, in upload_file_in_file\n    size = int(ret_dict['total_bytes'])\nKeyError: 'total_bytes'\n\n'total_bytes'
-                                 */
+                                // ReSharper disable CommentTypo
+
+                                // Example Traceback as of January 2021:
+                                // Traceback (most recent call last):\n  File "/opt/pacifica/lib64/python3.6/site-packages/pacifica/ingest/tasks.py", line 88, in ingest_files\n    ingest_obj.ingest()\n  File "/opt/pacifica/lib64/python3.6/site-packages/pacifica/ingest/tarutils.py", line 248, in ingest\n    ingest.upload_file_in_file(info, self.tar)\n  File "/opt/pacifica/lib64/python3.6/site-packages/pacifica/ingest/tarutils.py", line 79, in upload_file_in_file\n    size = int(ret_dict['total_bytes'])\nKeyError: 'total_bytes'\n\n'total_bytes'
+
+                                // ReSharper restore CommentTypo
 
                                 // Use a RegEx to remove unnecessary text that makes some downstream evaluation harder (like checks in stored procedures)
                                 var exceptionUpdater = new Regex(@"Traceback \(most recent call last\):\s+File", RegexOptions.IgnoreCase);

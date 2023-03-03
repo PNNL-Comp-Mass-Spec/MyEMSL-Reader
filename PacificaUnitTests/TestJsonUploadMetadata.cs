@@ -9,6 +9,8 @@ namespace PacificaUnitTests
     [TestFixture]
     public class TestJsonUploadMetadata
     {
+        // Ignore Spelling: absolutelocalpath, backend, ctime, hashsum, hashtype, mimetype, mtime, subdir
+
         private const string TestJsonMetadata =
             "[{\"destinationTable\":\"TransactionKeyValue\",\"key\":\"omics.dms.instrument\",\"value\":\"Lumos01\"}," +
             "{\"destinationTable\":\"TransactionKeyValue\",\"key\":\"omics.dms.instrument_id\",\"value\":34245}," +

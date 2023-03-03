@@ -16,7 +16,7 @@ namespace Pacifica.DataUpload
     /// </summary>
     public class TarStreamUploader
     {
-        // Ignore Spelling: addon, Ingester, uploader, Workdir
+        // Ignore Spelling: addon, Ingester, uploader
 
         private const string DEBUG_WORKING_DIRECTORY = @"C:\CTM_Workdir";
 

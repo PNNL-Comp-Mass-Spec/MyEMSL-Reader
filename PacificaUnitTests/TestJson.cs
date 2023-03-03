@@ -6,6 +6,8 @@ namespace PacificaUnitTests
     [TestFixture]
     public class TestJson
     {
+        // Ignore Spelling: absolutelocalpath, backend, ctime, hashsum, hashtype, mimetype, mtime, subdir
+
         // In Pacifica.DMS_Metadata.DMSMetadataObject.GetDatasetFilesInMyEMSL()
         private const string TestJsonList01 =
             "[{\"created\": \"2017-07-10T15:34:33\", \"updated\": \"2017-07-10T15:34:33\", \"deleted\": null, \"_id\": 98781, \"name\": \"Athal0528_26Mar12_Jaguar_12-02-27_LCMS_MSn.png\", \"subdir\": \"QC\", \"mimetype\": \"None\", \"ctime\": \"2015-01-16T00:21:30\", \"mtime\": \"2015-01-16T00:21:30\", \"transaction\": 80865, \"size\": 112405, \"hashsum\": \"cb01023bf0881e745ac171af9b13939d3d01176b\", \"hashtype\": \"sha1\", \"suspense_date\": null, \"encoding\": \"UTF-8\"}, " +

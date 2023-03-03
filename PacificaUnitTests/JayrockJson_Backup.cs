@@ -10,6 +10,8 @@ namespace PacificaUnitTests
 {
     public static class JayrockJson_Backup
     {
+        // Ignore Spelling: ctime, hashsum, hashtype, mtime, subdir
+
         public static MyEMSLTaskStatus JsonToTaskStatus(string statusResult)
         {
             var statusJSON = JsonToObject(statusResult);

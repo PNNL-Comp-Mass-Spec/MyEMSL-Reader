@@ -16,7 +16,7 @@ namespace MyEMSLDownloader
 
     internal static class Program
     {
-        // Ignore Spelling: Acq, downloader, melissa, ser, un-purged, Virol
+        // Ignore Spelling: Acq, dd, downloader, melissa, ser, un-purged, Virol, yyyy
 
         private static double mPercentComplete;
         private static DateTime mLastProgressUpdateTime = DateTime.UtcNow;

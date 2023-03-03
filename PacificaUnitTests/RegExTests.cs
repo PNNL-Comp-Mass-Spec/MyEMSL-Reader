@@ -7,12 +7,13 @@ namespace PacificaUnitTests
     [TestFixture]
     public class RegExTests
     {
+        // Ignore Spelling: pacifica
+
         [Test]
         public void TestRegexEx()
         {
-            /* Example error as of January 2021:
-                                     * Traceback (most recent call last):\n  File "/opt/pacifica/lib64/python3.6/site-packages/pacifica/ingest/tasks.py", line 88, in ingest_files\n    ingest_obj.ingest()\n  File "/opt/pacifica/lib64/python3.6/site-packages/pacifica/ingest/tarutils.py", line 248, in ingest\n    ingest.upload_file_in_file(info, self.tar)\n  File "/opt/pacifica/lib64/python3.6/site-packages/pacifica/ingest/tarutils.py", line 79, in upload_file_in_file\n    size = int(ret_dict['total_bytes'])\nKeyError: 'total_bytes'\n\n'total_bytes'
-                                     */
+            // Example error as of January 2021:
+            // Traceback (most recent call last):\n  File "/opt/pacifica/lib64/python3.6/site-packages/pacifica/ingest/tasks.py", line 88, in ingest_files\n    ingest_obj.ingest()\n  File "/opt/pacifica/lib64/python3.6/site-packages/pacifica/ingest/tarutils.py", line 248, in ingest\n    ingest.upload_file_in_file(info, self.tar)\n  File "/opt/pacifica/lib64/python3.6/site-packages/pacifica/ingest/tarutils.py", line 79, in upload_file_in_file\n    size = int(ret_dict['total_bytes'])\nKeyError: 'total_bytes'\n\n'total_bytes'
 
             var exception = "Traceback (most recent call last):\n  File \"/opt/pacifica/lib64/python3.6/site-packages/pacifica/ingest/tasks.py\", line 88, in ingest_files\n    ingest_obj.ingest()\n  File \"/opt/pacifica/lib64/python3.6/site-packages/pacifica/ingest/tarutils.py\", line 248, in ingest\n    ingest.upload_file_in_file(info, self.tar)\n  File \"/opt/pacifica/lib64/python3.6/site-packages/pacifica/ingest/tarutils.py\", line 79, in upload_file_in_file\n    size = int(ret_dict['total_bytes'])\nKeyError: 'total_bytes'\n\n'total_bytes'";
 

@@ -10,6 +10,8 @@ namespace Pacifica.Json
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class UploadMetadataFile : IUploadMetadata
     {
+        // Ignore Spelling: absolutelocalpath, ctime, deserialization, hashsum, hashtype, mimetype, mtime, subdir
+
         /// <summary>
         /// Destination table name used for all 'File' entries
         /// </summary>
