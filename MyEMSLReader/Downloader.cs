@@ -495,16 +495,18 @@ namespace MyEMSLReader
                     if (fileHashToIdMap.TryGetValue(fileHash, out var fileIDs))
                     {
                         fileIDs.Add(archivedFileInfo.Key);
-                        continue;
                     }
+                    else
+                    {
+                        fileIDs = new SortedSet<long>
+                        {
+                            archivedFileInfo.Key
+                        };
 
-                    fileIDs = new SortedSet<long> {
-                        archivedFileInfo.Key
-                    };
+                        fileHashToIdMap.Add(fileHash, fileIDs);
 
-                    fileHashToIdMap.Add(fileHash, fileIDs);
-
-                    fileHashToTypeMap.Add(fileHash, archivedFileInfo.Value.HashType);
+                        fileHashToTypeMap.Add(fileHash, archivedFileInfo.Value.HashType);
+                    }
 
                     var targetFile = GetTargetFile(
                         downloadDirectory, directoryLayout,
