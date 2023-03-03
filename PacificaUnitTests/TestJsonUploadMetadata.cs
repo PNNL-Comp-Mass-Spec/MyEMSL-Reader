@@ -223,7 +223,6 @@ namespace PacificaUnitTests
         {
             var data = CreateTestPacificaMetadataObject();
 
-            // ReSharper disable once IdentifierTypo
             var jayrockJson = JayrockJson_Backup.ObjectToJson(data);
             var newtonsoftJson = JsonTools.ObjectToJson(data);
 

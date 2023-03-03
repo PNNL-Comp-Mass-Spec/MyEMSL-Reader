@@ -8,7 +8,9 @@ using PRISM;
 
 namespace PacificaUnitTests
 {
-    // ReSharper disable once IdentifierTypo
+    /// <summary>
+    /// This class is used to compare results between Jayrock.Json (old JSON library) and Newtonsoft.Json (new JSON library)
+    /// </summary>
     public static class JayrockJson_Backup
     {
         // Ignore Spelling: ctime, hashsum, hashtype, mtime, subdir
