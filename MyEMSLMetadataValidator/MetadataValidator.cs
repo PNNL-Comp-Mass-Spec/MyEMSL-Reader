@@ -422,34 +422,33 @@ namespace MyEMSLMetadataValidator
 
                 OnStatusEvent("Reading Dataset IDs from " + datasetIdFile.FullName);
 
-                using (var reader = new StreamReader(new FileStream(datasetIdFile.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+                using var reader = new StreamReader(new FileStream(datasetIdFile.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+
+                var lineNumber = 0;
+                var warnings = 0;
+
+                while (!reader.EndOfStream)
                 {
-                    var lineNumber = 0;
-                    var warnings = 0;
+                    var dataLine = reader.ReadLine();
+                    lineNumber++;
 
-                    while (!reader.EndOfStream)
+                    if (!int.TryParse(dataLine, out var datasetID))
                     {
-                        var dataLine = reader.ReadLine();
-                        lineNumber++;
-
-                        if (!int.TryParse(dataLine, out var datasetID))
+                        if (lineNumber > 1)
                         {
-                            if (lineNumber > 1)
+                            warnings++;
+                            if (warnings < 10)
                             {
-                                warnings++;
-                                if (warnings < 10)
-                                {
-                                    OnWarningEvent("Ignoring line in datasetID file since not an integer: " + dataLine);
-                                }
+                                OnWarningEvent("Ignoring line in datasetID file since not an integer: " + dataLine);
                             }
-                            continue;
                         }
-
-                        if (datasetIDs.Contains(datasetID))
-                            continue;
-
-                        datasetIDs.Add(datasetID);
+                        continue;
                     }
+
+                    if (datasetIDs.Contains(datasetID))
+                        continue;
+
+                    datasetIDs.Add(datasetID);
                 }
 
                 return datasetIDs;
@@ -677,7 +676,7 @@ namespace MyEMSLMetadataValidator
 
                     if (Options.Preview)
                     {
-                        OnStatusEvent(string.Format("Preview: retrieve MyEMSL metadata for {0} datasets", datasetListInfo.DatasetIDs.Count));
+                        OnStatusEvent("Preview: retrieve MyEMSL metadata for {0} datasets", datasetListInfo.DatasetIDs.Count);
                     }
                     else
                     {
@@ -694,17 +693,17 @@ namespace MyEMSLMetadataValidator
 
                     datasetListInfo.Clear();
 
-                    if (DateTime.UtcNow.Subtract(lastProgressTime).TotalSeconds > 15)
-                    {
-                        lastProgressTime = DateTime.UtcNow;
+                    if (!(DateTime.UtcNow.Subtract(lastProgressTime).TotalSeconds > 15))
+                        continue;
 
-                        var subTaskPercentComplete = itemsProcessed * 100F / filteredDMSMetadata.Count;
+                    lastProgressTime = DateTime.UtcNow;
 
-                        var percentComplete = basePercentComplete +
-                                              subTaskPercentComplete * Options.DMSLookupBatchSize / totalDatasetsToProcess;
+                    var subTaskPercentComplete = itemsProcessed * 100F / filteredDMSMetadata.Count;
 
-                        OnProgressUpdate(" ... ", percentComplete);
-                    }
+                    var percentComplete = basePercentComplete +
+                                          subTaskPercentComplete * Options.DMSLookupBatchSize / totalDatasetsToProcess;
+
+                    OnProgressUpdate(" ... ", percentComplete);
                 }
 
                 return true;
