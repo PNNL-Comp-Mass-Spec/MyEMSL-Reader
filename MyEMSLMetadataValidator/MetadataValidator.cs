@@ -300,9 +300,10 @@ namespace MyEMSLMetadataValidator
 
                 if (queryResults.Count > 0)
                 {
-                    var firstRow = queryResults.First();
-                    var maxDatasetId = int.Parse(firstRow[0]);
-                    return maxDatasetId;
+                    var firstRow = queryResults[0];
+
+                    // Return the maximum dataset ID value
+                    return int.Parse(firstRow[0]);
                 }
             }
             catch (Exception ex)

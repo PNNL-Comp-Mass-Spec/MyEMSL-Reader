@@ -24,9 +24,10 @@ namespace MyEMSLMetadataValidator
         {
             var sizeStats = string.Format("{0} files, {1:F1} KB", TotalFiles, TotalBytes);
 
-            var firstIngest = IngestTasks.First();
-            if (firstIngest == null)
+            if (IngestTasks.Count == 0 || IngestTasks[0] == null)
                 return sizeStats;
+
+            var firstIngest = IngestTasks[0];
 
             return string.Format("Entry_ID {0}, Dataset {1}, {2}", firstIngest.EntryID, firstIngest.DatasetID, sizeStats);
         }
