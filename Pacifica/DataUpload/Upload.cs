@@ -807,7 +807,7 @@ namespace Pacifica.DataUpload
                         matchedKeys.Add(kvValueDescription);
                         break;
 
-                    case UploadMetadataFile f:
+                    case UploadMetadataFile:
                         fileCount++;
                         break;
 

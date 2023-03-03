@@ -42,7 +42,7 @@ namespace Pacifica.Json
         /// <param name="collection">Target list</param>
         /// <param name="file">File info object</param>
         /// <param name="subDir">Remote subdirectory relative to the parent dataset or data package</param>
-        public static void AddFile(this ICollection<IUploadMetadata> collection, Core.FileInfoObject file, string subDir)
+        public static void AddFile(this ICollection<IUploadMetadata> collection, FileInfoObject file, string subDir)
         {
             collection.Add(new UploadMetadataFile(file, subDir));
         }

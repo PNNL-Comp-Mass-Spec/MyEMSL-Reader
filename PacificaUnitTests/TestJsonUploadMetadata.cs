@@ -159,8 +159,8 @@ namespace PacificaUnitTests
                     "QC", 50850, "4f9fe9faaf8e1c1e50075a29593dd0ea4510d1f3", "2022-10-24T17:03:19", "2022-10-24T17:03:19")
             };
 
-            var listOld = CreatePacificaMetadataObject(uploadMetadata, filesToUpload, out var eusInfo1);
-            var listNew = CreatePacificaMetadataObject2(uploadMetadata, filesToUpload, out var eusInfo2);
+            var listOld = CreatePacificaMetadataObject(uploadMetadata, filesToUpload, out _);
+            var listNew = CreatePacificaMetadataObject2(uploadMetadata, filesToUpload, out _);
 
             var jsonMetadata1 = JayrockJson_Backup.ObjectToJson(listOld);
             var jsonMetadata2 = JsonTools.ObjectToJson(listOld);
@@ -170,7 +170,7 @@ namespace PacificaUnitTests
             Assert.AreEqual(jsonMetadata1, jsonMetadata3);
         }
 
-        private void Compare(List<IUploadMetadata> expected, List<IUploadMetadata> actual)
+        private void Compare(IReadOnlyList<IUploadMetadata> expected, IReadOnlyList<IUploadMetadata> actual)
         {
             for (var i = 0; i < expected.Count; i++)
             {

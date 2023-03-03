@@ -907,7 +907,7 @@ namespace MyEMSLReader
             IReadOnlyDictionary<long, ArchivedFileInfo> filesToDownload,
             IEnumerable<long> targetFileIDs,
             IDictionary<long, string> filesDownloaded,
-            Dictionary<string, int> targetFileCounts)
+            IReadOnlyDictionary<string, int> targetFileCounts)
         {
             foreach (var targetFileID in targetFileIDs)
             {
