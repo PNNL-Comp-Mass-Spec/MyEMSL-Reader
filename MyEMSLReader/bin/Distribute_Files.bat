@@ -110,20 +110,20 @@ xcopy Debug\Pacifica.dll "F:\Documents\Projects\JoshAldrich\ProteinParsimony\Set
 
 xcopy Debug\Pacifica.dll "C:\DMS_Programs\MyEMSLDownloader" /D /Y
 
-xcopy Debug\Jayrock.Json.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Common" /D /Y
-xcopy Debug\Jayrock.Json.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Program\bin" /D /Y
+xcopy Debug\Newtonsoft.Json.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Common" /D /Y
+xcopy Debug\Newtonsoft.Json.dll "F:\Documents\Projects\DataMining\DMS_Managers\Analysis_Manager\AM_Program\bin" /D /Y
 
-xcopy Debug\Jayrock.Json.dll "F:\Documents\Projects\DataMining\DMS_Programs\Mage\Mage\lib" /D /Y
-xcopy Debug\Jayrock.Json.dll "F:\Documents\Projects\DataMining\DMS_Programs\Mage\Mage\bin\Release" /D /Y
-xcopy Debug\Jayrock.Json.dll "F:\Documents\Projects\DataMining\DMS_Programs\Mage\DeployedFiles\MageFileProcessor" /D /Y
-xcopy Debug\Jayrock.Json.dll "F:\Documents\Projects\DataMining\DMS_Programs\Mage\DeployedFiles\MageExtractor" /D /Y
+xcopy Debug\Newtonsoft.Json.dll "F:\Documents\Projects\DataMining\DMS_Programs\Mage\Mage\lib" /D /Y
+xcopy Debug\Newtonsoft.Json.dll "F:\Documents\Projects\DataMining\DMS_Programs\Mage\Mage\bin\Release" /D /Y
+xcopy Debug\Newtonsoft.Json.dll "F:\Documents\Projects\DataMining\DMS_Programs\Mage\DeployedFiles\MageFileProcessor" /D /Y
+xcopy Debug\Newtonsoft.Json.dll "F:\Documents\Projects\DataMining\DMS_Programs\Mage\DeployedFiles\MageExtractor" /D /Y
 
-xcopy Debug\Jayrock.Json.dll "F:\Documents\Projects\DataMining\DMS_Managers\MyEMSL_MTS_File_Cache_Manager\Lib" /D /Y
-xcopy Debug\Jayrock.Json.dll "F:\Documents\Projects\DataMining\DMS_Managers\MyEMSL_MTS_File_Cache_Manager\bin\Debug" /D /Y
+xcopy Debug\Newtonsoft.Json.dll "F:\Documents\Projects\DataMining\DMS_Managers\MyEMSL_MTS_File_Cache_Manager\Lib" /D /Y
+xcopy Debug\Newtonsoft.Json.dll "F:\Documents\Projects\DataMining\DMS_Managers\MyEMSL_MTS_File_Cache_Manager\bin\Debug" /D /Y
 
-xcopy Debug\Jayrock.Json.dll "F:\Documents\Projects\DataMining\DMS_Programs\PurgedMzMLFileRetriever\bin" /D /Y
-xcopy Debug\Jayrock.Json.dll "F:\Documents\Projects\DataMining\DMS_Programs\PurgedMzMLFileRetriever\lib" /D /Y
+xcopy Debug\Newtonsoft.Json.dll "F:\Documents\Projects\DataMining\DMS_Programs\PurgedMzMLFileRetriever\bin" /D /Y
+xcopy Debug\Newtonsoft.Json.dll "F:\Documents\Projects\DataMining\DMS_Programs\PurgedMzMLFileRetriever\lib" /D /Y
 
-xcopy Debug\Jayrock.Json.dll "C:\DMS_Programs\MyEMSLDownloader" /D /Y
+xcopy Debug\Newtonsoft.Json.dll "C:\DMS_Programs\MyEMSLDownloader" /D /Y
 
 if not "%1"=="NoPause" pause
