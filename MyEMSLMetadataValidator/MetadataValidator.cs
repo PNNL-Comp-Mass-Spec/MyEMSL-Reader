@@ -235,25 +235,45 @@ namespace MyEMSLMetadataValidator
                                                             item.FileInfo.SubDirPath.StartsWith(subdirectory + "/", StringComparison.OrdinalIgnoreCase))
                                                          select item.FileInfo).ToList();
 
+                        if (taskStats.IngestTasks.Count == 0)
+                        {
+                            OnWarningEvent("The IngestTask list is empty for subdirectory {0}; cannot call AppendResult", subdirectory);
+                        }
+
                         if (subdirectoryFilesInMyEMSL.Count == 0)
                         {
                             // Subdirectory not found in MyEMSL, it should have been found
-                            AppendResult(resultsWriter, taskStats.IngestTasks.First(), taskStats, new List<ArchivedFileInfo>(), 0);
+                            if (taskStats.IngestTasks.Count > 0)
+                            {
+                                AppendResult(resultsWriter, taskStats.IngestTasks[0], taskStats, new List<ArchivedFileInfo>(), 0);
+                            }
+
                             continue;
                         }
 
                         datasetFoundInMyEMSL = true;
                         var subdirectoryBytesTrackedInMyEMSL = GetTotalBytes(subdirectoryFilesInMyEMSL);
 
-                        AppendResult(resultsWriter, taskStats.IngestTasks.First(), taskStats, subdirectoryFilesInMyEMSL, subdirectoryBytesTrackedInMyEMSL);
+                        if (taskStats.IngestTasks.Count > 0)
+                        {
+                            AppendResult(resultsWriter, taskStats.IngestTasks[0], taskStats, subdirectoryFilesInMyEMSL,
+                                subdirectoryBytesTrackedInMyEMSL);
+                        }
                     }
 
-                    if (!datasetFoundInMyEMSL)
+                    if (datasetFoundInMyEMSL)
+                        continue;
+
+                    // No record of this dataset in MyEMSL
+                    foreach (var item in statsByFolder)
                     {
-                        // No record of this dataset in MyEMSL
-                        foreach (var item in statsByFolder)
+                        if (item.Value.IngestTasks.Count == 0)
                         {
-                            AppendResult(resultsWriter, item.Value.IngestTasks.First(), item.Value, new List<ArchivedFileInfo>(), 0);
+                            OnWarningEvent("The IngestTask list is empty for subdirectory {0}; cannot call AppendResult", item.Key);
+                        }
+                        else
+                        {
+                            AppendResult(resultsWriter, item.Value.IngestTasks[0], item.Value, new List<ArchivedFileInfo>(), 0);
                         }
                     }
                 }
