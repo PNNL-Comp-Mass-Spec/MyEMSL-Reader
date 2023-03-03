@@ -481,11 +481,15 @@ namespace MyEMSLReader
                 // lots of similar jobs, or a set of datasets, we can have files with the same hash but different
                 // destination paths
 
+                // Keys in this dictionary are file hashes, values are the hash type (typically sha1)
                 var fileHashToTypeMap = new Dictionary<string, string>();
+
+                // Keys in this dictionary are file hashes, values are MyEMSL File IDs
                 var fileHashToIdMap = new Dictionary<string, SortedSet<long>>();
 
                 // This dictionary tracks the number of copies of each target file that will be downloaded
                 // Typically each target file will only have one instance, but if IncludeAllRevisions is true, a file could have multiple versions
+                // Keys are file paths, values are counts of each file
                 var targetFileCounts = new Dictionary<string, int>();
 
                 foreach (var archivedFileInfo in filesToDownload)
@@ -1032,10 +1036,12 @@ namespace MyEMSLReader
             return fiTargetFile;
         }
 
-
         private FileInfo GetTargetFileWithOptionalID(IReadOnlyDictionary<string, int> targetFileCounts, FileInfo targetFile, long myEmslFileID)
         {
-            var fileCount = targetFileCounts[targetFile.FullName];
+            if (!targetFileCounts.TryGetValue(targetFile.FullName, out var fileCount))
+            {
+                throw new KeyNotFoundException(string.Format("Dictionary targetFileCounts does not have key {0}", targetFile.FullName));
+            }
 
             if (fileCount == 1 || targetFile.DirectoryName == null)
             {
@@ -1054,9 +1060,9 @@ namespace MyEMSLReader
 
         private List<int> GetUniqueDatasetIDList(IReadOnlyDictionary<long, ArchivedFileInfo> files)
         {
-            return  (from item in files
-                     group item by item.Value.DatasetID into g
-                     select g.Key).ToList();
+            return (from item in files
+                    group item by item.Value.DatasetID into g
+                    select g.Key).ToList();
         }
 
         /// <summary>
