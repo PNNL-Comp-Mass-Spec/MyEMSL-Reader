@@ -38,6 +38,7 @@ namespace Pacifica.Json
         /// <param name="dataUrl"></param>
         /// <param name="callingMethodName"></param>
         /// <param name="errorMessage"></param>
+        // ReSharper disable once UnusedMember.Global
         public static List<IUploadMetadata> JsonToUploadMetadata(string jsonString, string dataUrl, string callingMethodName, out string errorMessage)
         {
             try

@@ -34,6 +34,8 @@ namespace Pacifica.Json
         [JsonProperty("name", Required = Required.Always)]
         public string Name { get; private set; }
 
+        // ReSharper disable once StringLiteralTypo
+
         /// <summary>
         /// Absolute path to the local file
         /// </summary>

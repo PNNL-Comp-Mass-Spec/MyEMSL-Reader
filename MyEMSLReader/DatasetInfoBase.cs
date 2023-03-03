@@ -22,7 +22,9 @@ namespace MyEMSLReader
         /// <summary>
         /// MyEMSL ID flag
         /// </summary>
+        // ReSharper disable once IdentifierTypo
         public const string MYEMSL_FILE_ID_TAG = "@MyEMSLID_";
+
         private const int CACHE_REFRESH_THRESHOLD_MINUTES = 5;
 
         /// <summary>

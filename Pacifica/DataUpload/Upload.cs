@@ -299,9 +299,11 @@ namespace Pacifica.DataUpload
         /// For DataPackages we store DataPackageId in JobNumber</remarks>
         public string JobNumber { get; set; }
 
+        // ReSharper disable CommentTypo
         /// <summary>
         /// When true, upload to ingestdmsdev.my.emsl.pnl.gov instead of ingestdms.my.emsl.pnl.gov
         /// </summary>
+        // ReSharper restore CommentTypo
         public bool UseTestInstance { get; set; }
 
         /// <summary>

@@ -1252,6 +1252,7 @@ namespace Pacifica.DMSDataUpload
         /// <returns>SortedSet of strings (case insensitive)</returns>
         // ReSharper disable once UnusedMember.Global
         [Obsolete("Use method IgnoreFile to check whether a file should be skipped")]
+        // ReSharper disable once UnusedMember.Global
         public static SortedSet<string> GetFilesToIgnore()
         {
             return new SortedSet<string>(StringComparer.InvariantCultureIgnoreCase) {

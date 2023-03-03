@@ -8,6 +8,7 @@ using PRISM;
 
 namespace PacificaUnitTests
 {
+    // ReSharper disable once IdentifierTypo
     public static class JayrockJson_Backup
     {
         // Ignore Spelling: ctime, hashsum, hashtype, mtime, subdir
@@ -34,8 +35,11 @@ namespace PacificaUnitTests
         {
             var files = new List<MyEMSLFileInfo>();
 
+            // ReSharper disable once StringLiteralTypo
+
             // Convert the response to a dictionary
             var remoteFileInfoList = ParseJsonToDictionaryList(jsonString, "", "JayrockJson_Backup.JsonToFileInfo", out jsonError);
+
             if (remoteFileInfoList is null)
             {
                 return files;
