@@ -712,9 +712,9 @@ namespace Pacifica.DMSDataUpload
                 }
                 else
                 {
-                    var addUpdateJobParam =
+                    var addUpdateTaskParam =
                         string.Format(
-                            "exec add_update_job_parameter @job = {0}, " +
+                            "exec |add_update_task_parameter @job = {0}, " +
                             "@section = 'JobParameters', " +
                             "@paramName = 'IgnoreMyEMSLFileTrackingError', " +
                             "@value = 'True'",
@@ -722,7 +722,7 @@ namespace Pacifica.DMSDataUpload
 
                     criticalErrorMessage = string.Format("MyEMSL reported {0} files for Dataset ID {1}; it should be tracking at least {2} files; " +
                                                          "to ignore this message, use {3}",
-                                                         remoteFiles.Count, datasetID, expectedRemoteFileCount, addUpdateJobParam);
+                                                         remoteFiles.Count, datasetID, expectedRemoteFileCount, addUpdateTaskParam);
 
                     OnErrorEvent(criticalErrorMessage);
 
@@ -977,7 +977,7 @@ namespace Pacifica.DMSDataUpload
                 var errorMessage =
                     UNDEFINED_EUS_OPERATOR_ID + ". " +
                     operatorUsername + " needs to login at " + EUS_PORTAL_URL + " to be assigned an ID, " +
-                    "then DMS needs to update T_EUS_Users (occurs daily via update_eus_users_from_eus_imports), then the job parameters must be updated with: EXEC update_parameters_for_job " + jobNumber;
+                    "then DMS needs to update T_EUS_Users (occurs daily via update_eus_users_from_eus_imports), then the job parameters must be updated with: EXEC update_parameters_for_task " + jobNumber;
 
                 throw new Exception(errorMessage);
             }
