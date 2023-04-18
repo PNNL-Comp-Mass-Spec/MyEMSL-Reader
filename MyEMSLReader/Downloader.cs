@@ -196,6 +196,7 @@ namespace MyEMSLReader
                 if (directoryLayout == DownloadLayout.SingleDataset)
                 {
                     // Assure that the requested files all have the same dataset id
+                    // If downloading files for a data package, datasetIDs will be 0
                     var datasetIDs = GetUniqueDatasetIDList(filesToDownload);
 
                     if (datasetIDs.Count > 1)

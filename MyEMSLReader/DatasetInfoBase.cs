@@ -295,6 +295,11 @@ namespace MyEMSLReader
         /// <summary>
         /// Looks for the given file, returning any matches as a list
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Prior to calling this method, use AddDataset() to define one or more dataset names
+        /// </para>
+        /// </remarks>
         /// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
         /// <returns>List of matching files</returns>
         public List<DatasetDirectoryOrFileInfo> FindFiles(string fileName)
@@ -310,6 +315,9 @@ namespace MyEMSLReader
         /// Looks for the given file in all datasets added using AddDataset(), returning any matches as a list
         /// </summary>
         /// <remarks>
+        /// <para>
+        /// Prior to calling this method, use AddDataset() to define one or more dataset names
+        /// </para>
         /// <para>
         /// subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m
         /// </para>
@@ -328,6 +336,9 @@ namespace MyEMSLReader
         /// Looks for the given file, returning any matches as a list
         /// </summary>
         /// <remarks>
+        /// <para>
+        /// Prior to calling this method, use AddDataset() to define one or more dataset names
+        /// </para>
         /// <para>
         /// subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m
         /// </para>
