@@ -46,7 +46,7 @@ namespace MyEMSLDownloader
             datasetListInfo.AddDataset(datasetName);
 
             Console.WriteLine("Searching for " + datasetName + ".raw");
-            var archiveFiles = datasetListInfo.FindFiles(datasetName + ".raw", subdirectoryName: string.Empty, recurse: false);
+            var archiveFiles = datasetListInfo.FindFiles(datasetName + ".raw", subdirectoryName: string.Empty, datasetName: string.Empty, fileIDList: string.Empty, recurse: false);
 
             DownloadFiles(datasetListInfo, archiveFiles, outputDirectoryPath);
         }

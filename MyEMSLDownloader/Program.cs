@@ -133,7 +133,7 @@ namespace MyEMSLDownloader
 
                 if (mOptions.DataPkgID > 0)
                 {
-                    archiveFiles = FindDataPkgFiles(mOptions.DataPkgID, mOptions.Subdirectory, mOptions.FileMask, mOptions.FileSplit);
+                    archiveFiles = FindDataPkgFiles(mOptions.DataPkgID, mOptions.Subdirectory, mOptions.FileMask, mOptions.FileIDList, mOptions.FileSplit);
                 }
                 else
                 {
@@ -149,35 +149,19 @@ namespace MyEMSLDownloader
 
                         archiveFiles = FindFileListFiles(fileListFile);
                     }
+                    else if (mOptions.DatasetID > 0)
+                    {
+                        archiveFiles = FindDatasetFilesByID(mOptions.DatasetID, mOptions.Subdirectory, mOptions.FileMask, mOptions.FileIDList, mOptions.FileSplit);
+                    }
+                    else if (!string.IsNullOrWhiteSpace(mOptions.DatasetName))
+                    {
+                        archiveFiles = FindDatasetFiles(mOptions.DatasetName, mOptions.Subdirectory, mOptions.FileMask, mOptions.FileIDList, mOptions.FileSplit);
+                    }
                     else
                     {
-                        if (!string.IsNullOrWhiteSpace(mOptions.FileIDList))
-                        {
-                            archiveFiles = ParseExplicitFileIDs(mOptions.FileIDList);
-                            if (archiveFiles.Count == 0)
-                            {
-                                ShowErrorMessage("No File IDs were found with the /FileID parameter");
-                                System.Threading.Thread.Sleep(1000);
-                                return -1;
-                            }
-                        }
-                        else
-                        {
-                            if (mOptions.DatasetID > 0)
-                            {
-                                archiveFiles = FindDatasetFilesByID(mOptions.DatasetID, mOptions.Subdirectory, mOptions.FileMask, mOptions.FileSplit);
-                            }
-                            else if (!string.IsNullOrWhiteSpace(mOptions.DatasetName))
-                            {
-                                archiveFiles = FindDatasetFiles(mOptions.DatasetName, mOptions.Subdirectory, mOptions.FileMask, mOptions.FileSplit);
-                            }
-                            else
-                            {
-                                ShowErrorMessage("Dataset Name, Dataset ID, or Data Package ID not specified. Use /Dataset or /DatasetID or /DataPkg or /FileList or /FileID");
-                                System.Threading.Thread.Sleep(1000);
-                                return -1;
-                            }
-                        }
+                        ShowErrorMessage("Dataset Name, Dataset ID, or Data Package ID not specified. Use /Dataset or /DatasetID or /DataPkg or /FileList");
+                        System.Threading.Thread.Sleep(1000);
+                        return -1;
                     }
                 }
 
@@ -321,11 +305,13 @@ namespace MyEMSLDownloader
         /// <param name="datasetName">Dataset name</param>
         /// <param name="subdirectory">Subdirectory to filter on (optional)</param>
         /// <param name="fileMask">File name or file spec like *.txt to filter on (optional)</param>
+        /// <param name="fileIDList">Comma separated list of MyEMSL File IDs to filter on (blank to ignore); must be one of the files associated with the given dataset</param>
         /// <param name="fileSplit"></param>
         private static List<DatasetDirectoryOrFileInfo> FindDatasetFiles(
             string datasetName,
             string subdirectory,
             string fileMask,
+            string fileIDList,
             bool fileSplit)
         {
             mDatasetListInfo.AddDataset(datasetName, subdirectory);
@@ -333,13 +319,22 @@ namespace MyEMSLDownloader
             if (string.IsNullOrEmpty(fileMask))
                 fileMask = "*";
 
-            return mDatasetListInfo.FindFiles(fileMask, subdirectory, datasetName, true, fileSplit);
+            return mDatasetListInfo.FindFiles(fileMask, subdirectory, datasetName, fileIDList, true, fileSplit);
         }
 
+        /// <summary>
+        /// Find files for the given dataset
+        /// </summary>
+        /// <param name="datasetID">dataset ID</param>
+        /// <param name="subdirectory">Subdirectory to filter on (optional)</param>
+        /// <param name="fileMask">File name or file spec like *.txt to filter on (optional)</param>
+        /// <param name="fileIDList">Comma separated list of MyEMSL File IDs to filter on (blank to ignore); must be one of the files associated with the given dataset</param>
+        /// <param name="fileSplit"></param>
         private static List<DatasetDirectoryOrFileInfo> FindDatasetFilesByID(
             int datasetID,
             string subdirectory,
             string fileMask,
+            string fileIDList,
             bool fileSplit)
         {
             mDatasetListInfoByID.AddDataset(datasetID, subdirectory);
@@ -347,13 +342,16 @@ namespace MyEMSLDownloader
             if (string.IsNullOrEmpty(fileMask))
                 fileMask = "*";
 
-            return mDatasetListInfoByID.FindFiles(fileMask, subdirectory, string.Empty, true, fileSplit);
+            var datasetName = string.Empty;
+
+            return mDatasetListInfoByID.FindFiles(fileMask, subdirectory, datasetName, fileIDList, true, fileSplit);
         }
 
         private static List<DatasetDirectoryOrFileInfo> FindDataPkgFiles(
             int dataPkgID,
             string subdirectory,
             string fileMask,
+            string fileIDList,
             bool fileSplit)
         {
             mDataPackageListInfo.AddDataPackage(dataPkgID);
@@ -361,7 +359,8 @@ namespace MyEMSLDownloader
             if (string.IsNullOrEmpty(fileMask))
                 fileMask = "*";
 
-            return mDataPackageListInfo.FindFiles(fileMask, subdirectory, true, fileSplit);
+            var datasetName = string.Empty;
+            return mDataPackageListInfo.FindFiles(fileMask, subdirectory, datasetName, fileIDList, true, fileSplit);
         }
 
         private static List<DatasetDirectoryOrFileInfo> FindFileListFiles(FileSystemInfo fileListFile)
@@ -552,13 +551,13 @@ namespace MyEMSLDownloader
             // Keys in this dictionary are MyEMSL File IDs, values are file info
             var archiveFilesAllDatasets = new Dictionary<long, DatasetDirectoryOrFileInfo>();
 
+            var fileIDList = string.Empty;
+
             foreach (var dataset in datasetsToFind)
             {
                 foreach (var fileToFind in dataset.Value)
                 {
-                    var archiveFilesToAdd = FindDatasetFiles(dataset.Key, fileToFind.SubDir, fileToFind.FileMask, fileSplit: false).ToList();
-
-                    foreach (var archiveFile in archiveFilesToAdd)
+                    foreach (var archiveFile in FindDatasetFiles(dataset.Key, fileToFind.SubDir, fileToFind.FileMask, fileIDList, fileSplit: false))
                     {
                         if (!archiveFilesAllDatasets.ContainsKey(archiveFile.FileID))
                         {
@@ -588,13 +587,13 @@ namespace MyEMSLDownloader
             // Keys in this dictionary are MyEMSL File IDs, values are file info
             var archiveFilesAllDatasets = new Dictionary<long, DatasetDirectoryOrFileInfo>();
 
+            var fileIDList = string.Empty;
+
             foreach (var dataset in datasetIDsToFind)
             {
                 foreach (var fileToFind in dataset.Value)
                 {
-                    var archiveFilesToAdd = FindDatasetFilesByID(dataset.Key, fileToFind.SubDir, fileToFind.FileMask, fileSplit: false).ToList();
-
-                    foreach (var archiveFile in archiveFilesToAdd)
+                    foreach (var archiveFile in FindDatasetFilesByID(dataset.Key, fileToFind.SubDir, fileToFind.FileMask, fileIDList, fileSplit: false))
                     {
                         if (!archiveFilesAllDatasets.ContainsKey(archiveFile.FileID))
                         {

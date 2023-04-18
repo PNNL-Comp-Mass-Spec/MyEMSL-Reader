@@ -91,7 +91,22 @@ namespace MyEMSLReader
         // ReSharper disable once UnusedMember.Global
         public List<DatasetDirectoryOrFileInfo> FindFiles(string fileName, string subdirectoryName, int dataPackageID)
         {
-            return FindFiles(fileName, subdirectoryName, dataPackageID, recurse: true);
+            return FindFiles(fileName, subdirectoryName, dataPackageID, fileIDList: string.Empty, recurse: true);
+        }
+
+        /// <summary>
+        /// Looks for the given file, returning any matches as a list (searches this directory and subdirectories)
+        /// </summary>
+        /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
+        /// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
+        /// <param name="subdirectoryName">Subdirectory in which the file must reside; can contain a wildcard, e.g. SIC*</param>
+        /// <param name="dataPackageID">Data Package ID filter</param>
+        /// <param name="fileIDList">Comma separated list of MyEMSL File IDs to filter on (blank to ignore); must be one of the files associated with the given data package</param>
+        /// <returns>List of matching files</returns>
+        // ReSharper disable once UnusedMember.Global
+        public List<DatasetDirectoryOrFileInfo> FindFiles(string fileName, string subdirectoryName, int dataPackageID, string fileIDList)
+        {
+            return FindFiles(fileName, subdirectoryName, dataPackageID, fileIDList, recurse: true);
         }
 
         /// <summary>
@@ -101,14 +116,15 @@ namespace MyEMSLReader
         /// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
         /// <param name="subdirectoryName">Subdirectory in which the file must reside; can contain a wildcard, e.g. SIC*</param>
         /// <param name="dataPackageID">Data Package ID filter</param>
+        /// <param name="fileIDList">Comma separated list of MyEMSL File IDs to filter on (blank to ignore); must be one of the files associated with the given data package</param>
         /// <param name="recurse">True to search all subdirectories; false to only search the root directory (or only subdirectoryName)</param>
         /// <param name="fileSplit">Set to True if fileName contains a list of file names (or file specs) separated by a semicolon</param>
         /// <returns>List of matching files</returns>
-        public List<DatasetDirectoryOrFileInfo> FindFiles(string fileName, string subdirectoryName, int dataPackageID, bool recurse, bool fileSplit = false)
+        public List<DatasetDirectoryOrFileInfo> FindFiles(string fileName, string subdirectoryName, int dataPackageID, string fileIDList, bool recurse, bool fileSplit = false)
         {
             var datasetName = string.Empty;
 
-            return FindFiles(fileName, subdirectoryName, datasetName, dataPackageID, recurse, fileSplit);
+            return FindFiles(fileName, subdirectoryName, datasetName, dataPackageID, fileIDList, recurse, fileSplit);
         }
 
         /// <summary>
