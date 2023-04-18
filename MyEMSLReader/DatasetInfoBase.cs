@@ -277,16 +277,16 @@ namespace MyEMSLReader
             var charIndex = filePath.LastIndexOf(MYEMSL_FILE_ID_TAG, StringComparison.Ordinal);
             newFilePath = string.Copy(filePath);
 
-            if (charIndex > 0)
+            if (charIndex <= 0)
+                return 0;
+
+            newFilePath = filePath.Substring(0, charIndex);
+
+            var myEmslFileIdText = filePath.Substring(charIndex + MYEMSL_FILE_ID_TAG.Length);
+
+            if (long.TryParse(myEmslFileIdText, out var myEmslFileID))
             {
-                newFilePath = filePath.Substring(0, charIndex);
-
-                var myEmslFileIdText = filePath.Substring(charIndex + MYEMSL_FILE_ID_TAG.Length);
-
-                if (long.TryParse(myEmslFileIdText, out var myEmslFileID))
-                {
-                    return myEmslFileID;
-                }
+                return myEmslFileID;
             }
 
             return 0;
