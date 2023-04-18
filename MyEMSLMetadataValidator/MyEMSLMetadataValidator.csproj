@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DMSMetadata.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="IngestTaskStats.cs" />
     <Compile Include="MetadataValidator.cs" />
     <Compile Include="ValidatorOptions.cs" />
