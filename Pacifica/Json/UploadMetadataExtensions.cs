@@ -55,7 +55,8 @@ namespace Pacifica.Json
         {
             var fileList = new List<FileInfoObject>();
 
-            foreach (var item in metadataObject.Where(x => x is UploadMetadataFile).Cast<UploadMetadataFile>())
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var item in metadataObject.OfType<UploadMetadataFile>())
             {
                 var filePathToUse = Utilities.PossiblyConvertToLongPath(item.AbsoluteLocalPath);
 

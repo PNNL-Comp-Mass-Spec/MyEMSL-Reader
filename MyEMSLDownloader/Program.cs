@@ -277,11 +277,9 @@ namespace MyEMSLDownloader
                 myEMSLInfoCache.AddFileToDownloadQueue(archiveFile.FileInfo);
             }
 
-            Downloader.DownloadLayout directoryLayout;
-            if (mOptions.MultiDatasetMode)
-                directoryLayout = Downloader.DownloadLayout.DatasetNameAndSubdirectories;
-            else
-                directoryLayout = Downloader.DownloadLayout.SingleDataset;
+            var directoryLayout = mOptions.MultiDatasetMode
+                ? Downloader.DownloadLayout.DatasetNameAndSubdirectories
+                : Downloader.DownloadLayout.SingleDataset;
 
             var success = myEMSLInfoCache.ProcessDownloadQueue(outputDirectoryPath, directoryLayout);
 
@@ -420,9 +418,9 @@ namespace MyEMSLDownloader
                                 return new List<DatasetDirectoryOrFileInfo>();
                             }
 
-                            if (headerMap.ContainsKey(DATASET_COLUMN))
+                            if (headerMap.TryGetValue(DATASET_COLUMN, out var columnIndex))
                             {
-                                datasetNameOrIdColumnIndex = headerMap[DATASET_COLUMN];
+                                datasetNameOrIdColumnIndex = columnIndex;
                             }
                             else
                             {

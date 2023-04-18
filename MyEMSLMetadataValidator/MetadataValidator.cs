@@ -137,13 +137,10 @@ namespace MyEMSLMetadataValidator
             string warningToWrite;
             if (string.IsNullOrWhiteSpace(rootFolderWarning))
                 warningToWrite = warning;
+            else if (string.IsNullOrWhiteSpace(warning))
+                warningToWrite = rootFolderWarning;
             else
-            {
-                if (string.IsNullOrWhiteSpace(warning))
-                    warningToWrite = rootFolderWarning;
-                else
-                    warningToWrite = rootFolderWarning + "; " + warning;
-            }
+                warningToWrite = rootFolderWarning + "; " + warning;
 
             if (Math.Abs(matchRatio - 1) < double.Epsilon && !string.IsNullOrWhiteSpace(rootFolderWarning))
             {
@@ -565,17 +562,18 @@ namespace MyEMSLMetadataValidator
                     {
                         datasetIdStart = Options.DatasetIdStart;
 
-                        if (Options.DatasetIdEnd == 0)
-                            finalDatasetId = maxDatasetId;
-                        else
-                            finalDatasetId = Math.Min(Options.DatasetIdEnd, maxDatasetId);
+                        finalDatasetId = Options.DatasetIdEnd == 0
+                            ? maxDatasetId
+                            : Math.Min(Options.DatasetIdEnd, maxDatasetId);
 
                         totalDatasetsToProcess = finalDatasetId - datasetIdStart + 1;
                         if (totalDatasetsToProcess < 1)
+                        {
                             throw new Exception(string.Format(
-                                                    "Total datasets should not be negative; computed {0} using {1} - {2} + 1",
-                                                    totalDatasetsToProcess, finalDatasetId,
-                                                    datasetIdStart));
+                                "Total datasets should not be negative; computed {0} using {1} - {2} + 1",
+                                totalDatasetsToProcess, finalDatasetId,
+                                datasetIdStart));
+                        }
                     }
                     else
                     {
