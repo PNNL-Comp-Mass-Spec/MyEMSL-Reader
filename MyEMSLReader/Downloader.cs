@@ -120,6 +120,7 @@ namespace MyEMSLReader
             set
             {
                 mUseTestInstance = value;
+
                 if (mPacificaConfig.UseTestInstance != value)
                 {
                     mPacificaConfig.UseTestInstance = value;
@@ -203,6 +204,7 @@ namespace MyEMSLReader
                     {
                         // Look for conflicts
                         var outputFilePaths = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+
                         foreach (var archiveFile in filesToDownload.Values)
                         {
                             if (outputFilePaths.Contains(archiveFile.RelativePathWindows))
@@ -425,6 +427,7 @@ namespace MyEMSLReader
                     var responseStatusCode = HttpStatusCode.OK;
 
                     var webException = ex.InnerException as WebException;
+
                     if (webException?.Response != null)
                     {
                         responseStatusCode = ((HttpWebResponse)webException.Response).StatusCode;
@@ -732,6 +735,7 @@ namespace MyEMSLReader
                         if (fileIdFound)
                         {
                             var fileIDText = sourceFileName.Substring(0, charIndex);
+
                             if (!long.TryParse(fileIDText, out fileID))
                             {
                                 ReportMessage("Warning, .tar file entry does not contain a MyEMSL FileID value; " +
@@ -760,6 +764,7 @@ namespace MyEMSLReader
                                 archiveFile = archiveFileLookup.First();
 
                                 var sourceFile = new FileInfo(sourceFileName);
+
                                 if (!archiveFile.Filename.StartsWith(sourceFile.Name, StringComparison.OrdinalIgnoreCase))
                                 {
                                     ReportMessage("Warning, name conflict; filename in .tar file is " + sourceFile.Name +
@@ -805,6 +810,7 @@ namespace MyEMSLReader
                             downloadFilePath = Path.Combine(downloadDirectory.FullName, downloadFilePath);
 
                             var subDirPath = Path.GetDirectoryName(sourceFileName);
+
                             if (string.IsNullOrEmpty(subDirPath))
                             {
                                 subDirPath = string.Empty;
@@ -883,6 +889,7 @@ namespace MyEMSLReader
             catch (WebException ex)
             {
                 var responseData = string.Empty;
+
                 if (ex.Response != null)
                 {
                     using var reader = new StreamReader(ex.Response.GetResponseStream());
@@ -1146,6 +1153,7 @@ namespace MyEMSLReader
         {
             // Update the file modification time
             targetFile.Refresh();
+
             if (targetFile.Exists)
             {
                 targetFile.LastWriteTime = lastWriteTime;
@@ -1166,6 +1174,7 @@ namespace MyEMSLReader
         private bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors policyErrors)
         {
             var success = Utilities.ValidateRemoteCertificate(cert, policyErrors, out var errorMessage);
+
             if (success)
             {
                 if (!string.IsNullOrWhiteSpace(errorMessage))

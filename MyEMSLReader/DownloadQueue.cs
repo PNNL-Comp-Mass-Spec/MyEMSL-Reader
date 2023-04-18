@@ -194,6 +194,7 @@ namespace MyEMSLReader
                 foreach (var fileToDownload in FilesToDownload)
                 {
                     var archiveFileInfo = fileToDownload.Value.FileInfo;
+
                     if (string.IsNullOrWhiteSpace(archiveFileInfo.Sha1Hash))
                     {
                         OnWarningEvent("File does not have a SHA-1 hash; cannot download {0}, FileID {1}", archiveFileInfo.RelativePathWindows, fileToDownload.Key);

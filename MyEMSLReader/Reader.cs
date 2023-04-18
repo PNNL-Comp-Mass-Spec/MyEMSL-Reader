@@ -98,6 +98,7 @@ namespace MyEMSLReader
             set
             {
                 mUseTestInstance = value;
+
                 if (mPacificaConfig.UseTestInstance != value)
                 {
                     mPacificaConfig.UseTestInstance = value;
@@ -407,6 +408,7 @@ namespace MyEMSLReader
             bool recurse)
         {
             var searchTerms = new List<KeyValuePair<string, string>>();
+
             foreach (var dataset in datasetsAndSubDirLists)
             {
                 if (string.IsNullOrWhiteSpace(dataset.Key))
@@ -486,6 +488,7 @@ namespace MyEMSLReader
             Dictionary<string, string> datasetsAndSubDirs)
         {
             var datasetsAndSubDirLists = new Dictionary<string, SortedSet<string>>();
+
             foreach (var datasetSubDirCombo in datasetsAndSubDirs)
             {
                 ConvertDatasetSubDirAddToDictionary(datasetsAndSubDirLists, datasetSubDirCombo.Key, datasetSubDirCombo.Value);
@@ -696,6 +699,7 @@ namespace MyEMSLReader
                     if (fileSubDirTree.Count >= requiredSubDirTree.Count)
                     {
                         var matchCount = 0;
+
                         for (var i = 0; i < requiredSubDirTree.Count; i++)
                         {
                             if (string.Equals(fileSubDirTree[i], requiredSubDirTree[i], StringComparison.OrdinalIgnoreCase))
@@ -768,6 +772,7 @@ namespace MyEMSLReader
                     if (dataset.Value != null)
                     {
                         var includeBaseDirectory = false;
+
                         foreach (var subDir in dataset.Value)
                         {
                             if (string.IsNullOrWhiteSpace(subDir))
@@ -777,6 +782,7 @@ namespace MyEMSLReader
                             }
 
                             var subDirToAdd = subDir.Replace(@"\", "/");
+
                             if (!subDirList.Contains(subDirToAdd))
                             {
                                 subDirList.Add(subDirToAdd);
@@ -956,6 +962,7 @@ namespace MyEMSLReader
             instrument = string.Empty;
 
             var success = dbTools.GetQueryResultsDataTable(queryString, out var table, retryCount);
+
             if (success)
             {
                 foreach (DataRow row in table.Rows)
@@ -981,6 +988,7 @@ namespace MyEMSLReader
             instrument = string.Empty;
 
             var success = dbTools.GetQueryResultsDataTable(queryString, out var table, retryCount);
+
             if (success)
             {
                 foreach (DataRow row in table.Rows)
@@ -1218,6 +1226,7 @@ namespace MyEMSLReader
 
                 // Convert the response to a dictionary
                 var remoteFileInfoList = JsonTools.JsonToFileList(fileInfoListJSON, metadataUrl, "MyEMSLReader.RunItemSearchQuery", out var jsonError);
+
                 if (remoteFileInfoList is null)
                 {
                     ReportError(jsonError);
@@ -1254,6 +1263,7 @@ namespace MyEMSLReader
                             }
 
                             duplicateHashCount++;
+
                             if (duplicateHashCount <= DUPLICATE_HASH_MESSAGES_TO_LOG)
                             {
                                 // This warning is logged as a debug event since it's not a critical error

@@ -140,6 +140,7 @@ namespace MyEMSLDownloader
                     if (!string.IsNullOrWhiteSpace(mOptions.FileListPath))
                     {
                         var fileListFile = new FileInfo(mOptions.FileListPath);
+
                         if (!fileListFile.Exists)
                         {
                             ShowErrorMessage("File not found: " + fileListFile.FullName);
@@ -470,6 +471,7 @@ namespace MyEMSLDownloader
                                 continue;
                             }
                             fileToFind.SubDir = dataValues[headerMap[SUB_DIR_COLUMN]].Trim();
+
                             if (fileToFind.SubDir.Equals("."))
                             {
                                 // Treat a source directory of "." as ""
@@ -494,6 +496,7 @@ namespace MyEMSLDownloader
                                 ConsoleMsgUtils.ShowWarning("Dataset ID should be an integer, not: " + datasetNameOrID);
                                 continue;
                             }
+
                             if (!datasetIDsToFind.TryGetValue(datasetId, out var datasetFiles))
                             {
                                 datasetFiles = new List<TargetFileInfo>();
@@ -509,6 +512,7 @@ namespace MyEMSLDownloader
                         else
                         {
                             var datasetName = datasetNameOrID;
+
                             if (!datasetsToFind.TryGetValue(datasetName, out var datasetFiles))
                             {
                                 datasetFiles = new List<TargetFileInfo>();
@@ -634,6 +638,7 @@ namespace MyEMSLDownloader
             foreach (var archiveFile in archiveFiles)
             {
                 Console.WriteLine(archiveFile.FileInfo.RelativePathWindows);
+
                 if (!verbosePreview)
                     continue;
 
@@ -645,6 +650,7 @@ namespace MyEMSLDownloader
                         archiveFile.FileInfo.FileSizeBytes / 1024.0,
                         archiveFile.FileInfo.Sha1Hash,
                         archiveFile.FileInfo.HashType);
+
                 Console.WriteLine();
             }
         }
@@ -721,6 +727,7 @@ namespace MyEMSLDownloader
                 var results = reader.FindFilesByDataPackageID(dataPkgID, subDir);
 
                 Console.WriteLine("{0,-10} {1}", "Hash", "RelativePath");
+
                 foreach (var archivedFile in results)
                 {
                     Console.WriteLine("{0,-10} {1}", archivedFile.Hash.Substring(0, 10), archivedFile.RelativePathUnix);
@@ -775,6 +782,7 @@ namespace MyEMSLDownloader
                 Console.WriteLine();
                 Console.WriteLine("Files for dataset " + datasetName);
                 Console.WriteLine("{0,-10} {1}", "Hash", "RelativePath");
+
                 foreach (var archivedFile in results)
                 {
                     Console.WriteLine("{0,-10} {1}", archivedFile.Hash.Substring(0, 10), archivedFile.RelativePathUnix);
@@ -806,6 +814,7 @@ namespace MyEMSLDownloader
                 var results = reader.FindFilesByDatasetName(dctDatasetsAndSubDirs);
 
                 Console.WriteLine("{0,-9} {1,-10} {2}", "DatasetID", "Hash", "RelativePath");
+
                 foreach (var archivedFile in results)
                 {
                     Console.WriteLine("{0,-9} {1,-10} {2}", archivedFile.DatasetID, archivedFile.Hash.Substring(0, 10), archivedFile.RelativePathUnix);
@@ -829,6 +838,7 @@ namespace MyEMSLDownloader
                 var results = reader.FindFilesByDatasetID(dctDatasetsAndSubDirs);
 
                 Console.WriteLine("{0,-9} {1,-10} {2}", "DatasetID", "Hash", "RelativePath");
+
                 foreach (var archivedFile in results)
                 {
                     Console.WriteLine("{0,-9} {1,-10} {2}", archivedFile.DatasetID, archivedFile.Hash.Substring(0, 10), archivedFile.RelativePathUnix);
@@ -879,6 +889,7 @@ namespace MyEMSLDownloader
             try
             {
                 string outputDirectory;
+
                 if (string.IsNullOrEmpty(mOptions.OutputDirectoryPath))
                     outputDirectory = @"E:\Temp\MyEMSL";
                 else

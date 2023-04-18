@@ -458,6 +458,7 @@ namespace Pacifica.DataUpload
                 if (!string.IsNullOrWhiteSpace(TransferFolderPath))
                 {
                     var targetFile = new FileInfo(Path.Combine(TransferFolderPath, Utilities.GetMetadataFilenameForJob(JobNumber)));
+
                     if (targetFile.Directory?.Exists == false)
                     {
                         targetFile.Directory.Create();
@@ -541,6 +542,7 @@ namespace Pacifica.DataUpload
             try
             {
                 string statusResult;
+
                 if (responseData.Contains("state"))
                 {
                     // We already have a valid server response
@@ -842,6 +844,7 @@ namespace Pacifica.DataUpload
             if (eusInfoMapObject.TryGetValue(keyName, out var value))
             {
                 matchedValue = value as string;
+
                 if (matchedValue != null)
                 {
                     return true;
@@ -883,6 +886,7 @@ namespace Pacifica.DataUpload
         private void OnError(string errorMessage, Exception ex = null)
         {
             ErrorMessage = errorMessage;
+
             if (ex != null && !ErrorMessage.Contains(ex.Message))
             {
                 ErrorMessage += ": " + ex.Message;

@@ -149,6 +149,7 @@ namespace Pacifica.Core
                     using var outFile = new FileStream(downloadFilePath, FileMode.Create, FileAccess.Write, FileShare.Read);
 
                     int bytesRead;
+
                     while ((bytesRead = responseStream.Read(buffer, 0, buffer.Length)) != 0)
                     {
                         outFile.Write(buffer, 0, bytesRead);
@@ -247,6 +248,7 @@ namespace Pacifica.Core
             }
 
             var responseData = new StringBuilder();
+
             if (maxLines < 1)
             {
                 maxLines = 1;
@@ -361,6 +363,7 @@ namespace Pacifica.Core
             }
 
             var maxTimeoutHoursInt = (int)(maxTimeoutHours * 60 * 60);
+
             if (timeoutSeconds > maxTimeoutHoursInt)
             {
                 timeoutSeconds = maxTimeoutHoursInt;
@@ -796,6 +799,7 @@ namespace Pacifica.Core
             if (urlContactInfo.Method == HttpMethod.Post && !string.IsNullOrEmpty(urlContactInfo.ContentType))
             {
                 request.ContentType = urlContactInfo.ContentType;
+
                 if (urlContactInfo.PostData != null)
                 {
                     request.ContentLength = urlContactInfo.PostData.Length;

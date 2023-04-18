@@ -54,6 +54,7 @@ namespace MyEMSLDownloader
         private void DownloadFiles(DatasetInfoBase datasetListInfo, IEnumerable<DatasetDirectoryOrFileInfo> archiveFiles, string outputDirectoryPath)
         {
             datasetListInfo.ClearDownloadQueue();
+
             foreach (var archiveFile in archiveFiles)
             {
                 Console.WriteLine("Downloading File ID {0}: {1}", archiveFile.FileID, archiveFile.FileInfo.Filename);
@@ -61,6 +62,7 @@ namespace MyEMSLDownloader
             }
 
             Downloader.DownloadLayout directoryLayout;
+
             if (string.IsNullOrEmpty(outputDirectoryPath))
                 directoryLayout = Downloader.DownloadLayout.DatasetNameAndSubdirectories;
             else

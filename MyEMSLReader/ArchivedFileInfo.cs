@@ -163,6 +163,7 @@ namespace MyEMSLReader
             get
             {
                 var fullPath = string.Empty;
+
                 if (!string.IsNullOrWhiteSpace(Instrument))
                 {
                     fullPath = Path.Combine(fullPath, Instrument);

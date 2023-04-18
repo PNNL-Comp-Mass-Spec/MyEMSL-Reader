@@ -62,6 +62,7 @@ namespace MyEMSLReader
             if (qArchivedFile.Count == 0)
             {
                 string message;
+
                 if (unzipRequired)
                 {
                     message = "Cannot queue file " + myEMSLFileID + " for download because the UnzipRequired flag was set, " +

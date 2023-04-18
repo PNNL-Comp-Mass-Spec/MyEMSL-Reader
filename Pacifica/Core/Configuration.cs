@@ -179,6 +179,7 @@ namespace Pacifica.Core
                 var assemblyPath = Assembly.GetExecutingAssembly().Location;
 
                 var assemblyFile = new FileInfo(assemblyPath);
+
                 if (assemblyFile.DirectoryName != null)
                 {
                     var workingDirectory = new DirectoryInfo(assemblyFile.DirectoryName);
@@ -186,12 +187,14 @@ namespace Pacifica.Core
                 }
 
                 var sharedClientCertDirectoryDMS = new DirectoryInfo(DMS_CLIENT_CERT_DIRECTORY);
+
                 if (sharedClientCertDirectoryDMS.Exists)
                 {
                     directoriesToCheck.Add(sharedClientCertDirectoryDMS);
                 }
 
                 var sharedClientCertDirectory = new DirectoryInfo(CLIENT_CERT_DIRECTORY);
+
                 if (sharedClientCertDirectory.Exists)
                 {
                     directoriesToCheck.Add(sharedClientCertDirectory);

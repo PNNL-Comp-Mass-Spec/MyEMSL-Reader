@@ -66,10 +66,12 @@ namespace MyEMSLMetadataValidator
             else
             {
                 string rootFolderWarning;
+
                 if (string.IsNullOrWhiteSpace(ingestTask.Subdirectory))
                 {
                     // Assure that at least one file in filesInMyEMSL has an empty subdirectory
                     var myEMSLFilesInDatasetDirectory = (from item in filesInMyEMSL where string.IsNullOrWhiteSpace(item.SubDirPath) select item).Count();
+
                     if (myEMSLFilesInDatasetDirectory == 0)
                         rootFolderWarning = "Empty dataset directory (found files in subdirectories but not in the root directory)";
                     else
@@ -135,6 +137,7 @@ namespace MyEMSLMetadataValidator
         private void AppendMatchRatio(ICollection<string> resultLine, double matchRatio, string warning, string rootFolderWarning)
         {
             string warningToWrite;
+
             if (string.IsNullOrWhiteSpace(rootFolderWarning))
                 warningToWrite = warning;
             else if (string.IsNullOrWhiteSpace(warning))
@@ -370,9 +373,11 @@ namespace MyEMSLMetadataValidator
                     var fileCountNew = dbTools.GetColumnValue(result, columnMap, "FileCountNew", 0);
                     var fileCountUpdated = dbTools.GetColumnValue(result, columnMap, "FileCountUpdated", 0);
                     var bytesText = dbTools.GetColumnValue(result, columnMap, "Bytes");
+
                     if (!long.TryParse(bytesText, out var bytes))
                     {
                         warnCount++;
+
                         if (warnCount < 10)
                             OnWarningEvent("Could not convert bytes to a long integer: " + bytesText);
                     }
@@ -432,6 +437,7 @@ namespace MyEMSLMetadataValidator
             try
             {
                 var datasetIdFile = new FileInfo(datasetIdFilePath);
+
                 if (!datasetIdFile.Exists)
                 {
                     OnErrorEvent("Dataset ID File not found: " + datasetIdFile.FullName);
@@ -455,6 +461,7 @@ namespace MyEMSLMetadataValidator
                         if (lineNumber > 1)
                         {
                             warnings++;
+
                             if (warnings < 10)
                             {
                                 OnWarningEvent("Ignoring line in datasetID file since not an integer: " + dataLine);
@@ -488,6 +495,7 @@ namespace MyEMSLMetadataValidator
             try
             {
                 var outputFolder = new DirectoryInfo(Options.OutputFolderPath);
+
                 if (!outputFolder.Exists)
                 {
                     OnStatusEvent("Creating folder " + outputFolder.FullName);
@@ -495,6 +503,7 @@ namespace MyEMSLMetadataValidator
                 }
 
                 var datasetIDsToCheck = LoadDatasetIDs(Options.DatasetIdFile);
+
                 if (datasetIDsToCheck == null)
                     return false;
 
@@ -503,6 +512,7 @@ namespace MyEMSLMetadataValidator
                                  string.Format("MyEMSL_MetadataValidation_{0:yyyy-MM-dd}.txt", DateTime.Now)));
 
                 bool writeHeaders;
+
                 if (outputFile.Exists)
                 {
                     if (Options.AppendToOutput)
@@ -567,6 +577,7 @@ namespace MyEMSLMetadataValidator
                             : Math.Min(Options.DatasetIdEnd, maxDatasetId);
 
                         totalDatasetsToProcess = finalDatasetId - datasetIdStart + 1;
+
                         if (totalDatasetsToProcess < 1)
                         {
                             throw new Exception(string.Format(

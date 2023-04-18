@@ -76,6 +76,7 @@ namespace MyEMSLMetadataValidator
             else
             {
                 Console.WriteLine(" DatasetID start: {0}", DatasetIdStart);
+
                 if (DatasetIdEnd < int.MaxValue)
                     Console.WriteLine(" DatasetID end: {0}", DatasetIdEnd);
             }

@@ -152,12 +152,14 @@ namespace Pacifica.DMSDataUpload
             var transferFolderPath = Utilities.GetDictionaryValue(mTaskParams, "TransferFolderPath", string.Empty);
 
             var transferDirectoryPathBase = Utilities.GetDictionaryValue(mTaskParams, "TransferDirectoryPath", transferFolderPath);
+
             if (string.IsNullOrEmpty(transferDirectoryPathBase))
             {
                 throw new InvalidDataException("Job parameters do not have TransferDirectoryPath defined; unable to continue");
             }
 
             var datasetName = Utilities.GetDictionaryValue(mTaskParams, "Dataset", string.Empty);
+
             if (string.IsNullOrEmpty(transferDirectoryPathBase))
             {
                 throw new InvalidDataException("Job parameters do not have Dataset defined; unable to continue");
@@ -166,6 +168,7 @@ namespace Pacifica.DMSDataUpload
             var transferDirectoryPath = Path.Combine(transferDirectoryPathBase, datasetName);
 
             var jobNumber = Utilities.GetDictionaryValue(mTaskParams, "Job", string.Empty);
+
             if (string.IsNullOrEmpty(jobNumber))
             {
                 throw new InvalidDataException("Job parameters do not have Job defined; unable to continue");
@@ -197,6 +200,7 @@ namespace Pacifica.DMSDataUpload
             var jobNumber = GetParam("Job", 0);
 
             var ignoreMaxFileLimit = false;
+
             if (mTaskParams.TryGetValue("IgnoreMaxFileLimit", out var ignoreMaxFileLimitSetting))
             {
                 if (int.TryParse(ignoreMaxFileLimitSetting, out var value))
@@ -271,6 +275,7 @@ namespace Pacifica.DMSDataUpload
             EUSInfo = MetadataContainer.EUSInfo;
 
             var fileList = MetadataContainer.MetadataObject.GetFileListFromMetadataObject();
+
             if (fileList.Count == 0)
             {
                 OnDebugEvent("File list is empty in StartUpload; nothing to do");

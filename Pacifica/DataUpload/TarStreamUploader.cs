@@ -135,9 +135,11 @@ namespace Pacifica.DataUpload
 
                 // this is copied from TarArchive.WriteEntryCore
                 var localBuffer = new byte[32 * 1024];
+
                 while (true)
                 {
                     var numRead = inputStream.Read(localBuffer, 0, localBuffer.Length);
+
                     if (numRead <= 0)
                     {
                         break;
@@ -209,6 +211,7 @@ namespace Pacifica.DataUpload
                 var sourceFile = new FileInfo(Utilities.PossiblyConvertToLongPath(fileToArchive.Key));
 
                 int headerBlocks;
+
                 if (!string.IsNullOrEmpty(fileToArchive.Value.RelativeDestinationDirectory))
                 {
                     if (sourceFile.Directory == null)
@@ -240,6 +243,7 @@ namespace Pacifica.DataUpload
                 }
 
                 var pathInArchive = string.Empty;
+
                 if (!string.IsNullOrWhiteSpace(fileToArchive.Value.RelativeDestinationDirectory))
                 {
                     pathInArchive += fileToArchive.Value.RelativeDestinationDirectory.TrimEnd('/') + '/';
@@ -310,6 +314,7 @@ namespace Pacifica.DataUpload
             var columnMatcher = new Regex(@"^(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)", RegexOptions.Compiled);
 
             var metadataColumns = columnMatcher.Match(metadataLine);
+
             if (metadataColumns.Success)
             {
                 tarMetadataFile?.WriteLine("{0}\t{1}\t{2}\t{3}\t{4}",
@@ -373,6 +378,7 @@ namespace Pacifica.DataUpload
             if (debugMode != UploadDebugMode.DebugDisabled)
             {
                 var workDir = new DirectoryInfo(DEBUG_WORKING_DIRECTORY);
+
                 if (!workDir.Exists)
                 {
                     Console.WriteLine("Creating missing directory: " + workDir.FullName);
@@ -454,6 +460,7 @@ namespace Pacifica.DataUpload
             // Need a dummy "data" directory to do this
             var tempFolder = Utilities.GetTempDirectory(config);
             var dummyDataFolder = new DirectoryInfo(Path.Combine(tempFolder.FullName, "data"));
+
             if (!dummyDataFolder.Exists)
             {
                 dummyDataFolder.Create();
@@ -523,6 +530,7 @@ namespace Pacifica.DataUpload
                 // The response should be empty if everything worked
                 response = webRequest.GetResponse();
                 var responseStream = response.GetResponseStream();
+
                 if (responseStream != null)
                 {
                     using var reader = new StreamReader(responseStream);

@@ -69,6 +69,7 @@ namespace MyEMSLReader
 
             if (intMaxWaitTimeMSec < 100)
                 intMaxWaitTimeMSec = 100;
+
             if (intMaxWaitTimeMSec > 5000)
                 intMaxWaitTimeMSec = 5000;
 
@@ -80,11 +81,13 @@ namespace MyEMSLReader
                 gcThread.Start();
 
                 var intTotalThreadWaitTimeMsec = 0;
+
                 while (gcThread.IsAlive && intTotalThreadWaitTimeMsec < intMaxWaitTimeMSec)
                 {
                     Thread.Sleep(THREAD_SLEEP_TIME_MSEC);
                     intTotalThreadWaitTimeMsec += THREAD_SLEEP_TIME_MSEC;
                 }
+
                 if (gcThread.IsAlive)
                     gcThread.Abort();
             }
@@ -453,6 +456,7 @@ namespace MyEMSLReader
                 catch (Exception ex)
                 {
                     mostRecentException = ex;
+
                     if (responseStatusCode == HttpStatusCode.Forbidden)
                     {
                         // Access denied; no point in retrying the request
@@ -499,6 +503,7 @@ namespace MyEMSLReader
         private bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors policyErrors)
         {
             var success = Utilities.ValidateRemoteCertificate(cert, policyErrors, out var errorMessage);
+
             if (success)
             {
                 if (!string.IsNullOrWhiteSpace(errorMessage))

@@ -244,6 +244,7 @@ namespace Pacifica.DMSDataUpload
             var captureDbConnectionStringToUse = DbToolsFactory.AddApplicationNameToConnectionString(captureDbConnectionString, "MyEMSLReader");
 
             var supplementalDataSuccess = GetSupplementalDMSMetadata(dmsConnectionStringToUse, datasetID, uploadMetadata);
+
             if (!supplementalDataSuccess)
             {
                 criticalError = false;
@@ -273,6 +274,7 @@ namespace Pacifica.DMSDataUpload
             if (unmatchedFiles.Count > 0)
             {
                 var jsonMetadata = JsonTools.UploadMetadataToJson(MetadataObject);
+
                 if (!CheckMetadataValidity(jsonMetadata, out var policyError))
                 {
                     if (policyError)
@@ -351,6 +353,7 @@ namespace Pacifica.DMSDataUpload
             foreach (DataRow row in table.Rows)
             {
                 var personId = row["eus_person_id"].CastDBVal(-1);
+
                 if (personId > -1)
                 {
                     personList.Add(personId);
@@ -449,6 +452,7 @@ namespace Pacifica.DMSDataUpload
             }
 
             var remoteFile = new FileInfo(remoteFilePath);
+
             if (!remoteFile.Exists)
             {
                 // This is not a fatal error; the file may have been purged
@@ -501,6 +505,7 @@ namespace Pacifica.DMSDataUpload
             var fileCollection = new List<FileInfoObject>();
 
             var sourceDirectory = new DirectoryInfo(pathToBeArchived);
+
             if (!sourceDirectory.Exists)
             {
                 throw new DirectoryNotFoundException(
@@ -528,6 +533,7 @@ namespace Pacifica.DMSDataUpload
 
             // Determine the amount of data to be pushed
             long totalFileSize = 0;
+
             foreach (var fi in fileList)
             {
                 totalFileSize += fi.Length;
@@ -562,6 +568,7 @@ namespace Pacifica.DMSDataUpload
 
                 // Recompute the total file size
                 totalFileSize = 0;
+
                 foreach (var fi in fileList)
                 {
                     totalFileSize += fi.Length;
@@ -681,6 +688,7 @@ namespace Pacifica.DMSDataUpload
             }
 
             double matchTolerance;
+
             if (expectedRemoteFileCount < 10)
             {
                 matchTolerance = 0.7;
@@ -796,6 +804,7 @@ namespace Pacifica.DMSDataUpload
                 }
 
                 var sourceFileSizeMB = sourceFile.Length / 1024.0 / 1024.0;
+
                 if (sourceFileSizeMB < FileTools.LOCKFILE_MINIMUM_SOURCE_FILE_SIZE_MB)
                 {
                     // Do not use a lock file for this remote file
@@ -906,6 +915,7 @@ namespace Pacifica.DMSDataUpload
             uploadMetadata.SubFolder = string.Empty;
 
             ArchiveModes archiveMode;
+
             if (Utilities.GetDictionaryValue(taskParams, "StepTool", string.Empty).Equals("DatasetArchive", StringComparison.OrdinalIgnoreCase))
             {
                 archiveMode = ArchiveModes.archive;
@@ -928,6 +938,7 @@ namespace Pacifica.DMSDataUpload
                 {
                     // Subdirectory is defined; make sure it has the same capitalization as the one on disk
                     var sourceDirectory = new DirectoryInfo(sourceDirectoryPath);
+
                     if (!sourceDirectory.Exists)
                     {
                         throw new DirectoryNotFoundException(
@@ -936,6 +947,7 @@ namespace Pacifica.DMSDataUpload
 
                     // Make sure sourceDirectoryPath is capitalized properly
                     var subDirs = sourceDirectory.GetDirectories(uploadMetadata.SubFolder);
+
                     if (subDirs.Length == 0)
                     {
                         throw new DirectoryNotFoundException(
@@ -1019,6 +1031,7 @@ namespace Pacifica.DMSDataUpload
             RegisterEvents(dbTools);
 
             var success = dbTools.GetQueryScalar(queryString, out var result, retryCount);
+
             if (!success)
             {
                 return -1;
@@ -1091,6 +1104,7 @@ namespace Pacifica.DMSDataUpload
 
             // Convert the response to a dictionary
             var remoteFileInfoList = JsonTools.JsonToFileList(fileInfoListJSON, metadataURL, "DMSMetadataObjects.GetDatasetFilesInMyEMSL", out var jsonError);
+
             if (remoteFileInfoList is null || !string.IsNullOrWhiteSpace(jsonError))
             {
                 OnWarningEvent(jsonError);
@@ -1141,6 +1155,7 @@ namespace Pacifica.DMSDataUpload
                         }
 
                         duplicateHashCount++;
+
                         if (duplicateHashCount <= DUPLICATE_HASH_MESSAGES_TO_LOG)
                         {
                             // This warning is logged as a debug event since it's not a critical error
@@ -1303,6 +1318,7 @@ namespace Pacifica.DMSDataUpload
         private bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors policyErrors)
         {
             var success = Utilities.ValidateRemoteCertificate(cert, policyErrors, out var errorMessage);
+
             if (success)
             {
                 if (!string.IsNullOrWhiteSpace(errorMessage))

@@ -524,14 +524,17 @@ namespace MyEMSLReader
                     {
                         // Require a subdirectory match
                         isMatch = false;
+
                         if (archivedFile.RelativePathWindows.Contains("\\"))
                         {
                             var pathParts = archivedFile.RelativePathWindows.Split('\\').ToList();
+
                             for (var pathIndex = pathParts.Count - 2; pathIndex >= 0; pathIndex--)
                             {
                                 if (reDirectory.IsMatch(pathParts[pathIndex]))
                                 {
                                     isMatch = true;
+
                                     if (subdirectoryPathParts.Count > 0)
                                     {
                                         // Also require a match to the parent directories
@@ -540,6 +543,7 @@ namespace MyEMSLReader
                                         for (var parentPathIndex = pathIndex - 1; parentPathIndex >= 0; parentPathIndex--)
                                         {
                                             comparisonIndex--;
+
                                             if (comparisonIndex < 0)
                                             {
                                                 break;
@@ -627,6 +631,7 @@ namespace MyEMSLReader
                 }
 
                 var fileInfo = new FileInfo(archivedFile.RelativePathWindows);
+
                 if (fileInfo.Directory == null)
                 {
                     OnWarningEvent("Could not determine the directory of file " + archivedFile.RelativePathWindows);
@@ -664,6 +669,7 @@ namespace MyEMSLReader
                 if (pathParts.Count > 1)
                 {
                     subDirPath = pathParts[0];
+
                     for (var pathIndex = 1; pathIndex <= pathParts.Count - 2; pathIndex++)
                     {
                         subDirPath = subDirPath + "\\" + pathParts[pathIndex];

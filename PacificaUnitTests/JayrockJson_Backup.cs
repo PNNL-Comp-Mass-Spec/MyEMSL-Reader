@@ -20,6 +20,7 @@ namespace PacificaUnitTests
             var statusJSON = JsonToObject(statusResult);
 
             var taskId = -1;
+
             if (statusJSON.TryGetValue("job_id", out var value) && int.TryParse(value.ToString(), out var number))
             {
                 taskId = number;
@@ -60,7 +61,6 @@ namespace PacificaUnitTests
                     Size = GetDictionaryValue(fileObj, "size", 0),
                     HashType = GetDictionaryValue(fileObj, "hashtype"),
                     TransactionId = GetDictionaryValue(fileObj, "transaction_id", 0)
-
                 };
 
                 var created = GetDictionaryValue(fileObj, "created");
@@ -145,6 +145,7 @@ namespace PacificaUnitTests
                 jso[key] ??= string.Empty;
 
                 var value = jso[key];
+
                 if (value.GetType().Name == "JsonObject")
                 {
                     var tmpJso = value as JsonObject;
@@ -176,6 +177,7 @@ namespace PacificaUnitTests
                                 else
                                 {
                                     var nextValue = tmpJsa.GetValue(0);
+
                                     if (nextValue == null)
                                     {
                                         settingsDictionary.Add(key, new List<Dictionary<string, object>>());
@@ -221,6 +223,7 @@ namespace PacificaUnitTests
             {
                 var value = jsa.Pop();
                 var typeName = value.GetType().Name;
+
                 if (typeName == "JsonNumber" || typeName == "String")
                 {
                     jsonStrings.Add(value.ToString());
@@ -257,9 +260,11 @@ namespace PacificaUnitTests
         public static List<Dictionary<string, object>> JsonArrayToDictionaryList(JsonArray jsa)
         {
             var parsedItems = new List<Dictionary<string, object>>();
+
             while (jsa.Length > 0)
             {
                 var value = jsa.Pop();
+
                 if (value.GetType().Name == "JsonNumber")
                 {
                     var parsedValue = new Dictionary<string, object> {
@@ -364,6 +369,7 @@ namespace PacificaUnitTests
             if (itemValue != null)
             {
                 var itemValueString = itemValue.ToString();
+
                 if (long.TryParse(itemValueString, out var itemValueNumber))
                 {
                     return itemValueNumber;

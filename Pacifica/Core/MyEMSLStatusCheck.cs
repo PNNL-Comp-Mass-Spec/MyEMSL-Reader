@@ -116,6 +116,7 @@ namespace Pacifica.Core
             // ReSharper restore CommentTypo
 
             var fileList = JsonTools.JsonToFileList(fileListJSON, metadataURL, "MyEMSLStatusCheck.DoesFileExistInMyEMSL", out var jsonError);
+
             if (fileList == null || !string.IsNullOrWhiteSpace(jsonError))
             {
                 OnWarningEvent(jsonError);
@@ -171,6 +172,7 @@ namespace Pacifica.Core
             var statusResult = EasyHttp.SendViaThreadStart(mPacificaConfig, statusURI, out _);
 
             var elapsedSeconds = DateTime.UtcNow.Subtract(startTime).TotalSeconds;
+
             if (elapsedSeconds > 20)
             {
                 OnStatusEvent("Result received after {0} seconds: {1}", (int)elapsedSeconds, statusResult);
@@ -234,6 +236,7 @@ namespace Pacifica.Core
 
                     case "failed":
                         errorMessage = "Upload failed, task \"" + currentTask + "\"";
+
                         if (string.IsNullOrWhiteSpace(exception))
                         {
                             OnErrorEvent("{0}; see {1}", errorMessage, statusURI);
@@ -248,7 +251,6 @@ namespace Pacifica.Core
                             }
                             else if (exception.IndexOf("Traceback", StringComparison.OrdinalIgnoreCase) >= 0)
                             {
-
                                 // ReSharper disable CommentTypo
 
                                 // Example Traceback as of January 2021:
@@ -324,6 +326,7 @@ namespace Pacifica.Core
             var statusNumMatcher = new Regex(@"job_id=(\d+)", RegexOptions.IgnoreCase);
 
             var match = statusNumMatcher.Match(statusURI);
+
             if (match.Success)
             {
                 var statusNum = int.Parse(match.Groups[1].Value);
@@ -341,6 +344,7 @@ namespace Pacifica.Core
             var legacyStatusNumMatcher = new Regex(@"(\d+)/xml", RegexOptions.IgnoreCase);
 
             var legacyMatch = legacyStatusNumMatcher.Match(statusURI);
+
             if (!legacyMatch.Success)
             {
                 throw new Exception("Could not find Status ID in StatusURI: " + statusURI);
@@ -399,6 +403,7 @@ namespace Pacifica.Core
         private bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors policyErrors)
         {
             var success = Utilities.ValidateRemoteCertificate(cert, policyErrors, out var errorMessage);
+
             if (success)
             {
                 if (!string.IsNullOrWhiteSpace(errorMessage))

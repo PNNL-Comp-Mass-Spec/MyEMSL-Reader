@@ -104,6 +104,7 @@ namespace Pacifica.Core
             get
             {
                 string fileName;
+
                 if (!string.IsNullOrWhiteSpace(DestinationFileName))
                 {
                     fileName = DestinationFileName;

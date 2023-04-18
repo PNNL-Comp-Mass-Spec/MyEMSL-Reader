@@ -234,6 +234,7 @@ namespace Pacifica.Core
             ConsoleMsgUtils.ShowWarning(mismatchMessage);
 
             Console.WriteLine("Trusted domains, as defined in ValidateRemoteCertificate:");
+
             foreach (var domainName in trustedDomains)
             {
                 Console.WriteLine("  " + domainName);
