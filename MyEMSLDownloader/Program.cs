@@ -631,30 +631,6 @@ namespace MyEMSLDownloader
             }
         }
 
-        private static List<DatasetDirectoryOrFileInfo> ParseExplicitFileIDs(string fileIdList)
-        {
-            var archiveFiles = new List<DatasetDirectoryOrFileInfo>();
-
-            var fileIDs = fileIdList.Split(',');
-            foreach (var fileID in fileIDs)
-            {
-                if (!long.TryParse(fileID, out var fileIdValue))
-                {
-                    ConsoleMsgUtils.ShowWarning("Warning: FileID should be an integer, not: " + fileID);
-                    continue;
-                }
-
-                var fileInfo = new ArchivedFileInfo("Unknown_Dataset", "Unknown_Filename", "")
-                {
-                    FileID = fileIdValue
-                };
-
-                archiveFiles.Add(new DatasetDirectoryOrFileInfo(fileIdValue, false, fileInfo));
-            }
-
-            return archiveFiles;
-        }
-
         private static void ShowFiles(IEnumerable<DatasetDirectoryOrFileInfo> archiveFiles, bool verbosePreview)
         {
             foreach (var archiveFile in archiveFiles)
