@@ -240,9 +240,10 @@ namespace Pacifica.Core
                 }
 
                 var query = (from item in certificateFilesByYear orderby item.Key descending select item.Key).ToList();
+
                 if (query.Count > 0)
                 {
-                    return certificateFilesByYear[query.First()].FullName;
+                    return certificateFilesByYear[query[0]].FullName;
                 }
 
                 return string.Empty;

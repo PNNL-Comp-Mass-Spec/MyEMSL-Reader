@@ -942,7 +942,7 @@ namespace Pacifica.DMSDataUpload
                             string.Format("Directory {0} not found below {1} (FindDatasetFilesToArchive)", uploadMetadata.SubFolder, sourceDirectory.FullName));
                     }
 
-                    var matchingDirectory = subDirs.First();
+                    var matchingDirectory = subDirs[0];
 
                     if (matchingDirectory.Name != uploadMetadata.SubFolder)
                     {

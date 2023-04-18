@@ -78,7 +78,7 @@ namespace MyEMSLReader
             }
             else
             {
-                AddFileToDownloadQueue(qArchivedFile.First(), unzipRequired);
+                AddFileToDownloadQueue(qArchivedFile[0], unzipRequired);
             }
         }
 
@@ -116,7 +116,7 @@ namespace MyEMSLReader
                     return mErrorMessages.Count == 0;
                 }
 
-                DatasetID = mArchivedFiles.First().DatasetID;
+                DatasetID = mArchivedFiles[0].DatasetID;
 
                 return true;
             }

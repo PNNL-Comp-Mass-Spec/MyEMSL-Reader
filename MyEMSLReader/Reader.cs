@@ -822,7 +822,7 @@ namespace MyEMSLReader
                         if (filterOnInstrument)
                         {
                             // Skip files that do not match this instrument
-                            var fileInstrument = remoteFile.Value.First().Instrument;
+                            var fileInstrument = remoteFile.Value[0].Instrument;
 
                             if (!string.IsNullOrEmpty(fileInstrument) && !string.Equals(fileInstrument, instrumentName, StringComparison.OrdinalIgnoreCase))
                             {
