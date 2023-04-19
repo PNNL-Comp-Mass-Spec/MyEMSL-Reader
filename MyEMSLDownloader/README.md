@@ -54,7 +54,7 @@ To download files for a given dataset, enter the dataset name or dataset ID, plu
 Use `/Files` to filter for specific files, for example `/Files:*.txt`
 * Files will be downloaded to the directory with the .exe; override using `/O`
 
-Use `/FileSplit` to indicate that `/Files` contains a list of filenames and`/or` file specs, separated by semicolons
+Use `/FileSplit` to indicate that `/Files` contains a list of filenames and/or file specs, separated by semicolons
 * For example, use `/Files:analysis.baf;ser /FileSplit`
 
 Use `/D` to create a directory with the dataset name, then store the files within that directory
@@ -62,15 +62,16 @@ Use `/D` to create a directory with the dataset name, then store the files withi
 Use `/DataPkg` to retrieve files from a specific data package
 
 Use `/FileList` to specify a file with a list of datasets and files to retrieve.
-* The file must be a tab-delimited text file, with columns Dataset (or DatasetID) and File, and optionally with column SubDir
+* The file must be a tab-delimited text file, with columns `Dataset` (or `DatasetID`) and `File`, and optionally with column `SubDir`
 * The file names in the File column are allowed to contain wildcards
 * When `/FileList` is used, `/D` is automatically enabled
 
 Use `/FileID` or `/FileIDList`to specify one or more MyEMSL file IDs to download (as seen with `/V`)
 * The files must be associated with the given dataset or data package (as specified by `/Dataset`, `/DatasetID`, or `/DataPkgID`)
-* Supports a comma separated list of File IDs
+* Supports a comma separated list of file IDs
 
 Use `/IncludeAll` to show or download all versions of a file if MyEMSL has multiple versions of the same file (by file path)
+* If `/IncludeAll` is not used, only the newest version of a file is downloaded
 
 Use `/Test` to perform automatic tests using predefined dataset names
 
