@@ -51,7 +51,7 @@ namespace MyEMSLDownloader
                        "to contain wildcards. When /FileList is used, /D is automatically enabled")]
         public string FileListPath { get; set; }
 
-        [Option("FileID", HelpShowsDefault = false,
+        [Option("FileID", "FileIDList", HelpShowsDefault = false,
             HelpText = "Specify the MyEMSL ID of a file to download (as seen with /V). " +
                        "This mode does not use Simple Search to find files and can thus be used " +
                        "to retrieve a file that Simple Search does not find. Provide a comma separated list " +
