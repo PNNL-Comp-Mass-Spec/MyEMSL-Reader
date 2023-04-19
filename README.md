@@ -3,7 +3,8 @@
 The MyEMSL Reader is a library used by manager programs in PRISM, the Proteomics Research Information and Management System.
 The library allows the managers to push files into MyEMSL and later search for and retrieve the files
 
-Also included is the MyEMSLDownloader console application.
+Also included is the MyEMSLDownloader console application
+* For more information, see the [MyEMSL Downloader readme](https://github.com/PNNL-Comp-Mass-Spec/MyEMSL-Reader/tree/master/MyEMSLDownloader)
 
 ## Contacts
 
