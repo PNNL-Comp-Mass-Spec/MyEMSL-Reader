@@ -52,10 +52,9 @@ namespace MyEMSLDownloader
         public string FileListPath { get; set; }
 
         [Option("FileID", "FileIDList", HelpShowsDefault = false,
-            HelpText = "Specify the MyEMSL ID of a file to download (as seen with /V). " +
-                       "This mode does not use Simple Search to find files and can thus be used " +
-                       "to retrieve a file that Simple Search does not find. Provide a comma separated list " +
-                       "to retrieve multiple files.")]
+            HelpText = "Specify one or more MyEMSL file IDs to download (as seen with /V). " +
+                       "The files must be associated with the given dataset or data package (as specified by options Dataset, DatasetID, or DataPkgID). " +
+                       "Supports a comma separated list of file IDs.")]
         public string FileIDList { get; set; }
 
         [Option("O", HelpShowsDefault = false,
