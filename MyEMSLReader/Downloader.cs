@@ -761,7 +761,7 @@ namespace MyEMSLReader
                                 // Names in the tar file will be limited to 255 characters (including any preceding parent directory names) so we should not compare the full name
                                 // Furthermore, the primary filename is limited to 100 characters, so it too could be truncated
 
-                                archiveFile = archiveFileLookup.First();
+                                archiveFile = archiveFileLookup[0];
 
                                 var sourceFile = new FileInfo(sourceFileName);
 
@@ -830,7 +830,7 @@ namespace MyEMSLReader
                             }
                             else
                             {
-                                archiveFile = archiveFileLookup.First();
+                                archiveFile = archiveFileLookup[0];
                                 originalFileSubmissionTime = archiveFile.SubmissionTimeValue;
                             }
                         }
