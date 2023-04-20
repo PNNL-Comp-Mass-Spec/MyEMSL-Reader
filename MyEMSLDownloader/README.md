@@ -71,6 +71,7 @@ Use `/FileID` or `/FileIDList`to specify one or more MyEMSL file IDs to download
 * Supports a comma separated list of file IDs
 
 Use `/IncludeAll` to show or download all versions of a file if MyEMSL has multiple versions of the same file (by file path)
+* A suffix will be applied to files that have multiple versions
 * If `/IncludeAll` is not used, only the newest version of a file is downloaded
 
 Use `/Test` to perform automatic tests using predefined dataset names
