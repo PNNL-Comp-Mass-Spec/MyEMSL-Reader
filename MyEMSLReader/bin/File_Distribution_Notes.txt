@@ -1,13 +1,12 @@
 Distribute MyEMSLReader.dll by comparing
-F:\My Documents\Projects\DataMining\DMS_Managers\MyEMSL_Reader\MyEMSLDownloader\bin\Debug
+F:\Documents\Projects\DataMining\DMS_Managers\MyEMSL_Reader\MyEMSLDownloader\bin\Debug
 to these folders:
 
 Analysis Manager        \\pnl\projects\OmicsSW\DMS_Programs\AnalysisToolManagerDistribution
-Analysis Manager        \\pnl\projects\OmicsSW\DMS_Programs\AnalysisToolManagerDistribution_NewDecon2LS
 
 Capture Task Manager    \\pnl\projects\OmicsSW\DMS_Programs\CaptureTaskManagerDistribution
 
-DataPackage Archive Manager        \\pnl\projects\OmicsSW\DMS_Programs\AnalysisToolManagerDistribution_NewDecon2LS\DataPackage_Archive_Manager
+DataPackage Archive Manager        \\pnl\projects\OmicsSW\DMS_Programs\AnalysisToolManagerDistribution\DataPackage_Archive_Manager
 DataPackage Archive Manager        \\protoapps\DMS_Programs\DataPackage_Archive_Manager
 
 MyEMSL Downloader       \\floyd\software\MyEMSLDownloader
@@ -18,19 +17,17 @@ MyEMSL MTS File Cache Manager      \\proteinseqs\DMS_Programs\MyEMSL_Cache_Manag
 
 Space Manager           \\pnl\projects\OmicsSW\DMS_Programs\CaptureTaskManagerDistribution\SpaceManager
 
-Mage                 	F:\My Documents\Projects\DataMining\DMS_Programs\Mage\Mage\lib   
-Mage                 	\\FLOYD\software\Mage\Exe_Only\MageFileProcessor
-Mage                 	\\FLOYD\software\Mage\Exe_Only\MageExtractor
+Mage                 	F:\Documents\Projects\DataMining\DMS_Programs\Mage\Mage\lib
+Mage                 	\\floyd\software\Mage\Exe_Only\MageFileProcessor
+Mage                 	\\floyd\software\Mage\Exe_Only\MageExtractor
 
 
-Distribute Mage by comparing 
-  F:\My Documents\Projects\DataMining\DMS_Programs\Mage\Installer\Output 
+Distribute Mage by comparing
+  F:\Documents\Projects\DataMining\DMS_Programs\Mage\Installer\Output
 to
   \\floyd\software\Mage
-  
-And 
-  F:\My Documents\Projects\DataMining\DMS_Programs\Mage\DeployedFiles
+
+And
+  F:\Documents\Projects\DataMining\DMS_Programs\Mage\DeployedFiles
 to
   \\floyd\software\Mage\Exe_Only
-
-
