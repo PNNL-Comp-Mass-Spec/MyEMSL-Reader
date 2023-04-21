@@ -722,7 +722,7 @@ namespace Pacifica.DMSDataUpload
                 {
                     var addUpdateTaskParam =
                         string.Format(
-                            "exec |add_update_task_parameter @job = {0}, " +
+                            "exec add_update_task_parameter @job = {0}, " +
                             "@section = 'JobParameters', " +
                             "@paramName = 'IgnoreMyEMSLFileTrackingError', " +
                             "@value = 'True'",
