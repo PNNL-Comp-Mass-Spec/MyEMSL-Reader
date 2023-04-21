@@ -364,6 +364,21 @@ namespace MyEMSLReader
         /// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
         /// <param name="subdirectoryName">Subdirectory in which the file must reside; can contain a wildcard, e.g. SIC*</param>
         /// <param name="datasetName">Dataset name filter</param>
+        /// <returns>List of matching files</returns>
+        public List<DatasetDirectoryOrFileInfo> FindFiles(string fileName, string subdirectoryName, string datasetName)
+        {
+            var fileIDList = string.Empty;
+            return FindFiles(fileName, subdirectoryName, datasetName, fileIDList, recurse: true);
+        }
+
+        /// <summary>
+        /// Looks for the given file, returning any matches as a list
+        /// </summary>
+        /// <remarks>subdirectoryName can contain a partial path, for example 2013_09_10_DPB_Unwashed_Media_25um.d\2013_09_10_In_1sec_1MW.m</remarks>
+        /// ReSharper disable once UnusedMember.Global
+        /// <param name="fileName">File name to find; can contain a wildcard, e.g. *.zip</param>
+        /// <param name="subdirectoryName">Subdirectory in which the file must reside; can contain a wildcard, e.g. SIC*</param>
+        /// <param name="datasetName">Dataset name filter</param>
         /// <param name="fileIDList">Comma separated list of MyEMSL File IDs to filter on (blank to ignore); must be one of the files associated with the given dataset</param>
         /// <returns>List of matching files</returns>
         public List<DatasetDirectoryOrFileInfo> FindFiles(string fileName, string subdirectoryName, string datasetName, string fileIDList)
