@@ -9,7 +9,7 @@ namespace MyEMSLReader
     /// </summary>
     public class DatasetListInfo : DatasetInfoBase
     {
-        // Ignore Spelling: wildcards
+        // Ignore Spelling: Dirs, wildcards
 
         /// <summary>
         /// Dataset names

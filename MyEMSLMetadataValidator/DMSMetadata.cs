@@ -5,6 +5,8 @@ namespace MyEMSLMetadataValidator
 {
     internal class DMSMetadata
     {
+        // Ignore Spelling: Validator
+
         public int EntryID { get; set; }
 
         public int Job { get; set; }

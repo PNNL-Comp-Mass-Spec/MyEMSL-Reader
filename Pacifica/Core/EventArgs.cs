@@ -4,6 +4,8 @@ namespace Pacifica.Core
 {
     public class MessageEventArgs : EventArgs
     {
+        // Ignore Spelling: Pacifica
+
         /// <summary>
         /// Calling function
         /// </summary>

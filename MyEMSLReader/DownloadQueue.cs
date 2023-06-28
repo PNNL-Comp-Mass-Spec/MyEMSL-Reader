@@ -10,6 +10,8 @@ namespace MyEMSLReader
     /// </summary>
     public class DownloadQueue : EventNotifier
     {
+        // Ignore Spelling: Dest
+
         /// <summary>
         /// File download info
         /// </summary>

@@ -6,6 +6,8 @@ namespace Pacifica.Core
 {
     public class FileInfoObject
     {
+        // Ignore Spelling: Pacifica, Sha
+
         /// <summary>
         /// Constructor and takes a file path
         /// </summary>

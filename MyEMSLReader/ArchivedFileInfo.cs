@@ -9,7 +9,7 @@ namespace MyEMSLReader
     /// </summary>
     public class ArchivedFileInfo
     {
-        // Ignore Spelling: yyyy-MM-dd, HH:mm:ss, tt
+        // Ignore Spelling: sha, yyyy-MM-dd, HH:mm:ss, tt
 
         /// <summary>
         /// SHA-1

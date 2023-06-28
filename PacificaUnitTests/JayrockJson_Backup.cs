@@ -13,7 +13,7 @@ namespace PacificaUnitTests
     /// </summary>
     public static class JayrockJson_Backup
     {
-        // Ignore Spelling: ctime, hashsum, hashtype, mtime, subdir
+        // Ignore Spelling: ctime, hashsum, hashtype, Jayrock, js, JSON, mtime, Pacifica, subdir
 
         public static MyEMSLTaskStatus JsonToTaskStatus(string statusResult)
         {

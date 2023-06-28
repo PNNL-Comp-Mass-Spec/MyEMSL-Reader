@@ -5,6 +5,8 @@ namespace Pacifica.Core
 {
     public static class ExtensionMethods
     {
+        // Ignore Spelling: Pacifica
+
         /// <summary>
         /// Determine the Description attribute of a given enum value
         /// </summary>

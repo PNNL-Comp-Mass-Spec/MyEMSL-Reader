@@ -4,6 +4,8 @@ namespace PacificaUnitTests
 {
     public class FileInfoObjectTest
     {
+        // Ignore Spelling: Pacifica, Sha, Utc
+
         /// <summary>
         /// Full path to the local file
         /// </summary>

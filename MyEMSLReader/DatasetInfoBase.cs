@@ -15,7 +15,7 @@ namespace MyEMSLReader
     {
         // ReSharper disable CommentTypo
 
-        // Ignore Spelling: acyl, Args, dest, oxoacyl, ser, struct, svc, wildcards
+        // Ignore Spelling: acyl, Args, dest, EMSL, MyEMSL, oxoacyl, ser, struct, svc, wildcards
 
         // ReSharper restore CommentTypo
 

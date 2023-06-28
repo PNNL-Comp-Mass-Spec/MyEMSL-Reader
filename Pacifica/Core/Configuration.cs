@@ -11,7 +11,7 @@ namespace Pacifica.Core
 {
     public class Configuration
     {
-        // Ignore Spelling: http, https, svc-dms
+        // Ignore Spelling: http, https, Pacifica, svc-dms
 
         /// <summary>
         /// Policy Server host name on the production server

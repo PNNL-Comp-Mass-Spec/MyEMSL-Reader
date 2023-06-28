@@ -20,7 +20,7 @@ namespace MyEMSLReader
     /// <remarks>Written by Matthew Monroe for PNNL in 2013.</remarks>
     public class Reader : MyEMSLBase
     {
-        // Ignore Spelling: ctime, fileinfo, Frodo, hashsum, hashtype, Json, keyvalue, Linq, mtime, subdir, wildcards
+        // Ignore Spelling: ctime, Dirs, fileinfo, Frodo, hashsum, hashtype, Json, keyvalue, Linq, mtime, subdir, wildcards
 
         private const string QUERY_SPEC_DATASET_ID = "omics.dms.dataset_id";
 

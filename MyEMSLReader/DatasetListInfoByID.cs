@@ -11,6 +11,8 @@ namespace MyEMSLReader
     /// </summary>
     public class DatasetListInfoByID : DatasetInfoBase
     {
+        // Ignore Spelling: Dirs
+
         /// <summary>
         /// Dataset IDs
         /// </summary>
