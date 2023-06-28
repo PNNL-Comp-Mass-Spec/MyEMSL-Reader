@@ -86,7 +86,7 @@ namespace PacificaUnitTests
             // Convert the response to a dictionary
             var jsonData = JsonConvert.Import(jsonString);
 
-            if (jsonData is not JsonArray jsa)
+            if (jsonData is not JsonArray jsArray)
             {
                 var errMsg = "Could not convert the JSON string from " + dataUrl + " to a JsonArray (" + callingMethodName + ")";
 
@@ -109,7 +109,7 @@ namespace PacificaUnitTests
                 return null;
             }
 
-            var data = JsonArrayToDictionaryList(jsa);
+            var data = JsonArrayToDictionaryList(jsArray);
             return data;
         }
 
@@ -130,21 +130,21 @@ namespace PacificaUnitTests
             return jso.ToString();
         }
 
-        public static Dictionary<string, object> JsonObjectToDictionary(JsonObject jso)
+        public static Dictionary<string, object> JsonObjectToDictionary(JsonObject jsObject)
         {
             var settingsDictionary = new Dictionary<string, object>();
 
-            if (jso == null)
+            if (jsObject == null)
             {
                 ConsoleMsgUtils.ShowWarning("Skipping null item in JsonObjectToDictionary");
                 return settingsDictionary;
             }
 
-            foreach (string key in jso.Names)
+            foreach (string key in jsObject.Names)
             {
-                jso[key] ??= string.Empty;
+                jsObject[key] ??= string.Empty;
 
-                var value = jso[key];
+                var value = jsObject[key];
 
                 if (value.GetType().Name == "JsonObject")
                 {
@@ -215,13 +215,13 @@ namespace PacificaUnitTests
             return settingsDictionary;
         }
 
-        public static List<string> JsonArrayToStringList(JsonArray jsa)
+        public static List<string> JsonArrayToStringList(JsonArray jsArray)
         {
             var jsonStrings = new List<string>();
 
-            while (jsa.Length > 0)
+            while (jsArray.Length > 0)
             {
-                var value = jsa.Pop();
+                var value = jsArray.Pop();
                 var typeName = value.GetType().Name;
 
                 if (typeName == "JsonNumber" || typeName == "String")
@@ -237,9 +237,9 @@ namespace PacificaUnitTests
             return jsonStrings;
         }
 
-        public static List<int> JsonArrayToIntList(JsonArray jsa)
+        public static List<int> JsonArrayToIntList(JsonArray jsArray)
         {
-            var jsonStrings = JsonArrayToStringList(jsa);
+            var jsonStrings = JsonArrayToStringList(jsArray);
             var parsedIntegers = new List<int>();
 
             foreach (var jsonItem in jsonStrings)
@@ -257,13 +257,13 @@ namespace PacificaUnitTests
             return parsedIntegers;
         }
 
-        public static List<Dictionary<string, object>> JsonArrayToDictionaryList(JsonArray jsa)
+        public static List<Dictionary<string, object>> JsonArrayToDictionaryList(JsonArray jsArray)
         {
             var parsedItems = new List<Dictionary<string, object>>();
 
-            while (jsa.Length > 0)
+            while (jsArray.Length > 0)
             {
-                var value = jsa.Pop();
+                var value = jsArray.Pop();
 
                 if (value.GetType().Name == "JsonNumber")
                 {
