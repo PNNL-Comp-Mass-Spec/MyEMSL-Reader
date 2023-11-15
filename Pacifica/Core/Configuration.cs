@@ -109,7 +109,7 @@ namespace Pacifica.Core
         public string IngestServerHostName { get; set; }
 
         /// <summary>
-        /// Ingest server, default https://ingest.my.emsl.pnl.gov
+        /// Ingest server, default https://ingestdms.my.emsl.pnl.gov
         /// </summary>
         public string IngestServerUri => Scheme + IngestServerHostName;
 
@@ -119,7 +119,7 @@ namespace Pacifica.Core
         public string PolicyServerHostName { get; set; }
 
         /// <summary>
-        /// Policy server, default https://policy.my.emsl.pnl.gov
+        /// Policy server, default https://policydms.my.emsl.pnl.gov
         /// </summary>
         public string PolicyServerUri => Scheme + PolicyServerHostName;
 
