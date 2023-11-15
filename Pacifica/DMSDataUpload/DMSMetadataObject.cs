@@ -273,7 +273,7 @@ namespace Pacifica.DMSDataUpload
 
             if (unmatchedFiles.Count > 0)
             {
-                var jsonMetadata = JsonTools.UploadMetadataToJson(MetadataObject);
+                var jsonMetadata = JsonTools.UploadMetadataToJson(MetadataObject, 1);
 
                 if (!CheckMetadataValidity(jsonMetadata, out var policyError))
                 {

@@ -70,14 +70,38 @@ namespace Pacifica.Json
         /// Convert a list of <see cref="IUploadMetadata"/>-implementing objects into JSON text
         /// </summary>
         /// <param name="metadataList"></param>
-        public static string UploadMetadataToJson(IReadOnlyList<IUploadMetadata> metadataList)
+        /// <param name="fileLimit">If greater than zero, only include this many files in the JSON returned by this method</param>
+        public static string UploadMetadataToJson(IReadOnlyList<IUploadMetadata> metadataList, int fileLimit = 0)
         {
             if (metadataList == null)
             {
                 return string.Empty;
             }
 
-            return JsonConvert.SerializeObject(metadataList);
+            if (fileLimit <= 0)
+            {
+                return JsonConvert.SerializeObject(metadataList);
+            }
+
+            var filteredList = new List<IUploadMetadata>();
+            var filesAdded = 0;
+
+            foreach (var item in metadataList)
+            {
+                if (!item.DestinationTable.Equals("Files"))
+                {
+                    filteredList.Add(item);
+                    continue;
+                }
+
+                if (filesAdded >= fileLimit)
+                    continue;
+
+                filteredList.Add(item);
+                filesAdded++;
+            }
+
+            return JsonConvert.SerializeObject(filteredList);
         }
 
         /// <summary>
