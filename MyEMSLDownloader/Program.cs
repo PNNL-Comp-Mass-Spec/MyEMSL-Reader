@@ -645,7 +645,7 @@ namespace MyEMSLDownloader
                     continue;
 
                 ConsoleMsgUtils.ShowDebug(
-                        "  FileID {0}, TransID {1}, Submitted {2}, Size {3:F1} KB, Hash {4}, HashType {5}",
+                        "  FileID {0}, TransID {1}, Submitted {2} (UTC), Size {3:F1} KB, Hash {4}, HashType {5}",
                         archiveFile.FileID,
                         archiveFile.FileInfo.TransactionID,
                         archiveFile.FileInfo.SubmissionTime,
