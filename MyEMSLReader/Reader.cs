@@ -827,6 +827,9 @@ namespace MyEMSLReader
 
                     foreach (var remoteFile in filesToAdd)
                     {
+                        if (remoteFile.Value.Count == 0)
+                            continue;
+
                         if (filterOnInstrument)
                         {
                             // Skip files that do not match this instrument
@@ -1237,6 +1240,11 @@ namespace MyEMSLReader
 
                 var duplicateHashCount = 0;
 
+                // Data uploaded to Pacifica (aka MyEMSL) between '2023-10-31 22:13:00' and '2023-12-19 22:00:00' was inadvertently stored as zero-byte files
+                // Any files with a Submission time in that range, are assumed to be invalid (Submission time comes from Created time in the metadata)
+                var corruptDataStartTime = new DateTime(2023, 10, 31, 22, 13, 00);
+                var corruptDataEndTime = new DateTime(2023, 12, 19, 22, 00,00);
+
                 // Note that two files in the same directory could have the same hash value (but different names),
                 // so we cannot simply compare file hashes
 
@@ -1287,6 +1295,12 @@ namespace MyEMSLReader
                         DatasetYearQuarter = string.Empty,
                         Instrument = instrument
                     };
+
+                    if (remoteFileInfo.SubmissionTimeValue >= corruptDataStartTime && remoteFileInfo.SubmissionTimeValue <= corruptDataEndTime)
+                    {
+                        // Ignore this file
+                        continue;
+                    }
 
                     if (checkingDataPackage)
                     {
