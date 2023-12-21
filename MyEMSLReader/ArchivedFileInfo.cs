@@ -341,7 +341,10 @@ namespace MyEMSLReader
             FileSizeBytes = fileData.Size;
             Hash = fileData.HashSum;
             HashType = fileData.HashType;
-            SubmissionTime = fileData.Created.ToUniversalTime().ToString("s");
+
+            // Do not use "fileData.Created.ToUniversalTime()" since the .Created time is already UTC
+            SubmissionTime = fileData.Created.ToString("s");
+
             TransactionID = fileData.TransactionId;
             FileCreationTime = fileData.FileCreationTime;
             FileLastWriteTime = fileData.FileLastWriteTime;
