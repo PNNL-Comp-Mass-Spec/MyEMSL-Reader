@@ -12,9 +12,9 @@ using PRISMDatabaseUtils;
 namespace MyEMSLReader
 {
     /// <summary>
-    /// This class contacts MyEMSL to find all of the files associated with the given dataset (by name or ID)
-    ///   Optionally filter on Instrument name to guarantee you are finding the desired files
-    ///   Optionally filter on Subdirectory name below the dataset directory to limit the search space
+    /// This class contacts MyEMSL to find the files associated with the given dataset (by name or ID)
+    /// Optionally filter on Instrument name to guarantee you are finding the desired files
+    /// Optionally filter on Subdirectory name below the dataset directory to limit the search space
     /// Also supports searching by Data Package ID
     /// </summary>
     /// <remarks>Written by Matthew Monroe for PNNL in 2013.</remarks>

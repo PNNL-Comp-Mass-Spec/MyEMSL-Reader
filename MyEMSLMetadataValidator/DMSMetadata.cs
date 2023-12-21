@@ -30,7 +30,7 @@ namespace MyEMSLMetadataValidator
         public DateTime Entered { get; set; }
 
         /// <summary>
-        ///  Constructor
+        /// Constructor
         /// </summary>
         public DMSMetadata(int datasetId)
         {

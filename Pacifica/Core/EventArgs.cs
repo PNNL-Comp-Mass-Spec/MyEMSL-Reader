@@ -68,6 +68,10 @@ namespace Pacifica.Core
         /// </summary>
         public string ServerResponse { get; }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="serverResponse"></param>
         public UploadCompletedEventArgs(string serverResponse)
         {
             ServerResponse = serverResponse;
