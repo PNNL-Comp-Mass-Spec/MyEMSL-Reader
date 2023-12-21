@@ -1260,11 +1260,12 @@ namespace MyEMSLReader
                     if (remoteFiles.TryGetValue(relativeFilePath, out var fileVersions))
                     {
                         // Make sure that fileVersions doesn't already have a version of this file with this specific SHA-1 hash
-                        // This is a rare occurrence and should only happen due to metadata ingest logic issues
+                        // This can happen if the same subdirectory is pushed into MyEMSL twice, and the file modification times have changed
+                        // but the file contents have not changed
 
                         if (FileHashExists(fileVersions, fileHash))
                         {
-                            if (string.Equals(fileHash, "none", StringComparison.InvariantCultureIgnoreCase))
+                            if (string.Equals(fileHash, "none", StringComparison.OrdinalIgnoreCase))
                             {
                                 // Do not log a warning; just silently ignore it
                                 // Example of a dataset with hash values of "None" is test dataset SWT_LCQData_300
@@ -1290,18 +1291,17 @@ namespace MyEMSLReader
                         remoteFiles.Add(relativeFilePath, fileVersions);
                     }
 
-                    var remoteFileInfo = new ArchivedFileInfo(datasetName, fileObj)
-                    {
-                        DatasetYearQuarter = string.Empty,
-                        Instrument = instrument
-                    };
-
-                    if (remoteFileInfo.SubmissionTimeValue >= corruptDataStartTime && remoteFileInfo.SubmissionTimeValue <= corruptDataEndTime)
+                    if (fileObj.Created >= corruptDataStartTime && fileObj.Created <= corruptDataEndTime)
                     {
                         // Ignore this file
                         continue;
                     }
 
+                    var remoteFileInfo = new ArchivedFileInfo(datasetName, fileObj)
+                    {
+                        DatasetYearQuarter = string.Empty,
+                        Instrument = instrument
+                    };
                     if (checkingDataPackage)
                     {
                         remoteFileInfo.DatasetID = 0;
