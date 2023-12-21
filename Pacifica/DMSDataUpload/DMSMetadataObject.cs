@@ -21,7 +21,7 @@ namespace Pacifica.DMSDataUpload
     {
         // ReSharper disable CommentTypo
 
-        // Ignore Spelling: ctime, fileinfo, gzipped, hashsum, hashtype, Json, keyvalue, mtime, ncbi, ssl, subdir, subfolder
+        // Ignore Spelling: ctime, EUS, fileinfo, gzipped, hashsum, hashtype, Json, keyvalue, mtime, ncbi, Pacifica, ssl, subdir, subfolder
 
         // ReSharper restore CommentTypo
 

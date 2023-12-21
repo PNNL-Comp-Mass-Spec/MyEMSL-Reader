@@ -10,6 +10,8 @@ namespace Pacifica.Json
     /// </summary>
     public static class JsonTools
     {
+        // Ignore Spelling: JSON, Pacifica
+
         /// <summary>
         /// Convert JSON text into a list of <see cref="MyEMSLFileInfo"/> objects
         /// </summary>

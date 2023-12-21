@@ -11,7 +11,7 @@ namespace Pacifica.Json
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class MyEMSLFileInfo
     {
-        // Ignore Spelling: absolutelocalpath, ctime, deserialization, hashsum, hashtype, mimetype, mtime, subdir, subfolder
+        // Ignore Spelling: absolutelocalpath, ctime, deserialization, hashsum, hashtype, JSON, mimetype, mtime, Pacifica, subdir, subfolder
 
         /// <summary>
         /// True if essential values are set.

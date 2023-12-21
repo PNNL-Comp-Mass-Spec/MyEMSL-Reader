@@ -18,7 +18,8 @@ namespace MyEMSLReader
     /// <remarks>Written by Matthew Monroe for PNNL in August 2013</remarks>
     public class Downloader : MyEMSLBase
     {
-        // Ignore Spelling: dest
+        // Ignore Spelling: dest, downloader
+
 
         /// <summary>
         /// Download layout

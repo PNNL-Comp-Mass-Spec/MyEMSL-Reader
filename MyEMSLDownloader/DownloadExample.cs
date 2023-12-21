@@ -7,7 +7,7 @@ namespace MyEMSLDownloader
 {
     internal class DownloadExample
     {
-        // Ignore Spelling: Virol
+        // Ignore Spelling: Downloader, Virol
 
         public void StartTest()
         {

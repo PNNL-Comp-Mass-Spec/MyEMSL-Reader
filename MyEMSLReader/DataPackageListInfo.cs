@@ -9,6 +9,8 @@ namespace MyEMSLReader
     /// </summary>
     public class DataPackageListInfo : DatasetInfoBase
     {
+        // Ignore Spelling: Dirs, downloader
+
         /// <summary>
         /// Dataset IDs
         /// </summary>
