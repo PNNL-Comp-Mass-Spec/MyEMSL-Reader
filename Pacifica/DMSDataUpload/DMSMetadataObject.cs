@@ -25,6 +25,8 @@ namespace Pacifica.DMSDataUpload
 
         // ReSharper restore CommentTypo
 
+        // ReSharper disable UseCollectionExpression
+
         /// <summary>
         /// If a dataset archive task involves more 15 GB of data, only archive the root directory and the QC directory
         /// Use property SkippedDatasetArchiveSubdirectories to view the skipped subdirectory names

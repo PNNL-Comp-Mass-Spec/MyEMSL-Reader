@@ -11,6 +11,8 @@ namespace MyEMSLReader
     {
         // Ignore Spelling: Dirs, wildcards
 
+        // ReSharper disable UseCollectionExpression
+
         /// <summary>
         /// Dataset names
         /// </summary>

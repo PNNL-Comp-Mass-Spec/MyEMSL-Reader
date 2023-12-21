@@ -19,6 +19,8 @@ namespace MyEMSLReader
 
         // ReSharper restore CommentTypo
 
+        // ReSharper disable UseCollectionExpression
+
         /// <summary>
         /// MyEMSL ID flag
         /// </summary>

@@ -20,6 +20,7 @@ namespace MyEMSLReader
     {
         // Ignore Spelling: dest, downloader
 
+        // ReSharper disable UseCollectionExpression
 
         /// <summary>
         /// Download layout

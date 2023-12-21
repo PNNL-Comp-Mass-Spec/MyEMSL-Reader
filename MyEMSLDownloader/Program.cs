@@ -18,6 +18,8 @@ namespace MyEMSLDownloader
     {
         // Ignore Spelling: Acq, dd, downloader, melissa, ser, un-purged, Virol, yyyy
 
+        // ReSharper disable UseCollectionExpression
+
         private static double mPercentComplete;
         private static DateTime mLastProgressUpdateTime = DateTime.UtcNow;
 

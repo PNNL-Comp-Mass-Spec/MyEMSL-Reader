@@ -12,6 +12,8 @@ namespace Pacifica.Json
     {
         // Ignore Spelling: JSON, Pacifica
 
+        // ReSharper disable UseCollectionExpression
+
         /// <summary>
         /// Convert JSON text into a list of <see cref="MyEMSLFileInfo"/> objects
         /// </summary>

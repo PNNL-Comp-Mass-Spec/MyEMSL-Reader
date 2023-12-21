@@ -22,6 +22,8 @@ namespace MyEMSLReader
     {
         // Ignore Spelling: ctime, Dirs, fileinfo, Frodo, hashsum, hashtype, Json, keyvalue, Linq, mtime, subdir, wildcards
 
+        // ReSharper disable UseCollectionExpression
+
         private const string QUERY_SPEC_DATASET_ID = "omics.dms.dataset_id";
 
         private const string QUERY_SPEC_DATASET_NAME = "omics.dms.dataset_name";
