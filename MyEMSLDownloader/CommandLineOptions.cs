@@ -14,12 +14,12 @@ namespace MyEMSLDownloader
             HelpText = "Dataset ID", Min = 1)]
         public int DatasetID { get; set; }
 
-        [Option("DataPkg", HelpShowsDefault = false,
-            HelpText = "Retrieve files from a specific data package", Min = 1)]
+        [Option("DataPkgID", "DataPkg", HelpShowsDefault = false,
+            HelpText = "Data Package ID", Min = 1)]
         public int DataPkgID { get; set; }
 
-        [Option("SubDir", ArgPosition = 2, HelpShowsDefault = false,
-            HelpText = "Name of a subdirectory in the dataset")]
+        [Option("SubDir", "Directory", ArgPosition = 2, HelpShowsDefault = false,
+            HelpText = "Name of a subdirectory in the dataset (or data package)")]
         public string Subdirectory { get; set; }
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace MyEMSLDownloader
         /// Specify a list of names and/or specs by separating with a semicolon and using switch /FileSplit
         /// For example: analysis.baf|ser
         /// </remarks>
-        [Option("Files", HelpShowsDefault = false,
+        [Option("Files", "File", HelpShowsDefault = false,
             HelpText = "Filter for specific files, for example /Files:*.txt\n" +
                        "Files will be downloaded to the directory with the .exe; override using /O")]
         public string FileMask { get; set; }
@@ -44,7 +44,7 @@ namespace MyEMSLDownloader
                        "/Files:analysis.baf;ser /FileSplit")]
         public bool FileSplit { get; set; }
 
-        [Option("FileList", HelpShowsDefault = false,
+        [Option("FileListFile", "FileList", HelpShowsDefault = false,
             HelpText = "Specify a file with a list of datasets and files to retrieve. " +
                        "The file must be a tab-delimited text file, with columns Dataset (or DatasetID) and File, " +
                        "and optionally with column SubDir. The file names in the File column are allowed " +
