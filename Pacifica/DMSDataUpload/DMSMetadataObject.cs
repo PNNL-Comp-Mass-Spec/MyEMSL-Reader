@@ -986,14 +986,24 @@ namespace Pacifica.DMSDataUpload
 
             if (uploadMetadata.EUSOperatorID == 0)
             {
-                var jobNumber = Utilities.GetDictionaryValue(taskParams, "Job", string.Empty);
+                if (operatorUsername.Equals("D3L064"))
+                {
+                    // Very old, pre-EUS user
+                    // Use the EUS user ID for D3L243
+                    uploadMetadata.EUSOperatorID = Upload.DEFAULT_EUS_OPERATOR_ID;
+                }
+                else
+                {
+                    var jobNumber = Utilities.GetDictionaryValue(taskParams, "Job", string.Empty);
 
-                var errorMessage =
-                    UNDEFINED_EUS_OPERATOR_ID + ". " +
-                    operatorUsername + " needs to login at " + EUS_PORTAL_URL + " to be assigned an ID, " +
-                    "then DMS needs to update T_EUS_Users (occurs daily via update_eus_users_from_eus_imports), then the job parameters must be updated with: EXEC update_parameters_for_task " + jobNumber;
+                    var errorMessage =
+                        UNDEFINED_EUS_OPERATOR_ID + ". " +
+                        operatorUsername + " needs to login at " + EUS_PORTAL_URL + " to be assigned an ID, " +
+                        "then DMS needs to update T_EUS_Users (occurs daily via update_eus_users_from_eus_imports), then the job parameters must be updated with: EXEC update_parameters_for_task " +
+                        jobNumber;
 
-                throw new Exception(errorMessage);
+                    throw new Exception(errorMessage);
+                }
             }
 
             // Possibly override EUS ID
