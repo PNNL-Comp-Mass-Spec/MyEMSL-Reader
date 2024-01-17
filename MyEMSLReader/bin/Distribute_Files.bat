@@ -72,10 +72,10 @@ xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Programs\Mage
 xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Programs\PurgedMzMLFileRetriever\bin" /D /Y
 xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Programs\PurgedMzMLFileRetriever\lib" /D /Y
 
-xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\JohnSandoval\APE\lib" /D /Y
+xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\John_Sandoval\APE\lib" /D /Y
 
-xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\JoshAldrich\InterferenceDetection\InterDetect\DLLLibrary" /D /Y
-xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\JoshAldrich\ProteinParsimony\SetCover\Lib" /D /Y
+xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\Josh_Aldrich\InterferenceDetection\InterDetect\DLLLibrary" /D /Y
+xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\Josh_Aldrich\ProteinParsimony\SetCover\Lib" /D /Y
 
 xcopy Debug\MyEMSLReader.dll "C:\DMS_Programs\MyEMSLDownloader" /D /Y
 
@@ -103,10 +103,10 @@ xcopy Debug\Pacifica.dll "F:\Documents\Projects\DataMining\DMS_Programs\Mage\Mag
 xcopy Debug\Pacifica.dll "F:\Documents\Projects\DataMining\DMS_Programs\PurgedMzMLFileRetriever\bin" /D /Y
 xcopy Debug\Pacifica.dll "F:\Documents\Projects\DataMining\DMS_Programs\PurgedMzMLFileRetriever\lib" /D /Y
 
-xcopy Debug\Pacifica.dll "F:\Documents\Projects\JohnSandoval\APE\lib" /D /Y
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\John_Sandoval\APE\lib" /D /Y
 
-xcopy Debug\Pacifica.dll "F:\Documents\Projects\JoshAldrich\InterferenceDetection\InterDetect\DLLLibrary" /D /Y
-xcopy Debug\Pacifica.dll "F:\Documents\Projects\JoshAldrich\ProteinParsimony\SetCover\Lib" /D /Y
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\Josh_Aldrich\InterferenceDetection\InterDetect\DLLLibrary" /D /Y
+xcopy Debug\Pacifica.dll "F:\Documents\Projects\Josh_Aldrich\ProteinParsimony\SetCover\Lib" /D /Y
 
 xcopy Debug\Pacifica.dll "C:\DMS_Programs\MyEMSLDownloader" /D /Y
 
