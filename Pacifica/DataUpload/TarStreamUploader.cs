@@ -456,7 +456,7 @@ namespace Pacifica.DataUpload
             // Add the metadata.txt file
             AppendFileToTar(tarOutputStream, metadataFile, EasyHttp.MYEMSL_METADATA_FILE_NAME, ref bytesWritten);
 
-            // Add the "data" directory, which will hold all of the files
+            // Add the "data" directory, which will hold all the files
             // Need a dummy "data" directory to do this
             var tempFolder = Utilities.GetTempDirectory(config);
             var dummyDataFolder = new DirectoryInfo(Path.Combine(tempFolder.FullName, "data"));
