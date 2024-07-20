@@ -47,7 +47,7 @@ namespace MyEMSLDownloader
                                   "Version: " + AppUtils.GetAppVersion(commitDate) +
                                   Environment.NewLine + Environment.NewLine +
                                   "E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov" + Environment.NewLine +
-                                  "Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics"
+                                  "Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://www.pnnl.gov/integrative-omics"
                 };
 
             parser.UsageExamples.Add("Syntax #1:" + Environment.NewLine + exeName +
