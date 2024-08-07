@@ -196,7 +196,7 @@ namespace PacificaUnitTests
 
             Assert.That(jjError, Is.EqualTo(""));
             Assert.That(njError, Is.EqualTo(""));
-            Assert.That(nj.Count, Is.EqualTo(jj.Count));
+            Assert.That(nj, Has.Count.EqualTo(jj.Count));
 
             jj.Sort((x, y) => long.Parse(x["_id"].ToString()).CompareTo(long.Parse(y["_id"].ToString())));
             nj.Sort((x, y) => ((long)x["_id"]).CompareTo((long)y["_id"]));
@@ -235,7 +235,7 @@ namespace PacificaUnitTests
 
             Assert.That(jjError, Is.EqualTo(""));
             Assert.That(njError, Is.EqualTo(""));
-            Assert.That(nj.Count, Is.EqualTo(jj.Count));
+            Assert.That(nj, Has.Count.EqualTo(jj.Count));
 
             jj.Sort((x, y) => x.FileID.CompareTo(y.FileID));
             nj.Sort((x, y) => x.FileID.CompareTo(y.FileID));

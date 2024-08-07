@@ -94,7 +94,7 @@ namespace PacificaUnitTests
 
             Assert.That(njError, Is.EqualTo(""));
             var expected = GetUploadMetadataObjects();
-            Assert.That(nj.Count, Is.EqualTo(expected.Count));
+            Assert.That(nj, Has.Count.EqualTo(expected.Count));
 
             Compare(expected, nj);
         }
