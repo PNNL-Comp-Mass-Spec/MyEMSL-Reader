@@ -166,8 +166,11 @@ namespace PacificaUnitTests
             var jsonMetadata2 = JsonTools.ObjectToJson(listOld);
             var jsonMetadata3 = JsonTools.UploadMetadataToJson(listNew);
 
-            Assert.That(jsonMetadata2, Is.EqualTo(jsonMetadata1));
-            Assert.That(jsonMetadata3, Is.EqualTo(jsonMetadata1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(jsonMetadata2, Is.EqualTo(jsonMetadata1));
+                Assert.That(jsonMetadata3, Is.EqualTo(jsonMetadata1));
+            });
         }
 
         private void Compare(IReadOnlyList<IUploadMetadata> expected, IReadOnlyList<IUploadMetadata> actual)
@@ -196,26 +199,35 @@ namespace PacificaUnitTests
 
         private void CompareKv(UploadMetadataKeyValue expected, UploadMetadataKeyValue actual)
         {
-            //Assert.That(actual.DestinationTable, Is.EqualTo(expected.DestinationTable));
-            Assert.That(actual.Key, Is.EqualTo(expected.Key));
-            Assert.That(actual.Value, Is.EqualTo(expected.Value));
+            Assert.Multiple(() =>
+            {
+                //Assert.That(actual.DestinationTable, Is.EqualTo(expected.DestinationTable));
+                Assert.That(actual.Key, Is.EqualTo(expected.Key));
+                Assert.That(actual.Value, Is.EqualTo(expected.Value));
+            });
         }
 
         private void CompareV(UploadMetadataValue expected, UploadMetadataValue actual)
         {
-            Assert.That(actual.DestinationTable, Is.EqualTo(expected.DestinationTable));
-            Assert.That(actual.Value, Is.EqualTo(expected.Value));
+            Assert.Multiple(() =>
+            {
+                Assert.That(actual.DestinationTable, Is.EqualTo(expected.DestinationTable));
+                Assert.That(actual.Value, Is.EqualTo(expected.Value));
+            });
         }
 
         private void CompareFile(UploadMetadataFile expected, UploadMetadataFile actual)
         {
-            Assert.That(actual.Name, Is.EqualTo(expected.Name));
-            Assert.That(actual.AbsoluteLocalPath, Is.EqualTo(expected.AbsoluteLocalPath));
-            Assert.That(actual.SubDir, Is.EqualTo(expected.SubDir));
-            Assert.That(actual.Size, Is.EqualTo(expected.Size));
-            Assert.That(actual.HashSum, Is.EqualTo(expected.HashSum));
-            Assert.That(actual.FileCreationTimeUtc, Is.EqualTo(expected.FileCreationTimeUtc));
-            Assert.That(actual.FileLastModifiedTimeUtc, Is.EqualTo(expected.FileLastModifiedTimeUtc));
+            Assert.Multiple(() =>
+            {
+                Assert.That(actual.Name, Is.EqualTo(expected.Name));
+                Assert.That(actual.AbsoluteLocalPath, Is.EqualTo(expected.AbsoluteLocalPath));
+                Assert.That(actual.SubDir, Is.EqualTo(expected.SubDir));
+                Assert.That(actual.Size, Is.EqualTo(expected.Size));
+                Assert.That(actual.HashSum, Is.EqualTo(expected.HashSum));
+                Assert.That(actual.FileCreationTimeUtc, Is.EqualTo(expected.FileCreationTimeUtc));
+                Assert.That(actual.FileLastModifiedTimeUtc, Is.EqualTo(expected.FileLastModifiedTimeUtc));
+            });
         }
 
         [Test]

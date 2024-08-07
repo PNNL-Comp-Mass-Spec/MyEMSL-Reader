@@ -194,9 +194,12 @@ namespace PacificaUnitTests
             var jj = JayrockJson_Backup.ParseJsonToDictionaryList(jsonInput, "test", "test", out var jjError);
             var nj = JsonTools.JsonToDictionaryList(jsonInput, "test", "test", out var njError);
 
-            Assert.That(jjError, Is.EqualTo(""));
-            Assert.That(njError, Is.EqualTo(""));
-            Assert.That(nj, Has.Count.EqualTo(jj.Count));
+            Assert.Multiple(() =>
+            {
+                Assert.That(jjError, Is.EqualTo(""));
+                Assert.That(njError, Is.EqualTo(""));
+                Assert.That(nj, Has.Count.EqualTo(jj.Count));
+            });
 
             jj.Sort((x, y) => long.Parse(x["_id"].ToString()).CompareTo(long.Parse(y["_id"].ToString())));
             nj.Sort((x, y) => ((long)x["_id"]).CompareTo((long)y["_id"]));
@@ -233,9 +236,12 @@ namespace PacificaUnitTests
             var jj = JayrockJson_Backup.JsonToFileList(jsonInput, out var jjError);
             var nj = JsonTools.JsonToFileList(jsonInput, "test", "test", out var njError);
 
-            Assert.That(jjError, Is.EqualTo(""));
-            Assert.That(njError, Is.EqualTo(""));
-            Assert.That(nj, Has.Count.EqualTo(jj.Count));
+            Assert.Multiple(() =>
+            {
+                Assert.That(jjError, Is.EqualTo(""));
+                Assert.That(njError, Is.EqualTo(""));
+                Assert.That(nj, Has.Count.EqualTo(jj.Count));
+            });
 
             jj.Sort((x, y) => x.FileID.CompareTo(y.FileID));
             nj.Sort((x, y) => x.FileID.CompareTo(y.FileID));
@@ -244,19 +250,22 @@ namespace PacificaUnitTests
             {
                 var jo = jj[i];
                 var no = nj[i];
-                Assert.That(no.Valid, Is.EqualTo(jo.Valid));
-                Assert.That(no.Filename, Is.EqualTo(jo.Filename));
-                Assert.That(no.FileID, Is.EqualTo(jo.FileID));
-                Assert.That(no.HashSum, Is.EqualTo(jo.HashSum));
-                Assert.That(no.HashType, Is.EqualTo(jo.HashType));
-                Assert.That(no.Created, Is.EqualTo(jo.Created));
-                Assert.That(no.Updated, Is.EqualTo(jo.Updated));
-                Assert.That(no.Deleted, Is.EqualTo(jo.Deleted));
-                Assert.That(no.FileCreationTime, Is.EqualTo(jo.FileCreationTime));
-                Assert.That(no.FileLastWriteTime, Is.EqualTo(jo.FileLastWriteTime));
-                Assert.That(no.Size, Is.EqualTo(jo.Size));
-                Assert.That(no.SubDir, Is.EqualTo(jo.SubDir));
-                Assert.That(no.TransactionId, Is.EqualTo(jo.TransactionId));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(no.Valid, Is.EqualTo(jo.Valid));
+                    Assert.That(no.Filename, Is.EqualTo(jo.Filename));
+                    Assert.That(no.FileID, Is.EqualTo(jo.FileID));
+                    Assert.That(no.HashSum, Is.EqualTo(jo.HashSum));
+                    Assert.That(no.HashType, Is.EqualTo(jo.HashType));
+                    Assert.That(no.Created, Is.EqualTo(jo.Created));
+                    Assert.That(no.Updated, Is.EqualTo(jo.Updated));
+                    Assert.That(no.Deleted, Is.EqualTo(jo.Deleted));
+                    Assert.That(no.FileCreationTime, Is.EqualTo(jo.FileCreationTime));
+                    Assert.That(no.FileLastWriteTime, Is.EqualTo(jo.FileLastWriteTime));
+                    Assert.That(no.Size, Is.EqualTo(jo.Size));
+                    Assert.That(no.SubDir, Is.EqualTo(jo.SubDir));
+                    Assert.That(no.TransactionId, Is.EqualTo(jo.TransactionId));
+                });
             }
         }
 
@@ -275,13 +284,16 @@ namespace PacificaUnitTests
             var jj = JayrockJson_Backup.JsonToTaskStatus(jsonInput);
             var nj = JsonTools.JsonToTaskStatus(jsonInput);
 
-            Assert.That(nj.Valid, Is.EqualTo(jj.Valid));
-            Assert.That(nj.JobId, Is.EqualTo(jj.JobId));
-            Assert.That(nj.State, Is.EqualTo(jj.State));
-            Assert.That(nj.CurrentTask, Is.EqualTo(jj.CurrentTask));
-            Assert.That(nj.PercentCompleteText, Is.EqualTo(jj.PercentCompleteText));
-            Assert.That(nj.PercentComplete, Is.EqualTo(jj.PercentComplete));
-            Assert.That(nj.Exception, Is.EqualTo(jj.Exception));
+            Assert.Multiple(() =>
+            {
+                Assert.That(nj.Valid, Is.EqualTo(jj.Valid));
+                Assert.That(nj.JobId, Is.EqualTo(jj.JobId));
+                Assert.That(nj.State, Is.EqualTo(jj.State));
+                Assert.That(nj.CurrentTask, Is.EqualTo(jj.CurrentTask));
+                Assert.That(nj.PercentCompleteText, Is.EqualTo(jj.PercentCompleteText));
+                Assert.That(nj.PercentComplete, Is.EqualTo(jj.PercentComplete));
+                Assert.That(nj.Exception, Is.EqualTo(jj.Exception));
+            });
         }
     }
 }
