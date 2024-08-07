@@ -33,7 +33,7 @@ namespace MyEMSLReader
         private const string DATASET_ID_TAG = "#*#*#_DATASET_ID_";
         private const string DATA_PKG_ID_TAG = "#*#*#_DATA_PKG_ID_";
 
-        public const string DEFAULT_DMS_CONNECTION_STRING = "Data Source=gigasax;Initial Catalog=DMS5;Integrated Security=SSPI";
+        public const string DEFAULT_DMS_CONNECTION_STRING = "Host=prismdb2;Database=dms;Username=dmsreader;Application Name=Mage_SQLReader";
 
         private enum SearchEntity
         {
