@@ -9,7 +9,7 @@ namespace MyEMSLMetadataValidator
     {
         private static readonly string ProgramDate;
 
-        public const string DMS_CONNECTION_STRING = "Data Source=gigasax;Initial Catalog=DMS_Capture;Integrated Security=SSPI";
+        public const string DMS_CONNECTION_STRING = MyEMSLReader.Reader.DEFAULT_DMS_CONNECTION_STRING;
 
         static ValidatorOptions()
         {
