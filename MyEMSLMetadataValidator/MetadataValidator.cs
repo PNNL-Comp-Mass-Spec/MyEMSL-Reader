@@ -289,9 +289,9 @@ namespace MyEMSLMetadataValidator
             try
             {
                 var query =
-                    " SELECT Max(Dataset_ID)" +
-                    " FROM T_MyEMSL_Uploads " +
-                    " WHERE Verified > 0";
+                    "SELECT Max(Dataset_ID) " +
+                    "FROM T_MyEMSL_Uploads " +
+                    "WHERE Verified > 0";
 
                 if (limitToOldMyEMSL)
                     query += " AND StatusURI_PathID < 265";
