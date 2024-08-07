@@ -92,9 +92,9 @@ namespace PacificaUnitTests
         {
             var nj = JsonTools.JsonToUploadMetadata(jsonInput, "test", "test", out var njError);
 
-            Assert.AreEqual("", njError);
+            Assert.That(njError, Is.EqualTo(""));
             var expected = GetUploadMetadataObjects();
-            Assert.AreEqual(expected.Count, nj.Count);
+            Assert.That(nj.Count, Is.EqualTo(expected.Count));
 
             Compare(expected, nj);
         }
@@ -105,7 +105,7 @@ namespace PacificaUnitTests
             var data = GetUploadMetadataObjects();
             var nj = JsonTools.UploadMetadataToJson(data);
 
-            Assert.AreEqual(TestJsonMetadata, nj);
+            Assert.That(nj, Is.EqualTo(TestJsonMetadata));
         }
 
         [Test]
@@ -166,8 +166,8 @@ namespace PacificaUnitTests
             var jsonMetadata2 = JsonTools.ObjectToJson(listOld);
             var jsonMetadata3 = JsonTools.UploadMetadataToJson(listNew);
 
-            Assert.AreEqual(jsonMetadata1, jsonMetadata2);
-            Assert.AreEqual(jsonMetadata1, jsonMetadata3);
+            Assert.That(jsonMetadata2, Is.EqualTo(jsonMetadata1));
+            Assert.That(jsonMetadata3, Is.EqualTo(jsonMetadata1));
         }
 
         private void Compare(IReadOnlyList<IUploadMetadata> expected, IReadOnlyList<IUploadMetadata> actual)
@@ -189,33 +189,33 @@ namespace PacificaUnitTests
                 else
                 {
                     Console.WriteLine("Type Mismatch!: expected '{0}', actual '{1}'", expected[i].GetType().Name, actual[i].GetType().Name);
-                    Assert.AreEqual(expected.GetType(), actual.GetType());
+                    Assert.That(actual.GetType(), Is.EqualTo(expected.GetType()));
                 }
             }
         }
 
         private void CompareKv(UploadMetadataKeyValue expected, UploadMetadataKeyValue actual)
         {
-            //Assert.AreEqual(expected.DestinationTable, actual.DestinationTable);
-            Assert.AreEqual(expected.Key, actual.Key);
-            Assert.AreEqual(expected.Value, actual.Value);
+            //Assert.That(actual.DestinationTable, Is.EqualTo(expected.DestinationTable));
+            Assert.That(actual.Key, Is.EqualTo(expected.Key));
+            Assert.That(actual.Value, Is.EqualTo(expected.Value));
         }
 
         private void CompareV(UploadMetadataValue expected, UploadMetadataValue actual)
         {
-            Assert.AreEqual(expected.DestinationTable, actual.DestinationTable);
-            Assert.AreEqual(expected.Value, actual.Value);
+            Assert.That(actual.DestinationTable, Is.EqualTo(expected.DestinationTable));
+            Assert.That(actual.Value, Is.EqualTo(expected.Value));
         }
 
         private void CompareFile(UploadMetadataFile expected, UploadMetadataFile actual)
         {
-            Assert.AreEqual(expected.Name, actual.Name);
-            Assert.AreEqual(expected.AbsoluteLocalPath, actual.AbsoluteLocalPath);
-            Assert.AreEqual(expected.SubDir, actual.SubDir);
-            Assert.AreEqual(expected.Size, actual.Size);
-            Assert.AreEqual(expected.HashSum, actual.HashSum);
-            Assert.AreEqual(expected.FileCreationTimeUtc, actual.FileCreationTimeUtc);
-            Assert.AreEqual(expected.FileLastModifiedTimeUtc, actual.FileLastModifiedTimeUtc);
+            Assert.That(actual.Name, Is.EqualTo(expected.Name));
+            Assert.That(actual.AbsoluteLocalPath, Is.EqualTo(expected.AbsoluteLocalPath));
+            Assert.That(actual.SubDir, Is.EqualTo(expected.SubDir));
+            Assert.That(actual.Size, Is.EqualTo(expected.Size));
+            Assert.That(actual.HashSum, Is.EqualTo(expected.HashSum));
+            Assert.That(actual.FileCreationTimeUtc, Is.EqualTo(expected.FileCreationTimeUtc));
+            Assert.That(actual.FileLastModifiedTimeUtc, Is.EqualTo(expected.FileLastModifiedTimeUtc));
         }
 
         [Test]
@@ -226,7 +226,7 @@ namespace PacificaUnitTests
             var jayrockJson = JayrockJson_Backup.ObjectToJson(data);
             var newtonsoftJson = JsonTools.ObjectToJson(data);
 
-            Assert.AreEqual(jayrockJson, newtonsoftJson);
+            Assert.That(newtonsoftJson, Is.EqualTo(jayrockJson));
         }
 
         private static void AppendKVMetadata(ICollection<Dictionary<string, object>> metadataObject, string keyName, object value)
