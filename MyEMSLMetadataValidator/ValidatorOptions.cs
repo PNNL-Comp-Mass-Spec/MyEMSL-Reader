@@ -7,9 +7,14 @@ namespace MyEMSLMetadataValidator
 {
     public class ValidatorOptions
     {
-        private const string PROGRAM_DATE = "May 8, 2019";
+        private static readonly string ProgramDate;
 
         public const string DMS_CONNECTION_STRING = "Data Source=gigasax;Initial Catalog=DMS_Capture;Integrated Security=SSPI";
+
+        static ValidatorOptions()
+        {
+            ProgramDate = ThisAssembly.GitCommitDate.ToLocalTime().ToString("MMMM dd, yyyy");
+        }
 
         public ValidatorOptions()
         {
@@ -60,7 +65,7 @@ namespace MyEMSLMetadataValidator
 
         public static string GetAppVersion()
         {
-            var version = Assembly.GetExecutingAssembly().GetName().Version + " (" + PROGRAM_DATE + ")";
+            var version = Assembly.GetExecutingAssembly().GetName().Version + " (" + ProgramDate + ")";
 
             return version;
         }
