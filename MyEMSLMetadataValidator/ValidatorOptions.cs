@@ -11,7 +11,7 @@ namespace MyEMSLMetadataValidator
 
         private static readonly string ProgramDate;
 
-        public const string DMS_CONNECTION_STRING = MyEMSLReader.Reader.DEFAULT_DMS_CONNECTION_STRING;
+        internal const string DMS_CONNECTION_STRING = MyEMSLReader.Reader.DEFAULT_DMS_CONNECTION_STRING;
 
         static ValidatorOptions()
         {
