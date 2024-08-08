@@ -470,9 +470,6 @@ namespace MyEMSLMetadataValidator
                         continue;
                     }
 
-                    if (datasetIDs.Contains(datasetID))
-                        continue;
-
                     datasetIDs.Add(datasetID);
                 }
 
