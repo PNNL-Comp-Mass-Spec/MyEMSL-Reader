@@ -20,7 +20,7 @@ namespace MyEMSLReader
     /// <remarks>Written by Matthew Monroe for PNNL in 2013.</remarks>
     public class Reader : MyEMSLBase
     {
-        // Ignore Spelling: ctime, Dirs, fileinfo, Frodo, hashsum, hashtype, Json, keyvalue, Linq, mtime, subdir, wildcards
+        // Ignore Spelling: ctime, Dirs, DMS, fileinfo, Frodo, hashsum, hashtype, Json, keyvalue, Linq, mtime, subdir, wildcards
 
         // ReSharper disable UseCollectionExpression
 

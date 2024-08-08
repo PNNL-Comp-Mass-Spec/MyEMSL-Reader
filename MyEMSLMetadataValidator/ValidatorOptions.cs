@@ -7,6 +7,8 @@ namespace MyEMSLMetadataValidator
 {
     public class ValidatorOptions
     {
+        // Ignore Spelling: DMS, Validator
+
         private static readonly string ProgramDate;
 
         public const string DMS_CONNECTION_STRING = MyEMSLReader.Reader.DEFAULT_DMS_CONNECTION_STRING;

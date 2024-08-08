@@ -6,7 +6,7 @@ namespace PacificaUnitTests
     [TestFixture]
     public class TestJson
     {
-        // Ignore Spelling: absolutelocalpath, backend, ctime, hashsum, hashtype, mimetype, mtime, subdir
+        // Ignore Spelling: absolutelocalpath, backend, ctime, hashsum, hashtype, json, mimetype, mtime, subdir
 
         // In Pacifica.DMS_Metadata.DMSMetadataObject.GetDatasetFilesInMyEMSL()
         private const string TestJsonList01 =
