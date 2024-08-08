@@ -531,6 +531,7 @@ namespace MyEMSLMetadataValidator
                 }
 
                 var dbTools = DbToolsFactory.GetDBTools(DbServerTypes.MSSQLServer, ValidatorOptions.DMS_CONNECTION_STRING);
+                RegisterEvents(dbTools);
 
                 using (var resultsWriter = new StreamWriter(
                     new FileStream(outputFile.FullName, FileMode.Append, FileAccess.Write, FileShare.Read)))
