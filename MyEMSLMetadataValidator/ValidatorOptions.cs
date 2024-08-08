@@ -18,6 +18,9 @@ namespace MyEMSLMetadataValidator
             ProgramDate = ThisAssembly.GitCommitDate.ToLocalTime().ToString("MMMM dd, yyyy");
         }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public ValidatorOptions()
         {
             DatasetIdStart = 0;

@@ -33,6 +33,9 @@ namespace MyEMSLReader
         private const string DATASET_ID_TAG = "#*#*#_DATASET_ID_";
         private const string DATA_PKG_ID_TAG = "#*#*#_DATA_PKG_ID_";
 
+        /// <summary>
+        /// Default DMS connection string
+        /// </summary>
         public const string DEFAULT_DMS_CONNECTION_STRING = "Host=prismdb2;Database=dms;Username=dmsreader;Application Name=Mage_SQLReader";
 
         private enum SearchEntity
