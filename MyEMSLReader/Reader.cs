@@ -36,7 +36,7 @@ namespace MyEMSLReader
         /// <summary>
         /// Default DMS connection string
         /// </summary>
-        public const string DEFAULT_DMS_CONNECTION_STRING = "Host=prismdb2;Database=dms;Username=dmsreader;Application Name=Mage_SQLReader";
+        public const string DEFAULT_DMS_CONNECTION_STRING = "Host=prismdb2.emsl.pnl.gov;Database=dms;Username=dmsreader;Application Name=Mage_SQLReader";
 
         private enum SearchEntity
         {
