@@ -63,7 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Nerdbank.GitVersioning">
-      <Version>3.6.139</Version>
+      <Version>3.6.141</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -71,7 +71,7 @@
       <Version>13.0.3</Version>
     </PackageReference>
     <PackageReference Include="PRISM-Library">
-      <Version>2.8.31</Version>
+      <Version>2.8.32</Version>
     </PackageReference>
     <PackageReference Include="SharpZipLib">
       <Version>1.4.2</Version>
