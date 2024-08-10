@@ -7,7 +7,7 @@ namespace MyEMSLMetadataValidator
 {
     public class ValidatorOptions
     {
-        // Ignore Spelling: DMS, Validator
+        // Ignore Spelling: app, DMS, Validator
 
         private static readonly string ProgramDate;
 

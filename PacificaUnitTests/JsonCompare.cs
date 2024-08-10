@@ -8,6 +8,8 @@ namespace PacificaUnitTests
 {
     public static class JsonCompare
     {
+        // Ignore Spelling: json, pacifica
+
         public static void CompareDictionaryLists(List<Dictionary<string, object>> data, List<Dictionary<string, object>> data2, bool muteMinorDifferences = false)
         {
             if (data.Count != data2.Count)
