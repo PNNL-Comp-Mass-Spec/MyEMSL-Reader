@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{CB910F22-9338-4339-A015-F7F29DCB2489}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Pacifica</RootNamespace>
+    <AssemblyName>Pacifica</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>false</Deterministic>
+    <LangVersion>latest</LangVersion>
+    <IntermediateOutputPath>$(SolutionDir)\obj\NET48\$(Configuration)\</IntermediateOutputPath>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>CS1591;IDE0028</NoWarn>
+    <DocumentationFile>bin\Debug\Pacifica.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\Pacifica.xml</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Core\Configuration.cs" />
+    <Compile Include="Core\EasyHttp.cs" />
+    <Compile Include="Core\EventArgs.cs" />
+    <Compile Include="Core\ExtensionMethods.cs" />
+    <Compile Include="Core\FileInfoObject.cs" />
+    <Compile Include="Core\MyEMSLStatusCheck.cs" />
+    <Compile Include="Core\UrlContactInfo.cs" />
+    <Compile Include="Core\Utilities.cs" />
+    <Compile Include="Core\WebResponseData.cs" />
+    <Compile Include="DataUpload\TarStreamUploader.cs" />
+    <Compile Include="DataUpload\Upload.cs" />
+    <Compile Include="DMSDataUpload\DMSMetadataObject.cs" />
+    <Compile Include="DMSDataUpload\MyEMSLUploader.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Json\IUploadMetadata.cs" />
+    <Compile Include="Json\JsonTools.cs" />
+    <Compile Include="Json\MyEMSLFileInfo.cs" />
+    <Compile Include="Json\MyEMSLTaskStatus.cs" />
+    <Compile Include="Json\UploadMetadataConverter.cs" />
+    <Compile Include="Json\UploadMetadataExtensions.cs" />
+    <Compile Include="Json\UploadMetadataFile.cs" />
+    <Compile Include="Json\UploadMetadataKeyValue.cs" />
+    <Compile Include="Json\UploadMetadataValue.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\version.json">
+      <Link>Properties\version.json</Link>
+    </None>
+    <Content Include="README_notes.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Nerdbank.GitVersioning">
+      <Version>3.6.141</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>13.0.3</Version>
+    </PackageReference>
+    <PackageReference Include="PRISM-DatabaseUtils">
+      <Version>1.4.32</Version>
+    </PackageReference>
+    <PackageReference Include="PRISM-Library">
+      <Version>2.8.32</Version>
+    </PackageReference>
+    <PackageReference Include="SharpZipLib">
+      <Version>1.4.2</Version>
+    </PackageReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy "$(TargetPath)" "$(ProjectDir)..\DeployedFiles\" /D /Y /I
+xcopy "$(TargetDir)$(TargetName).pdb" "$(ProjectDir)..\DeployedFiles\" /Y
+xcopy "$(TargetDir)$(TargetName).xml" "$(ProjectDir)..\DeployedFiles" /Y
+
+xcopy "$(TargetDir)PRISM.dll" "$(ProjectDir)..\DeployedFiles\" /D /Y /I
+
+if exist "$(ProjectDir)..\..\Capture_Task_Manager\RefLib" xcopy "$(ProjectDir)..\DeployedFiles\*.*" "$(ProjectDir)..\..\Capture_Task_Manager\RefLib\" /Y /D
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>

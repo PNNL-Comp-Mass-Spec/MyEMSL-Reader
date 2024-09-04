@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if NET48
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -64,3 +65,4 @@ namespace PacificaUnitTests
         }
     }
 }
+#endif

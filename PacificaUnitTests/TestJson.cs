@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿#if NET48
+using NUnit.Framework;
 using Pacifica.Json;
 
 namespace PacificaUnitTests
@@ -297,3 +298,4 @@ namespace PacificaUnitTests
         }
     }
 }
+#endif

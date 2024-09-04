@@ -108,6 +108,7 @@ namespace PacificaUnitTests
             Assert.That(nj, Is.EqualTo(TestJsonMetadata));
         }
 
+#if NET48
         [Test]
         public void TestListMetadataCompareJson()
         {
@@ -172,6 +173,7 @@ namespace PacificaUnitTests
                 Assert.That(jsonMetadata3, Is.EqualTo(jsonMetadata1));
             });
         }
+#endif
 
         private void Compare(IReadOnlyList<IUploadMetadata> expected, IReadOnlyList<IUploadMetadata> actual)
         {
@@ -230,6 +232,7 @@ namespace PacificaUnitTests
             });
         }
 
+#if NET48
         [Test]
         public void TestConvertToJson()
         {
@@ -240,6 +243,7 @@ namespace PacificaUnitTests
 
             Assert.That(newtonsoftJson, Is.EqualTo(jayrockJson));
         }
+#endif
 
         private static void AppendKVMetadata(ICollection<Dictionary<string, object>> metadataObject, string keyName, object value)
         {

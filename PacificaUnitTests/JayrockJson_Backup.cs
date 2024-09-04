@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if NET48
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Jayrock.Json;
@@ -402,3 +403,4 @@ namespace PacificaUnitTests
         }
     }
 }
+#endif
