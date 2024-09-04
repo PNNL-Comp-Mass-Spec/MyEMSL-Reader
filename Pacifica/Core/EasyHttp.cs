@@ -86,6 +86,7 @@ namespace Pacifica.Core
         /// </summary>
         private static void AbortThreadedSendNow()
         {
+#if (NET48)
             try
             {
                 mThreadedSend?.Abort();
@@ -94,6 +95,7 @@ namespace Pacifica.Core
             {
                 // Ignore errors
             }
+#endif
         }
 
         /// <summary>
@@ -398,9 +400,8 @@ namespace Pacifica.Core
                         throw new Exception(errorMessage);
                     }
 
-                    mLoginCertificate = new X509Certificate2();
                     var password = AppUtils.DecodeShiftCipher(Configuration.CLIENT_CERT_PASSWORD);
-                    mLoginCertificate.Import(certificateFilePath, password, X509KeyStorageFlags.PersistKeySet);
+                    mLoginCertificate = new X509Certificate2(certificateFilePath, password, X509KeyStorageFlags.PersistKeySet);
                 }
                 request.ClientCertificates.Add(mLoginCertificate);
             }

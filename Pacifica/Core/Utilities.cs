@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Security;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
@@ -29,7 +30,7 @@ namespace Pacifica.Core
             }
         }
 
-        private static SHA1Managed _hashProvider;
+        private static SHA1 _hashProvider;
 
         [Obsolete("Use the method that takes a FileInfo object")]
         public static string GenerateSha1Hash(string filePath)
@@ -46,7 +47,7 @@ namespace Pacifica.Core
                 throw new FileNotFoundException("File not found in GenerateSha1Hash: " + file.FullName);
             }
 
-            _hashProvider ??= new SHA1Managed();
+            _hashProvider ??= SHA1.Create();
 
             using (var sourceFile = new FileStream(PossiblyConvertToLongPath(file.FullName), FileMode.Open, FileAccess.Read, FileShare.Read))
             {
@@ -152,6 +153,14 @@ namespace Pacifica.Core
 
         public static string GetUserName(bool cleanDomain = false)
         {
+#if NETSTANDARD2_0_OR_GREATER
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return string.Empty;
+            }
+#endif
+
+#pragma warning disable CA1416
             var userIdent = WindowsIdentity.GetCurrent();
             var userName = userIdent.Name;
 
@@ -161,6 +170,7 @@ namespace Pacifica.Core
             }
 
             return userName;
+#pragma warning restore CA1416
         }
 
         /// <summary>

@@ -410,9 +410,8 @@ namespace Pacifica.DataUpload
                 // Make the request
                 webRequest = (HttpWebRequest)WebRequest.Create(uploadUri);
 
-                var certificate = new X509Certificate2();
                 var password = AppUtils.DecodeShiftCipher(Configuration.CLIENT_CERT_PASSWORD);
-                certificate.Import(certificateFilePath, password, X509KeyStorageFlags.PersistKeySet);
+                var certificate = new X509Certificate2(certificateFilePath, password, X509KeyStorageFlags.PersistKeySet);
                 webRequest.ClientCertificates.Add(certificate);
 
                 config.SetProxy(webRequest);

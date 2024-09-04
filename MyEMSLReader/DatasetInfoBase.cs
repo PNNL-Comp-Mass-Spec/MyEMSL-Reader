@@ -277,7 +277,7 @@ namespace MyEMSLReader
         public static long ExtractMyEMSLFileID(string filePath, out string newFilePath)
         {
             var charIndex = filePath.LastIndexOf(MYEMSL_FILE_ID_TAG, StringComparison.Ordinal);
-            newFilePath = string.Copy(filePath);
+            newFilePath = filePath;
 
             if (charIndex <= 0)
                 return 0;
@@ -660,7 +660,7 @@ namespace MyEMSLReader
                     continue;
                 }
 
-                var relativeDirectoryPath = string.Copy(archivedFile.RelativePathWindows);
+                var relativeDirectoryPath = archivedFile.RelativePathWindows;
                 var charIndex = relativeDirectoryPath.LastIndexOf("\\", StringComparison.Ordinal);
 
                 if (charIndex > 0)

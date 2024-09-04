@@ -88,8 +88,10 @@ namespace MyEMSLReader
                     intTotalThreadWaitTimeMsec += THREAD_SLEEP_TIME_MSEC;
                 }
 
+#if NET48
                 if (gcThread.IsAlive)
                     gcThread.Abort();
+#endif
             }
             catch
             {

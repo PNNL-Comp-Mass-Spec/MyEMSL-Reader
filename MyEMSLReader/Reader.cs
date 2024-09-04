@@ -569,7 +569,7 @@ namespace MyEMSLReader
                         continue;
                     }
 
-                    currentDataset = string.Copy(file.Dataset);
+                    currentDataset = file.Dataset;
                 }
 
                 if (currentSubDirList.Count == 0)
@@ -674,7 +674,7 @@ namespace MyEMSLReader
                         continue;
                     }
 
-                    currentDataset = string.Copy(file.Dataset);
+                    currentDataset = file.Dataset;
                 }
 
                 if (currentSubDirList.Count == 0)
