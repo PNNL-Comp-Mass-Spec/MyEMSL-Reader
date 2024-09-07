@@ -386,7 +386,7 @@ namespace Pacifica.DMSDataUpload
                     mPacificaConfig, policyURL, null,
                     out var responseStatusCode,
                     jsonMetadata,
-                    EasyHttp.HttpMethod.Post, 100, "application/json");
+                    EasyHttp.HttpMethod.Post, 100, "application/json"); // TODO: should this timeout be shorter?
 
                 if ((int)responseStatusCode == 200 && response.IndexOf("success", StringComparison.OrdinalIgnoreCase) >= 0)
                 {
@@ -404,10 +404,17 @@ namespace Pacifica.DMSDataUpload
                     OnErrorEvent("Metadata validation error: the request was aborted");
                     policyError = false;
                 }
-                else
+                else if ((int)responseStatusCode == 412 || response.IndexOf("Precondition failed", StringComparison.OrdinalIgnoreCase) >= 0)
                 {
+                    // JSON response will look like '{ "message": "Precondition Failed: Invalid values for submitter, project, instrument", "postdata": "", "status": "412 Precondition Failed",...}'
+                    // TODO: parse out the 'message' and report that?
                     OnErrorEvent("Policy server reports that metadata is not valid: " + policyURL);
                     policyError = true;
+                }
+                else
+                {
+                    OnErrorEvent("Error communicating with Policy server: " + policyURL);
+                    policyError = false;
                 }
 
                 if (jsonMetadata.Length < 1255)

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -259,14 +260,14 @@ namespace Pacifica.Core
         }
 
         /// <summary>
-        /// Associate the proxy server (if defined) with the WebRequest
+        /// Associate the proxy server (if defined) with the HttpClientHandler
         /// </summary>
-        /// <param name="oWebRequest"></param>
-        public void SetProxy(HttpWebRequest oWebRequest)
+        /// <param name="handler"></param>
+        public void SetProxy(HttpClientHandler handler)
         {
             if (!string.IsNullOrWhiteSpace(HttpProxyUrl))
             {
-                oWebRequest.Proxy = new WebProxy(new Uri(HttpProxyUrl));
+                handler.Proxy = new WebProxy(new Uri(HttpProxyUrl));
             }
         }
 

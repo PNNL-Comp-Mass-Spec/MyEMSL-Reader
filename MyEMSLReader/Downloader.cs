@@ -6,8 +6,11 @@ using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
+using System.Threading.Tasks;
 using Pacifica.Core;
 using ICSharpCode.SharpZipLib.Tar;
+using System.Net.Http;
+using System.Text.RegularExpressions;
 
 namespace MyEMSLReader
 {
@@ -428,17 +431,25 @@ namespace MyEMSLReader
                 {
                     var responseStatusCode = HttpStatusCode.OK;
 
-                    var webException = ex.InnerException as WebException;
-
-                    if (webException?.Response != null)
+                    if (ex.InnerException is HttpRequestException hrex)
                     {
-                        responseStatusCode = ((HttpWebResponse)webException.Response).StatusCode;
+                        if (hrex.InnerException is WebException wex && wex.Response != null)
+                        {
+                            responseStatusCode = ((HttpWebResponse)wex.Response).StatusCode;
+                        }
+
+#if NET5_0_OR_GREATER
+                        if (hrex.StatusCode.HasValue)
+                        {
+                            responseStatusCode = hrex.StatusCode.Value;
+                        }
+#endif
                     }
 
                     if (responseStatusCode == HttpStatusCode.ServiceUnavailable)
                     {
                         success = false;
-                        mostRecentException = webException;
+                        mostRecentException = ex.InnerException;
                     }
                     else if (attempts >= maxAttempts)
                     {
@@ -653,25 +664,37 @@ namespace MyEMSLReader
             string tarFileURL,
             int timeoutSeconds = 100)
         {
+            return Task.Run(async () => await DownloadAndExtractTarFileAsync(cookieJar, filesInArchive, bytesDownloaded,
+                    destFilePathOverride, downloadDirectory, directoryLayout, tarFileURL, timeoutSeconds)).GetAwaiter()
+                .GetResult();
+        }
+
+        [Obsolete("Valid, but unused")]
+        // ReSharper disable once UnusedMember.Local
+        private async Task<bool> DownloadAndExtractTarFileAsync(
+            CookieContainer cookieJar,
+            IReadOnlyCollection<ArchivedFileInfo> filesInArchive,
+            long bytesDownloaded,
+            IReadOnlyDictionary<long, string> destFilePathOverride,
+            FileSystemInfo downloadDirectory,
+            DownloadLayout directoryLayout,
+            string tarFileURL,
+            int timeoutSeconds = 100)
+        {
             if (!ValidateCertFile("DownloadAndExtractTarFile"))
             {
                 return false;
             }
 
-            var request = EasyHttp.InitializeRequest(mPacificaConfig, tarFileURL, ref cookieJar, ref timeoutSeconds, null);
-
-            var bytesToDownload = ComputeTotalBytes(filesInArchive);
-
-            // Prepare the request object
-            request.Method = "GET";
-            request.PreAuthenticate = false;
-
-            // Receive response
-            HttpWebResponse response = null;
             try
             {
-                request.Timeout = timeoutSeconds * 1000;
-                response = (HttpWebResponse)request.GetResponse();
+                // Prepare the client object
+                using var client = EasyHttp.InitializeClient(mPacificaConfig, tarFileURL, ref cookieJar, ref timeoutSeconds, null);
+
+                var bytesToDownload = ComputeTotalBytes(filesInArchive);
+
+                // Receive response
+                using var response = await client.GetAsync("", HttpCompletionOption.ResponseHeadersRead);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -679,7 +702,7 @@ namespace MyEMSLReader
                     // This way, the .tar file is never actually created on a local hard drive
                     // Code modeled after https://github.com/icsharpcode/SharpZipLib/wiki/GZip-and-Tar-Samples
 
-                    var receiveStream = response.GetResponseStream();
+                    using var receiveStream = await response.Content.ReadAsStreamAsync();
 
                     var tarIn = new TarInputStream(receiveStream);
 
@@ -727,10 +750,7 @@ namespace MyEMSLReader
 
                         if (charIndex < 1)
                         {
-                            /*
-                            ReportMessage("Warning, .tar file entry does not contain a backslash; " +
-                                          "unable to validate the file or customize the output path: " + sourceFile);
-                            */
+                            // ReportMessage("Warning, .tar file entry does not contain a backslash; " + "unable to validate the file or customize the output path: " + sourceFile);
                             fileIdFound = false;
                         }
 
@@ -885,29 +905,20 @@ namespace MyEMSLReader
                 }
                 else
                 {
-                    throw new WebException("HTTP response code not OK in DownloadAndExtractTarFile: " + response.StatusCode + ", " + response.StatusDescription);
+                    throw new HttpRequestException("HTTP response code not OK in DownloadAndExtractTarFile: " + response.StatusCode + ", " + response.ReasonPhrase);
                 }
             }
-            catch (WebException ex)
+            catch (HttpRequestException ex)
             {
-                var responseData = string.Empty;
-
-                if (ex.Response != null)
-                {
-                    using var reader = new StreamReader(ex.Response.GetResponseStream());
-
-                    const int MAX_LINES = 20;
-
-                    for (var linesRead = 0; !reader.EndOfStream && linesRead < MAX_LINES; linesRead++)
-                    {
-                        responseData += reader.ReadLine() + Environment.NewLine;
-                    }
-                }
-                throw new Exception(responseData, ex);
+                throw new Exception("HTTP GET error", ex);
             }
-            finally
+            catch (TaskCanceledException ex)
             {
-                ((IDisposable)response).Dispose();
+                throw new Exception("HTTP request or file download timed out", ex);
+            }
+            catch (OperationCanceledException ex)
+            {
+                throw new Exception($"HTTP request was cancelled?: {ex.CancellationToken.IsCancellationRequested}", ex);
             }
 
             return true;

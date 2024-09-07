@@ -3,6 +3,8 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
@@ -43,6 +45,7 @@ namespace Pacifica.Core
         private static X509Certificate2 mLoginCertificate;
 
         private static Thread mThreadedSend;
+        private static CancellationTokenSource mThreadedSendCancel;
 
         private static UrlContactInfo mUrlContactInfo;
 
@@ -66,7 +69,7 @@ namespace Pacifica.Core
 
         /// <summary>
         /// This event is raised if we are unable to connect to MyEMSL, leading to events
-        /// System.Net.WebException: Unable to connect to the remote server
+        /// System.Net.HttpRequestException: Unable to connect to the remote server
         /// System.Net.Sockets.SocketException: A connection attempt failed because the connected party did not properly respond after a period of time
         /// </summary>
         public static event EventHandler<MessageEventArgs> MyEMSLOffline;
@@ -86,6 +89,8 @@ namespace Pacifica.Core
         /// </summary>
         private static void AbortThreadedSendNow()
         {
+            mThreadedSendCancel.Cancel();
+
 #if (NET48)
             try
             {
@@ -119,31 +124,54 @@ namespace Pacifica.Core
             int timeoutSeconds = 100,
             NetworkCredential loginCredentials = null)
         {
-            var request = InitializeRequest(config, url, ref cookies, ref timeoutSeconds, loginCredentials);
-            responseStatusCode = HttpStatusCode.NotFound;
+            var result = Task
+                .Run(async () => await GetFileAsync(config, url, cookies, downloadFilePath, timeoutSeconds, loginCredentials))
+                .GetAwaiter().GetResult();
 
-            // Prepare the request object
-            const HttpMethod method = HttpMethod.Get;
-            request.Method = method.GetDescription<HttpMethod>();
-            request.PreAuthenticate = false;
+            responseStatusCode = result.responseStatusCode;
+            return result.result;
+        }
 
-            // Receive response
-            HttpWebResponse response = null;
+        /// <summary>
+        /// Retrieve a file
+        /// </summary>
+        /// <param name="config">Configuration options</param>
+        /// <param name="url">URL</param>
+        /// <param name="cookies">Cookies</param>
+        /// <param name="downloadFilePath">Local file path to save the file as</param>
+        /// <param name="timeoutSeconds">Timeout, in seconds</param>
+        /// <param name="loginCredentials">Login credentials</param>
+        /// <returns>True if success, false if an error, and response status code</returns>
+        // ReSharper disable once UnusedMember.Global
+        public static async Task<(bool result, HttpStatusCode responseStatusCode)> GetFileAsync(
+            Configuration config,
+            string url,
+            CookieContainer cookies,
+            string downloadFilePath,
+            int timeoutSeconds = 100,
+            NetworkCredential loginCredentials = null)
+        {
+            var responseStatusCode = HttpStatusCode.NotFound;
+
             try
             {
-                request.Timeout = timeoutSeconds * 1000;
-                response = (HttpWebResponse)request.GetResponse();
+                // Prepare the client object
+                using var client = InitializeClient(config, url, ref cookies, ref timeoutSeconds, loginCredentials);
+                client.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
+
+                // Receive response
+                using var response = await client.GetAsync("", HttpCompletionOption.ResponseHeadersRead);
+
                 responseStatusCode = response.StatusCode;
 
                 if (responseStatusCode == HttpStatusCode.OK)
                 {
                     // Download the file
-
-                    var responseStream = response.GetResponseStream();
+                    using var responseStream = await response.Content.ReadAsStreamAsync();
 
                     if (responseStream == null)
                     {
-                        throw new WebException("Response stream is null in GetFile");
+                        throw new HttpRequestException("Response stream is null in GetFile");
                     }
 
                     var buffer = new byte[32767];
@@ -152,28 +180,34 @@ namespace Pacifica.Core
 
                     int bytesRead;
 
-                    while ((bytesRead = responseStream.Read(buffer, 0, buffer.Length)) != 0)
+                    // TODO: Potentially just use await responseStream.CopyToAsync(outFile);?
+                    // https://www.tugberkugurlu.com/archive/efficiently-streaming-large-http-responses-with-httpclient
+                    while ((bytesRead = await responseStream.ReadAsync(buffer, 0, buffer.Length)) != 0)
                     {
                         outFile.Write(buffer, 0, bytesRead);
                     }
                 }
                 else
                 {
-                    throw new WebException(string.Format(
+                    throw new HttpRequestException(string.Format(
                         "HTTP response code not OK in GetFile: {0}, {1}",
-                        response.StatusCode, response.StatusDescription));
+                        response.StatusCode, response.ReasonPhrase));
                 }
             }
-            catch (WebException ex)
+            catch (HttpRequestException ex)
             {
-                HandleWebException(ex, url, out responseStatusCode);
+                HandleRequestException(ex, url, out responseStatusCode);
             }
-            finally
+            catch (TaskCanceledException ex)
             {
-                ((IDisposable)response)?.Dispose();
+                HandleRequestException(new HttpRequestException("HTTP request timed out", ex), url, out responseStatusCode);
+            }
+            catch (OperationCanceledException ex)
+            {
+                HandleRequestException(new HttpRequestException($"HTTP request was cancelled?: {ex.CancellationToken.IsCancellationRequested}", ex), url, out responseStatusCode);
             }
 
-            return true;
+            return (true, responseStatusCode);
         }
 
         /// <summary>
@@ -185,7 +219,7 @@ namespace Pacifica.Core
         /// <param name="timeoutSeconds">Timeout, in seconds</param>
         /// <returns>Headers</returns>
         // ReSharper disable once UnusedMember.Global
-        public static WebHeaderCollection GetHeaders(
+        public static HttpResponseHeaders GetHeaders(
             Configuration config,
             string url,
             out HttpStatusCode responseStatusCode,
@@ -204,7 +238,7 @@ namespace Pacifica.Core
         /// <param name="timeoutSeconds">Timeout, in seconds</param>
         /// <param name="loginCredentials">Login credentials</param>
         /// <returns>Headers</returns>
-        public static WebHeaderCollection GetHeaders(
+        public static HttpResponseHeaders GetHeaders(
             Configuration config,
             string url,
             CookieContainer cookies,
@@ -212,34 +246,61 @@ namespace Pacifica.Core
             int timeoutSeconds = 100,
             NetworkCredential loginCredentials = null)
         {
+            var result = Task
+                .Run(async () => await GetHeadersAsync(config, url, cookies, timeoutSeconds, loginCredentials))
+                .GetAwaiter().GetResult();
+
+            responseStatusCode = result.responseStatusCode;
+
+            return result.headers;
+        }
+
+        /// <summary>
+        /// Get the headers for a URL
+        /// </summary>
+        /// <param name="config">Configuration options</param>
+        /// <param name="url">URL</param>
+        /// <param name="cookies">Cookies</param>
+        /// <param name="timeoutSeconds">Timeout, in seconds</param>
+        /// <param name="loginCredentials">Login credentials</param>
+        /// <returns>Headers, response status code</returns>
+        public static async Task<(HttpResponseHeaders headers, HttpStatusCode responseStatusCode)> GetHeadersAsync(
+            Configuration config,
+            string url,
+            CookieContainer cookies,
+            int timeoutSeconds = 100,
+            NetworkCredential loginCredentials = null)
+        {
             const double maxTimeoutHours = 0.1;
-            var request = InitializeRequest(config, url, ref cookies, ref timeoutSeconds, loginCredentials, maxTimeoutHours);
-            responseStatusCode = HttpStatusCode.NotFound;
+            var responseStatusCode = HttpStatusCode.NotFound;
 
-            // Prepare the request object
-            request.Method = "HEAD";
-            request.PreAuthenticate = false;
-
-            // Receive response
-            HttpWebResponse response = null;
             try
             {
-                request.Timeout = timeoutSeconds * 1000;
-                response = (HttpWebResponse)request.GetResponse();
+                // Prepare the request object
+                using var client = InitializeClient(config, url, ref cookies, ref timeoutSeconds, loginCredentials, maxTimeoutHours);
+                client.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
+                var request = new HttpRequestMessage(System.Net.Http.HttpMethod.Head, client.BaseAddress);
+
+                // Receive response
+                using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
                 responseStatusCode = response.StatusCode;
 
-                return response.Headers;
+                return (response.Headers, responseStatusCode);
             }
-            catch (WebException ex)
+            catch (HttpRequestException ex)
             {
-                HandleWebException(ex, url, out responseStatusCode);
+                HandleRequestException(ex, url, out responseStatusCode);
+            }
+            catch (TaskCanceledException ex)
+            {
+                HandleRequestException(new HttpRequestException("HTTP request timed out", ex), url, out responseStatusCode);
+            }
+            catch (OperationCanceledException ex)
+            {
+                HandleRequestException(new HttpRequestException($"HTTP request was cancelled?: {ex.CancellationToken.IsCancellationRequested}", ex), url, out responseStatusCode);
+            }
 
-                return null;
-            }
-            finally
-            {
-                ((IDisposable)response)?.Dispose();
-            }
+            return (null, responseStatusCode);
         }
 
         private static string GetTrimmedResponseData(Stream responseStream, int maxLines = 20)
@@ -271,13 +332,13 @@ namespace Pacifica.Core
             return responseData.ToString();
         }
 
-        public static void HandleWebException(WebException ex, string url)
+        public static void HandleRequestException(HttpRequestException ex, string url)
         {
             var responseData = new WebResponseData();
-            HandleWebException(ex, url, responseData);
+            HandleRequestException(ex, url, responseData);
         }
 
-        protected static void HandleWebException(WebException ex, string url, out HttpStatusCode responseStatusCode)
+        protected static void HandleRequestException(HttpRequestException ex, string url, out HttpStatusCode responseStatusCode)
         {
             responseStatusCode = HttpStatusCode.RequestTimeout;
 
@@ -288,7 +349,7 @@ namespace Pacifica.Core
 
             try
             {
-                HandleWebException(ex, url, responseData);
+                HandleRequestException(ex, url, responseData);
             }
             catch
             {
@@ -297,19 +358,26 @@ namespace Pacifica.Core
             }
         }
 
-        protected static void HandleWebException(WebException ex, string url, WebResponseData responseData)
+        protected static void HandleRequestException(HttpRequestException ex, string url, WebResponseData responseData)
         {
             responseData.RegisterException(ex);
 
-            if (ex.Response != null)
+            if (ex.InnerException is WebException wex && wex.Response != null)
             {
-                var responseStream = ex.Response.GetResponseStream();
+                var responseStream = wex.Response.GetResponseStream();
                 responseData.ResponseText = GetTrimmedResponseData(responseStream);
 
-                responseData.ResponseStatusCode = ((HttpWebResponse)ex.Response).StatusCode;
+                responseData.ResponseStatusCode = ((HttpWebResponse)wex.Response).StatusCode;
             }
             else
             {
+#if NET5_0_OR_GREATER
+                if (ex.StatusCode.HasValue)
+                {
+                    responseData.ResponseStatusCode = ex.StatusCode.Value;
+                }
+#endif
+
                 if (ex.Message.IndexOf("timed out", StringComparison.OrdinalIgnoreCase) >= 0)
                 {
                     responseData.ResponseText = REQUEST_TIMEOUT_RESPONSE;
@@ -328,7 +396,7 @@ namespace Pacifica.Core
 
             if (ex.Message.IndexOf("Unable to connect", StringComparison.OrdinalIgnoreCase) >= 0)
             {
-                MyEMSLOffline?.Invoke(null, new MessageEventArgs("HandleWebException", ex.Message));
+                MyEMSLOffline?.Invoke(null, new MessageEventArgs("HandleRequestException", ex.Message));
             }
 
             if (string.IsNullOrWhiteSpace(responseData.ResponseText))
@@ -349,7 +417,7 @@ namespace Pacifica.Core
         /// <param name="loginCredentials">Login credentials</param>
         /// <param name="maxTimeoutHours"></param>
         /// <returns>Web request</returns>
-        public static HttpWebRequest InitializeRequest(
+        public static HttpClient InitializeClient(
             Configuration config,
             string url,
             ref CookieContainer cookies,
@@ -373,27 +441,29 @@ namespace Pacifica.Core
 
             var urlContactInfo = new UrlContactInfo(config, url, cookies, timeoutSeconds: timeoutSeconds, loginCredentials: loginCredentials);
 
-            return InitializeRequest(urlContactInfo);
+            return InitializeClient(urlContactInfo);
         }
 
         /// <summary>
-        /// Initialize a request
+        /// Initialize a HttpClient
         /// </summary>
-        private static HttpWebRequest InitializeRequest(UrlContactInfo urlContactInfo)
+        private static HttpClient InitializeClient(UrlContactInfo urlContactInfo)
         {
             urlContactInfo.ResponseData.ResetExceptionInfo();
 
             var uri = new Uri(urlContactInfo.Url);
             var cleanUserName = Utilities.GetUserName(true);
 
-            var request = (HttpWebRequest)WebRequest.Create(uri);
-            urlContactInfo.Config.SetProxy(request);
+            var handler = new HttpClientHandler();
+
+            handler.PreAuthenticate = false;
+            urlContactInfo.Config.SetProxy(handler);
 
             if (urlContactInfo.LoginCredentials == null)
             {
                 if (mLoginCertificate == null)
                 {
-                    var certificateFilePath = ResolveCertFile(urlContactInfo.Config, "InitializeRequest", out var errorMessage);
+                    var certificateFilePath = ResolveCertFile(urlContactInfo.Config, "InitializeClient", out var errorMessage);
 
                     if (string.IsNullOrWhiteSpace(certificateFilePath))
                     {
@@ -403,25 +473,34 @@ namespace Pacifica.Core
                     var password = AppUtils.DecodeShiftCipher(Configuration.CLIENT_CERT_PASSWORD);
                     mLoginCertificate = new X509Certificate2(certificateFilePath, password, X509KeyStorageFlags.PersistKeySet);
                 }
-                request.ClientCertificates.Add(mLoginCertificate);
+                handler.ClientCertificates.Add(mLoginCertificate);
             }
             else
             {
-                request.Credentials = new CredentialCache
+                handler.Credentials = new CredentialCache
                 {
                     { new Uri(urlContactInfo.Url), "Basic", new NetworkCredential(urlContactInfo.LoginCredentials.UserName, urlContactInfo.LoginCredentials.SecurePassword) }
                 };
             }
 
-            var cookie = new Cookie("user_name", cleanUserName)
+            if (!string.IsNullOrWhiteSpace(cleanUserName))
             {
-                Domain = "pnl.gov"
+                var cookie = new Cookie("user_name", cleanUserName)
+                {
+                    Domain = "pnl.gov"
+                };
+
+                urlContactInfo.Cookies.Add(cookie);
+            }
+
+            handler.CookieContainer = urlContactInfo.Cookies;
+            var client = new HttpClient(handler)
+            {
+                BaseAddress = uri,
+                Timeout = TimeSpan.FromSeconds(urlContactInfo.TimeoutSeconds)
             };
 
-            urlContactInfo.Cookies.Add(cookie);
-            request.CookieContainer = urlContactInfo.Cookies;
-
-            return request;
+            return client;
         }
 
         /// <summary>
@@ -616,7 +695,8 @@ namespace Pacifica.Core
                 timeoutSeconds, contentType, sendStringInHeader, loginCredentials);
 
             // Contact the URL in a separate thread so that we can abort the call if it takes too long
-            var task = Task.Factory.StartNew(() => Send(urlContactInfo));
+            var cancelToken = new CancellationTokenSource();
+            var task = Task.Factory.StartNew(() => Send(urlContactInfo, cancelToken.Token), cancelToken.Token);
 
             var success = task.Wait((timeoutSeconds + 5) * 1000);
 
@@ -695,6 +775,7 @@ namespace Pacifica.Core
                 var runtimeExceeded = false;
                 var threadAborted = false;
 
+                mThreadedSendCancel = new CancellationTokenSource();
                 mThreadedSend = new Thread(StartThreadedSend);
                 mThreadedSend.Start();
 
@@ -776,14 +857,29 @@ namespace Pacifica.Core
         /// <summary>
         /// Get or post data to a URL
         /// </summary>
-        private static void Send(UrlContactInfo urlContactInfo)
+        private static void Send(UrlContactInfo urlContactInfo, CancellationToken cancelToken)
         {
-            var request = InitializeRequest(urlContactInfo);
+            Task.Run(async () => await SendAsync(urlContactInfo), cancelToken).GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// Get or post data to a URL
+        /// </summary>
+        private static async Task SendAsync(UrlContactInfo urlContactInfo)
+        {
+            var client = InitializeClient(urlContactInfo);
             urlContactInfo.ResponseData.ResponseStatusCode = HttpStatusCode.NotFound;
 
+            System.Net.Http.HttpMethod method = urlContactInfo.Method switch
+            {
+                HttpMethod.Post => System.Net.Http.HttpMethod.Post,
+                HttpMethod.Put => System.Net.Http.HttpMethod.Put,
+                HttpMethod.Get => System.Net.Http.HttpMethod.Get,
+                _ => System.Net.Http.HttpMethod.Get
+            };
+
             // Prepare the request object
-            request.Method = urlContactInfo.Method.GetDescription<HttpMethod>();
-            request.PreAuthenticate = false;
+            using var request = new HttpRequestMessage(method, urlContactInfo.Url);
 
             if (urlContactInfo.SendStringInHeader && urlContactInfo.Method == HttpMethod.Get)
             {
@@ -796,50 +892,40 @@ namespace Pacifica.Core
                 urlContactInfo.ContentType = "application/x-www-form-urlencoded";
             }
 
-            // Set Content-Type
-            if (urlContactInfo.Method == HttpMethod.Post && !string.IsNullOrEmpty(urlContactInfo.ContentType))
-            {
-                request.ContentType = urlContactInfo.ContentType;
-
-                if (urlContactInfo.PostData != null)
-                {
-                    request.ContentLength = urlContactInfo.PostData.Length;
-                }
-            }
-
             // Write POST data, if POST
-            if (urlContactInfo.Method == HttpMethod.Post)
+            if (urlContactInfo.Method == HttpMethod.Post && urlContactInfo.PostData != null)
             {
-                using var writer = new StreamWriter(request.GetRequestStream());
-                writer.Write(urlContactInfo.PostData);
+                if (!string.IsNullOrWhiteSpace(urlContactInfo.ContentType))
+                {
+                    // Set Content-Type
+                    request.Content = new StringContent(urlContactInfo.PostData, Encoding.UTF8, urlContactInfo.ContentType);
+                }
+                else
+                {
+                    request.Content = new StringContent(urlContactInfo.PostData, Encoding.UTF8);
+                }
             }
 
             // Receive response
             urlContactInfo.ResponseData.ResponseText = string.Empty;
-            HttpWebResponse response = null;
             try
             {
-                request.Timeout = urlContactInfo.TimeoutSeconds * 1000;
-                response = (HttpWebResponse)request.GetResponse();
+                client.Timeout = TimeSpan.FromSeconds(urlContactInfo.TimeoutSeconds);
+                using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
                 urlContactInfo.ResponseData.ResponseStatusCode = response.StatusCode;
-                var responseStream = response.GetResponseStream();
-
-                if (responseStream != null)
-                {
-                    using var reader = new StreamReader(responseStream);
-                    urlContactInfo.ResponseData.ResponseText = reader.ReadToEnd();
-                }
+                urlContactInfo.ResponseData.ResponseText = await response.Content.ReadAsStringAsync();
             }
-            catch (WebException ex)
+            catch (HttpRequestException ex)
             {
-                HandleWebException(ex, urlContactInfo.Url, urlContactInfo.ResponseData);
+                HandleRequestException(ex, urlContactInfo.Url, urlContactInfo.ResponseData);
             }
-            finally
+            catch (TaskCanceledException ex)
             {
-                if (response is IDisposable toDispose)
-                {
-                    toDispose.Dispose();
-                }
+                HandleRequestException(new HttpRequestException("HTTP request timed out", ex), urlContactInfo.Url, urlContactInfo.ResponseData);
+            }
+            catch (OperationCanceledException ex)
+            {
+                HandleRequestException(new HttpRequestException($"HTTP request was cancelled?: {ex.CancellationToken.IsCancellationRequested}", ex), urlContactInfo.Url, urlContactInfo.ResponseData);
             }
         }
 
@@ -850,7 +936,7 @@ namespace Pacifica.Core
         {
             try
             {
-                Send(mUrlContactInfo);
+                Send(mUrlContactInfo, mThreadedSendCancel.Token);
             }
             catch (Exception ex)
             {

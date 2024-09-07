@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.Tar;
 using Pacifica.Core;
 using PRISM;
@@ -363,16 +366,34 @@ namespace Pacifica.DataUpload
             string metadataFilePath,
             UploadDebugMode debugMode = UploadDebugMode.DebugDisabled)
         {
+            return Task
+                .Run(async () => await SendFileListToIngesterAsync(config, location, serverBaseAddress, fileListObject, metadataFilePath, debugMode))
+                .GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// Upload a file via POST
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="location"></param>
+        /// <param name="serverBaseAddress"></param>
+        /// <param name="fileListObject"></param>
+        /// <param name="metadataFilePath"></param>
+        /// <param name="debugMode"></param>
+        /// <returns>Web response data</returns>
+        public async Task<string> SendFileListToIngesterAsync(
+            Configuration config,
+            string location, string serverBaseAddress,
+            SortedDictionary<string, FileInfoObject> fileListObject,
+            string metadataFilePath,
+            UploadDebugMode debugMode = UploadDebugMode.DebugDisabled)
+        {
             var certificateFilePath = EasyHttp.ResolveCertFile(config, "SendFileListToIngester", out var errorMessage);
 
             if (string.IsNullOrWhiteSpace(certificateFilePath))
             {
                 throw new Exception(errorMessage);
             }
-
-            var baseUri = new Uri(serverBaseAddress);
-            var uploadUri = new Uri(baseUri, location);
-            HttpWebRequest webRequest = null;
             var metadataFile = new FileInfo(metadataFilePath);
 
             if (debugMode != UploadDebugMode.DebugDisabled)
@@ -389,66 +410,120 @@ namespace Pacifica.DataUpload
             // Compute the total number of bytes that will be written to the tar file
             var contentLength = ComputeTarFileSize(fileListObject, metadataFile, debugMode);
 
-            long bytesWritten = 0;
-            var lastStatusUpdateTime = DateTime.UtcNow;
-
-            RaiseStatusUpdate(0, bytesWritten, contentLength, string.Empty);
-
             // Set this to .CreateTarLocal Authenticate with MyEMSL, but create the .tar file locally instead of sending to the server
             // Set this to .MyEMSLOfflineMode to not contact MyEMSL, and create a local .tar file
 
             // See method PerformTask in clsArchiveUpdate
             var writeToDisk = (debugMode != UploadDebugMode.DebugDisabled); // aka WriteFile or SaveFile
 
-            if (writeToDisk && Environment.MachineName.IndexOf("proto", StringComparison.CurrentCultureIgnoreCase) >= 0)
-            {
-                throw new Exception("Should not have writeToDisk set to True when running on a Proto-x server");
-            }
-
-            if (!writeToDisk)
-            {
-                // Make the request
-                webRequest = (HttpWebRequest)WebRequest.Create(uploadUri);
-
-                var password = AppUtils.DecodeShiftCipher(Configuration.CLIENT_CERT_PASSWORD);
-                var certificate = new X509Certificate2(certificateFilePath, password, X509KeyStorageFlags.PersistKeySet);
-                webRequest.ClientCertificates.Add(certificate);
-
-                config.SetProxy(webRequest);
-
-                webRequest.KeepAlive = true;
-                webRequest.Method = WebRequestMethods.Http.Post;
-                webRequest.AllowWriteStreamBuffering = false;
-                webRequest.Accept = "*/*";
-                webRequest.Expect = null;
-                webRequest.Timeout = -1;
-                webRequest.ReadWriteTimeout = -1;
-                webRequest.ContentLength = contentLength;
-                webRequest.ContentType = "application/octet-stream";
-            }
-
-            Stream requestStream;
-
             if (writeToDisk)
             {
+                if (Environment.MachineName.IndexOf("proto", StringComparison.CurrentCultureIgnoreCase) >= 0)
+                {
+                    throw new Exception("Should not have writeToDisk set to True when running on a Proto-x server");
+                }
+
                 var tarFile = new FileInfo(Path.Combine(DEBUG_WORKING_DIRECTORY, "TestFile3.tar"));
 
                 Console.WriteLine();
                 Console.WriteLine("Tar file path: " + tarFile.FullName);
                 Console.WriteLine();
 
-                requestStream = new FileStream(tarFile.FullName, FileMode.Create, FileAccess.Write, FileShare.Read);
+                using var outFile = new FileStream(tarFile.FullName, FileMode.Create, FileAccess.Write, FileShare.Read);
+                CreateTarArchive(outFile, config, fileListObject, metadataFile, contentLength);
+                outFile.Close();
+
+                return string.Empty;
             }
-            else
+
+            var baseUri = new Uri(serverBaseAddress);
+            var uploadUri = new Uri(baseUri, location);
+
+            var responseData = string.Empty;
+            try
             {
-                requestStream = webRequest.GetRequestStream();
+                // Make the request
+                var handler = new HttpClientHandler();
+
+                var password = AppUtils.DecodeShiftCipher(Configuration.CLIENT_CERT_PASSWORD);
+                var certificate = new X509Certificate2(certificateFilePath, password, X509KeyStorageFlags.PersistKeySet);
+                handler.ClientCertificates.Add(certificate);
+                handler.PreAuthenticate = false;
+
+                config.SetProxy(handler);
+
+                using var client = new HttpClient(handler)
+                {
+                    BaseAddress = uploadUri,
+                    Timeout = Timeout.InfiniteTimeSpan
+                };
+
+                var request = new HttpRequestMessage(HttpMethod.Post, uploadUri);
+                request.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("*/*"));
+                request.Headers.ConnectionClose = false;
+
+                request.Content = new PushStreamContent((stream, httpContent, transportContext) =>
+                {
+                    // write to the stream from where ever you are getting the bytes from
+                    CreateTarArchive(stream, config, fileListObject, metadataFile, contentLength);
+                    stream.Close();
+                }, "application/octet-stream");
+
+                request.Content.Headers.ContentLength = contentLength; // If we don't set a content length, buffered data transfer is used instead of streamed transfer
+
+                using var response = await client.SendAsync(request, HttpCompletionOption.ResponseContentRead);
+
+                // The response should be empty if everything worked
+                responseData = await response.Content.ReadAsStringAsync();
+
+                var responseCode = response.StatusCode;
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new HttpRequestException(responseData);
+                }
             }
+            catch (HttpRequestException ex)
+            {
+                EasyHttp.HandleRequestException(ex, uploadUri.ToString());
+            }
+            catch (TaskCanceledException ex)
+            {
+                EasyHttp.HandleRequestException(new HttpRequestException("HTTP request timed out", ex), uploadUri.ToString());
+            }
+            catch (OperationCanceledException ex)
+            {
+                EasyHttp.HandleRequestException(new HttpRequestException($"HTTP request was cancelled?: {ex.CancellationToken.IsCancellationRequested}", ex), uploadUri.ToString());
+            }
+
+            return responseData;
+        }
+
+        /// <summary>
+        /// Upload a file via POST
+        /// </summary>
+        /// <param name="outputStream"></param>
+        /// <param name="config"></param>
+        /// <param name="fileListObject"></param>
+        /// <param name="metadataFile"></param>
+        /// <param name="tarContentLength">total number of bytes that will be written to the tar file</param>
+        /// <returns>Web response data</returns>
+        private void CreateTarArchive(
+            Stream outputStream,
+            Configuration config,
+            SortedDictionary<string, FileInfoObject> fileListObject,
+            FileInfo metadataFile,
+            long tarContentLength)
+        {
+            long bytesWritten = 0;
+            var lastStatusUpdateTime = DateTime.UtcNow;
+
+            RaiseStatusUpdate(0, bytesWritten, tarContentLength, string.Empty);
 
             // Use SharpZipLib to create the tar file on-the-fly and directly push into the request stream
             // This way, the .tar file is never actually created on a local hard drive
             // Code modeled after https://github.com/icsharpcode/SharpZipLib/wiki/GZip-and-Tar-Samples
 
-            var tarOutputStream = new TarOutputStream(requestStream, Encoding.UTF8);
+            var tarOutputStream = new TarOutputStream(outputStream, Encoding.UTF8);
 
             var directoryEntries = new SortedSet<string>();
 
@@ -491,7 +566,7 @@ namespace Pacifica.DataUpload
 
                 AppendFileToTar(tarOutputStream, sourceFile, fileToArchive.Value.RelativeDestinationFullPath, ref bytesWritten);
 
-                var percentComplete = bytesWritten / (double)contentLength * 100;
+                var percentComplete = bytesWritten / (double)tarContentLength * 100;
 
                 // Initially limit status updates to every 3 seconds
                 // Increase the time between updates as upload time progresses, with a maximum interval of 90 seconds
@@ -500,7 +575,7 @@ namespace Pacifica.DataUpload
                 if (DateTime.UtcNow.Subtract(lastStatusUpdateTime).TotalSeconds >= statusIntervalSeconds)
                 {
                     lastStatusUpdateTime = DateTime.UtcNow;
-                    RaiseStatusUpdate(percentComplete, bytesWritten, contentLength, UPLOADING_FILES + ": " + sourceFile.Name);
+                    RaiseStatusUpdate(percentComplete, bytesWritten, tarContentLength, UPLOADING_FILES + ": " + sourceFile.Name);
                 }
             }
 
@@ -509,43 +584,9 @@ namespace Pacifica.DataUpload
             tarOutputStream.Close();
             bytesWritten += TAR_BLOCK_SIZE_BYTES + TAR_BLOCK_SIZE_BYTES;
 
-            RaiseStatusUpdate(100, bytesWritten, contentLength, string.Empty);
+            RaiseStatusUpdate(100, bytesWritten, tarContentLength, string.Empty);
 
-            // Close the request
-            requestStream.Close();
-
-            RaiseStatusUpdate(100, contentLength, contentLength, string.Empty);
-
-            if (writeToDisk)
-            {
-                return string.Empty;
-            }
-
-            var responseData = string.Empty;
-
-            WebResponse response = null;
-            try
-            {
-                // The response should be empty if everything worked
-                response = webRequest.GetResponse();
-                var responseStream = response.GetResponseStream();
-
-                if (responseStream != null)
-                {
-                    using var reader = new StreamReader(responseStream);
-                    responseData = reader.ReadToEnd();
-                }
-            }
-            catch (WebException ex)
-            {
-                EasyHttp.HandleWebException(ex, uploadUri.ToString());
-            }
-            finally
-            {
-                ((IDisposable)response)?.Dispose();
-            }
-
-            return responseData;
+            RaiseStatusUpdate(100, tarContentLength, tarContentLength, string.Empty);
         }
     }
 }
