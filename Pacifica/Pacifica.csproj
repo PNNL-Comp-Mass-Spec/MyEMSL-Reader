@@ -4,10 +4,17 @@
     <TargetFrameworks>net48;netstandard2.1;net6.0;net8.0</TargetFrameworks>
     <RootNamespace>Pacifica</RootNamespace>
     <AssemblyName>Pacifica</AssemblyName>
-    <Company>PNNL-EMSL</Company>
-    <Product>Pacifica</Product>
-    <Copyright>Copyright © PNNL 2012</Copyright>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageId>MyEMSL-Pacifica</PackageId>
+    <Description>Library of methods used by software applications used for automated interaction with the MyEMSL Archive platform at Pacific Northwest National Laboratory's EMSL facility.</Description>
+    <Company>Pacific Northwest National Laboratory</Company>
+    <Product>MyEMSL Pacifica Library</Product>
+    <Authors>PNNL-Comp-Mass-Spec</Authors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RepositoryUrl>https://github.com/PNNL-Comp-Mass-Spec/MyEMSL-Reader</RepositoryUrl>
+    <RepositoryType>GitHub</RepositoryType>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/PNNL-Comp-Mass-Spec/MyEMSL-Reader</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
