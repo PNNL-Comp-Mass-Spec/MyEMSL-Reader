@@ -432,17 +432,18 @@ namespace MyEMSLReader
                 {
                     var responseStatusCode = HttpStatusCode.OK;
 
-                    if (ex.InnerException is HttpRequestException hrex)
+                    if (ex.InnerException is HttpRequestException requestEx)
                     {
-                        if (hrex.InnerException is WebException wex && wex.Response != null)
+                        // ReSharper disable once MergeIntoPattern
+                        if (requestEx.InnerException is WebException wex && wex.Response != null)
                         {
                             responseStatusCode = ((HttpWebResponse)wex.Response).StatusCode;
                         }
 
 #if NET5_0_OR_GREATER
-                        if (hrex.StatusCode.HasValue)
+                        if (requestEx.StatusCode.HasValue)
                         {
-                            responseStatusCode = hrex.StatusCode.Value;
+                            responseStatusCode = requestEx.StatusCode.Value;
                         }
 #endif
                     }
