@@ -452,11 +452,10 @@ namespace Pacifica.DataUpload
 
                 config.SetProxy(handler);
 
-                using var client = new HttpClient(handler)
-                {
-                    BaseAddress = uploadUri,
-                    Timeout = Timeout.InfiniteTimeSpan
-                };
+                using var client = new HttpClient(handler);
+
+                client.BaseAddress = uploadUri;
+                client.Timeout = Timeout.InfiniteTimeSpan;
 
                 var request = new HttpRequestMessage(HttpMethod.Post, uploadUri);
                 request.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("*/*"));
