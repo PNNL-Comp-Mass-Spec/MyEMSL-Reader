@@ -55,6 +55,8 @@ namespace MyEMSLReader
         /// </summary>
         public enum Overwrite
         {
+            // ReSharper disable once GrammarMistakeInComment
+
             /// <summary>
             /// Only overwrite if the downloaded file is different
             /// </summary>
@@ -211,6 +213,7 @@ namespace MyEMSLReader
 
                         foreach (var archiveFile in filesToDownload.Values)
                         {
+                            // ReSharper disable once CanSimplifySetAddingWithSingleCall
                             if (outputFilePaths.Contains(archiveFile.RelativePathWindows))
                             {
                                 // File conflicts
