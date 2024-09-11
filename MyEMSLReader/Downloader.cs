@@ -331,8 +331,7 @@ namespace MyEMSLReader
 
         private static long ComputeTotalBytes(IEnumerable<ArchivedFileInfo> files)
         {
-            var bytesToDownload = files.Sum(archiveFile => archiveFile.FileSizeBytes);
-            return bytesToDownload;
+            return files.Sum(archiveFile => archiveFile.FileSizeBytes);
         }
 
         private string ConstructDownloadFilePath(DownloadLayout directoryLayout, ArchivedFileInfo archiveFile)
@@ -988,19 +987,16 @@ namespace MyEMSLReader
 
         private static List<ArchivedFileInfo> GetArchivedFileByID(IEnumerable<ArchivedFileInfo> filesInArchive, long fileID)
         {
-            var archiveFileLookup = (from item in filesInArchive
-                                     where item.FileID == fileID
-                                     select item).ToList();
-            return archiveFileLookup;
+            return (from item in filesInArchive
+                    where item.FileID == fileID
+                    select item).ToList();
         }
 
         private static List<ArchivedFileInfo> GetArchivedFileByPath(IEnumerable<ArchivedFileInfo> filesInArchive, string filePath)
         {
-            var archiveFileLookup = (from item in filesInArchive
-                                     where string.Equals(item.RelativePathWindows, filePath, StringComparison.OrdinalIgnoreCase)
-                                     select item).ToList();
-
-            return archiveFileLookup;
+            return (from item in filesInArchive
+                    where string.Equals(item.RelativePathWindows, filePath, StringComparison.OrdinalIgnoreCase)
+                    select item).ToList();
         }
 
         private FileInfo GetTargetFile(
