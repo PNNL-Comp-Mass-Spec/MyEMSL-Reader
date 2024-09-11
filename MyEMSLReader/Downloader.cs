@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using Pacifica.Core;
 using ICSharpCode.SharpZipLib.Tar;
 using System.Net.Http;
-using System.Text.RegularExpressions;
 
 namespace MyEMSLReader
 {
