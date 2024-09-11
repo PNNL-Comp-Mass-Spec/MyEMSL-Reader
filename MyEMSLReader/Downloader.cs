@@ -357,7 +357,7 @@ namespace MyEMSLReader
                     break;
             }
 
-            if (downloadFilePath.IndexOf("/", StringComparison.Ordinal) > 0)
+            if (downloadFilePath.IndexOf('/') > 0)
             {
                 downloadFilePath = downloadFilePath.Replace('/', Path.DirectorySeparatorChar);
             }
