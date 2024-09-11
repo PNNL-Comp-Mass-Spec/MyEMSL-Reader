@@ -461,7 +461,7 @@ namespace Pacifica.DataUpload
                 request.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("*/*"));
                 request.Headers.ConnectionClose = false;
 
-                request.Content = new PushStreamContent((stream, httpContent, transportContext) =>
+                request.Content = new PushStreamContent((stream, _, _) =>
                 {
                     // write to the stream from where ever you are getting the bytes from
                     CreateTarArchive(stream, config, fileListObject, metadataFile, contentLength);
