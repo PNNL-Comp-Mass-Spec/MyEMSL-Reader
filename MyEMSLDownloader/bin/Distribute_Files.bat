@@ -6,10 +6,10 @@ call Distribute_Files_Work.bat \\floyd\software\MyEMSLDownloader
 call Distribute_Files_Work.bat \\pnl\projects\OmicsSW\DMS_Programs\AnalysisToolManagerDistribution\MyEMSLDownloader
 call Distribute_Files_Work.bat \\pnl\projects\OmicsSW\DMS_Programs\CaptureTaskManagerDistribution\MyEMSLDownloader
 
-xcopy Debug\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Programs\DMS_Dataset_Retriever\Lib" /D /Y
-xcopy Debug\Pacifica.dll     "F:\Documents\Projects\DataMining\DMS_Programs\DMS_Dataset_Retriever\Lib" /D /Y
+xcopy Debug\net48\MyEMSLReader.dll "F:\Documents\Projects\DataMining\DMS_Programs\DMS_Dataset_Retriever\Lib" /D /Y
+xcopy Debug\net48\Pacifica.dll     "F:\Documents\Projects\DataMining\DMS_Programs\DMS_Dataset_Retriever\Lib" /D /Y
 
-rem xcopy Debug\MyEMSLReader.dll  "F:\Documents\Projects\DataMining\DMS_Programs\DMS_Dataset_Retriever\Lib" /D /Y
+rem xcopy Debug\net48\MyEMSLReader.dll  "F:\Documents\Projects\DataMining\DMS_Programs\DMS_Dataset_Retriever\Lib" /D /Y
 
 popd
 
