@@ -277,7 +277,7 @@ namespace MyEMSLReader
 
                 if (filesNotDownloaded.Count == 0)
                 {
-                    // All of the files have been downloaded (or already exist and have matching a matching SHA-1 hash)
+                    // The files have been downloaded (or already exist and have matching a matching SHA-1 hash)
                     return true;
                 }
 
@@ -307,7 +307,7 @@ namespace MyEMSLReader
         /// <remarks>This only works if the path is rooted</remarks>
         /// <param name="fileOrDirectoryPath"></param>
         /// <returns>Updated path</returns>
-        private string AddLongPathCode(string fileOrDirectoryPath)
+        private static string AddLongPathCode(string fileOrDirectoryPath)
         {
             if (fileOrDirectoryPath.Length < PRISM.NativeIOFileTools.FILE_PATH_LENGTH_THRESHOLD || fileOrDirectoryPath.StartsWith(@"\\?\"))
             {
@@ -324,12 +324,12 @@ namespace MyEMSLReader
             return @"\\?\" + fileOrDirectoryPath;
         }
 
-        private long ComputeTotalBytes(IReadOnlyDictionary<long, ArchivedFileInfo> files)
+        private static long ComputeTotalBytes(IReadOnlyDictionary<long, ArchivedFileInfo> files)
         {
             return ComputeTotalBytes(files.Values);
         }
 
-        private long ComputeTotalBytes(IEnumerable<ArchivedFileInfo> files)
+        private static long ComputeTotalBytes(IEnumerable<ArchivedFileInfo> files)
         {
             var bytesToDownload = files.Sum(archiveFile => archiveFile.FileSizeBytes);
             return bytesToDownload;
@@ -986,7 +986,7 @@ namespace MyEMSLReader
             return fileMatchesHash;
         }
 
-        private List<ArchivedFileInfo> GetArchivedFileByID(IEnumerable<ArchivedFileInfo> filesInArchive, long fileID)
+        private static List<ArchivedFileInfo> GetArchivedFileByID(IEnumerable<ArchivedFileInfo> filesInArchive, long fileID)
         {
             var archiveFileLookup = (from item in filesInArchive
                                      where item.FileID == fileID
@@ -994,7 +994,7 @@ namespace MyEMSLReader
             return archiveFileLookup;
         }
 
-        private List<ArchivedFileInfo> GetArchivedFileByPath(IEnumerable<ArchivedFileInfo> filesInArchive, string filePath)
+        private static List<ArchivedFileInfo> GetArchivedFileByPath(IEnumerable<ArchivedFileInfo> filesInArchive, string filePath)
         {
             var archiveFileLookup = (from item in filesInArchive
                                      where string.Equals(item.RelativePathWindows, filePath, StringComparison.OrdinalIgnoreCase)
@@ -1059,7 +1059,7 @@ namespace MyEMSLReader
             return fiTargetFile;
         }
 
-        private FileInfo GetTargetFileWithOptionalID(IReadOnlyDictionary<string, int> targetFileCounts, FileInfo targetFile, long myEmslFileID)
+        private static FileInfo GetTargetFileWithOptionalID(IReadOnlyDictionary<string, int> targetFileCounts, FileInfo targetFile, long myEmslFileID)
         {
             if (!targetFileCounts.TryGetValue(targetFile.FullName, out var fileCount))
             {
@@ -1081,7 +1081,7 @@ namespace MyEMSLReader
             return new FileInfo(filePathWithFileID);
         }
 
-        private List<int> GetUniqueDatasetIDList(IReadOnlyDictionary<long, ArchivedFileInfo> files)
+        private static List<int> GetUniqueDatasetIDList(IReadOnlyDictionary<long, ArchivedFileInfo> files)
         {
             return (from item in files
                     group item by item.Value.DatasetID into g
@@ -1089,7 +1089,7 @@ namespace MyEMSLReader
         }
 
         /// <summary>
-        /// Determines whether or not a file should be downloaded
+        /// Determines whether a file should be downloaded
         /// </summary>
         /// <param name="archiveFile"></param>
         /// <param name="targetFile"></param>
@@ -1164,7 +1164,7 @@ namespace MyEMSLReader
             DownloadedFiles.Clear();
         }
 
-        private void UpdateFileModificationTime(FileSystemInfo targetFile, DateTime lastWriteTime)
+        private static void UpdateFileModificationTime(FileSystemInfo targetFile, DateTime lastWriteTime)
         {
             // Update the file modification time
             targetFile.Refresh();
