@@ -47,17 +47,10 @@
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)'=='net48'">
-    <Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\DeployedFiles\&quot; /D /Y /I&#xD;&#xA;xcopy &quot;$(TargetDir)$(TargetName).pdb&quot; &quot;$(ProjectDir)..\DeployedFiles\&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetDir)$(TargetName).xml&quot; &quot;$(ProjectDir)..\DeployedFiles&quot; /Y&#xD;&#xA;&#xD;&#xA;xcopy &quot;$(TargetDir)PRISM.dll&quot; &quot;$(ProjectDir)..\DeployedFiles\&quot; /D /Y /I&#xD;&#xA;&#xD;&#xA;if exist &quot;$(ProjectDir)..\..\Capture_Task_Manager\RefLib&quot; xcopy &quot;$(ProjectDir)..\DeployedFiles\*.*&quot; &quot;$(ProjectDir)..\..\Capture_Task_Manager\RefLib\&quot; /Y /D" />
+    <Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\DeployedFiles\&quot; /D /Y /I" />
+    <Exec Command="xcopy &quot;$(TargetDir)$(TargetName).pdb&quot; &quot;$(ProjectDir)..\DeployedFiles\&quot; /Y" />
+    <Exec Command="xcopy &quot;$(TargetDir)$(TargetName).xml&quot; &quot;$(ProjectDir)..\DeployedFiles&quot; /Y" />
+    <Exec Command="xcopy &quot;$(TargetDir)PRISM.dll&quot; &quot;$(ProjectDir)..\DeployedFiles\&quot; /D /Y /I" />
+    <Exec Command="if exist &quot;$(ProjectDir)..\..\Capture_Task_Manager\RefLib&quot; xcopy &quot;$(ProjectDir)..\DeployedFiles\*.*&quot; &quot;$(ProjectDir)..\..\Capture_Task_Manager\RefLib\&quot; /Y /D" />
   </Target>
-  <!--
-  <PropertyGroup>
-    <PostBuildEvent>xcopy "$(TargetPath)" "$(ProjectDir)..\DeployedFiles\" /D /Y /I
-xcopy "$(TargetDir)$(TargetName).pdb" "$(ProjectDir)..\DeployedFiles\" /Y
-xcopy "$(TargetDir)$(TargetName).xml" "$(ProjectDir)..\DeployedFiles" /Y
-
-xcopy "$(TargetDir)PRISM.dll" "$(ProjectDir)..\DeployedFiles\" /D /Y /I
-
-if exist "$(ProjectDir)..\..\Capture_Task_Manager\RefLib" xcopy "$(ProjectDir)..\DeployedFiles\*.*" "$(ProjectDir)..\..\Capture_Task_Manager\RefLib\" /Y /D
-    </PostBuildEvent>
-  </PropertyGroup>-->
 </Project>

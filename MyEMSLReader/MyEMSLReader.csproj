@@ -44,12 +44,8 @@
     <ProjectReference Include="..\Pacifica\Pacifica.csproj" />
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)'=='net48'">
-    <Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\DeployedFiles\&quot; /D /Y /I&#xD;&#xA;xcopy &quot;$(TargetDir)$(TargetName).pdb&quot; &quot;$(ProjectDir)..\DeployedFiles\&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetDir)$(TargetName).xml&quot; &quot;$(ProjectDir)..\DeployedFiles\&quot; /Y" />
+    <Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\DeployedFiles\&quot; /D /Y /I" />
+    <Exec Command="xcopy &quot;$(TargetDir)$(TargetName).pdb&quot; &quot;$(ProjectDir)..\DeployedFiles\&quot; /Y" />
+    <Exec Command="xcopy &quot;$(TargetDir)$(TargetName).xml&quot; &quot;$(ProjectDir)..\DeployedFiles\&quot; /Y" />
   </Target>
-  <!--
-  <PropertyGroup>
-    <PostBuildEvent>xcopy "$(TargetPath)" "$(ProjectDir)..\DeployedFiles\" /D /Y /I
-xcopy "$(TargetDir)$(TargetName).pdb" "$(ProjectDir)..\DeployedFiles\" /Y
-xcopy "$(TargetDir)$(TargetName).xml" "$(ProjectDir)..\DeployedFiles\" /Y</PostBuildEvent>
-  </PropertyGroup>-->
 </Project>
