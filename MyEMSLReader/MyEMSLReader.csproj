@@ -1,5 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net48;netstandard2.1;net6.0;net8.0</TargetFrameworks>
     <RootNamespace>MyEMSLReader</RootNamespace>
@@ -18,42 +18,35 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Remove="Properties\**" />
   </ItemGroup>
-
   <ItemGroup>
     <None Include="..\README.md" Pack="true" PackagePath="\" />
     <None Include="..\version.json">
       <Link>Properties\version.json</Link>
     </None>
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.6.141">
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.6.143">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="PRISM-DatabaseUtils" Version="1.4.32" />
-    <PackageReference Include="PRISM-Library" Version="2.8.32" />
+    <PackageReference Include="PRISM-DatabaseUtils" Version="1.4.33" />
+    <PackageReference Include="PRISM-Library" Version="2.8.34" />
     <PackageReference Include="SharpZipLib" Version="1.4.2" />
   </ItemGroup>
-
   <ItemGroup Condition="'$(TargetFramework)'=='net48'">
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Pacifica\Pacifica.csproj" />
   </ItemGroup>
-
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)'=='net48'">
     <Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\DeployedFiles\&quot; /D /Y /I&#xD;&#xA;xcopy &quot;$(TargetDir)$(TargetName).pdb&quot; &quot;$(ProjectDir)..\DeployedFiles\&quot; /Y&#xD;&#xA;xcopy &quot;$(TargetDir)$(TargetName).xml&quot; &quot;$(ProjectDir)..\DeployedFiles\&quot; /Y" />
   </Target>
-
-<!--
+  <!--
   <PropertyGroup>
     <PostBuildEvent>xcopy "$(TargetPath)" "$(ProjectDir)..\DeployedFiles\" /D /Y /I
 xcopy "$(TargetDir)$(TargetName).pdb" "$(ProjectDir)..\DeployedFiles\" /Y

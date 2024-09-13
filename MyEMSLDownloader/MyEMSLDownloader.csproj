@@ -1,5 +1,5 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net48;net6.0;net8.0</TargetFrameworks>
@@ -11,30 +11,25 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Remove="Properties\**" />
   </ItemGroup>
-
   <ItemGroup>
     <None Include="..\version.json">
       <Link>Properties\version.json</Link>
     </None>
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.6.141">
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.6.143">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="PRISM-Library" Version="2.8.32" />
+    <PackageReference Include="PRISM-Library" Version="2.8.34" />
     <PackageReference Include="SharpZipLib" Version="1.4.2" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\MyEMSLReader\MyEMSLReader.csproj" />
     <ProjectReference Include="..\Pacifica\Pacifica.csproj" />
   </ItemGroup>
-
 </Project>
