@@ -47,10 +47,11 @@
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(TargetFramework)'=='net48'">
-    <Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\DeployedFiles\&quot; /D /Y /I" />
+    <Exec Command="if not exist &quot;$(ProjectDir)..\DeployedFiles\&quot; mkdir &quot;$(ProjectDir)..\DeployedFiles\&quot;" />
+    <Exec Command="xcopy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\DeployedFiles\&quot; /D /Y" />
     <Exec Command="xcopy &quot;$(TargetDir)$(TargetName).pdb&quot; &quot;$(ProjectDir)..\DeployedFiles\&quot; /Y" />
     <Exec Command="xcopy &quot;$(TargetDir)$(TargetName).xml&quot; &quot;$(ProjectDir)..\DeployedFiles&quot; /Y" />
-    <Exec Command="xcopy &quot;$(TargetDir)PRISM.dll&quot; &quot;$(ProjectDir)..\DeployedFiles\&quot; /D /Y /I" />
+    <Exec Command="xcopy &quot;$(TargetDir)PRISM.dll&quot; &quot;$(ProjectDir)..\DeployedFiles\&quot; /D /Y" />
     <Exec Command="if exist &quot;$(ProjectDir)..\..\Capture_Task_Manager\RefLib&quot; xcopy &quot;$(ProjectDir)..\DeployedFiles\*.*&quot; &quot;$(ProjectDir)..\..\Capture_Task_Manager\RefLib\&quot; /Y /D" />
   </Target>
 </Project>
