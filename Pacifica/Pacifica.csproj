@@ -22,9 +22,6 @@
     <NoWarn>CS1591;IDE0028</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="Properties\**" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
   <ItemGroup>

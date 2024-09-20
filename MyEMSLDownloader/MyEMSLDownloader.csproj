@@ -12,9 +12,6 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="Properties\**" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\version.json">
       <Link>Properties\version.json</Link>
     </None>
