@@ -5,4 +5,4 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Style", "IDE0028:Simplify collection initialization", Justification = "Leave as-is for readability", Scope = "member", Target = "~M:MyEMSLDownloader.Program.FindFileListFiles(System.IO.FileSystemInfo)~System.Collections.Generic.List{MyEMSLReader.DatasetDirectoryOrFileInfo}")]
+[assembly: SuppressMessage("Style", "IDE0028:Simplify collection initialization", Justification = "Leave as-is for readability", Scope = "member", Target = "~M:MyEMSLDownloader.Program.FindFileListFiles(System.IO.FileInfo)~System.Collections.Generic.List{MyEMSLReader.DatasetDirectoryOrFileInfo}")]
