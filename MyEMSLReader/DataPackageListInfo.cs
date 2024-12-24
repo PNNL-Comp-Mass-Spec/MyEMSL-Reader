@@ -51,7 +51,7 @@ namespace MyEMSLReader
                 subDir = string.Empty;
             }
 
-            if (DataPackagesAndSubDirs.Keys.Contains(dataPackageID))
+            if (DataPackagesAndSubDirs.ContainsKey(dataPackageID))
             {
                 DataPackagesAndSubDirs[dataPackageID] = subDir;
             }

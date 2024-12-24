@@ -52,7 +52,7 @@ namespace MyEMSLReader
                 subDir = string.Empty;
             }
 
-            if (DatasetsAndSubDirs.Keys.Contains(datasetID))
+            if (DatasetsAndSubDirs.ContainsKey(datasetID))
             {
                 DatasetsAndSubDirs[datasetID] = subDir;
             }
