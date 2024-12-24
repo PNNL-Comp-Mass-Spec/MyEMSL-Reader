@@ -4,6 +4,8 @@ using Newtonsoft.Json.Linq;
 
 namespace Pacifica.Json
 {
+    // Ignore Spelling: Json, Pacifica, serializer
+
     /// <summary>
     /// Custom JSON converter handler to populate the correct objects when reading from JSON
     /// </summary>

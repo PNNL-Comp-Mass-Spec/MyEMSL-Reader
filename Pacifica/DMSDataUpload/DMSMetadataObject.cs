@@ -406,6 +406,8 @@ namespace Pacifica.DMSDataUpload
                 }
                 else if ((int)responseStatusCode == 412 || response.IndexOf("Precondition failed", StringComparison.OrdinalIgnoreCase) >= 0)
                 {
+                    // ReSharper disable once CommentTypo
+
                     // JSON response will look like '{ "message": "Precondition Failed: Invalid values for submitter, project, instrument", "postdata": "", "status": "412 Precondition Failed",...}'
                     // TODO: parse out the 'message' and report that?
                     OnErrorEvent("Policy server reports that metadata is not valid: " + policyURL);
@@ -490,14 +492,14 @@ namespace Pacifica.DMSDataUpload
         /// <summary>
         /// Convert a file size in bytes to gigabytes
         /// </summary>
-        /// <param name="sizeBytes"></param>
+        /// <param name="sizeBytes">File size, in bytes</param>
         private static double BytesToGB(long sizeBytes)
         {
             return sizeBytes / 1024.0 / 1024 / 1024;
         }
 
         /// <summary>
-        /// Find all of the files in the path to be archived
+        /// Find the files in the path to be archived
         /// </summary>
         /// <param name="archiveMode">Archive for the initial archive of a dataset, or update for updating a specific subdirectory</param>
         /// <param name="pathToBeArchived">Directory path to be archived</param>
@@ -968,7 +970,7 @@ namespace Pacifica.DMSDataUpload
 
                     if (matchingDirectory.Name != uploadMetadata.SubFolder)
                     {
-                        // Case mis-match; update uploadMetadata and taskParams
+                        // Case mismatch; update uploadMetadata and taskParams
                         uploadMetadata.SubFolder = matchingDirectory.Name;
 
                         if (taskParams.ContainsKey("OutputFolderName"))
@@ -1173,6 +1175,8 @@ namespace Pacifica.DMSDataUpload
                     {
                         if (string.Equals(fileHash, "none", StringComparison.OrdinalIgnoreCase))
                         {
+                            // ReSharper disable once GrammarMistakeInComment
+
                             // Do not log a warning; just silently ignore it
                             // Example of a dataset with hash values of "None" is test dataset SWT_LCQData_300
                             // https://metadata.my.emsl.pnl.gov/fileinfo/files_for_keyvalue/omics.dms.dataset_id/54007
@@ -1295,7 +1299,7 @@ namespace Pacifica.DMSDataUpload
         /// <summary>
         /// Get a list of file names that we can ignore when transferring data to MyEMSL or comparing files on disk to files in MyEMSL
         /// </summary>
-        /// <returns>SortedSet of strings (case insensitive)</returns>
+        /// <returns>SortedSet of strings (case-insensitive)</returns>
         // ReSharper disable once UnusedMember.Global
         [Obsolete("Use method IgnoreFile to check whether a file should be skipped")]
         // ReSharper disable once UnusedMember.Global

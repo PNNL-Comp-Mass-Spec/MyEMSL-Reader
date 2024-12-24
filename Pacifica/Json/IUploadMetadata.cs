@@ -5,6 +5,8 @@
     /// </summary>
     public interface IUploadMetadata
     {
+        // Ignore Spelling: Json, Pacifica
+
         /// <summary>
         /// All entries must contain a value for destination table
         /// </summary>

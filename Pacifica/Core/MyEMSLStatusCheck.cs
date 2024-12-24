@@ -375,7 +375,7 @@ namespace Pacifica.Core
             // 3. Processing       .tar file being processed
             // 4. Verified         .tar file contents validated
             // 5. Stored           .tar file contents copied to Aurora
-            // 6. Available        Visible via Elastic Search
+            // 6. Available        Visible via ElasticSearch
             // 7. Archived         Data copied to tape
 
             return (byte)(Math.Round(7 * (percentComplete / 100.0)));

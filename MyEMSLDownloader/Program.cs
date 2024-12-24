@@ -767,7 +767,7 @@ namespace MyEMSLDownloader
             // datasetName = "Blank_B-2_20Apr12_Draco_12-02-37";
             // datasetName = "QC_Shew_11_06_pt5_d2_11Jun12_Draco_12-04-14";
 
-            // Dataset where all of the files were purged from spinning disk (but were later un-purged and now possibly re-purged)
+            // Dataset where its files were purged from spinning disk (but were later un-purged and now possibly re-purged)
             // datasetName = "2013_05_28_U01-B_Wilkins_neg_4M_0p1acc_8x_144_000001";
             // subDir = "";
 

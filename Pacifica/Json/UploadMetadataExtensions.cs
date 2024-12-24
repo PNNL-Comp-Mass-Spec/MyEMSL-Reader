@@ -10,6 +10,8 @@ namespace Pacifica.Json
     /// </summary>
     public static class UploadMetadataExtensions
     {
+        // Ignore Spelling: Json, Pacifica
+
         /// <summary>
         /// Add a key-value entry to the list
         /// </summary>

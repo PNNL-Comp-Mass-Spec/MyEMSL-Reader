@@ -4,6 +4,8 @@ namespace Pacifica.Core
 {
     internal class UrlContactInfo
     {
+        // Ignore Spelling: Pacifica
+
         /// <summary>
         /// Configuration options
         /// </summary>

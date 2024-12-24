@@ -4,6 +4,8 @@ namespace MyEMSLMetadataValidator
 {
     internal class IngestTaskStats
     {
+        // Ignore Spelling: Validator
+
         /// <summary>
         /// Ingest Tasks associated with these stats
         /// </summary>
@@ -13,6 +15,12 @@ namespace MyEMSLMetadataValidator
 
         public long TotalBytes { get; set; }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="ingestTask">Ingest task</param>
+        /// <param name="filesAddedOrUpdated">Number of files added or updated</param>
+        /// <param name="bytes">Total bytes uploaded</param>
         public IngestTaskStats(DMSMetadata ingestTask, int filesAddedOrUpdated, long bytes)
         {
             IngestTasks = new List<DMSMetadata> {ingestTask};

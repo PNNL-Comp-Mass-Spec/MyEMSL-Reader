@@ -10,6 +10,8 @@ namespace Pacifica.Json
     [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
     public class MyEMSLTaskStatus
     {
+        // Ignore Spelling: Json, Pacifica
+
         /// <summary>
         /// True if the data is valid (false for empty responses)
         /// </summary>

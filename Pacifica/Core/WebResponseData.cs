@@ -8,6 +8,8 @@ namespace Pacifica.Core
     /// </summary>
     public class WebResponseData
     {
+        // Ignore Spelling: Pacifica
+
         /// <summary>
         /// Set to true when an exception was caught
         /// </summary>

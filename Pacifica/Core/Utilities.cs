@@ -14,6 +14,8 @@ namespace Pacifica.Core
 {
     public static class Utilities
     {
+        // Ignore Spelling: Pacifica, Sha
+
         /// <summary>
         /// Try to delete the file; ignore any errors
         /// </summary>

@@ -183,6 +183,8 @@ namespace Pacifica.DMSDataUpload
             mUploadWorker.UploadCompleted += MyEMSLUpload_UploadCompleted;
         }
 
+        // ReSharper disable once GrammarMistakeInComment
+
         /// <summary>
         /// Look for files to upload, compute a SHA-1 hash for each, compare those hashes to existing files in MyEMSL,
         /// and upload new/changed files
@@ -242,6 +244,8 @@ namespace Pacifica.DMSDataUpload
 
             try
             {
+                // ReSharper disable once GrammarMistakeInComment
+
                 // Look for files to upload, compute a SHA-1 hash for each, and compare those hashes to existing files in MyEMSL
                 var success = MetadataContainer.SetupMetadata(mTaskParams, mMgrParams, out var criticalError, out var criticalErrorMessage);
 
