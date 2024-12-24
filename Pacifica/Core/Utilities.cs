@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Security;
+#if NETSTANDARD2_0_OR_GREATER
 using System.Runtime.InteropServices;
+#endif
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
