@@ -151,7 +151,7 @@ namespace Pacifica.Core
             int timeoutSeconds = 100,
             NetworkCredential loginCredentials = null)
         {
-            var responseStatusCode = HttpStatusCode.NotFound;
+            HttpStatusCode responseStatusCode;
 
             try
             {
@@ -234,7 +234,7 @@ namespace Pacifica.Core
         /// <param name="config">Configuration options</param>
         /// <param name="url">URL</param>
         /// <param name="cookies">Cookies</param>
-        /// <param name="responseStatusCode"></param>
+        /// <param name="responseStatusCode">Output: response status code</param>
         /// <param name="timeoutSeconds">Timeout, in seconds</param>
         /// <param name="loginCredentials">Login credentials</param>
         /// <returns>Headers</returns>
