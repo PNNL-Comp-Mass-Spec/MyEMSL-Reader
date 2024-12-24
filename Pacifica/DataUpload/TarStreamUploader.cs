@@ -59,12 +59,12 @@ namespace Pacifica.DataUpload
         /// </summary>
         public event EventHandler<StatusEventArgs> StatusUpdate;
 
-        private long AddTarFileContentLength(string pathInArchive, long fileSizeBytes)
+        private static long AddTarFileContentLength(string pathInArchive, long fileSizeBytes)
         {
             return AddTarFileContentLength(pathInArchive, fileSizeBytes, out _);
         }
 
-        private long AddTarFileContentLength(string pathInArchive, long fileSizeBytes, out int headerBlocks)
+        private static long AddTarFileContentLength(string pathInArchive, long fileSizeBytes, out int headerBlocks)
         {
             long contentLength = 0;
             bool longPath;
@@ -104,7 +104,8 @@ namespace Pacifica.DataUpload
             return contentLength;
         }
 
-        private void AppendDirectoryToTar(TarOutputStream tarOutputStream, FileSystemInfo sourceFolder, string pathInArchive, ref long bytesWritten)
+        // ReSharper disable once SuggestBaseTypeForParameter
+        private static void AppendDirectoryToTar(TarOutputStream tarOutputStream, DirectoryInfo sourceFolder, string pathInArchive, ref long bytesWritten)
         {
             var tarEntry = TarEntry.CreateEntryFromFile(sourceFolder.FullName);
 
@@ -119,7 +120,7 @@ namespace Pacifica.DataUpload
             bytesWritten += AddTarFileContentLength(pathInArchive, 0);
         }
 
-        private void AppendFileToTar(TarOutputStream tarOutputStream, FileInfo sourceFile, string destFilenameInTar, ref long bytesWritten)
+        private static void AppendFileToTar(TarOutputStream tarOutputStream, FileInfo sourceFile, string destFilenameInTar, ref long bytesWritten)
         {
             using (Stream inputStream = new FileStream(sourceFile.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
@@ -155,7 +156,7 @@ namespace Pacifica.DataUpload
             tarOutputStream.CloseEntry();
         }
 
-        private long ComputeTarFileSize(SortedDictionary<string, FileInfoObject> fileListObject, FileInfo metadataFile, UploadDebugMode debugMode)
+        private static long ComputeTarFileSize(SortedDictionary<string, FileInfoObject> fileListObject, FileInfo metadataFile, UploadDebugMode debugMode)
         {
             long contentLength = 0;
 
@@ -312,7 +313,8 @@ namespace Pacifica.DataUpload
             return contentLength;
         }
 
-        private void DisplayTarFileSizeDetails(TextWriter tarMetadataFile, string metadataLine)
+        // ReSharper disable once SuggestBaseTypeForParameter
+        private static void DisplayTarFileSizeDetails(StreamWriter tarMetadataFile, string metadataLine)
         {
             var columnMatcher = new Regex(@"^(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)", RegexOptions.Compiled);
 

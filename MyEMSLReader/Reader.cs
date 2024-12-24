@@ -489,7 +489,7 @@ namespace MyEMSLReader
         /// </summary>
         /// <param name="datasetsAndSubDirs"></param>
         /// <returns>Dictionary where Keys are dataset names, and Values are a list of subdirectory names to filter on for the given dataset</returns>
-        private Dictionary<string, SortedSet<string>> ConvertDatasetSubDirDictToSubDirListDict(
+        private static Dictionary<string, SortedSet<string>> ConvertDatasetSubDirDictToSubDirListDict(
             Dictionary<string, string> datasetsAndSubDirs)
         {
             var datasetsAndSubDirLists = new Dictionary<string, SortedSet<string>>();
@@ -512,8 +512,8 @@ namespace MyEMSLReader
         /// </param>
         /// <param name="datasetName">Dataset Name</param>
         /// <param name="subDir">Subdirectory name to filter on (exact match; cannot contain wildcards)</param>
-        private void ConvertDatasetSubDirAddToDictionary(
             IDictionary<string, SortedSet<string>> datasetsAndSubDirLists,
+        private static void ConvertDatasetSubDirAddToDictionary(
             string datasetName,
             string subDir)
         {
@@ -545,7 +545,7 @@ namespace MyEMSLReader
         /// <param name="fileVersions">List of files in MyEMSL</param>
         /// <param name="fileHash">SHA-1 hash to find</param>
         /// <returns>True if a match is found, otherwise false</returns>
-        private bool FileHashExists(IEnumerable<ArchivedFileInfo> fileVersions, string fileHash)
+        private static bool FileHashExists(IEnumerable<ArchivedFileInfo> fileVersions, string fileHash)
         {
             return (from item in fileVersions where string.Equals(item.Sha1Hash, fileHash) select item).Any();
         }
@@ -599,7 +599,7 @@ namespace MyEMSLReader
             return filteredSearchResults;
         }
 
-        private List<ArchivedFileInfo> FilterFilesByDatasetID(
+        private static List<ArchivedFileInfo> FilterFilesByDatasetID(
             IEnumerable<ArchivedFileInfo> searchResults,
             IEnumerable<string> datasetIdTags)
         {
@@ -634,7 +634,7 @@ namespace MyEMSLReader
             return filteredSearchResults;
         }
 
-        private List<ArchivedFileInfo> FilterFilesByDatasetName(
+        private static List<ArchivedFileInfo> FilterFilesByDatasetName(
             IEnumerable<ArchivedFileInfo> searchResults,
             IEnumerable<string> datasetNames)
         {
@@ -944,7 +944,7 @@ namespace MyEMSLReader
             return filteredSearchResults;
         }
 
-        private SearchEntity GetEntityType(Dictionary<string, SortedSet<string>> datasetsAndSubDirLists)
+        private static SearchEntity GetEntityType(Dictionary<string, SortedSet<string>> datasetsAndSubDirLists)
         {
             if (datasetsAndSubDirLists.First().Key.StartsWith(DATASET_ID_TAG))
             {
@@ -985,7 +985,7 @@ namespace MyEMSLReader
             return 0;
         }
 
-        private string LookupDatasetNameByID(IDBTools dbTools, int datasetID, out string instrument, int retryCount = 2)
+        private static string LookupDatasetNameByID(IDBTools dbTools, int datasetID, out string instrument, int retryCount = 2)
         {
             var queryString = string.Format(
                 "SELECT dataset, instrument " +

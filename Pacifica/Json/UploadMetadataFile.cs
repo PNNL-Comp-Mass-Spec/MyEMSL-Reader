@@ -64,13 +64,13 @@ namespace Pacifica.Json
         /// File MIME type (binary file)
         /// </summary>
         [JsonProperty("mimetype", Required = Required.Always)]
-        public string MimeType => "application/octet-stream";
+        public static string MimeType => "application/octet-stream";
 
         /// <summary>
         /// Hash algorithm used for <see cref="HashSum"/>
         /// </summary>
         [JsonProperty("hashtype", Required = Required.Always)]
-        public string HashType => "sha1";
+        public static string HashType => "sha1";
 
         /// <summary>
         /// File creation time (UTC)

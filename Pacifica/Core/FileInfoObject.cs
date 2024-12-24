@@ -159,7 +159,7 @@ namespace Pacifica.Core
         /// </summary>
         /// <remarks>Removes any leading slashes</remarks>
         /// <param name="path">Unix-style path</param>
-        private string ConvertWindowsPathToUnix(string path)
+        private static string ConvertWindowsPathToUnix(string path)
         {
             return path.Replace(@"\", "/").TrimStart('/');
         }

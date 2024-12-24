@@ -27,7 +27,7 @@ namespace MyEMSLDownloader
             GetFileStart(datasetListInfo);
         }
 
-        private void GetFileStart(DatasetListInfo datasetListInfo)
+        private static void GetFileStart(DatasetListInfo datasetListInfo)
         {
             const string datasetDirectoryPathFromDMS = @"\\MyEMSL\Exact01\2010_2\SysVirol_SM001_mock-7d_3_B_11May10_Phoenix_10-03-35";
 
@@ -41,7 +41,7 @@ namespace MyEMSLDownloader
             }
         }
 
-        private void GetRawFile(DatasetListInfo datasetListInfo, string datasetName, string outputDirectoryPath)
+        private static void GetRawFile(DatasetListInfo datasetListInfo, string datasetName, string outputDirectoryPath)
         {
             datasetListInfo.AddDataset(datasetName);
 
@@ -51,7 +51,7 @@ namespace MyEMSLDownloader
             DownloadFiles(datasetListInfo, archiveFiles, outputDirectoryPath);
         }
 
-        private void DownloadFiles(DatasetInfoBase datasetListInfo, IEnumerable<DatasetDirectoryOrFileInfo> archiveFiles, string outputDirectoryPath)
+        private static void DownloadFiles(DatasetInfoBase datasetListInfo, IEnumerable<DatasetDirectoryOrFileInfo> archiveFiles, string outputDirectoryPath)
         {
             datasetListInfo.ClearDownloadQueue();
 
@@ -80,7 +80,7 @@ namespace MyEMSLDownloader
             }
         }
 
-        private void ShowErrorMessage(string message, Exception ex = null)
+        private static void ShowErrorMessage(string message, Exception ex = null)
         {
             ConsoleMsgUtils.ShowError(message, ex);
         }

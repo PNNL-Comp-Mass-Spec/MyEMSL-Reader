@@ -57,7 +57,7 @@ namespace Pacifica.Core
         /// <param name="percentComplete">percent complete; typically meaningless (either 0 or 100)</param>
         /// <param name="ingestStepsCompletedOld"></param>
         // ReSharper disable once UnusedMember.Global
-        public byte DetermineIngestStepsCompleted(string currentTask, int percentComplete, byte ingestStepsCompletedOld)
+        public static byte DetermineIngestStepsCompleted(string currentTask, int percentComplete, byte ingestStepsCompletedOld)
         {
             if (percentComplete > 0)
             {
@@ -366,7 +366,7 @@ namespace Pacifica.Core
         /// <remarks>Reports 7 when percentComplete is 100</remarks>
         /// <param name="percentComplete"></param>
         /// <returns>Number of steps completed</returns>
-        private byte IngestStepCompletionCount(int percentComplete)
+        private static byte IngestStepCompletionCount(int percentComplete)
         {
             // Convert the percent complete value to a number between 0 and 7
             // since historically there were 7 steps to the ingest process:

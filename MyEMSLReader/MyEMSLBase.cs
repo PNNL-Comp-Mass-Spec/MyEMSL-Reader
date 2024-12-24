@@ -214,7 +214,7 @@ namespace MyEMSLReader
         /// <param name="keyName"></param>
         /// <param name="valueIfMissing"></param>
         /// <returns>The value if found, or valueIfMissing</returns>
-        protected string ReadDictionaryValue(Dictionary<string, object> dataDictionary, string keyName, string valueIfMissing)
+        protected static string ReadDictionaryValue(Dictionary<string, object> dataDictionary, string keyName, string valueIfMissing)
         {
             if (dataDictionary.TryGetValue(keyName, out var value))
             {
@@ -232,7 +232,7 @@ namespace MyEMSLReader
         /// <param name="valueIfMissing"></param>
         /// <returns>The value if found, or valueIfMissing</returns>
         // ReSharper disable once UnusedMember.Global
-        protected bool ReadDictionaryValue(Dictionary<string, object> dataDictionary, string keyName, bool valueIfMissing)
+        protected static bool ReadDictionaryValue(Dictionary<string, object> dataDictionary, string keyName, bool valueIfMissing)
         {
             var valueText = ReadDictionaryValue(dataDictionary, keyName, valueIfMissing.ToString());
 
@@ -250,7 +250,7 @@ namespace MyEMSLReader
         /// <param name="valueIfMissing"></param>
         /// <returns>The value if found, or valueIfMissing</returns>
         // ReSharper disable once UnusedMember.Global
-        protected long ReadDictionaryValue(Dictionary<string, object> dataDictionary, string keyName, long valueIfMissing)
+        protected static long ReadDictionaryValue(Dictionary<string, object> dataDictionary, string keyName, long valueIfMissing)
         {
             var valueText = ReadDictionaryValue(dataDictionary, keyName, valueIfMissing.ToString(CultureInfo.InvariantCulture));
 

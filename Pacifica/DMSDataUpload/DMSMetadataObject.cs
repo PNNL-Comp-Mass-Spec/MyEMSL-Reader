@@ -344,7 +344,7 @@ namespace Pacifica.DMSDataUpload
             return success;
         }
 
-        private List<int> GetRequestedRunUsers(IDBTools dbTools, int requestedRunID, int retryCount = 3)
+        private static List<int> GetRequestedRunUsers(IDBTools dbTools, int requestedRunID, int retryCount = 3)
         {
             var queryString = "SELECT eus_person_id FROM V_Requested_Run_EUS_Users_Export WHERE request_id = " + requestedRunID;
 
@@ -876,7 +876,7 @@ namespace Pacifica.DMSDataUpload
         /// <param name="fileVersions">List of files in MyEMSL</param>
         /// <param name="fileHash">SHA-1 hash to find</param>
         /// <returns>True if a match is found, otherwise false</returns>
-        private bool FileHashExists(IEnumerable<MyEMSLFileInfo> fileVersions, string fileHash)
+        private static bool FileHashExists(IEnumerable<MyEMSLFileInfo> fileVersions, string fileHash)
         {
             return (from item in fileVersions where string.Equals(item.HashSum, fileHash) select item).Any();
         }

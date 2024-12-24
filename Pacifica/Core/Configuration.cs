@@ -84,10 +84,10 @@ namespace Pacifica.Core
         }
 
         private const string UNSECURED_SCHEME = "http";
-        public string UnsecuredScheme => UNSECURED_SCHEME;
+        public static string UnsecuredScheme => UNSECURED_SCHEME;
 
         private const string SECURED_SCHEME = "https";
-        public string SecuredScheme => SECURED_SCHEME;
+        public static string SecuredScheme => SECURED_SCHEME;
 
         /// <summary>
         /// Path to the MyEMSL certificate file, e.g. svc-dms-cert_2019.pfx
@@ -164,7 +164,7 @@ namespace Pacifica.Core
         /// </summary>
         /// <remarks>First checks the directory with the executing assembly, then C:\DMS_Programs\client_certs, then C:\client_certs\</remarks>
         /// <returns>Path to the file if found, otherwise an empty string</returns>
-        private string FindNewestClientCertFile()
+        private static string FindNewestClientCertFile()
         {
             const string CERTIFICATE_FILE_MASK = "*.pfx";
 
