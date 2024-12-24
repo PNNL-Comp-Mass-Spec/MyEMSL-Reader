@@ -36,8 +36,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="PRISM-DatabaseUtils" Version="1.4.35" />
-    <PackageReference Include="PRISM-Library" Version="2.8.36" />
+    <PackageReference Include="PRISM-DatabaseUtils" Version="1.5.6" />
+    <PackageReference Include="PRISM-Library" Version="2.9.5" />
     <PackageReference Include="SharpZipLib" Version="1.4.2" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)'=='net48'">
