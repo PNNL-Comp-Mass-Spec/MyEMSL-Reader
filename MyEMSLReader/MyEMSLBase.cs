@@ -353,8 +353,7 @@ namespace MyEMSLReader
 
             try
             {
-                var dictionaryList = (List<Dictionary<string, object>>)value;
-                return dictionaryList;
+                return (List<Dictionary<string, object>>)value;
             }
             catch (Exception ex)
             {
