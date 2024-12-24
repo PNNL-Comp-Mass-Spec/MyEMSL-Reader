@@ -454,9 +454,11 @@ namespace Pacifica.Core
             var uri = new Uri(urlContactInfo.Url);
             var cleanUserName = Utilities.GetUserName(true);
 
-            var handler = new HttpClientHandler();
+            var handler = new HttpClientHandler
+            {
+                PreAuthenticate = false
+            };
 
-            handler.PreAuthenticate = false;
             urlContactInfo.Config.SetProxy(handler);
 
             if (urlContactInfo.LoginCredentials == null)
