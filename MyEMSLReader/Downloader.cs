@@ -933,7 +933,8 @@ namespace MyEMSLReader
             FileInfo fiSourceFile,
             IReadOnlyDictionary<long, ArchivedFileInfo> filesToDownload,
             IEnumerable<long> targetFileIDs,
-            IDictionary<long, string> filesDownloaded,
+            // ReSharper disable once SuggestBaseTypeForParameter
+            Dictionary<long, string> filesDownloaded,
             IReadOnlyDictionary<string, int> targetFileCounts)
         {
             foreach (var targetFileID in targetFileIDs)
@@ -1161,7 +1162,8 @@ namespace MyEMSLReader
             DownloadedFiles.Clear();
         }
 
-        private static void UpdateFileModificationTime(FileSystemInfo targetFile, DateTime lastWriteTime)
+        // ReSharper disable once SuggestBaseTypeForParameter
+        private static void UpdateFileModificationTime(FileInfo targetFile, DateTime lastWriteTime)
         {
             // Update the file modification time
             targetFile.Refresh();

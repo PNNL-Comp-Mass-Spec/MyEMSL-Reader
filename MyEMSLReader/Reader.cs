@@ -438,8 +438,10 @@ namespace MyEMSLReader
         /// <param name="versionToAdd">Specific version of the remote file to add to searchResults</param>
         /// <param name="keepDuplicates">When true, keep duplicate versions of the same file (files with the same relative path, but different hash values)</param>
         private void AddFileToSearchResults(
-            IList<ArchivedFileInfo> searchResults,
-            IDictionary<string, ArchivedFileInfo> remoteFilePaths,
+            // ReSharper disable SuggestBaseTypeForParameter
+            List<ArchivedFileInfo> searchResults,
+            Dictionary<string, ArchivedFileInfo> remoteFilePaths,
+            // ReSharper restore SuggestBaseTypeForParameter
             KeyValuePair<string, List<ArchivedFileInfo>> remoteFile,
             ArchivedFileInfo versionToAdd,
             bool keepDuplicates)
@@ -512,8 +514,9 @@ namespace MyEMSLReader
         /// </param>
         /// <param name="datasetName">Dataset Name</param>
         /// <param name="subDir">Subdirectory name to filter on (exact match; cannot contain wildcards)</param>
-            IDictionary<string, SortedSet<string>> datasetsAndSubDirLists,
         private static void ConvertDatasetSubDirAddToDictionary(
+            // ReSharper disable once SuggestBaseTypeForParameter
+            Dictionary<string, SortedSet<string>> datasetsAndSubDirLists,
             string datasetName,
             string subDir)
         {

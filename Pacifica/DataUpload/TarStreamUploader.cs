@@ -122,7 +122,8 @@ namespace Pacifica.DataUpload
 
         private static void AppendFileToTar(TarOutputStream tarOutputStream, FileInfo sourceFile, string destFilenameInTar, ref long bytesWritten)
         {
-            using (Stream inputStream = new FileStream(sourceFile.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
+            // ReSharper disable once SuggestVarOrType_SimpleTypes
+            using (FileStream inputStream = new FileStream(sourceFile.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 var fileSize = sourceFile.Length;
 

@@ -203,7 +203,7 @@ namespace MyEMSLDownloader
             return 0;
         }
 
-        private static void AddFileToFind(ICollection<TargetFileInfo> datasetFiles, TargetFileInfo fileToFind)
+        private static void AddFileToFind(List<TargetFileInfo> datasetFiles, TargetFileInfo fileToFind)
         {
             if (datasetFiles.Any(existingFileToFind => existingFileToFind.FileMask.Equals(fileToFind.FileMask) &&
                                                        existingFileToFind.SubDir.Equals(fileToFind.SubDir)))
@@ -364,7 +364,8 @@ namespace MyEMSLDownloader
             return mDataPackageListInfo.FindFiles(fileMask, subdirectory, datasetName, fileIDList, true, fileSplit);
         }
 
-        private static List<DatasetDirectoryOrFileInfo> FindFileListFiles(FileSystemInfo fileListFile)
+        // ReSharper disable once SuggestBaseTypeForParameter
+        private static List<DatasetDirectoryOrFileInfo> FindFileListFiles(FileInfo fileListFile)
         {
             const string DATASET_COLUMN = "Dataset";
             const string DATASET_ID_COLUMN = "DatasetID";
@@ -472,6 +473,7 @@ namespace MyEMSLDownloader
                                 ConsoleMsgUtils.ShowWarning("Data line has fewer columns than the header line; skipping: " + dataLine);
                                 continue;
                             }
+
                             fileToFind.SubDir = dataValues[headerMap[SUB_DIR_COLUMN]].Trim();
 
                             if (fileToFind.SubDir.Equals("."))
@@ -547,7 +549,8 @@ namespace MyEMSLDownloader
 
         private static void FindFilesForDatasets(
             Dictionary<string, List<TargetFileInfo>> datasetsToFind,
-            ICollection<DatasetDirectoryOrFileInfo> archiveFiles)
+            // ReSharper disable once SuggestBaseTypeForParameter
+            List<DatasetDirectoryOrFileInfo> archiveFiles)
         {
             // This list tracks MyEMSL File IDs that have been added to archiveFiles
             var archiveFileIDs = new SortedSet<long>();
@@ -583,7 +586,8 @@ namespace MyEMSLDownloader
 
         private static void FindFilesForDatasets(
             Dictionary<int, List<TargetFileInfo>> datasetIDsToFind,
-            ICollection<DatasetDirectoryOrFileInfo> archiveFiles)
+            // ReSharper disable once SuggestBaseTypeForParameter
+            List<DatasetDirectoryOrFileInfo> archiveFiles)
         {
             // This list tracks MyEMSL File IDs that have been added to archiveFiles
             var archiveFileIDs = new SortedSet<long>();
@@ -618,9 +622,11 @@ namespace MyEMSLDownloader
         }
 
         private static void MapHeaders(
-            IList<string> dataValues,
+            // ReSharper disable once SuggestBaseTypeForParameter
+            List<string> dataValues,
             IReadOnlyCollection<string> headerNames,
-            IDictionary<string, int> headerMap)
+            // ReSharper disable once SuggestBaseTypeForParameter
+            Dictionary<string, int> headerMap)
         {
             for (var colIndex = 0; colIndex < dataValues.Count; colIndex++)
             {
@@ -914,7 +920,8 @@ namespace MyEMSLDownloader
         }
 
         private static void WarnIfSkippedFiles(
-            ICollection<long> archiveFileIDs,
+            // ReSharper disable once SuggestBaseTypeForParameter
+            SortedSet<long> archiveFileIDs,
             IDictionary<long, DatasetDirectoryOrFileInfo> archiveFilesAllDatasets)
         {
             // Check for any files in archiveFilesAllDatasets that did not get included in archiveFiles

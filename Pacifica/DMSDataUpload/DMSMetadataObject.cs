@@ -440,7 +440,8 @@ namespace Pacifica.DMSDataUpload
 
         private bool AddUsingCacheInfoFile(
             FileInfo cacheInfoFile,
-            ICollection<FileInfoObject> fileCollection,
+            // ReSharper disable once SuggestBaseTypeForParameter
+            List<FileInfoObject> fileCollection,
             string baseDSPath,
             out string remoteFilePath,
             out bool remoteFileNotFound)
