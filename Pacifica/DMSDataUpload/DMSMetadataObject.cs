@@ -1008,10 +1008,10 @@ namespace Pacifica.DMSDataUpload
                     var jobNumber = Utilities.GetDictionaryValue(taskParams, "Job", string.Empty);
 
                     var errorMessage =
-                        UNDEFINED_EUS_OPERATOR_ID + ". " +
-                        operatorUsername + " needs to login at " + EUS_PORTAL_URL + " to be assigned an ID, " +
-                        "then DMS needs to update T_EUS_Users (occurs daily via update_eus_users_from_eus_imports), then the job parameters must be updated with: Call cap.update_parameters_for_task(_joblist => '123456');" +
-                        jobNumber;
+                        string.Format(
+                            "{0}. {1} needs to login at {2} to be assigned an ID, then DMS needs to update T_EUS_Users (occurs daily via procedure update_eus_users_from_eus_imports). " +
+                            "Next, the job parameters must be updated with: Call cap.update_parameters_for_task(_jobList => '{3}');",
+                            UNDEFINED_EUS_OPERATOR_ID, operatorUsername, EUS_PORTAL_URL, jobNumber);
 
                     throw new Exception(errorMessage);
                 }
