@@ -911,7 +911,8 @@ namespace MyEMSLDownloader
             }
         }
 
-        private static void TestDownloader(IReadOnlyCollection<DatasetDirectoryOrFileInfo> archiveFiles)
+        // ReSharper disable once SuggestBaseTypeForParameter
+        private static void TestDownloader(List<DatasetDirectoryOrFileInfo> archiveFiles)
         {
             Console.WriteLine("Downloading " + archiveFiles.Count + " files");
             Console.WriteLine();
