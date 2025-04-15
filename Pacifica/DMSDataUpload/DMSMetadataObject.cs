@@ -62,8 +62,12 @@ namespace Pacifica.DMSDataUpload
         /// <summary>
         /// URL of the EUS website
         /// </summary>
-        /// <remarks>Previously https://eusi.emsl.pnnl.gov/Portal/</remarks>
-        public const string EUS_PORTAL_URL = "https://nexus.emsl.pnl.gov/Portal";
+        /// <remarks>
+        /// Previous URLs:
+        ///   https://nexus.emsl.pnl.gov/Portal
+        ///   https://eusi.emsl.pnnl.gov/Portal/
+        /// </remarks>
+        public const string EUS_PORTAL_URL = "https://nexus.emsl.pnnl.gov/Portal/user_info";
 
         /// <summary>
         /// Text to show when reporting progress
