@@ -799,7 +799,7 @@ namespace Pacifica.DMSDataUpload
             {
                 // Construct a list of the first file required from each distinct server
                 var sourceFile = new FileInfo(remoteFilePath);
-                var lockDirectoryPathSource = mFileTools.GetLockDirectory(sourceFile);
+                var lockDirectoryPathSource = FileTools.GetLockDirectory(sourceFile);
 
                 if (string.IsNullOrWhiteSpace(lockDirectoryPathSource))
                 {
@@ -819,7 +819,7 @@ namespace Pacifica.DMSDataUpload
                     continue;
                 }
 
-                var lockFileTimestamp = mFileTools.GetLockFileTimeStamp();
+                var lockFileTimestamp = FileTools.GetLockFileTimeStamp();
 
                 var lockDirectorySource = new DirectoryInfo(lockDirectoryPathSource);
 
