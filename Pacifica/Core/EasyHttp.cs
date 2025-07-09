@@ -5,7 +5,6 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
@@ -516,7 +515,7 @@ namespace Pacifica.Core
                     }
 
                     var password = AppUtils.DecodeShiftCipher(Configuration.CLIENT_CERT_PASSWORD);
-                    mLoginCertificate = new X509Certificate2(certificateFilePath, password, X509KeyStorageFlags.PersistKeySet);
+                    mLoginCertificate = Utilities.CreateX509Certificate(certificateFilePath, password);
                 }
                 handler.ClientCertificates.Add(mLoginCertificate);
             }

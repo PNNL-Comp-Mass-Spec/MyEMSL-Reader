@@ -22,6 +22,22 @@ namespace Pacifica.Core
         // Ignore Spelling: Pacifica, Sha
 
         /// <summary>
+        /// Create an X509 certificate instance. Wrapper to avoid obsolete method warnings in .NET 9.0+
+        /// </summary>
+        /// <param name="certificateFilePath"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public static X509Certificate2 CreateX509Certificate(string certificateFilePath, string password)
+        {
+#if !NET9_0_OR_GREATER
+            return new X509Certificate2(certificateFilePath, password, X509KeyStorageFlags.PersistKeySet);
+#else
+            // Creating a certificate via constructor is obsolete in .NET 9.0, using X509CertificateLoader instead
+            return X509CertificateLoader.LoadPkcs12FromFile(certificateFilePath, password, X509KeyStorageFlags.PersistKeySet);
+#endif
+        }
+
+        /// <summary>
         /// Try to delete the file; ignore any errors
         /// </summary>
         /// <param name="fileToDelete"></param>

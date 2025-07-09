@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -486,7 +485,7 @@ namespace Pacifica.DataUpload
                 var handler = new HttpClientHandler();
 
                 var password = AppUtils.DecodeShiftCipher(Configuration.CLIENT_CERT_PASSWORD);
-                var certificate = new X509Certificate2(certificateFilePath, password, X509KeyStorageFlags.PersistKeySet);
+                var certificate = Utilities.CreateX509Certificate(certificateFilePath, password);
                 handler.ClientCertificates.Add(certificate);
                 handler.PreAuthenticate = false;
 

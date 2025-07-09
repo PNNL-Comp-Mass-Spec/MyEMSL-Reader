@@ -70,7 +70,7 @@ namespace PacificaUnitTests
             var url = GetTestUri(config, skipProxy);
 
             var password = AppUtils.DecodeShiftCipher(Configuration.CLIENT_CERT_PASSWORD);
-            var cert = new X509Certificate2(config.ClientCertFilePath, password, X509KeyStorageFlags.PersistKeySet);
+            var cert = Utilities.CreateX509Certificate(config.ClientCertFilePath, password);
             //cert.Import(config.ClientCertFilePath, password, X509KeyStorageFlags.PersistKeySet);
 
             var certCollection = new X509Certificate2Collection(cert);
@@ -123,7 +123,7 @@ namespace PacificaUnitTests
         private async Task<RestResponse> DoRestRequest(string json, string url, Configuration config)
         {
             var password = AppUtils.DecodeShiftCipher(Configuration.CLIENT_CERT_PASSWORD);
-            var cert = new X509Certificate2(config.ClientCertFilePath, password, X509KeyStorageFlags.PersistKeySet);
+            var cert = Utilities.CreateX509Certificate(config.ClientCertFilePath, password);
             //cert.Import(config.ClientCertFilePath, password, X509KeyStorageFlags.PersistKeySet);
 
             var certCollection = new X509Certificate2Collection(cert);
