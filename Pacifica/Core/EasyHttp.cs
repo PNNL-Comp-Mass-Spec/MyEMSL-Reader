@@ -5,6 +5,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
@@ -48,6 +49,7 @@ namespace Pacifica.Core
         private static CancellationTokenSource mThreadedSendCancel;
 
         private static UrlContactInfo mUrlContactInfo;
+        private static readonly CertificateValidation certificateValidation;
 
         /// <summary>
         /// An enumeration of standard HTTP methods.
@@ -83,6 +85,18 @@ namespace Pacifica.Core
         /// Error event
         /// </summary>
         public static event EventNotifier.ErrorEventEventHandler ErrorEvent;
+
+        /// <summary>
+        /// Warning event
+        /// </summary>
+        public static event EventNotifier.WarningEventEventHandler WarningEvent;
+
+        static EasyHttp()
+        {
+            certificateValidation = new CertificateValidation();
+            certificateValidation.ErrorEvent += OnErrorEvent;
+            certificateValidation.WarningEvent += OnWarningEvent;
+        }
 
         /// <summary>
         /// Abort thread mThreadedSend
@@ -495,6 +509,14 @@ namespace Pacifica.Core
                 urlContactInfo.Cookies.Add(cookie);
             }
 
+            // The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
+            // Could use this to ignore all certificates (not wise); this edits the global (app-domain) certificate checks as well, and is obsolete in .NET 9
+            // System.Net.ServicePointManager.ServerCertificateValidationCallback ??= (sender, certificate, chain, sslPolicyErrors) => true;
+
+            // Instead, only allow certain domains, as defined by ValidateRemoteCertificate
+            // This property only exists in .NET Framework 4.7.1 and newer; older frameworks need to use System.Net.ServicePointManager.ServerCertificateValidationCallback
+            handler.ServerCertificateCustomValidationCallback ??= certificateValidation.ValidateRemoteCertificate;
+
             handler.CookieContainer = urlContactInfo.Cookies;
             var client = new HttpClient(handler)
             {
@@ -525,13 +547,26 @@ namespace Pacifica.Core
         /// </summary>
         /// <param name="message"></param>
         /// <param name="ex">Exception (allowed to be nothing)</param>
-        protected static void OnErrorEvent(string message, Exception ex)
+        protected static void OnErrorEvent(string message, Exception ex = null)
         {
             if (ErrorEvent == null)
             {
                 ConsoleMsgUtils.ShowErrorCustom(message, ex, false, false);
             }
             ErrorEvent?.Invoke(message, ex);
+        }
+
+        /// <summary>
+        /// Report a warning
+        /// </summary>
+        /// <param name="message"></param>
+        protected static void OnWarningEvent(string message)
+        {
+            if (WarningEvent == null)
+            {
+                ConsoleMsgUtils.ShowWarningCustom(message);
+            }
+            WarningEvent?.Invoke(message);
         }
 
         /// <summary>

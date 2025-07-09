@@ -59,6 +59,16 @@ namespace Pacifica.DataUpload
         /// </summary>
         public event EventHandler<StatusEventArgs> StatusUpdate;
 
+        /// <summary>
+        /// Error event
+        /// </summary>
+        public event EventNotifier.ErrorEventEventHandler ErrorEvent;
+
+        /// <summary>
+        /// Warning event
+        /// </summary>
+        public event EventNotifier.WarningEventEventHandler WarningEvent;
+
         private static long AddTarFileContentLength(string pathInArchive, long fileSizeBytes)
         {
             return AddTarFileContentLength(pathInArchive, fileSizeBytes, out _);
@@ -339,6 +349,33 @@ namespace Pacifica.DataUpload
         }
 
         /// <summary>
+        /// Report an error
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="ex">Exception (allowed to be nothing)</param>
+        protected void OnErrorEvent(string message, Exception ex = null)
+        {
+            if (ErrorEvent == null)
+            {
+                ConsoleMsgUtils.ShowErrorCustom(message, ex, false, false);
+            }
+            ErrorEvent?.Invoke(message, ex);
+        }
+
+        /// <summary>
+        /// Report a warning
+        /// </summary>
+        /// <param name="message"></param>
+        protected void OnWarningEvent(string message)
+        {
+            if (WarningEvent == null)
+            {
+                ConsoleMsgUtils.ShowWarningCustom(message);
+            }
+            WarningEvent?.Invoke(message);
+        }
+
+        /// <summary>
         /// Report a status update
         /// </summary>
         /// <param name="percentCompleted">Value between 0 and 100</param>
@@ -452,6 +489,12 @@ namespace Pacifica.DataUpload
                 var certificate = new X509Certificate2(certificateFilePath, password, X509KeyStorageFlags.PersistKeySet);
                 handler.ClientCertificates.Add(certificate);
                 handler.PreAuthenticate = false;
+
+                var certValidation = new CertificateValidation();
+                certValidation.ErrorEvent += OnErrorEvent;
+                certValidation.WarningEvent += OnWarningEvent;
+
+                handler.ServerCertificateCustomValidationCallback ??= certValidation.ValidateRemoteCertificate;
 
                 config.SetProxy(handler);
 

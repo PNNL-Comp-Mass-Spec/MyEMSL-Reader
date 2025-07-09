@@ -48,6 +48,7 @@ namespace Pacifica.Core
             EasyHttp.MyEMSLOffline += EasyHttp_MyEMSLOffline;
 
             EasyHttp.ErrorEvent += OnErrorEvent;
+            EasyHttp.WarningEvent += OnWarningEvent;
         }
 
         /// <summary>
@@ -161,10 +162,6 @@ namespace Pacifica.Core
                 lookupError = true;
                 return new MyEMSLTaskStatus();
             }
-
-            // The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
-            // For more info, see comments in Upload.StartUpload()
-            ServicePointManager.ServerCertificateValidationCallback ??= ValidateRemoteCertificate;
 
             OnStatusEvent("Contacting " + statusURI);
             var startTime = DateTime.UtcNow;
@@ -393,23 +390,6 @@ namespace Pacifica.Core
 
             if (!string.IsNullOrWhiteSpace(certificateFilePath))
             {
-                return true;
-            }
-
-            OnErrorEvent(errorMessage);
-            return false;
-        }
-
-        private bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors policyErrors)
-        {
-            var success = Utilities.ValidateRemoteCertificate(cert, policyErrors, out var errorMessage);
-
-            if (success)
-            {
-                if (!string.IsNullOrWhiteSpace(errorMessage))
-                {
-                    OnWarningEvent(errorMessage);
-                }
                 return true;
             }
 

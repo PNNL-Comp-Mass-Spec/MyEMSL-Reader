@@ -413,10 +413,6 @@ namespace MyEMSLReader
             out Exception mostRecentException
             )
         {
-            // The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
-            // For more info, see comments in Reader.RunElasticSearchQuery()
-            ServicePointManager.ServerCertificateValidationCallback ??= ValidateRemoteCertificate;
-
             mostRecentException = null;
             responseData = string.Empty;
 
@@ -496,23 +492,6 @@ namespace MyEMSLReader
 
             if (!string.IsNullOrWhiteSpace(certificateFilePath))
                 return true;
-
-            OnErrorEvent(errorMessage);
-            return false;
-        }
-
-        private bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors policyErrors)
-        {
-            var success = Utilities.ValidateRemoteCertificate(cert, policyErrors, out var errorMessage);
-
-            if (success)
-            {
-                if (!string.IsNullOrWhiteSpace(errorMessage))
-                {
-                    OnWarningEvent(errorMessage);
-                }
-                return true;
-            }
 
             OnErrorEvent(errorMessage);
             return false;

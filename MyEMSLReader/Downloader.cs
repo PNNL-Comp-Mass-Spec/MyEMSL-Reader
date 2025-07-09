@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 using Pacifica.Core;
@@ -146,6 +144,7 @@ namespace MyEMSLReader
 
             EasyHttp.MyEMSLOffline += EasyHttp_MyEMSLOffline;
             EasyHttp.ErrorEvent += OnErrorEvent;
+            EasyHttp.WarningEvent += OnWarningEvent;
 
             ResetStatus();
         }
@@ -190,10 +189,6 @@ namespace MyEMSLReader
 
             try
             {
-                // The following Callback allows us to access the MyEMSL server even if the certificate is expired or untrusted
-                // For more info, see comments in Reader.RunElasticSearchQuery()
-                ServicePointManager.ServerCertificateValidationCallback ??= ValidateRemoteCertificate;
-
                 if (filesToDownload == null || filesToDownload.Count == 0)
                 {
                     ReportError("File download dictionary is empty; nothing to download");
@@ -1183,23 +1178,6 @@ namespace MyEMSLReader
 
                 OnProgressUpdate("Downloading data", percentComplete);
             }
-        }
-
-        private bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors policyErrors)
-        {
-            var success = Utilities.ValidateRemoteCertificate(cert, policyErrors, out var errorMessage);
-
-            if (success)
-            {
-                if (!string.IsNullOrWhiteSpace(errorMessage))
-                {
-                    OnWarningEvent(errorMessage);
-                }
-                return true;
-            }
-
-            OnErrorEvent(errorMessage);
-            return false;
         }
     }
 }

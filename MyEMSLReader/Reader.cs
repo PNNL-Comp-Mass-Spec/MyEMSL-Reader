@@ -122,6 +122,7 @@ namespace MyEMSLReader
 
             EasyHttp.MyEMSLOffline += EasyHttp_MyEMSLOffline;
             EasyHttp.ErrorEvent += OnErrorEvent;
+            EasyHttp.WarningEvent += OnWarningEvent;
 
             ResetStatus();
         }

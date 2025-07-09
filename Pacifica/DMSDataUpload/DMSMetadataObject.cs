@@ -7,9 +7,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
 using Pacifica.Json;
 
 namespace Pacifica.DMSDataUpload
@@ -228,12 +225,6 @@ namespace Pacifica.DMSDataUpload
             out bool criticalError,
             out string criticalErrorMessage)
         {
-            // Could use this to ignore all certificates (not wise)
-            // System.Net.ServicePointManager.ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
-
-            // Instead, only allow certain domains, as defined by ValidateRemoteCertificate
-            ServicePointManager.ServerCertificateValidationCallback ??= ValidateRemoteCertificate;
-
             DatasetName = Utilities.GetDictionaryValue(taskParams, "Dataset", "Unknown_Dataset");
 
             var datasetFilesToArchive = FindDatasetFilesToArchive(taskParams, mgrParams, out var uploadMetadata);
@@ -1348,23 +1339,6 @@ namespace Pacifica.DMSDataUpload
 
             if (!string.IsNullOrWhiteSpace(certificateFilePath))
             {
-                return true;
-            }
-
-            OnErrorEvent(errorMessage);
-            return false;
-        }
-
-        private bool ValidateRemoteCertificate(object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors policyErrors)
-        {
-            var success = Utilities.ValidateRemoteCertificate(cert, policyErrors, out var errorMessage);
-
-            if (success)
-            {
-                if (!string.IsNullOrWhiteSpace(errorMessage))
-                {
-                    OnWarningEvent(errorMessage);
-                }
                 return true;
             }
 

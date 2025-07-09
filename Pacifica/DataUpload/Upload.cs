@@ -337,6 +337,7 @@ namespace Pacifica.DataUpload
             EasyHttp.MyEMSLOffline += EasyHttp_MyEMSLOffline;
 
             EasyHttp.ErrorEvent += OnErrorEvent;
+            EasyHttp.WarningEvent += OnWarningEvent;
 
             ErrorMessage = string.Empty;
             TransferFolderPath = transferFolderPath;
@@ -507,6 +508,8 @@ namespace Pacifica.DataUpload
 
             var streamUploader = new TarStreamUploader();
             streamUploader.StatusUpdate += Pacifica_StatusUpdate;
+            streamUploader.ErrorEvent += OnErrorEvent;
+            streamUploader.WarningEvent += OnWarningEvent;
 
             var responseData = streamUploader.SendFileListToIngester(
                 mPacificaConfig, location, serverUri, fileListObject, metadataFile.FullName, debugMode);
