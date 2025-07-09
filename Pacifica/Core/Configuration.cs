@@ -10,6 +10,9 @@ using System.Text.RegularExpressions;
 
 namespace Pacifica.Core
 {
+    /// <summary>
+    /// Configuration for communicating with Pacifica
+    /// </summary>
     public class Configuration
     {
         // Ignore Spelling: http, https, Pacifica, svc-dms
@@ -59,6 +62,9 @@ namespace Pacifica.Core
         /// </summary>
         public const string CLIENT_CERT_DIRECTORY = @"C:\client_certs\";
 
+        /// <summary>
+        /// Certificate password for access
+        /// </summary>
         public const string CLIENT_CERT_PASSWORD = "";
 
         /// <summary>
@@ -84,9 +90,17 @@ namespace Pacifica.Core
         }
 
         private const string UNSECURED_SCHEME = "http";
+
+        /// <summary>
+        /// Secured HTTPS scheme
+        /// </summary>
         public static string UnsecuredScheme => UNSECURED_SCHEME;
 
         private const string SECURED_SCHEME = "https";
+
+        /// <summary>
+        /// Unsecured HTTP scheme
+        /// </summary>
         public static string SecuredScheme => SECURED_SCHEME;
 
         /// <summary>

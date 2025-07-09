@@ -14,6 +14,9 @@ using System.Text.RegularExpressions;
 
 namespace Pacifica.Core
 {
+    /// <summary>
+    /// General utility methods
+    /// </summary>
     public static class Utilities
     {
         // Ignore Spelling: Pacifica, Sha
@@ -36,12 +39,23 @@ namespace Pacifica.Core
 
         private static SHA1 _hashProvider;
 
+        /// <summary>
+        /// Generate the SHA1 hash for the file at <paramref name="filePath"/>
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
         [Obsolete("Use the method that takes a FileInfo object")]
         public static string GenerateSha1Hash(string filePath)
         {
             return GenerateSha1Hash(new FileInfo(filePath));
         }
 
+        /// <summary>
+        /// Generate the SHA1 hash for the file specified by <paramref name="file"/>
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        /// <exception cref="FileNotFoundException"></exception>
         public static string GenerateSha1Hash(FileInfo file)
         {
             byte[] fileHash;
@@ -130,6 +144,11 @@ namespace Pacifica.Core
                        NativeIOFileTools.GetWin32LongPath(path);
         }
 
+        /// <summary>
+        /// Return a consistent temp directory for temporary files
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
         public static DirectoryInfo GetTempDirectory(Configuration config)
         {
             if (!string.IsNullOrEmpty(config.LocalTempDirectory))
@@ -140,11 +159,21 @@ namespace Pacifica.Core
             return new DirectoryInfo(Path.GetTempPath());
         }
 
+        /// <summary>
+        /// Convert a byte buffer to a hex-encoded string
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <returns></returns>
         public static string ToHexString(byte[] buffer)
         {
             return BitConverter.ToString(buffer).Replace("-", string.Empty).ToLower();
         }
 
+        /// <summary>
+        /// Return the metadata file name for this upload job
+        /// </summary>
+        /// <param name="jobNumber"></param>
+        /// <returns></returns>
         public static string GetMetadataFilenameForJob(string jobNumber)
         {
             if (string.IsNullOrWhiteSpace(jobNumber))
@@ -155,6 +184,11 @@ namespace Pacifica.Core
             return "MyEMSL_metadata_CaptureJob_" + jobNumber + ".txt";
         }
 
+        /// <summary>
+        /// Get the current user's username
+        /// </summary>
+        /// <param name="cleanDomain"></param>
+        /// <returns></returns>
         public static string GetUserName(bool cleanDomain = false)
         {
 #if NETSTANDARD2_0_OR_GREATER

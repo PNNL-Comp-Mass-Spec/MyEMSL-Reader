@@ -3,6 +3,9 @@ using System.ComponentModel;
 
 namespace Pacifica.Core
 {
+    /// <summary>
+    /// Extension methods for this namespace
+    /// </summary>
     public static class ExtensionMethods
     {
         // Ignore Spelling: Pacifica

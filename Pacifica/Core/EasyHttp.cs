@@ -13,6 +13,9 @@ using System.Threading.Tasks;
 
 namespace Pacifica.Core
 {
+    /// <summary>
+    /// Simplified file and metadata download and metadata upload with certificates to HTTP REST endpoints
+    /// </summary>
     public class EasyHttp
     {
         // Ignore Spelling: json, MyEMSL, Pacifica, svc-dms, urlencoded, www
@@ -60,10 +63,19 @@ namespace Pacifica.Core
         /// </remarks>
         public enum HttpMethod
         {
+            /// <summary>
+            /// HTTP GET method
+            /// </summary>
             [Description("GET")]
             Get = 0,
+            /// <summary>
+            /// HTTP POST method
+            /// </summary>
             [Description("POST")]
             Post = 1,
+            /// <summary>
+            /// HTTP PUT method
+            /// </summary>
             // ReSharper disable once UnusedMember.Global
             [Description("PUT")]
             Put = 2
@@ -346,12 +358,23 @@ namespace Pacifica.Core
             return responseData.ToString();
         }
 
+        /// <summary>
+        /// Exception processing for HTTP Request exceptions
+        /// </summary>
+        /// <param name="ex">exception</param>
+        /// <param name="url">URL</param>
         public static void HandleRequestException(HttpRequestException ex, string url)
         {
             var responseData = new WebResponseData();
             HandleRequestException(ex, url, responseData);
         }
 
+        /// <summary>
+        /// Exception processing for HTTP Request exceptions
+        /// </summary>
+        /// <param name="ex">exception</param>
+        /// <param name="url">URL</param>
+        /// <param name="responseStatusCode">Status code reported by the response</param>
         protected static void HandleRequestException(HttpRequestException ex, string url, out HttpStatusCode responseStatusCode)
         {
             responseStatusCode = HttpStatusCode.RequestTimeout;
@@ -372,6 +395,12 @@ namespace Pacifica.Core
             }
         }
 
+        /// <summary>
+        /// Exception processing for HTTP Request exceptions
+        /// </summary>
+        /// <param name="ex">exception</param>
+        /// <param name="url">URL</param>
+        /// <param name="responseData">HTTP status code and text from the response</param>
         protected static void HandleRequestException(HttpRequestException ex, string url, WebResponseData responseData)
         {
             responseData.RegisterException(ex);

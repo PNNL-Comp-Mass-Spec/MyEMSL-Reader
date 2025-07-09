@@ -4,6 +4,9 @@ using PRISM;
 
 namespace Pacifica.Core
 {
+    /// <summary>
+    /// File info/metadata needed when pushing a file to the REST endpoint
+    /// </summary>
     public class FileInfoObject
     {
         // Ignore Spelling: Pacifica, Sha
@@ -197,6 +200,13 @@ namespace Pacifica.Core
             return Sha1HashHex.Substring(0, 8) + ": " + AbsoluteLocalPath;
         }
 
+        /// <summary>
+        /// Create a relative path for a file given the absolute path and a base path
+        /// </summary>
+        /// <param name="absoluteLocalPath"></param>
+        /// <param name="basePath"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidDataException"></exception>
         public static string GenerateRelativePath(string absoluteLocalPath, string basePath)
         {
             if (absoluteLocalPath.StartsWith(basePath, StringComparison.OrdinalIgnoreCase))

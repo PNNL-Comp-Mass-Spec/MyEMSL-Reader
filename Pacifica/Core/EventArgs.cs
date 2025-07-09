@@ -2,6 +2,9 @@
 
 namespace Pacifica.Core
 {
+    /// <summary>
+    /// Message event information
+    /// </summary>
     public class MessageEventArgs : EventArgs
     {
         // Ignore Spelling: Pacifica
@@ -16,6 +19,11 @@ namespace Pacifica.Core
         /// </summary>
         public string Message { get; }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="callingFunction"></param>
+        /// <param name="message"></param>
         public MessageEventArgs(string callingFunction, string message)
         {
             CallingFunction = callingFunction;
@@ -23,6 +31,9 @@ namespace Pacifica.Core
         }
     }
 
+    /// <summary>
+    /// Status event information
+    /// </summary>
     public class StatusEventArgs : EventArgs
     {
         /// <summary>
@@ -61,6 +72,9 @@ namespace Pacifica.Core
         }
     }
 
+    /// <summary>
+    /// Upload Completion event information
+    /// </summary>
     public class UploadCompletedEventArgs : EventArgs
     {
         /// <summary>
