@@ -192,7 +192,7 @@ namespace Pacifica.Core
         public static string GetUserName(bool cleanDomain = false)
         {
 #if NETSTANDARD2_0_OR_GREATER
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return string.Empty;
             }
