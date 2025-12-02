@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace Pacifica.Json
@@ -145,7 +144,7 @@ namespace Pacifica.Json
         /// </summary>
         /// <param name="metadataList"></param>
         // ReSharper disable once UnusedMember.Global
-        public static string ObjectToJson(IList metadataList)
+        public static string ObjectToJson(List<Dictionary<string, object>> metadataList)
         {
             if (metadataList == null)
             {

@@ -1,6 +1,5 @@
 ﻿#if NET48
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using Jayrock.Json;
 using Jayrock.Json.Conversion;
@@ -120,7 +119,7 @@ namespace PacificaUnitTests
             return JsonObjectToDictionary(jso);
         }
 
-        public static string ObjectToJson(IList metadataList)
+        public static string ObjectToJson(List<Dictionary<string, object>> metadataList)
         {
             if (metadataList == null)
             {
