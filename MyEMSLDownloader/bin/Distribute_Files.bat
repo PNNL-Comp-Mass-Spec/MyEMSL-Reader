@@ -2,7 +2,7 @@
 
 pushd F:\Documents\Projects\DataMining\DMS_Managers\MyEMSL_Reader\MyEMSLDownloader\bin
 call Distribute_Files_Work.bat C:\DMS_Programs\MyEMSLDownloader
-call Distribute_Files_Work.bat \\floyd\software\MyEMSLDownloader
+call Distribute_Files_Work.bat \\proto-2\Software\MyEMSLDownloader
 call Distribute_Files_Work.bat \\Proto-3\DMS_Programs_Dist\AnalysisToolManagerDistribution\MyEMSLDownloader
 call Distribute_Files_Work.bat \\Proto-3\DMS_Programs_Dist\CaptureTaskManagerDistribution\MyEMSLDownloader
 
