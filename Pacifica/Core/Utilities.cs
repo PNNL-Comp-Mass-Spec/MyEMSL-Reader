@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Security;
-#if NETSTANDARD2_0_OR_GREATER
+#if NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
 using System.Runtime.InteropServices;
 #endif
 using System.Security.Cryptography;
@@ -207,14 +207,13 @@ namespace Pacifica.Core
         /// <returns></returns>
         public static string GetUserName(bool cleanDomain = false)
         {
-#if NETSTANDARD2_0_OR_GREATER
+#if NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return string.Empty;
             }
 #endif
 
-#pragma warning disable CA1416
             var userIdent = WindowsIdentity.GetCurrent();
             var userName = userIdent.Name;
 
@@ -224,7 +223,6 @@ namespace Pacifica.Core
             }
 
             return userName;
-#pragma warning restore CA1416
         }
 
         /// <summary>
