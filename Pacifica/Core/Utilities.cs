@@ -53,8 +53,6 @@ namespace Pacifica.Core
             }
         }
 
-        private static SHA1 _hashProvider;
-
         /// <summary>
         /// Generate the SHA1 hash for the file at <paramref name="filePath"/>
         /// </summary>
@@ -74,21 +72,13 @@ namespace Pacifica.Core
         /// <exception cref="FileNotFoundException"></exception>
         public static string GenerateSha1Hash(FileInfo file)
         {
-            byte[] fileHash;
-
             if (!file.Exists)
             {
                 throw new FileNotFoundException("File not found in GenerateSha1Hash: " + file.FullName);
             }
 
-            _hashProvider ??= SHA1.Create();
-
-            using (var sourceFile = new FileStream(PossiblyConvertToLongPath(file.FullName), FileMode.Open, FileAccess.Read, FileShare.Read))
-            {
-                fileHash = _hashProvider.ComputeHash(sourceFile);
-            }
-
-            return ToHexString(fileHash);
+            var path = PossiblyConvertToLongPath(file.FullName);
+            return HashUtilities.ComputeFileHashSha1(path, true);
         }
 
         /// <summary>
@@ -173,16 +163,6 @@ namespace Pacifica.Core
             }
 
             return new DirectoryInfo(Path.GetTempPath());
-        }
-
-        /// <summary>
-        /// Convert a byte buffer to a hex-encoded string
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <returns></returns>
-        public static string ToHexString(byte[] buffer)
-        {
-            return BitConverter.ToString(buffer).Replace("-", string.Empty).ToLower();
         }
 
         /// <summary>
