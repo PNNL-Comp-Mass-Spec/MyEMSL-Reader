@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MyEMSLReader;
+using Pacifica.Core;
 using PRISM;
 using PRISM.Logging;
 
@@ -12,6 +13,14 @@ namespace MyEMSLDownloader
     {
         public string FileMask;
         public string SubDir;
+    }
+
+    internal enum HashCalcMethod
+    {
+        Default = 0,
+        DotNet = 1,
+        Sha1Sum = 2,
+        _7Zip = 3
     }
 
     internal static class Program
@@ -89,6 +98,20 @@ namespace MyEMSLDownloader
                 // Delay for 1 second in case the user double-clicked this file from within Windows Explorer (or started the program via a shortcut)
                 System.Threading.Thread.Sleep(1000);
                 return -1;
+            }
+
+            if (mOptions.HashFile)
+            {
+                if (!File.Exists(mOptions.HashFilePath))
+                {
+                    Console.WriteLine($"File does not exist: '{mOptions.HashFilePath}'");
+                    System.Threading.Thread.Sleep(1000);
+                    return -1;
+                }
+
+                HashFile(mOptions.HashFilePath, mOptions.HashCalcMethod);
+                System.Threading.Thread.Sleep(1000);
+                return 0;
             }
 
             try
@@ -619,6 +642,43 @@ namespace MyEMSLDownloader
             }
 
             WarnIfSkippedFiles(archiveFileIDs, archiveFilesAllDatasets);
+        }
+
+        private static void HashFile(string path, HashCalcMethod calcMethod)
+        {
+            var path2 = Utilities.PossiblyConvertToLongPath(path);
+            var file = new FileInfo(path2);
+            var hash = "";
+            var success = true;
+            var elapsedSeconds = 0.0;
+            try
+            {
+                var sw = System.Diagnostics.Stopwatch.StartNew();
+                switch (calcMethod)
+                {
+                    case HashCalcMethod.DotNet:
+                        hash = Utilities.GenerateSha1HashDotNet(file);
+                        break;
+                    case HashCalcMethod.Sha1Sum:
+                        success = Utilities.GenerateSha1HashSha1Sum(file, out hash);
+                        break;
+                    case HashCalcMethod._7Zip:
+                        success = Utilities.GenerateSha1Hash7Zip(file, out hash);
+                        break;
+                    default:
+                        Utilities.GenerateSha1Hash(file);
+                        break;
+                }
+
+                sw.Stop();
+                elapsedSeconds = sw.Elapsed.TotalSeconds;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception calculating hash with method {calcMethod}: {ex.Message}" );
+            }
+
+            Console.WriteLine($"Hash {(success ? "success" : "failure")}: {hash}   in {elapsedSeconds:F3} seconds");
         }
 
         private static void MapHeaders(

@@ -91,6 +91,17 @@ namespace MyEMSLDownloader
             HelpText = "Connect to test0.my.emsl.pnl.gov instead of my.emsl.pnl.gov")]
         public bool UseTestInstance { get; set; }
 
+        [Option("HashFile", HelpShowsDefault = false,
+            HelpText = "Compute the SHA-1 hash of the provided local file and exit. Does not interact with archive or DMS",
+            ArgExistsProperty = nameof(HashFile))]
+        public string HashFilePath { get; set; }
+
+        // Flag property set when a value is provided to 'HashFile'
+        public bool HashFile { get; set; }
+
+        [Option("HashMethod", HelpText = "Program/method used to calculate the SHA-1 hash")]
+        public HashCalcMethod HashCalcMethod { get; set; }
+
         public CommandLineOptions()
         {
             DatasetName = string.Empty;
@@ -109,6 +120,8 @@ namespace MyEMSLDownloader
             AutoTestMode = false;
             TraceMode = false;
             UseTestInstance = false;
+
+            HashCalcMethod = HashCalcMethod.Default;
         }
 
         public bool Validate()

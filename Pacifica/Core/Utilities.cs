@@ -6,7 +6,6 @@ using System.Net.Security;
 #if NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
 using System.Runtime.InteropServices;
 #endif
-using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
 using System.Text;
@@ -77,8 +76,216 @@ namespace Pacifica.Core
                 throw new FileNotFoundException("File not found in GenerateSha1Hash: " + file.FullName);
             }
 
+            if (file.Length >= 10e9)
+            {
+                var success = GenerateSha1HashSha1Sum(file, out var sha1Hash);
+                if (!success)
+                {
+                    success = GenerateSha1Hash7Zip(file, out sha1Hash);
+                }
+
+                if (success)
+                {
+                    return sha1Hash;
+                }
+            }
+
+            return GenerateSha1HashDotNet(file);
+        }
+
+        /// <summary>
+        /// Generate the SHA1 hash for the file specified by <paramref name="file"/> using the .NET SHA1 class
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        /// <exception cref="FileNotFoundException"></exception>
+        public static string GenerateSha1HashDotNet(FileInfo file)
+        {
+            if (!file.Exists)
+            {
+                throw new FileNotFoundException("File not found in GenerateSha1HashDotNet: " + file.FullName);
+            }
+
             var path = PossiblyConvertToLongPath(file.FullName);
             return HashUtilities.ComputeFileHashSha1(path, true);
+        }
+
+        /// <summary>
+        /// Generate the SHA1 hash for the file specified by <paramref name="file"/> using the GnuOnWindows sha1sum.exe if present at C:\DMS_Programs\GnuOnWindows
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="hash">SHA-1 sum of the file</param>
+        /// <returns>True unless sha1sum.exe could not be found</returns>
+        /// <exception cref="FileNotFoundException"></exception>
+        public static bool GenerateSha1HashSha1Sum(FileInfo file, out string hash)
+        {
+            if (!file.Exists)
+            {
+                throw new FileNotFoundException("File not found in GenerateSha1HashSha1Sum: " + file.FullName);
+            }
+
+            const string sha1SumPath = @"C:\DMS_Programs\GnuOnWindows\sha1sum.exe";
+            if (!File.Exists(sha1SumPath))
+            {
+                hash = string.Empty;
+                return false;
+            }
+
+            // Use ProgRunner to run the program
+            var path = PossiblyConvertToLongPath(file.FullName);
+            var p = new ProgRunner()
+            {
+                Program = sha1SumPath,
+                Arguments = $"\"{path}\"",
+                CacheStandardOutput = true,
+                CreateNoWindow = true,
+                Repeat = false,
+                MonitoringInterval = 250,
+                EchoOutputToConsole = false,
+                WorkDir = ".",
+            };
+
+            try
+            {
+                // Start the program executing
+                p.StartAndMonitorProgram();
+
+                // Loop until program is complete, or until MaxRuntimeSeconds seconds elapses
+                while (p.State != ProgRunner.States.NotMonitoring)
+                {
+                    AppUtils.SleepMilliseconds(250);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error calculating SHA-1 sum using sha1sum.exe", ex);
+            }
+
+            hash = "";
+            var output = p.CachedConsoleOutput;
+            if (output.Contains(" failed "))
+            {
+                return false;
+            }
+
+            // Output should match "\[hash] *[filename/path]"
+            var split = output.Replace("\r", "").Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var line in split)
+            {
+                // Trim whitespace, and the leading '\' that sha1sum.exe outputs
+                var parts = line.Trim().Trim('\\').Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                hash = parts[0];
+            }
+
+            if (string.IsNullOrWhiteSpace(hash))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Generate the SHA1 hash for the file specified by <paramref name="file"/> using 7z.exe in a standard 7-zip installation
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="hash">SHA-1 sum of the file</param>
+        /// <returns>True unless 7z.exe could not be found</returns>
+        /// <exception cref="FileNotFoundException"></exception>
+        public static bool GenerateSha1Hash7Zip(FileInfo file, out string hash)
+        {
+            if (!file.Exists)
+            {
+                throw new FileNotFoundException("File not found in GenerateSha1Hash7Zip: " + file.FullName);
+            }
+
+            const string _7zPathX64 = @"C:\Program Files\7-Zip\7z.exe";
+            const string _7zPathX86 = @"C:\Program Files (x86)\7-Zip\7z.exe";
+
+            string _7zPath;
+
+            if (File.Exists(_7zPathX64))
+            {
+                _7zPath = _7zPathX64;
+            }
+            else if (File.Exists(_7zPathX86))
+            {
+                _7zPath = _7zPathX86;
+            }
+            else
+            {
+                hash = string.Empty;
+                return false;
+            }
+
+            // Use ProgRunner to run the program
+            var path = PossiblyConvertToLongPath(file.FullName);
+            var p = new ProgRunner()
+            {
+                Program = _7zPath,
+                Arguments = $"h -scrcSHA1 -bd \"{path}\"",
+                CacheStandardOutput = true,
+                CreateNoWindow = true,
+                Repeat = false,
+                MonitoringInterval = 250,
+                EchoOutputToConsole = false,
+                WorkDir = "."
+            };
+
+            try
+            {
+                // Start the program executing
+                p.StartAndMonitorProgram();
+
+                // Loop until program is complete, or until MaxRuntimeSeconds seconds elapses
+                while (p.State != ProgRunner.States.NotMonitoring)
+                {
+                    AppUtils.SleepMilliseconds(250);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error calculating SHA-1 sum using 7z.exe", ex);
+            }
+
+            // Output should match (much more verbose than sha1sum):
+            //
+            // [7-zip version]
+            //
+            // Scanning
+            // 1 file, [file size]
+            //
+            // SHA1               Size  Name
+            // ----------  -----------  ----------
+            // [hash]      [file size]  [file name]
+            // ----------  -----------
+            // [hash]      [file size]
+            //
+            // Size: [file size]
+            //
+            // SHA1   for data:             [hash]
+            //
+            // Everything is Ok
+
+            hash = "";
+            var output = p.CachedConsoleOutput;
+            var split = output.Replace("\r", "").Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var line in split)
+            {
+                if (line.StartsWith("SHA1"))
+                {
+                    var parts = line.Trim().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    hash = parts[parts.Length - 1];
+                }
+            }
+
+            // Output includes a table of SHA1 hashes where the header starts with 'SHA1' and ends with 'Name'
+            if (string.IsNullOrWhiteSpace(hash) || hash.Equals("Name"))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
