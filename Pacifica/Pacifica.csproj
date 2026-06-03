@@ -37,7 +37,7 @@
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="PRISM-DatabaseUtils" Version="1.5.11" />
-    <PackageReference Include="PRISM-Library" Version="2.9.24" />
+    <PackageReference Include="PRISM-Library" Version="2.9.25" />
     <PackageReference Include="SharpZipLib" Version="1.4.2" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)'=='net48'">
