@@ -246,6 +246,15 @@ namespace Pacifica.Core
                             {
                                 errorMessage += "; ConnectionTimeout exception";
                             }
+                            else if (exception.IndexOf("HashValidationException", StringComparison.OrdinalIgnoreCase) >= 0)
+                            {
+                                // This is from a traceback, but deserves a more up-front error message
+                                // Example Traceback as of June 2026:
+                                // Traceback (most recent call last):\n  File "/opt/pacifica/lib64/python3.9/site-packages/pacifica/ingest/tasks.py", line 88, in ingest_files\n    ingest_obj.ingest()\n  File "/opt/pacifica/lib64/python3.9/site-packages/pacifica/ingest/tarutils.py", line 248, in ingest\n    ingest.upload_file_in_file(info, self.tar)\n  File "/opt/pacifica/lib64/python3.9/site-packages/pacifica/ingest/tarutils.py", line 86, in upload_file_in_file\n    raise HashValidationException(\npacifica.ingest.tarutils.HashValidationException: File 66073459 failed to validate.\n\nFile 66073459 failed to validate.
+
+                                errorMessage += "; Ingest error: HashValidationException";
+
+                            }
                             else if (exception.IndexOf("Traceback", StringComparison.OrdinalIgnoreCase) >= 0)
                             {
                                 // ReSharper disable CommentTypo
