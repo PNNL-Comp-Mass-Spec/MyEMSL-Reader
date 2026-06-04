@@ -76,18 +76,25 @@ namespace Pacifica.Core
                 throw new FileNotFoundException("File not found in GenerateSha1Hash: " + file.FullName);
             }
 
-            if (file.Length >= 10e9)
-            {
-                var success = GenerateSha1HashSha1Sum(file, out var sha1Hash);
-                if (!success)
-                {
-                    success = GenerateSha1Hash7Zip(file, out sha1Hash);
-                }
+            // It would be preferable to just use the built-in SHA1 calculation, but we're having some issues with it on one server with large files.
+            // Time comparison for execution (sha1sum and 7-zip both create another thread and a process), for the 2nd run on the same file to avoid bias from caching:
+            // All times in seconds, files read from an SSD
+            // File size    DotNet   sha1sum    7-zip
+            // 87 KB         0.009     0.256    0.252
+            // 102 MB        0.269     0.268    0.252
+            // 326 MB        0.855     0.767    0.768
+            // 906 MB        2.249     1.803    1.810
+            // 1.93 GB       5.030     3.860    3.877
 
-                if (success)
-                {
-                    return sha1Hash;
-                }
+            var success = GenerateSha1HashSha1Sum(file, out var sha1Hash);
+            if (!success)
+            {
+                success = GenerateSha1Hash7Zip(file, out sha1Hash);
+            }
+
+            if (success)
+            {
+                return sha1Hash;
             }
 
             return GenerateSha1HashDotNet(file);
