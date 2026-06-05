@@ -20,6 +20,8 @@ namespace Pacifica.Core
     {
         // Ignore Spelling: Pacifica, Sha
 
+        private static Regex sha1HashRegex = new Regex(@"^[a-zA-Z0-9]{40}$", RegexOptions.Compiled);
+
         /// <summary>
         /// Create an X509 certificate instance. Wrapper to avoid obsolete method warnings in .NET 9.0+
         /// </summary>
@@ -140,6 +142,17 @@ namespace Pacifica.Core
 
             // Use ProgRunner to run the program
             var path = PossiblyConvertToLongPath(file.FullName);
+
+
+            // Some issues with network paths
+            if (path.StartsWith(@"\\"))
+            {
+                // Converting to the alternate path separator prevents sha1sum.exe from interpreting the first '\' as escaping the second
+                path = path.Replace(@"\", "/");
+                // Another option that just feels weird, but also works...
+                //path = @"\" + path;
+            }
+
             var p = new ProgRunner()
             {
                 Program = sha1SumPath,
@@ -186,6 +199,13 @@ namespace Pacifica.Core
 
             if (string.IsNullOrWhiteSpace(hash))
             {
+                return false;
+            }
+
+            if (!sha1HashRegex.IsMatch(hash))
+            {
+                Console.WriteLine(output);
+                hash = "";
                 return false;
             }
 
@@ -289,6 +309,13 @@ namespace Pacifica.Core
             // Output includes a table of SHA1 hashes where the header starts with 'SHA1' and ends with 'Name'
             if (string.IsNullOrWhiteSpace(hash) || hash.Equals("Name"))
             {
+                return false;
+            }
+
+            if (!sha1HashRegex.IsMatch(hash))
+            {
+                Console.WriteLine(output);
+                hash = "";
                 return false;
             }
 
