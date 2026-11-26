@@ -20,7 +20,7 @@ namespace Pacifica.Core
     {
         // Ignore Spelling: Pacifica, Sha
 
-        private static Regex sha1HashRegex = new Regex(@"^[a-zA-Z0-9]{40}$", RegexOptions.Compiled);
+        private static readonly Regex sha1HashRegex = new Regex("^[a-zA-Z0-9]{40}$", RegexOptions.Compiled);
 
         /// <summary>
         /// Create an X509 certificate instance. Wrapper to avoid obsolete method warnings in .NET 9.0+
@@ -189,11 +189,11 @@ namespace Pacifica.Core
             }
 
             // Output should match "\[hash] *[filename/path]"
-            var split = output.Replace("\r", "").Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            var split = output.Replace("\r", "").Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
             foreach (var line in split)
             {
                 // Trim whitespace, and the leading '\' that sha1sum.exe outputs
-                var parts = line.Trim().Trim('\\').Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                var parts = line.Trim().Trim('\\').Split([' '], StringSplitOptions.RemoveEmptyEntries);
                 hash = parts[0];
             }
 
@@ -292,16 +292,16 @@ namespace Pacifica.Core
             //
             // SHA1   for data:             [hash]
             //
-            // Everything is Ok
+            // Everything is OK
 
             hash = "";
             var output = p.CachedConsoleOutput;
-            var split = output.Replace("\r", "").Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            var split = output.Replace("\r", "").Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
             foreach (var line in split)
             {
                 if (line.StartsWith("SHA1"))
                 {
-                    var parts = line.Trim().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    var parts = line.Trim().Split([' '], StringSplitOptions.RemoveEmptyEntries);
                     hash = parts[parts.Length - 1];
                 }
             }
